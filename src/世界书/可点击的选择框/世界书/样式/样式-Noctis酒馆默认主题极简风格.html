@@ -1,0 +1,57 @@
+<style>
+  /* 外层容器：采用竖直堆叠的布局，间距较小 */
+  .roleplay_checkbox_back {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px;
+  }
+
+  /* 单个选项：结合了 .mes_text/.mes_reasoning 的文字样式 */
+  .roleplay_checkbox_item {
+    display: flex;
+    flex-wrap: wrap;
+    /* 内容宽度不足时允许换行 */
+    align-items: center;
+    padding: 4px 8px;
+    margin: 2px 0;
+    background-color: transparent;
+    /* 背景透明 */
+    color: #d4d3cc;
+    font-weight: 500;
+    /* 参考 .mes_text/.mes_reasoning */
+    line-height: calc(var(--mainFontSize) + 0.5rem);
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    cursor: default;
+    font-size: var(--mainFontSize, 16px);
+    /* 默认字体大小为16px，如无变量则使用16px */
+  }
+
+  .last_mes .roleplay_checkbox_item {
+    cursor: pointer;
+  }
+
+  /* 鼠标悬停时的效果，可根据需要调整 */
+  .last_mes .roleplay_checkbox_item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* 标题：加粗并与内容保持一定间距 */
+  .roleplay_checkbox_title {
+    font-weight: bold;
+    margin-right: 8px;
+    white-space: normal;
+  }
+
+  /* 内容：与标题处在同一行，允许换行 */
+  .roleplay_checkbox_content {
+    white-space: normal;
+    flex: 1;
+  }
+
+  /* 隐藏原来的分隔线 */
+  .roleplay_checkbox_hr {
+    display: none;
+  }
+</style>

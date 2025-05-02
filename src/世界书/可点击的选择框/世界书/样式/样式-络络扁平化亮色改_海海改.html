@@ -1,0 +1,177 @@
+<style>
+  .roleplay_checkbox_back {
+    background: linear-gradient(165deg, #f7f7f7, #f0f0f0);
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.03);
+    padding: 22px 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    max-width: 100%;
+    margin: 24px 0;
+  }
+  
+  .roleplay_checkbox_item {
+    position: relative;
+    background: #fcfcfc;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.04);
+    padding: 18px 20px;
+    cursor: default;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+    margin: 0;
+    color: #333;
+    font-weight: 400;
+    line-height: 1.6;
+    height: 100%;
+  }
+
+  .last_mes .roleplay_checkbox_item {
+    cursor: pointer;
+  }
+  
+  .last_mes .roleplay_checkbox_item::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(140deg, transparent 0%, transparent 50%, rgba(255, 182, 193, 0.1) 150%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: -1;
+  }
+  
+  .last_mes .roleplay_checkbox_item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+    background: #ffffff;
+    border-color: rgba(255, 105, 180, 0.15);
+  }
+  
+  .last_mes .roleplay_checkbox_item:hover::after {
+    opacity: 1;
+  }
+  
+  .last_mes .roleplay_checkbox_item:hover .roleplay_checkbox_content {
+    color: #444444;
+  }
+  
+  .last_mes .roleplay_checkbox_item:active {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
+  
+  .roleplay_checkbox_item:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #ff9aae, #ff6b8b);
+    transform: scaleX(0);
+    transform-origin: 0 0;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .last_mes .roleplay_checkbox_item:hover:before {
+    transform: scaleX(1);
+  }
+  
+  .roleplay_checkbox_title {
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #333333;
+    margin-bottom: 12px;
+    letter-spacing: 0.04em;
+    text-align: left;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(200, 200, 200, 0.3);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+    line-height: 1.4;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .roleplay_checkbox_title::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #ff9aae;
+    border-radius: 50%;
+    margin-right: 10px;
+    box-shadow: 0 0 0 2px rgba(255, 105, 180, 0.2);
+  }
+  
+  .roleplay_checkbox_content {
+    font-size: 0.95em;
+    line-height: 1.65;
+    color: #666666;
+    font-weight: normal;
+    transition: color 0.25s ease;
+    text-align: left;
+    flex: 1;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+    letter-spacing: 0.018em;
+  }
+  
+  .roleplay_checkbox_hr {
+    display: none;
+  }
+  
+  /* Special state for selected items */
+  .roleplay_checkbox_item.selected {
+    background: rgba(255, 240, 245, 0.7);
+    border-color: rgba(255, 182, 193, 0.5);
+  }
+  
+  .roleplay_checkbox_item.selected:before {
+    background: linear-gradient(90deg, #ffb6c1, #ff9aae);
+    transform: scaleX(1);
+  }
+  
+  .roleplay_checkbox_item.selected .roleplay_checkbox_title::before {
+    background: #ffb6c1;
+    box-shadow: 0 0 0 2px rgba(255, 182, 193, 0.3);
+  }
+  
+  @media (max-width: 768px) {
+    .roleplay_checkbox_back {
+      padding: 18px;
+      gap: 14px;
+      grid-template-columns: 1fr;
+    }
+    
+    .roleplay_checkbox_item {
+      padding: 16px;
+    }
+    
+    .roleplay_checkbox_title {
+      font-size: 0.9em;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .roleplay_checkbox_content {
+      font-size: 0.92em;
+      line-height: 1.6;
+    }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .roleplay_checkbox_item, .roleplay_checkbox_item::before, .roleplay_checkbox_item::after, 
+    .roleplay_checkbox_content, .roleplay_checkbox_title {
+      transition: none;
+    }
+  }
+</style>
