@@ -1,0 +1,18 @@
+{
+    "id": "5ab87184-7967-4aaf-bc95-66e5614776e3",
+    "scriptName": "初始化变量",
+    "findRegex": "\\|初始化变量\\|",
+    "replaceString": "<UpdateVariable>\n@变量.<user>当前所在世界=网友络络@\n@变量.网友络络.熟络度=0@\n@变量.网友络络.失眠原因已解决=false@\n@变量.网友络络.处女=true@\n@变量.网友络络.受孕=false@\n@变量.主播络络.熟络度=0@\n@变量.主播络络.失眠原因已解决=false@\n@变量.主播络络.处女=true@\n@变量.主播络络.受孕=false@\n@变量.催眠络络.熟络度=0@\n@变量.催眠络络.失眠原因已解决=false@\n@变量.催眠络络.处女=true@\n@变量.催眠络络.受孕=false@\n</UpdateVariable>",
+    "trimStrings": [],
+    "placement": [
+        1,
+        2
+    ],
+    "disabled": false,
+    "markdownOnly": true,
+    "promptOnly": true,
+    "runOnEdit": false,
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null
+}

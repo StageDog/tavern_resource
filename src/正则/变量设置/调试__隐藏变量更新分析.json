@@ -1,0 +1,18 @@
+{
+    "id": "940c6e5e-2bbc-4960-8753-b4e515f904a3",
+    "scriptName": "调试: 隐藏变量更新分析",
+    "findRegex": "/<Analysis>.*?(?:</Analysis>|$)/gs",
+    "replaceString": "",
+    "trimStrings": [],
+    "placement": [
+        1,
+        2
+    ],
+    "disabled": true,
+    "markdownOnly": false,
+    "promptOnly": true,
+    "runOnEdit": false,
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null
+}

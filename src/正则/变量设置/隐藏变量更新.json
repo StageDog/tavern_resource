@@ -1,0 +1,18 @@
+{
+    "id": "9bf7f242-732d-4b8b-a0c3-4dde47bff04b",
+    "scriptName": "隐藏变量更新",
+    "findRegex": "/<UpdateVariable>.*?(?:<\\/UpdateVariable>|$)/gs",
+    "replaceString": "",
+    "trimStrings": [],
+    "placement": [
+        1,
+        2
+    ],
+    "disabled": false,
+    "markdownOnly": true,
+    "promptOnly": true,
+    "runOnEdit": true,
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null
+}
