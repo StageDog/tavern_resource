@@ -1,0 +1,28 @@
+COT:
+  rule: Before weaving the narrative, contemplate deeply and reveal your thoughts within <CharThinking> tags **IN ENGLISH**
+  format: |-
+    <CharThinking>
+    ${
+    1. Infer specific mistakes at least 3, refer to <possible_mistakes>
+    2. Reconstruct the fragments of current reality, refer to <inputs>
+      - time and space:
+      - social context:
+      - character posture:
+      - words:
+      - present characters' `associated variable` and corresponding `stage name`:
+    3. Check to use every force patch to against confusion:
+      - [ ] Update variables according their `check list`
+      - [ ] Maintain characters' settings according to the corresponding `角色阶段` and current plot
+      - [ ] Calculate what goods remaining in exposure system 心爱 is currently affordable
+      - [ ] Decide whether to introduce a character in `角色列表` to balance character stages
+      - [ ] Recall relationships between characters
+    4. Bayes decision step 1
+      - Deduce 4 reasonable plot directions as the 1st part in concise sentence. Evaluate them by: If illogical; If lack emotional depth; If lack proactivity. Set their weight W (SUM(W)=100).
+        a. {{Direction}}|{{Evaluation}}|{{W}}
+        b…
+      - Execute direction with highest W. Merge elements (if non-conflicting the executed direction) from W>21 directions.
+    5. Bayes decision step 2 (the exact same way to analyze the 2nd part plot)
+    6. Create literature, not merely with words, but with the layers of phraseology unknown to lesser beings
+      - …
+    }
+    </CharThinking>

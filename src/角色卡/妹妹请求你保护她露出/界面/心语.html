@@ -1,0 +1,258 @@
+<style>
+  .shinngo-status-card {
+    background: linear-gradient(145deg,
+        #381014 0%,
+        #421317 25%,
+        #57181F 50%,
+        #611B22 75%,
+        #7F242D 100%);
+    border: 1px solid #FEBBC1;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .shinngo-avatar::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border: 2px dashed #FEBBC1;
+    border-radius: 50%;
+    animation: rotate 20s linear infinite;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .shinngo-avatar::after {
+    content: '🍳';
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 24px;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
+    animation: cook 3s ease-in-out infinite;
+    opacity: 0.8;
+  }
+
+  @keyframes cook {
+
+    0%,
+    100% {
+      transform: translateY(0) rotate(-15deg);
+    }
+
+    50% {
+      transform: translateY(-5px) rotate(0deg);
+    }
+  }
+
+  .shinngo-status-title {
+    color: #FEBBC1;
+  }
+
+  .shinngo-status-before-item,
+  .shinngo-status-item,
+  .shinngo-status-after-item {
+    background: rgb(from #FEBBC1 r g b / 0.1);
+  }
+
+  .shinngo-before-item-label,
+  .shinngo-item-label,
+  .shinngo-after-item-label {
+    color: #FEBBC1;
+  }
+
+  .shinngo-before-item-value,
+  .shinngo-item-value,
+  .shinngo-after-item-value {
+    color: #f2eeeb;
+  }
+
+  .shinngo-status-item:hover {
+    background: rgb(from #FEBBC1 r g b / 0.3)
+  }
+
+  .shinngo-description-summary {
+    color: #FEBBC1;
+    border-top: 1px solid rgb(from #FEBBC1 r g b / 0.3);
+  }
+
+  .shinggo-floating-hearts {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .shinggo-heart {
+    position: absolute;
+    display: block;
+    color: #FEBBC1;
+    animation: shinggo-heart-float 8s linear infinite;
+    font-size: 18px;
+    opacity: 0;
+  }
+
+  .shinggo-heart:nth-child(1) {
+    left: 10%;
+    animation-duration: 6s;
+    animation-delay: 0s;
+  }
+
+  .shinggo-heart:nth-child(2) {
+    left: 22%;
+    animation-duration: 7s;
+    animation-delay: 2s;
+  }
+
+  .shinggo-heart:nth-child(3) {
+    right: 27%;
+    animation-duration: 5s;
+    animation-delay: 3s;
+  }
+
+  .shinggo-heart:nth-child(4) {
+    right: 8%;
+    animation-duration: 9s;
+    animation-delay: 4s;
+  }
+
+  .shinggo-heart:nth-child(5) {
+    left: 15%;
+    animation-duration: 8s;
+    animation-delay: 2s;
+  }
+
+  .shinggo-heart:nth-child(6) {
+    left: 28%;
+    animation-duration: 4s;
+    animation-delay: 1s;
+  }
+
+  .shinggo-heart:nth-child(7) {
+    right: 14%;
+    animation-duration: 6s;
+    animation-delay: 3s;
+  }
+
+  .shinggo-heart:nth-child(8) {
+    right: 20%;
+    animation-duration: 5s;
+    animation-delay: 2s;
+  }
+
+  @keyframes shinggo-heart-float {
+    0% {
+      transform: translateY(500%);
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 0.8;
+    }
+
+    100% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+  }
+</style>
+
+<div class="status-card shinngo-status-card">
+  <div class="shinggo-floating-hearts">
+    <span class="shinggo-heart">♥</span>
+    <span class="shinggo-heart">♥</span>
+    <span class="shinggo-heart">♥</span>
+    <span class="shinggo-heart">♥</span>
+    <span class="shinggo-heart">♥</span>
+    <span class="shinggo-heart">♥</span>
+    <span class="shinggo-heart">♥</span>
+    <span class="shinggo-heart">♥</span>
+  </div>
+  <div class="avatar shinngo-avatar">
+    <img class="avatar-img shinngo-status-img" alt="心语" src="https://files.catbox.moe/61u3dp.png" />
+  </div>
+
+  <div style="margin-bottom: 10px; line-height: 1.5; width: 100%">
+    <h2 class="status-title shinngo-status-title">
+      心语 | 情热恋慕曲
+    </h2>
+
+    <div class="status-before-item shinngo-status-before-item">
+      <div class="before-item-label shinngo-before-item-label">💝 哥哥LOVE指数：</div>
+      <div class="before-item-value shinngo-before-item-value">
+        $1
+      </div>
+    </div>
+    <div class="status-before-item shinngo-status-before-item">
+      <div class="before-item-label shinngo-before-item-label">💄 时尚装扮：</div>
+      <div class="before-item-value shinngo-before-item-value">
+        $2
+      </div>
+    </div>
+    <div class="status-before-item shinngo-status-before-item">
+      <div class="before-item-label shinngo-before-item-label">🧫 料理实验：</div>
+      <div class="before-item-value shinngo-before-item-value">
+        $9
+      </div>
+    </div>
+    <div class="status-before-item shinngo-status-before-item">
+      <div class="before-item-label shinngo-before-item-label">💋 甜心指数：</div>
+      <div class="before-item-value shinngo-before-item-value">
+        $3({{getvar::心语好感度}})
+      </div>
+    </div>
+  </div>
+
+  <details class="description">
+    <summary class="description-summary shinngo-description-summary cn-text" data-close="今天的约会实验日记！"
+      data-open="呜哇！被哥哥发现秘密实验了！">
+    </summary>
+
+    <div style="margin-top: 10px">
+      <div class="status-item shinngo-status-item">
+        <span class="item-label shinngo-item-label">🌈 出没地点</span>
+        <span class="item-value shinngo-item-value">$4</span>
+      </div>
+      <div class="status-item shinngo-status-item">
+        <span class="item-label shinngo-item-label">🍳 当前行动</span>
+        <span class="item-value shinngo-item-value">$5</span>
+      </div>
+      <div class="status-item shinngo-status-item">
+        <span class="item-label shinngo-item-label">🎯 计划进度</span>
+        <span class="item-value shinngo-item-value">$6</span>
+      </div>
+      <div class="status-item shinngo-status-item">
+        <span class="item-label shinngo-item-label">💘 亲密次数</span>
+        <span class="item-value shinngo-item-value">{{getvar::心语性行为次数}}</span>
+      </div>
+      <div class="status-item shinngo-status-item">
+        <span class="item-label shinngo-item-label">🎀 怀孕状态</span>
+        <span class="item-value shinngo-item-value">{{getvar::心语受孕}}</span>
+      </div>
+
+      <div class="status-after-item shinngo-status-after-item">
+        <div class="after-item-label shinngo-after-item-label">🌸 身体状况:</div>
+        <div class="after-item-value shinngo-after-item-value">
+          $7
+        </div>
+      </div>
+      <div class="status-after-item shinngo-status-after-item">
+        <div class="after-item-label shinngo-after-item-label">💭 心语独白:</div>
+        <div class="after-item-value shinngo-after-item-value">
+          $8
+        </div>
+      </div>
+    </div>
+  </details>
+</div>

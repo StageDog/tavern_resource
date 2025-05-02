@@ -1,0 +1,207 @@
+<style>
+  .shinnai-status-card {
+    background: linear-gradient(145deg,
+        #2d1721 0%,
+        #3d2028 25%,
+        #4d2930 50%,
+        #5d3238 75%,
+        #6d3b40 100%);
+    border: 1px solid #f59fb6;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .shinnai-status-card::after {
+    content: '♡';
+    position: absolute;
+    font-size: 150px;
+    color: rgb(from #ff69b4 r g b / 0.1);
+    right: -20px;
+    top: 520px;
+    rotate: -15deg;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .shinnai-avatar::before {
+    border: 2px solid #f59fb6;
+    animation: shinnai-avatar-glow 5s ease-in-out infinite;
+  }
+
+  @keyframes shinnai-avatar-glow {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+
+    50% {
+      transform: scale(1.07);
+      opacity: 0.8;
+    }
+  }
+
+  .shinnai-avatar {
+    box-shadow: 0 0 15px rgb(from #f59fb6 r g b / 0.3);
+  }
+
+  .shinnai-avatar::after {
+    content: '📸';
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 24px;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
+    opacity: 0.8;
+  }
+
+  .shinnai-status-title {
+    color: #f59fb6;
+  }
+
+  .shinnai-status-before-item,
+  .shinnai-status-item,
+  .shinnai-status-after-item {
+    background: rgb(from #f59fb6 r g b / 0.1);
+  }
+
+  .shinnai-before-item-label,
+  .shinnai-item-label,
+  .shinnai-after-item-label {
+    color: #f59fb6;
+  }
+
+  .shinnai-before-item-value,
+  .shinnai-item-value,
+  .shinnai-after-item-value {
+    color: #f2eeeb;
+  }
+
+  .shinnai-status-item:hover {
+    background: rgb(from #f59fb6 r g b / 0.3)
+  }
+
+  .shinnai-description-summary {
+    color: #f59fb6;
+    border-top: 1px solid rgb(from #f59fb6 r g b / 0.3);
+  }
+
+  @keyframes rec-blink {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .shinnai-rec-icon {
+    align-items: center;
+    animation: rec-blink 3s linear infinite;
+    background-color: #ff0000;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #ff0000;
+    display: flex;
+    height: 12px;
+    left: 10px;
+    position: absolute;
+    top: 10px;
+    width: 12px;
+  }
+
+  .shinnai-rec-icon::after {
+    color: #ff0000;
+    content: 'REC';
+    font-size: 15px;
+    font-weight: bold;
+    left: 18px;
+    line-height: 12px;
+    position: relative;
+    text-shadow: 0 0 3px rgb(255 0 0 / 0.5);
+    white-space: nowrap;
+  }
+</style>
+<div class="status-card shinnai-status-card">
+  <div class="shinnai-rec-icon"></div>
+
+  <div class="avatar shinnai-avatar">
+    <img class="avatar-img" alt="心爱" src="https://files.catbox.moe/q4h4nq.png" />
+  </div>
+
+  <div style="margin-bottom: 10px; line-height: 1.5; width: 100%">
+    <h2 class="status-title shinnai-status-title cn-text">
+      心爱 | 青涩恋歌
+    </h2>
+
+    <div class="status-before-item shinnai-status-before-item cn-text">
+      <div class="before-item-label shinnai-before-item-label">❤️ 内心波动：</div>
+      <div class="before-item-value shinnai-before-item-value">
+        $1
+      </div>
+    </div>
+    <div class="status-before-item shinnai-status-before-item cn-text">
+      <div class="before-item-label shinnai-before-item-label">👚 今日穿搭：</div>
+      <div class="before-item-value shinnai-before-item-value">
+        $2
+      </div>
+    </div>
+    <div class="status-before-item shinnai-status-before-item cn-text">
+      <div class="before-item-label shinnai-before-item-label">🎭 露出情况：</div>
+      <div class="before-item-value shinnai-before-item-value">
+        持有点数:{{getvar::心爱露出点数}}点<br>
+        露出程度$9
+      </div>
+    </div>
+    <div class="status-before-item shinnai-status-before-item cn-text">
+      <div class="before-item-label shinnai-before-item-label">💗 心境阶段：</div>
+      <div class="before-item-value shinnai-before-item-value">
+        $3({{getvar::心爱好感度}})
+      </div>
+    </div>
+  </div>
+
+  <details class="description">
+    <summary class="description-summary shinnai-description-summary cn-text" data-close="镜头背后的真心"
+      data-open="笨蛋哥哥不准偷看啦(｡>︿<｡)">
+    </summary>
+
+    <div style="margin-top: 10px">
+      <div class="status-item shinnai-status-item cn-text">
+        <span class="item-label shinnai-item-label">🌸 所在地点</span>
+        <span class="item-value shinnai-item-value">$4</span>
+      </div>
+      <div class="status-item shinnai-status-item cn-text">
+        <span class="item-label shinnai-item-label">✨ 目前行为</span>
+        <span class="item-value shinnai-item-value">$5</span>
+      </div>
+      <div class="status-item shinnai-status-item cn-text">
+        <span class="item-label shinnai-item-label">📸 下个镜头</span>
+        <span class="item-value shinnai-item-value">$6</span>
+      </div>
+      <div class="status-item shinnai-status-item cn-text">
+        <span class="item-label shinnai-item-label">💕 缠绵次数</span>
+        <span class="item-value shinnai-item-value">{{getvar::心爱性行为次数}}</span>
+      </div>
+      <div class="status-item shinnai-status-item cn-text">
+        <span class="item-label shinnai-item-label">🌱 新生命</span>
+        <span class="item-value shinnai-item-value">{{getvar::心爱受孕}}</span>
+      </div>
+
+      <div class="status-after-item shinnai-status-after-item cn-text">
+        <div class="after-item-label shinnai-item-label">🍑 身体特写:</div>
+        <div class="after-item-value shinnai-after-item-value">
+          $7
+        </div>
+      </div>
+      <div class="status-after-item shinnai-status-after-item cn-text">
+        <div class="after-item-label shinnai-item-label">💭 甜蜜心声:</div>
+        <div class="after-item-value shinnai-after-item-value">
+          $8
+        </div>
+      </div>
+    </div>
+  </details>
+</div>

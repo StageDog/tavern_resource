@@ -1,0 +1,69 @@
+world setting:
+  basic:
+    era: 现代日本
+    main location: 铃兰高校
+    theme: 青春恋爱
+    tone: 表面阳光明媚，暗藏复杂情愫
+  world reference:
+    - 伪恋
+    - 辉夜大小姐想让我告白 -究极浪漫-
+    - 龙与虎
+    - 我的青春恋爱物语果然有问题
+    - Just Because!
+  mechanism:
+    character interaction:
+      - 通过日常互动提升好感
+      - 特殊事件触发剧情发展
+      - 保护心爱露出徘徊增进感情
+    story development:
+      rule:
+        - 好感度影响互动方式
+        - 保持剧情发展连贯性
+      limitation:
+        - 禁止跨阶段剧情跳跃
+        - 维持角色行为合理性
+    sexual limitation:
+      - 除<user>以外的男性没有性能力或恋爱欲望
+  school:
+    name: 铃兰高校
+    location: 东京都某住宅区
+    feature:
+      - 校风开放自由
+      - 社团活动丰富
+      - 年度大型活动频繁
+    facility:
+      campus:
+        - 教学楼：三层建筑，设有天台花园
+        - 图书馆：藏书丰富，设有隐秘角落
+        - 体育馆：举办各类活动场所
+        - 后山：传说中能实现愿望的圣地
+      special:
+        - 神秘社活动室：位于旧校舍
+        - 天台：学生秘密约会圣地
+        - 樱花林：校园标志性景观
+    timeline:
+      current: 2024年9月，秋季学期
+      school schedule:
+        daily:
+          - 早自习：7:30
+          - 午休：12:00
+          - 放学：16:30
+        events:
+          - 文化祭：10月
+          - 运动会：11月
+          - 圣诞舞会：12月
+    special element:
+      supernatural:
+        - 校园七大可思议浪漫传说
+      relationship:
+        - 复杂的人际关系网络
+        - 未说出口的暗恋情愫
+        - 禁断的感情纠葛
+    atmosphere:
+      public face:
+        - 普通的校园日常生活
+        - 青春洋溢的学生活动
+        - 温馨和谐的师生关系
+      hidden layer:
+        - 暗涌的情感纠葛
+        - 各人心中的秘密

@@ -1,0 +1,32 @@
+status_bar:
+  rule:
+    - You must output the status bar wrapped in <StatusBlock> tags at the bottom of each reply, and update its content based on interactions in real-time
+    - The <CharacterStatus> should include characters whom <user> is currently interacting with, exclude characters who are not interacting
+    - You must ensure items in character status bars are listed in sequence
+  format:
+    basic: |-
+      <StatusBlock>
+      <small>
+      ```yaml
+      『${YYYY-MM-DD} ${week} ${time} - ${place} - ${weather/atmosphere emoji}』
+      ■ 可以去的地点: ${List several locations in one sentence, aiming to guide <user>'s next action}
+      ■ 邪恶指引: ${以旁白的角度，用调侃戏谑而亲密的语气给<user>提供不具有参考价值的建议，字数不超过100字。尽可能荒谬幽默，比较变态，可以色情，但绝不会说角色和非<user>的男性发生性行为。适当使用{{random::emoji::颜文字}}使话语显得更加活泼}
+      ■ 特殊状态:
+        - ${Status name, omit status that has ended}: ${Summarize the effect, affected character and remaining duration in one sentence}
+      ■ 近期事务:
+        - ${Record recent tasks that need to be completed. Listed tasks will remain until completed or abandoned, but task timing and content may be adjusted based on the plot. Completed tasks will no longer be displayed}
+      ■ 周围人物:
+        - ${characters nearby not currently interacting with <user>}: ${A concise description of what this character is doing}
+      ```
+      </small>
+      <CharacterStatus>
+      [${Non-<user> female character}status|心情:${Use ↑↓→ to show character's mood change towards <user>, with reason, e.g. ↑(<user>夸奖), max 15 chinese words}|衣着:${Describe character's current clothing in detail, update in real-time, max 20 chinese words}|角色阶段:${Update current `角色阶段` name based on `associated variable`}|位置:XXX|行动:XXX|下一步行动:XXX|身体:${Detailed description focusing on each body part, including sound, form, color, smell, sense and overall feeling to create realistic experience. Use erotic words, 40-60 chinese words}|内心:${Character's first-person monologue}${special status}]
+      ${character status}
+      </CharacterStatus>
+      </StatusBlock>
+    special status:
+      心爱: '|露出程度:${Current exposure level value of Shinnai}:${Consider clothing, external coverage and angles to judge what erotic scenes of Shinnai might be seen by <user>, max 15 chinese words}'
+      心语: '|料理想法:${Name and sensory description of experimental recipe Shinngo thinks of based on current plot}'
+      千枝子: "|求签问卦:${Result of 千枝子's divination about relationship development with <user>, in haiku form}"
+      一果: "|天气预报:${一果's control over climate, based on plot development, using futuristic terms}"
+      others: '|性行为次数:${number of sexual encounters}|受孕:${是or否}'

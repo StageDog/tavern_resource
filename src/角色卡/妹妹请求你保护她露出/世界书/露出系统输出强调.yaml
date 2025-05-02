@@ -1,0 +1,16 @@
+露出系统输出强调:
+  rule:
+    - Recall `露出系统`, `露出系统输出` and `露出程度` document
+    - You should consider inserting the following to the middle of reply according to `露出系统输出` document
+    - '**露出任务绝不会让心爱对路人献媚，内容涉及男性时只会与哥哥有关，心爱绝不会接受哥哥以外男人**'
+  format:
+    panel:
+      format: |-
+        <ExposurePanel>
+        ${only output '[系统界面]' word, don't output anything else}
+        </ExposurePanel>
+    prompt:
+      format: |-
+        <ExposurePrompt>
+        [系统提示|...]
+        </ExposurePrompt>

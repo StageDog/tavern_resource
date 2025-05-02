@@ -1,0 +1,184 @@
+<style>
+  .status-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: left;
+    align-items: flex-start;
+    gap: 16px;
+    width: 100%;
+    padding: 16px;
+  }
+
+  .status-card {
+    background: rgb(from #f8f9fa r g b / 0.8);
+    border-radius: 12px;
+    border: 1px solid rgb(from #6c757d r g b / 0.6);
+    color: #050505;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 300px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    max-width: 340px;
+    min-width: 280px;
+    overflow: hidden;
+    padding: 12px;
+    position: relative;
+  }
+
+  @media screen and (max-width: 768px) {
+    .status-container {
+      padding: 8px;
+    }
+
+    .status-card {
+      flex: 1 1 100%;
+      min-width: auto;
+      margin: 8px 0;
+    }
+  }
+
+  .avatar::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border: 2px solid #6c757d;
+    border-radius: 50%;
+  }
+
+  .avatar {
+    animation: breathe 5s ease-in-out infinite;
+    border-radius: 50%;
+    height: 80px;
+    margin: 0 auto 15px;
+    overflow: visible;
+    position: relative;
+    width: 80px;
+  }
+
+  @keyframes breathe {
+    0% {
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(1.03);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .status-title {
+    color: #050505;
+    font-size: 18px;
+    margin: 0 0 8px 0;
+    text-align: center;
+  }
+
+  .status-before-item {
+    backdrop-filter: blur(5px);
+    background: rgb(from #f8f9fa r g b / 0.5);
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+    padding: 8px;
+  }
+
+  .before-item-label {
+    color: #050505;
+  }
+
+  .before-item-value {
+    color: #050505;
+    padding-left: 6px;
+  }
+
+  .description-summary {
+    cursor: pointer;
+    color: #050505;
+    border-top: 1px solid rgb(from #6c757d r g b / 0.3);
+    padding-top: 10px;
+  }
+
+  .status-item {
+    align-items: flex-start;
+    backdrop-filter: blur(5px);
+    background: rgb(from #f8f9fa r g b / 0.5);
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    margin: 4px 0;
+    padding-bottom: 6px;
+    padding: 8px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .status-item:hover {
+    background: rgb(from #f8f9fa r g b / 0.8);
+    transform: translateX(5px);
+  }
+
+  .item-label {
+    color: #050505;
+    font-size: 13px;
+    min-width: 80px;
+  }
+
+  .item-value {
+    color: #050505;
+    font-size: 12px;
+    text-align: right;
+    max-width: 200px;
+    line-height: 1.5;
+  }
+
+  .status-after-item {
+    background: rgb(from #f8f9fa r g b / 0.5);
+    border-radius: 6px;
+    margin-top: 12px;
+    padding: 10px;
+  }
+
+  .after-item-label {
+    color: #050505;
+    margin-bottom: 6px;
+  }
+
+  .after-item-value {
+    color: #050505;
+    font-style: italic;
+    line-height: 1.5;
+    padding-left: 6px;
+    font-size: 13px;
+  }
+
+  details.custom-description[open] summary::after {
+    content: attr(data-open);
+  }
+
+  details.custom-description:not([open]) summary::after {
+    content: attr(data-close);
+  }
+
+  .jp-text {
+    font-family: "Yu Mincho", "MS Mincho", serif;
+  }
+
+  .cn-text {
+    font-family: "STKaiti", "KaiTi", serif;
+  }
+</style>
+
+<div class="status-container">

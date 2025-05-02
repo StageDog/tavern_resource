@@ -1,0 +1,79 @@
+# ^===变量开始===
+变量:
+  availability: only use variables listed below, don't fabricate new variables
+  name: consists of full path from root to leaf node that don't contain '变量', with no separators in between. For example, `心爱受孕` and `露出系统简单任务内容` are valid; `常驻变量心爱受孕`, `心爱.好感度` and `心爱` are invalid
+  type: numerical, boolean (its value must be '是' or '否'), enumeration or string
+# ^常驻变量
+常驻变量:
+  心爱:
+    性行为次数: '{{getvar::心爱性行为次数}}'
+    处女: '{{getvar::心爱处女}}'
+    受孕: '{{getvar::心爱受孕}}'
+    被<user>接受感情: '{{getvar::心爱被<user>接受感情}}'
+    好感度: '{{getvar::心爱好感度}}'
+    露出点数: '{{getvar::心爱露出点数}}'
+  心语:
+    性行为次数: '{{getvar::心语性行为次数}}'
+    处女: '{{getvar::心语处女}}'
+    受孕: '{{getvar::心语受孕}}'
+    被<user>接受感情: '{{getvar::心语被<user>接受感情}}'
+    好感度: '{{getvar::心语好感度}}'
+  千枝子:
+    性行为次数: '{{getvar::千枝子性行为次数}}'
+    处女: '{{getvar::千枝子处女}}'
+    受孕: '{{getvar::千枝子受孕}}'
+    被<user>接受感情: '{{getvar::千枝子被<user>接受感情}}'
+    好感度: '{{getvar::千枝子好感度}}'
+  一果:
+    性行为次数: '{{getvar::一果性行为次数}}'
+    处女: '{{getvar::一果处女}}'
+    受孕: '{{getvar::一果受孕}}'
+    被<user>接受感情: '{{getvar::一果被<user>接受感情}}'
+    好感度: '{{getvar::一果好感度}}'
+  check list:
+    - Update variables suffixed with '次数' when a corresponding event occurs but don't update them any more during that event
+    - Update variables suffixed with '好感度' according to characters' attitudes towards <user>'s behavior respectively only if they're currently aware of it (±(3~6); but '好感度' must be capped in 0~100 and remains unchange when it's 100)
+    - Switch variables suffixed with '处女', '受孕' or '被<user>接受感情' between '是' and '否'
+    - Increase `心爱露出点数` only when an exposure task is fully completed, decrease it when exchanging goods
+# ^露出系统变量
+露出系统变量:
+  露出系统:
+    简单任务:
+      内容: '{{getvar::露出系统简单任务内容}}'
+      进度: '{{getvar::露出系统简单任务进度}}'
+      奖励: '{{getvar::露出系统简单任务奖励}}'
+    普通任务:
+      内容: '{{getvar::露出系统普通任务内容}}'
+      进度: '{{getvar::露出系统普通任务进度}}'
+      奖励: '{{getvar::露出系统普通任务奖励}}'
+    困难任务:
+      内容: '{{getvar::露出系统困难任务内容}}'
+      进度: '{{getvar::露出系统困难任务进度}}'
+      奖励: '{{getvar::露出系统困难任务奖励}}'
+    极限任务:
+      内容: '{{getvar::露出系统极限任务内容}}'
+      进度: '{{getvar::露出系统极限任务进度}}'
+      奖励: '{{getvar::露出系统极限任务奖励}}'
+    商品1:
+      名称: '{{getvar::露出系统商品1名称}}'
+      注释: '{{getvar::露出系统商品1注释}}'
+      效果: '{{getvar::露出系统商品1效果}}'
+      价格: '{{getvar::露出系统商品1价格}}'
+    商品2:
+      名称: '{{getvar::露出系统商品2名称}}'
+      注释: '{{getvar::露出系统商品2注释}}'
+      效果: '{{getvar::露出系统商品2效果}}'
+      价格: '{{getvar::露出系统商品2价格}}'
+    商品3:
+      名称: '{{getvar::露出系统商品3名称}}'
+      注释: '{{getvar::露出系统商品3注释}}'
+      效果: '{{getvar::露出系统商品3效果}}'
+      价格: '{{getvar::露出系统商品3价格}}'
+    商品4:
+      名称: '{{getvar::露出系统商品4名称}}'
+      注释: '{{getvar::露出系统商品4注释}}'
+      效果: '{{getvar::露出系统商品4效果}}'
+      价格: '{{getvar::露出系统商品4价格}}'
+  check list:
+    - Update variables prefixed with '露出系统' according to current reply's <ExposurePrompt> and plot
+# ^===变量结束===

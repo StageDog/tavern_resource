@@ -1,0 +1,181 @@
+<style>
+  .system-panel {
+    background: linear-gradient(145deg, #2d1721, #6d3b40);
+    border: 1px solid #f59fb6;
+    border-radius: 8px;
+    color: #f2eeeb;
+    font-size: 15px;
+    margin: 8px 0;
+    padding: 12px;
+    position: relative;
+    width: 100%;
+  }
+
+  .system-section {
+    border-top: 1px solid rgb(245 159 182 / 0.3);
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  .system-section:first-child {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .system-card {
+    background: rgb(245 159 182 / 0.1);
+    border-radius: 4px;
+    margin-bottom: 6px;
+    padding: 6px;
+  }
+
+  .system-card:last-child {
+    margin-bottom: 0;
+  }
+
+  .system-card:hover {
+    background: rgb(245 159 182 / 0.2);
+  }
+
+  .system-card-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+
+  .system-card-title {
+    color: #f59fb6;
+    font-weight: bold;
+  }
+
+  .system-card-reward {
+    color: #f2eeeb;
+    font-size: 14px;
+  }
+
+  .system-card-content {
+    color: #f2eeeb;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .system-section-title {
+    color: #f59fb6;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .system-points {
+    color: #f2eeeb;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .system-hint {
+    color: #f2eeeb;
+    font-size: 12px;
+    font-style: italic;
+  }
+</style>
+
+<div class="system-panel">
+  <div class="system-section">
+    <div class="system-points">露出点数: {{getvar::露出系统当前露出点数}}</div>
+    <div class="system-hint">任务和商品会在完成后更换哦~讨好本系统也可以随时更换呢ヾ(*´∀ ˋ*)ﾉ</div>
+  </div>
+
+  <div class="system-section">
+    <div class="system-section-title">任务列表</div>
+
+    <div class="system-card">
+      <div class="system-card-header">
+        <div class="system-card-title">简单任务</div>
+        <div class="system-card-reward">{{getvar::露出系统简单任务奖励}}点数</div>
+      </div>
+      <div class="system-card-content">
+        {{getvar::露出系统简单任务内容}}({{getvar::露出系统简单任务进度}})
+      </div>
+    </div>
+
+    <div class="system-card">
+      <div class="system-card-header">
+        <div class="system-card-title">普通任务</div>
+        <div class="system-card-reward">{{getvar::露出系统普通任务奖励}}点数</div>
+      </div>
+      <div class="system-card-content">
+        {{getvar::露出系统普通任务内容}}({{getvar::露出系统普通任务进度}})
+      </div>
+    </div>
+
+    <div class="system-card">
+      <div class="system-card-header">
+        <div class="system-card-title">困难任务</div>
+        <div class="system-card-reward">{{getvar::露出系统困难任务奖励}}点数</div>
+      </div>
+      <div class="system-card-content">
+        {{getvar::露出系统困难任务内容}}({{getvar::露出系统困难任务进度}})
+      </div>
+    </div>
+
+    <div class="system-card">
+      <div class="system-card-header">
+        <div class="system-card-title">极限任务</div>
+        <div class="system-card-reward">{{getvar::露出系统极限任务奖励}}点数</div>
+      </div>
+      <div class="system-card-content">
+        {{getvar::露出系统极限任务内容}}({{getvar::露出系统极限任务进度}})
+      </div>
+    </div>
+  </div>
+
+  <div class="system-section">
+    <div class="system-section-title">商品列表</div>
+
+    <div class="system-card">
+      <div class="system-card-header">
+        <div class="system-card-title">{{getvar::露出系统商品1名称}}</div>
+        <div class="system-card-reward">{{getvar::露出系统商品1价格}}点数</div>
+      </div>
+      <div class="system-hint">{{getvar::露出系统商品1注释}}</div>
+      <div class="system-card-content">
+        {{getvar::露出系统商品1效果}}
+      </div>
+    </div>
+
+    <div class="system-card">
+      <div class="system-card-header">
+        <div class="system-card-title">{{getvar::露出系统商品2名称}}</div>
+        <div class="system-card-reward">{{getvar::露出系统商品2价格}}点数</div>
+      </div>
+      <div class="system-hint">{{getvar::露出系统商品2注释}}</div>
+      <div class="system-card-content">
+        {{getvar::露出系统商品2效果}}
+      </div>
+    </div>
+
+    <div class="system-card">
+      <div class="system-card-header">
+        <div class="system-card-title">{{getvar::露出系统商品3名称}}</div>
+        <div class="system-card-reward">{{getvar::露出系统商品3价格}}点数</div>
+      </div>
+      <div class="system-hint">{{getvar::露出系统商品3注释}}</div>
+      <div class="system-card-content">
+        {{getvar::露出系统商品3效果}}
+      </div>
+    </div>
+
+    <div class="system-card">
+      <div class="system-card-header">
+        <div class="system-card-title">{{getvar::露出系统商品4名称}}</div>
+        <div class="system-card-reward">{{getvar::露出系统商品4价格}}点数</div>
+      </div>
+      <div class="system-hint">{{getvar::露出系统商品4注释}}</div>
+      <div class="system-card-content">
+        {{getvar::露出系统商品4效果}}
+      </div>
+    </div>
+  </div>
+</div>

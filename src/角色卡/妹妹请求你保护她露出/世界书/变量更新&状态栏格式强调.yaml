@@ -1,0 +1,25 @@
+变量更新&状态栏格式强调:
+  rule: The following must be inserted to the end of reply, and cannot be omitted
+  format: |-
+    <StatusBlock>
+    <UpdateVariable>
+    <Analysis>/*IN ENGLISH*/
+    ${
+    - calculate time passed: ...
+    - decide whether dramatic updates are allowed as it's in a special case or the time passed is more than usual: yes or no
+    - analyze every variable based on its `check list`, according only to current reply instead of previous plots: ...
+    }
+    </Analysis>
+    @${variable}=${old}⇒${new}@
+    ...
+    </UpdateVariable>
+
+    <small>
+    ```yaml
+    .../*remember to update '特殊状态' and '近期事务'*/
+    ```
+    </small>
+    <CharacterStatus>
+    .../*only output characters currently interacting with <user>; strictly following `状态栏` rule without omitting or reordering items; must update 角色阶段 according to `associated variable`*/
+    </CharacterStatus>
+    </StatusBlock>

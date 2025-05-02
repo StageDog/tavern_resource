@@ -1,0 +1,190 @@
+<style>
+  .chieko-status-card {
+    background: linear-gradient(145deg,
+        #382940 0%,
+        #40304A 25%,
+        #564063 50%,
+        #644B73 75%,
+        #7F5E91 100%);
+    border: 1px solid #D0A1FF;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chieko-status-card::before {
+    content: '✧';
+    position: absolute;
+    font-size: 180px;
+    color: rgb(from #D0A1FF r g b / 0.1);
+    right: -20px;
+    top: 200px;
+    rotate: 345deg;
+    z-index: 0;
+    pointer-events: none;
+    animation: chieko-symbol-glow 2.5s linear infinite;
+  }
+
+  @keyframes chieko-symbol-glow {
+
+    0%,
+    100% {}
+
+    50% {
+      text-shadow:
+        0 0 30px rgb(from #D0A1FF r g b / 0.2);
+    }
+  }
+
+  .chieko-status-card::after {
+    content: '🍵';
+    position: absolute;
+    font-size: 24px;
+    right: 10px;
+    bottom: 10px;
+    opacity: 0.6;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.3));
+  }
+
+  .chieko-avatar::before {
+    border: 2px solid #D0A1FF;
+    animation: chieko-avatar-glow 5s ease-in-out infinite;
+  }
+
+  @keyframes chieko-avatar-glow {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+
+    50% {
+      transform: scale(1.07);
+      opacity: 0.8;
+    }
+  }
+
+  .chieko-avatar {
+    box-shadow: 0 0 20px rgb(from #D0A1FF r g b / 0.4);
+  }
+
+  .chieko-avatar::after {
+    content: '🔮';
+    position: absolute;
+    right: -8px;
+    bottom: -8px;
+    font-size: 22px;
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.4));
+    opacity: 0.8;
+  }
+
+  .chieko-status-title {
+    color: #D0A1FF;
+  }
+
+  .chieko-status-before-item,
+  .chieko-status-item,
+  .chieko-status-after-item {
+    background: rgb(from #D0A1FF r g b / 0.1);
+  }
+
+  .chieko-before-item-label,
+  .chieko-item-label,
+  .chieko-after-item-label {
+    color: #D0A1FF;
+  }
+
+  .chieko-before-item-value,
+  .chieko-item-value,
+  .chieko-after-item-value {
+    color: #F8F4FF;
+  }
+
+  .chieko-status-item:hover {
+    background: rgb(from #D0A1FF r g b / 0.3);
+  }
+
+  .chieko-description-summary {
+    color: #D0A1FF;
+    border-top: 1px solid rgb(from #D0A1FF r g b / 0.3);
+  }
+</style>
+
+<div class="status-card chieko-status-card">
+  <div class="avatar chieko-avatar">
+    <img class="avatar-img chieko-status-img" alt="千枝子" src="https://files.catbox.moe/lzbok3.png" />
+  </div>
+
+  <div style="margin-bottom: 10px; line-height: 1.5; width: 100%">
+    <h2 class="status-title chieko-status-title">
+      千枝子 | 命定青梅
+    </h2>
+
+    <div class="status-before-item chieko-status-before-item">
+      <div class="before-item-label chieko-before-item-label">🎴 羁绊变化：</div>
+      <div class="before-item-value chieko-before-item-value">
+        $1
+      </div>
+    </div>
+    <div class="status-before-item chieko-status-before-item">
+      <div class="before-item-label chieko-before-item-label">👘 仪容风貌：</div>
+      <div class="before-item-value chieko-before-item-value">
+        $2
+      </div>
+    </div>
+    <div class="status-before-item chieko-status-before-item">
+      <div class="before-item-label chieko-before-item-label">🎋 求签问卦：</div>
+      <div class="before-item-value chieko-before-item-value">
+        $9
+      </div>
+    </div>
+    <div class="status-before-item chieko-status-before-item">
+      <div class="before-item-label chieko-before-item-label">📜 缘法境界：</div>
+      <div class="before-item-value chieko-before-item-value">
+        $3({{getvar::千枝子好感度}})
+      </div>
+    </div>
+  </div>
+
+  <details class="description">
+    <summary class="description-summary chieko-description-summary cn-text" data-close="银发少女的心事笔记"
+      data-open="想知道我的秘密吗？用券来换取如何♡">
+    </summary>
+
+    <div style="margin-top: 10px">
+      <div class="status-item chieko-status-item">
+        <span class="item-label chieko-item-label">⛩️ 所在之处</span>
+        <span class="item-value chieko-item-value">$4</span>
+      </div>
+      <div class="status-item chieko-status-item">
+        <span class="item-label chieko-item-label">⏳ 举止动向</span>
+        <span class="item-value chieko-item-value">$5</span>
+      </div>
+      <div class="status-item chieko-status-item">
+        <span class="item-label chieko-item-label">📿 命运走向</span>
+        <span class="item-value chieko-item-value">$6</span>
+      </div>
+      <div class="status-item chieko-status-item">
+        <span class="item-label chieko-item-label">🗝️ 欢爱之数</span>
+        <span class="item-value chieko-item-value">{{getvar::千枝子性行为次数}}</span>
+      </div>
+      <div class="status-item chieko-status-item">
+        <span class="item-label chieko-item-label">🌙 胎气状况</span>
+        <span class="item-value chieko-item-value">{{getvar::千枝子受孕}}</span>
+      </div>
+
+      <div class="status-after-item chieko-status-after-item">
+        <div class="after-item-label chieko-after-item-label">🍵 姿态风韵:</div>
+        <div class="after-item-value chieko-after-item-value">
+          $7
+        </div>
+      </div>
+      <div class="status-after-item chieko-status-after-item">
+        <div class="after-item-label chieko-after-item-label">📖 心绪浮动:</div>
+        <div class="after-item-value chieko-after-item-value">
+          $8
+        </div>
+      </div>
+    </div>
+  </details>
+</div>

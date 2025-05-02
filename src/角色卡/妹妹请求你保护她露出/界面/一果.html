@@ -1,0 +1,253 @@
+<style>
+  .itsuka-status-card::before {
+    content: '';
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #84A4D4;
+    filter: blur(1px);
+    animation: itsuka-particle-float 4s linear infinite;
+    box-shadow:
+      50px 50px #84A4D4,
+      100px 25px #4B6CB7,
+      150px 75px #0B3B8C,
+      200px 100px #84A4D4,
+      75px 125px #4B6CB7,
+      125px 150px #0B3B8C,
+      175px 175px #84A4D4,
+      25px 200px #4B6CB7,
+      225px 50px #0B3B8C,
+      250px 150px #84A4D4;
+  }
+
+  @keyframes itsuka-particle-float {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+      opacity: 0.6;
+    }
+
+    33% {
+      transform: translate(10px, -10px) rotate(120deg) scale(1.2);
+      opacity: 0.8;
+    }
+
+    66% {
+      transform: translate(-10px, 10px) rotate(240deg) scale(0.8);
+      opacity: 0.4;
+    }
+
+    100% {
+      transform: translate(0, 0) rotate(360deg) scale(1);
+      opacity: 0.6;
+    }
+  }
+
+  .itsuka-status-card {
+    background: linear-gradient(135deg,
+        #001B3A 0%,
+        #002C5E 30%,
+        #003A7D 60%,
+        #0E49B0 100%);
+    border: 1px solid #76A8F5;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .itsuka-status-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(1px 1px at 10% 10%, #84A4D4 100%, transparent),
+      radial-gradient(1px 1px at 20% 20%, #4B6CB7 100%, transparent),
+      radial-gradient(1px 1px at 30% 30%, #0B3B8C 100%, transparent),
+      radial-gradient(1px 1px at 40% 40%, #84A4D4 100%, transparent),
+      radial-gradient(1px 1px at 50% 50%, #4B6CB7 100%, transparent),
+      radial-gradient(1px 1px at 60% 60%, #0B3B8C 100%, transparent),
+      radial-gradient(1px 1px at 70% 70%, #84A4D4 100%, transparent),
+      radial-gradient(1px 1px at 80% 80%, #4B6CB7 100%, transparent),
+      radial-gradient(1px 1px at 90% 90%, #0B3B8C 100%, transparent);
+    background-size: 200% 200%;
+    opacity: 0.4;
+    animation: itsuka-particle-flow 15s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes itsuka-particle-flow {
+    0% {
+      background-position: 0% 0%;
+      transform: rotate(0deg);
+    }
+
+    50% {
+      background-position: 100% 100%;
+      transform: rotate(180deg);
+    }
+
+    100% {
+      background-position: 0% 0%;
+      transform: rotate(360deg);
+    }
+  }
+
+
+  .itsuka-avatar::before {
+    border: 2px solid #76A8F5;
+    animation: itsuka-avatar-glow 5s ease-in-out infinite;
+  }
+
+  @keyframes itsuka-avatar-glow {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+
+    50% {
+      transform: scale(1.07);
+      opacity: 0.8;
+    }
+  }
+
+  .itsuka-avatar {
+    box-shadow: 0 0 15px rgb(from #76A8F5 r g b / 0.3);
+  }
+
+  .itsuka-avatar::after {
+    content: '⌛';
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 24px;
+    filter: drop-shadow(2 2 2px rgba(75, 108, 183, 0.8));
+    animation: itsuka-icon-flip 5s ease-in-out infinite;
+    opacity: 0.8;
+  }
+
+  @keyframes itsuka-icon-flip {
+
+    0%,
+    20% {
+      transform: rotate(0deg)
+    }
+
+    50%,
+    70% {
+      transform: rotate(180deg)
+    }
+
+    100% {
+      transform: rotate(360deg)
+    }
+  }
+
+  .itsuka-status-title {
+    color: #76A8F5;
+  }
+
+  .itsuka-status-before-item,
+  .itsuka-status-item,
+  .itsuka-status-after-item {
+    background: rgb(from #76A8F5 r g b / 0.1);
+  }
+
+  .itsuka-before-item-label,
+  .itsuka-item-label,
+  .itsuka-after-item-label {
+    color: #76A8F5;
+  }
+
+  .itsuka-before-item-value,
+  .itsuka-item-value,
+  .itsuka-after-item-value {
+    color: #E6EEF8;
+  }
+
+  .itsuka-status-item:hover {
+    background: rgb(from #76A8F5 r g b / 0.3);
+  }
+
+  .itsuka-description-summary {
+    color: #76A8F5;
+    border-top: 1px solid rgb(from #76A8F5 r g b / 0.3);
+  }
+</style>
+
+<div class="status-card itsuka-status-card">
+  <div class="avatar itsuka-avatar">
+    <img class="avatar-img itsuka-status-img" alt="一果" src="https://files.catbox.moe/56e3a4.png" />
+  </div>
+
+  <div style="margin-bottom: 10px; line-height: 1.5; width: 100%">
+    <h2 class="status-title itsuka-status-title">
+      一果 | 星尘精灵
+    </h2>
+
+    <div class="status-before-item itsuka-status-before-item">
+      <div class="before-item-label itsuka-before-item-label">🌌 系统波动：</div>
+      <div class="before-item-value itsuka-before-item-value">
+        $1
+      </div>
+    </div>
+    <div class="status-before-item itsuka-status-before-item">
+      <div class="before-item-label itsuka-before-item-label">👒 仙灵装束：</div>
+      <div class="before-item-value itsuka-before-item-value">
+        $2
+      </div>
+    </div>
+    <div class="status-before-item itsuka-status-before-item">
+      <div class="before-item-label itsuka-before-item-label">⛈️ 天象调律：</div>
+      <div class="before-item-value itsuka-before-item-value">
+        $9
+      </div>
+    </div>
+    <div class="status-before-item itsuka-status-before-item">
+      <div class="before-item-label itsuka-before-item-label">🎲 命运篇章：</div>
+      <div class="before-item-value itsuka-before-item-value">
+        $3({{getvar::一果好感度}})
+      </div>
+    </div>
+  </div>
+
+  <details class="description">
+    <summary class="description-summary itsuka-description-summary cn-text" data-close="正在载入系统详细数据…"
+      data-open="这场戏还没演完呢，别着急走开哦~">
+    </summary>
+
+    <div style="margin-top: 10px">
+      <div class="status-item itsuka-status-item">
+        <span class="item-label itsuka-item-label">⚓ 时空坐标</span>
+        <span class="item-value itsuka-item-value">$4</span>
+      </div>
+      <div class="status-item itsuka-status-item">
+        <span class="item-label itsuka-item-label">🎭 表层行动</span>
+        <span class="item-value itsuka-item-value">$5</span>
+      </div>
+      <div class="status-item itsuka-status-item">
+        <span class="item-label itsuka-item-label">🕯️ 密谋布局</span>
+        <span class="item-value itsuka-item-value">$6</span>
+      </div>
+      <div class="status-item itsuka-status-item">
+        <span class="item-label itsuka-item-label">💜 禁忌次数</span>
+        <span class="item-value itsuka-item-value">{{getvar::一果性行为次数}}</span>
+      </div>
+      <div class="status-item itsuka-status-item">
+        <span class="item-label itsuka-item-label">🧬 基因传递</span>
+        <span class="item-value itsuka-item-value">{{getvar::一果受孕}}</span>
+      </div>
+
+      <div class="status-after-item itsuka-status-after-item">
+        <div class="after-item-label itsuka-after-item-label">🧚‍♀️ 精灵之躯:</div>
+        <div class="after-item-value itsuka-after-item-value">
+          $7
+        </div>
+      </div>
+      <div class="status-after-item itsuka-status-after-item">
+        <div class="after-item-label itsuka-after-item-label">🎪 表里世界:</div>
+        <div class="after-item-value itsuka-after-item-value">
+          $8
+        </div>
+      </div>
+    </div>
+  </details>
+</div>
