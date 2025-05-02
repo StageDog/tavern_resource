@@ -1,0 +1,5 @@
+<UpdateVariable>
+@变量.白娅.依存度=20@
+@变量.白娅.处女=是@
+@变量.白娅.受孕=否@
+</UpdateVariable>

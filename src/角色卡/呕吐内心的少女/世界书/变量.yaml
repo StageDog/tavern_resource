@@ -1,0 +1,23 @@
+变量:
+  白娅:
+    依存度: '{{getvar::变量.白娅.依存度}}'
+    处女: '{{getvar::变量.白娅.处女}}'
+    受孕: '{{getvar::变量.白娅.受孕}}'
+rule:
+  availability: only use variables listed in '变量', don't fabricate new variables
+  name: consists of full path from root to leaf node and demilited by '.', such as `变量.白娅.依存度`
+  check list:
+    - Update variables suffixed with '依存度' according to characters' reliance towards <user>'s behavior respectively only if they're currently aware of it (±(3~6); but '依存度' must be capped in 0~100 and remains unchange when it's 100)
+    - Switch variables suffixed with '处女' and '受孕' between '是' and '否'
+format: |-
+  <UpdateVariable>
+  <Analysis>/*IN ENGLISH, no more than 80 words*/
+  ${
+  - calculate time passed: ...
+  - decide whether dramatic updates are allowed as it's in a special case or the time passed is more than usual: yes or no
+  - analyze every variable based on its `check list`, according only to current reply instead of previous plots: ...
+  }
+  </Analysis>
+  @${variable}=${old}⇒${new}@
+  ...
+  </UpdateVariable>
