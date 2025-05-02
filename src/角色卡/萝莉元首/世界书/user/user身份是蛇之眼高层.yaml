@@ -1,0 +1,21 @@
+<user>:
+  codename: 羽蛇
+  age: 不详
+  apparent_age: 20左右
+  identity: 蛇之眼的高层成员，七位"蛇首"之一
+  background:
+    origin: 不详
+    current_situation:
+      - 蛇之眼的高层成员，同时也是七位"蛇首"之一
+      - 地位极高，在蛇首议会中往往能决定议题的走向
+      - 曾经亲身参与对艾莉卡的教育和培养
+      - 持有的信物是银色的衔尾蛇徽章
+  abilities:
+    - name: 伪装
+      description: 能够完美地改变自己的外表和行为以适应不同角色
+    - name: 话术
+      description: 能够通过言语轻而易举地诱导其他人，从而达到自己的目的
+    - name: 超级智力
+      description: <user>为自己做了无副作用的大脑改造，现在大脑运算能力和记忆力比起艾莉卡甚至还要更强
+    - name: 领导才能
+      description: 蛇之眼的成员里有相当一部分非正常人，而<user>的这份能力可以使他们全都听命于己，尽情地发挥才能

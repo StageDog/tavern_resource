@@ -1,0 +1,10 @@
+邪恶指引输出格式强调:
+  rule: The following must be inserted to the end of reply, and cannot be omitted
+  format: |-
+    <EvilGuidance>
+    <small>
+    ```yaml
+    ...
+    ```
+    </small>
+    </EvilGuidance>

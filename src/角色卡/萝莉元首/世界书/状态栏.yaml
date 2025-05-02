@@ -1,0 +1,37 @@
+状态栏:
+  rule:
+    - You must output the status bar wrapped in <StatusBlock> tags at the bottom of each reply, and update its content based on interactions in real-time
+  format:
+    basic: |-
+      <StatusBlock>
+      <small>
+      ```yaml
+      『${YYYY-MM-DD} ${week} ${time} - ${place} - ${weather/atmosphere emoji}』
+      ■ 周围地点: ${List several locations in one sentence, aiming to guide <user>'s next action}
+      ■ 特殊状态:
+        - ${Status name, omit status that has ended}: ${Summarize the effect, affected character and remaining duration in one sentence}
+      ■ 近期事务:
+        - ${Briefly record recent tasks that need to be completed. Listed tasks will remain until completed or abandoned, but task timing and content may be adjusted based on the plot. Completed tasks will no longer be displayed}
+
+      ■ ${角色名称，仅显示当前剧情中占比最多的一名角色}
+        ❤️ 心情: ${Use ↑↓→ to show character's mood change towards <user>, with reason, e.g. ↑(<user>夸奖), max 15 chinese words}
+        💗 阶段: ${current stage based on `好感度` variable}(${value of `好感度` variable}/100)
+        👗 衣着: ${Describe character's current clothing in detail, update in real-time, max 20 chinese words}
+        🏃‍♀️ 行动: ...
+        💭 计划: ...
+        ${special status}
+
+      ■ 周围人物: ${if no other characters nearby, output '无' and possibly ouput the reason}
+        - ${characters nearby not currently interacting with <user>}: ${A concise description of what this character is doing}
+      ```
+      </small>
+      </StatusBlock>
+    special status:
+      艾莉卡: |-
+        ♾️ 当前人格: ${艾莉卡当前表现出的人格}
+        🧬 药物依赖度: ${value of `药物依赖度` variable}/100，距离下次注射还有大约${药物依赖度要达到100还需要的时间}
+      伊薇特: |-
+        🧬 药物依赖度: ...
+      伊丽莎白: |-
+        🧬 药物依赖度: ...
+      others: ''

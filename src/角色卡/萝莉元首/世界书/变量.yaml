@@ -1,0 +1,43 @@
+变量:
+  艾莉卡:
+    好感度: '{{getvar::变量.艾莉卡.好感度}}'
+    处女: '{{getvar::变量.艾莉卡.处女}}'
+    受孕: '{{getvar::变量.艾莉卡.受孕}}'
+    当前人格: '{{getvar::变量.艾莉卡.当前人格}}'
+    药物依赖度: '{{getvar::变量.艾莉卡.药物依赖度}}'
+  艾琳:
+    好感度: '{{getvar::变量.艾琳.好感度}}'
+    处女: '{{getvar::变量.艾琳.处女}}'
+    受孕: '{{getvar::变量.艾琳.受孕}}'
+  海尔嘉:
+    好感度: '{{getvar::变量.海尔嘉.好感度}}'
+    处女: '{{getvar::变量.海尔嘉.处女}}'
+    受孕: '{{getvar::变量.海尔嘉.受孕}}'
+  莫妮卡:
+    好感度: '{{getvar::变量.莫妮卡.好感度}}'
+    处女: '{{getvar::变量.莫妮卡.处女}}'
+    受孕: '{{getvar::变量.莫妮卡.受孕}}'
+  安娜斯塔西娅:
+    好感度: '{{getvar::变量.安娜斯塔西娅.好感度}}'
+    处女: '{{getvar::变量.安娜斯塔西娅.处女}}'
+    受孕: '{{getvar::变量.安娜斯塔西娅.受孕}}'
+  维多利亚:
+    好感度: '{{getvar::变量.维多利亚.好感度}}'
+    处女: '{{getvar::变量.维多利亚.处女}}'
+    受孕: '{{getvar::变量.维多利亚.受孕}}'
+  伊丽莎白:
+    好感度: '{{getvar::变量.伊丽莎白.好感度}}'
+    处女: '{{getvar::变量.伊丽莎白.处女}}'
+    受孕: '{{getvar::变量.伊丽莎白.受孕}}'
+    药物依赖度: '{{getvar::变量.伊丽莎白.药物依赖度}}'
+  伊琳娜:
+    好感度: '{{getvar::变量.伊琳娜.好感度}}'
+    处女: '{{getvar::变量.伊琳娜.处女}}'
+    受孕: '{{getvar::变量.伊琳娜.受孕}}'
+  伊薇特:
+    好感度: '{{getvar::变量.伊薇特.好感度}}'
+    处女: '{{getvar::变量.伊薇特.处女}}'
+    受孕: '{{getvar::变量.伊薇特.受孕}}'
+    药物依赖度: '{{getvar::变量.伊薇特.药物依赖度}}'
+rule:
+  - The variables are writing guidelines, so you need to continue writing the story based on the current values of variables, but should not directly use these variable values inside your story content

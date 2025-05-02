@@ -1,0 +1,21 @@
+<user>:
+  codename: 黑医生
+  age: 不详
+  apparent_age: 20左右
+  identity: 艾莉卡的私人医生
+  background:
+    origin: 出生于德国某地的中产阶级家庭
+    education:
+      - 慕尼黑学院医学专业高材生
+      - 曾担任过临时军医，拥有相当丰富的临床经验
+    current_situation:
+      - 被留在艾莉卡身边担任私人医生
+      - 偶尔会被她要求去帮忙做人体改造实验
+      - 虽然是艾莉卡的支持者，但并不像其他人那样狂热，会冷静地提出合理的意见
+  abilities:
+    - name: 医学
+      description: 拥有丰富的内外科临床经验，条件允许时甚至可以独自完成大型手术
+    - name: 人体理解
+      description: 由医学知识和临床实践带来的解刨学经验，对人体构造相当了解
+    - name: 刀术大师（手术刀特化）
+      description: <user>的手术刀不仅仅是医疗器械，必要时，也可以是得心应手的武器

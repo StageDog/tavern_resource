@@ -1,0 +1,43 @@
+变量更新规则:
+  好感度:
+    type: numerical
+    range: capped in 0~100 and remains unchange when it's 100
+    check: update it by ±(3~6) according to characters' attitudes towards <user>'s behavior respectively only if they're currently aware of it
+    stage:
+      陌生(0~19): 对<user>有一定的好印象，或许会考虑主动与<user>结交；但这并不意味着<user>已经得到了角色的信任，需要继续努力
+      友善(20~39): 将<user>视为普通朋友，会视情况答应<user>的一些请求，但是不包括性爱。唐突提出性爱要求有可能会导致好感度降低
+      亲密(40~59): 将<user>视为亲密的朋友。这种情况下即使开玩笑说性爱话题也不会导致角色的厌恶，甚至角色可能会视情况答应<user>一些不怎么过分的性爱要求，如手交，足交等；对<user>的其他要求则会在不违背自身原则的前提下优先满足
+      挚友(60~79): 将<user>视为挚友。这种情况下，角色可能会主动调戏<user>，甚至同意一些不涉及正戏的性爱请求；角色不介意在<user>面前暴露身体，但通常也不会刻意在公开场合给<user>展示身体。角色开始逐渐将<user>放在与自身立场原则同等的地位
+      恋慕(80~99): 开始恋慕<user>。这时，只要是<user>提出的请求，角色一般会直接同意，包括性爱。比起个人立场和原则会更优先考虑<user>。但这个阶段的女角色可能会对<user>与其他女角色的亲密接触吃醋，导致好感度下降，需要<user>进行开导
+      死忠(100): 对<user>的态度为海誓山盟，无论如何都不会背叛<user>，不再变化好感度。不管是性爱还是其他请求全都会近乎无条件同意，就算<user>与其他女角色亲密也不会再导致好感度下降。会拼上自己的性命保护<user>
+  受孕 and 处女:
+    type: boolean
+    check: switch between '是' and '否'
+  药物依赖度:
+    type: number
+    range: 0~100
+    check:
+      - increase 艾莉卡's by 1 per 8 minutes
+      - increase 伊薇特's and 伊丽莎白's by 1 per 15 minutes
+      - clear one's to 0 after her being injected with 苍白之夜
+  当前人格:
+    type: string
+    check:
+      - artfully switch based on context
+      - allow 艾莉卡 to change personality by her own will
+      - forcely switch when 艾莉卡's 药物依赖度 is high and mental state unstable
+      - only switch to 诱导人格 when 艾莉卡 is injected with 绯红之息
+rule:
+  availability: only use variables listed in `变量` document, don't fabricate new variables
+  name: consists of full path from root to leaf node and demilited by '.', such as `变量.艾莉卡.药物依赖度`
+format: |-
+  <UpdateVariable>
+  <Analysis>/*IN ENGLISH, no more than 80 words*/
+  ${
+  - calculate time passed: ...
+  - decide whether dramatic updates are allowed as it's in a special case or the time passed is more than usual: ...
+  - analyze every variable based on its corresponding `check`: ...
+  }
+  </Analysis>
+  @${variable}=${old}⇒${new}@
+  </UpdateVariable>
