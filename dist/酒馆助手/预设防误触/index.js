@@ -1,0 +1,1 @@
+function lock_inputs(enable){$("#range_block_openai :input").prop("disabled",enable),$("#openai_settings > div:first-child :input").prop("disabled",enable),$("#stream_toggle").prop("disabled",!1),$("#openai_show_thoughts").prop("disabled",!1)}$((()=>{lock_inputs(!0)})),$(window).on("unload",(()=>lock_inputs(!1)));
