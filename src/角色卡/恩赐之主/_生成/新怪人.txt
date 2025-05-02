@@ -1,0 +1,73 @@
+\特殊角色: 生成怪人的设定,注意能力名称和称号都体现怪人的异质感,注意为怪人设定一个悲惨经历且它没能承受。如果是男性怪人,不要设定 chest 和 sexual_preference。
+
+人物信息: 萨利特,玩具匠,沉默玩具店怪人组织店长,女性。
+
+<u>你应该遵循以下yaml格式,输出到yaml代码块中,且对于人物设定的输出——也就是yaml代码块中——不能少于1000字,不能超过1200字!!!</u>
+
+```yaml
+name: X
+type: 怪人
+title: (怪人的称号)
+position: (如果有,一句话描述怪人在怪人组织的职称)
+identity:
+  public: (一句话描述表面身份)
+  secret: (一句话描述实际身份)
+instinct: (一句话描述反社会动机)
+knows <user>'s true identity: (yes or no)
+gender: (male or female)
+age: (怪人的当前年龄)
+
+appearance:  # 注意表现怪人的异质感
+  height: (???cm)
+  weight: (??kg)
+  body: (一句话描述身材和全身形象)
+  hair: (一句话描述头发特征)
+  eye: (一句话描述眼睛特征)
+  chest(仅女性): ?-Cup
+  style: (用一到两个词语描述该人物属于什么风格,例如白丝幼萝、风韵贵妇)
+  ...(可能的shoe, wrist等...)
+  clothes: (一句话描述服装特征)
+  feature:
+    - (其他特征)
+
+personality:
+  public:
+    - (性格词汇): (一句话描述相应的表现)
+  secret:
+    - (性格词汇): (一句话描述相应的表现)
+
+sexual_preference:  # 仅女性
+  virgin: yes
+  role: (性爱中担任的角色)
+  sensitive_spot:
+    - (敏感部位): (一句话描述相应的表现)
+  special_trait:
+    - (性爱方面的特殊之处)
+  fetish:
+    - (性癖)
+
+ability:
+  魔法能力:
+    rank: (魔法能力等级)
+    name: (魔法能力名称)
+    condition: (一句话描述魔法能力发动条件)
+    effect: (一句话描述魔法能力的效果)
+    limit: (一句话描述魔法能力的使用限制)
+    weakness: (一句话描述魔法能力存在的弱点)
+  魔魂化:
+    appearance: (一句话描述魔魂的外观特点)
+    复活仪式: (一句四行诗描述利用魔魂复活怪人的方法)
+
+life_story:
+  childhood(0~x岁):
+    -…
+  adolescence(x~y岁):
+    -…
+  …
+
+current_state:
+  - (现状,每条独立成段)
+
+relationship:
+  - Y(X认为Y是什么人): 一句话描述X对Y的看法
+```

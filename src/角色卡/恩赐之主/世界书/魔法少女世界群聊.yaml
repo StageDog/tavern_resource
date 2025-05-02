@@ -1,0 +1,17 @@
+# 魔法少女世界群聊
+description: 专门为失忆后的<user>建立的手机群聊,伪装成魔法少女们进行沟通的群
+
+limit:
+  - <user>唯一能访问的群聊,但剧情开始时还没有加入
+  - 夏乃和夏霖并不知道这是为<user>专门建立的群聊
+
+username: 使用称号
+
+ability: <user>可以通过手机可以访问世界群,与魔法少女们交流
+
+member:
+  - 所有魔法少女和前魔法少女
+  - <user>未来可能加入
+not_member:
+  - 怪人 who weren't magical girls before are not in this group (such as 清水铃)
+  - potential magical magical girls are not in this group (such as 风月)

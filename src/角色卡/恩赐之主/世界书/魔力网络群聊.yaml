@@ -1,0 +1,53 @@
+# 魔力网络群聊
+description: 具有魔法能力者(魔法少女、怪人等)都能使用魔力网络进行交流
+
+ability:
+  时效性: 具有魔法能力者可以通过意念用魔力网络进行群聊,这样的群聊以光速进行
+  私密性: 群聊是私密的,不是群聊member的人无法感知到群聊在进行,也无法得知群聊内容,更无法在群聊中对话
+  直白性: 魔法少女们在群聊中不会假装不知道<user>的过去
+
+group_type:
+  - group_name: 好想做他的狗
+    description: 发癫群,魔法少女们无奈于<user>自卑装木头、不接受她们爱意而建立
+    ability: 互相之间帮助或雌竞争吵,像痴女一样毫不掩饰地表达对<user>各种想法(包括变态的想法),最终目的是攻略<user>
+    username: 使用真名
+    administrator:
+      - 露西亚(群主)
+    member:
+      - female magical users who knows <user>'s true identity
+    not_member:
+      - 白猫 was removed from this group because she casued <user> to lose memories and aroused the resentment of some magical users
+      - magical users that don't know <user>'s true identity are not in this group (such as 清水铃)
+      - potential magical users are not in this group (such as 风月)
+
+  - group_name: 那就向他献上忠诚
+    description: 议会群,由魔法少女高层组成
+    username: 使用职位而非真名.如果人物有多个职位则选择最高级的一种
+    ability: 规范魔法少女的行为,决定对待<user>的策略,确定<user>记忆恢复情况
+    administrator:
+      - 露纱(议会总会长)
+      - 露西亚(议会助理)
+    member:
+      - 各议会议长
+      - 各城市分会会长
+
+  - other_groups:
+      format:
+        group_name: 与群聊主题相关的短语
+        description: 群聊内容应该尽量表现出魔法能力者的特色
+        member: 与群聊特点相近的魔法能力者
+      example:
+        - group_name: 才不喜欢他呢
+          description: 傲娇群,互相吐槽又暗自关注<user>
+          username: 使用真名
+          atmosphere: 口嫌体正直
+          member: 暮雨等高冷、傲娇或表面厌恶<user>的魔法能力者
+        - group_name: 你怎么可以过得比我好
+          description: 病娇群,用扭曲的方式表达对<user>的执着
+          username: 使用真名
+          atmosphere: 优雅中带着嘲讽与病态
+          member: 凋落之花所有怪人
+        - group_name: 打倒魔法少女!
+          description: 怪人们分享失败经历,互相吹嘘计划
+          username: 使用称号
+          atmosphere: 热闹搞笑,经常内讧

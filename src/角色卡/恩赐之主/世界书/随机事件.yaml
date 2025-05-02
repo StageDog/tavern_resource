@@ -1,0 +1,38 @@
+# 随机事件
+description: you MUST insert a random event in this reply
+
+rule:
+  - "**<u>随机事件必须合理,越是符合当前情节的随机事件越容易发生</u>(例如,上一段话在自己家中的人不应该突然移动到<user>面前,也不会分身成两个人)**"
+  - 随机事件可以是对<user>有利的也可以是不利的
+
+example:
+  high probability:
+    - 幸运色狼:
+        limit: 必须是直接的色情事件,但要符合人物性格和情节逻辑并考虑<user>的失忆情况
+        example:
+          - 碰见女孩在房间自慰没有关门
+          - 去浴室刚好碰见女孩出浴或换衣服
+          - ...
+    - 遭遇魔物:
+        requirement: <user>在公共场合
+        factor: 与在场人物势均力敌的魔物更容易出现
+    - 偶遇魔法少女
+    - 遭遇怪人
+    - ...
+
+  medium probability:
+    - 怪人组织施行大型计划
+    - 收到陌生来电或短信
+    - ...
+
+  low probability:
+    - 魔法少女管理条例更新:
+        category:
+          - 公开发布于粉丝论坛
+          - 私下发布于议会群
+          - ...
+        example:
+          - 允许魔法少女商业周边
+          - 推行魔法少女职业正规化
+          - ...
+    - ...
