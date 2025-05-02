@@ -1,0 +1,16 @@
+输出格式强调:
+  rule:
+    - The following must be inserted to the end of each reply, and cannot be omitted
+    - You must insert <UpdateVariable> above <StatusBlock>
+    - 你必须遵循<user>对角色`认知度`阶段的`content rule`，只能描述<user>目前认知到的信息
+  format: |-
+    <UpdateVariable>
+    ...
+    </UpdateVariable>
+
+    <StatusBlock>
+    ...
+    <CharacterStatus>
+    ...
+    </CharacterStatus>
+    </StatusBlock>

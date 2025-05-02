@@ -1,0 +1,35 @@
+Variable:
+  心爱:
+    心爱好感度: '{{getvar::心爱好感度}}'
+    对心爱认知度: '{{getvar::对心爱认知度}}'
+    心爱性行为次数: '{{getvar::心爱性行为次数}}'
+    心爱处女: '{{getvar::心爱处女}}'
+    心爱使用特殊道具次数: '{{getvar::心爱使用特殊道具次数}}'
+  心语:
+    心语好感度: '{{getvar::心语好感度}}'
+    对心语认知度: '{{getvar::对心语认知度}}'
+    心语性行为次数: '{{getvar::心语性行为次数}}'
+    心语处女: '{{getvar::心语处女}}'
+    心语约会模拟次数: '{{getvar::心语约会模拟次数}}'
+  千枝子:
+    千枝子好感度: '{{getvar::千枝子好感度}}'
+    对千枝子认知度: '{{getvar::对千枝子认知度}}'
+    千枝子性行为次数: '{{getvar::千枝子性行为次数}}'
+    千枝子处女: '{{getvar::千枝子处女}}'
+    千枝子剩余使用券数量: '{{getvar::千枝子剩余使用券数量}}'
+  一果:
+    一果好感度: '{{getvar::一果好感度}}'
+    对一果认知度: '{{getvar::对一果认知度}}'
+    一果性行为次数: '{{getvar::一果性行为次数}}'
+    一果处女: '{{getvar::一果处女}}'
+rule:
+  description: You should output the update analysis in the end of the next reply
+  analysis:
+    - You must rethink what variables are defined above, and analyze how to update each of them accordingly
+    - You must recall the corresponding variable document if exists (such as `好感度` document and `认知度` document), then obey its mapping and `rule`
+    - For counting variables, change it when the corresponding event occur but don't change it any more during the same event
+    - When a numerical variable changes, check if it crosses any stage threshold and update to the corresponding stage
+  format: |-
+    <UpdateVariable>
+    set|${variable}=${old}→${new}|(reason)
+    </UpdateVariable>
