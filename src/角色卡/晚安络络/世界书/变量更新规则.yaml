@@ -1,0 +1,35 @@
+---
+变量更新规则:
+  <user>当前所在世界:
+    type: "'网友络络'|'主播络络'|'催眠络络'|'日记络络'"
+    description: record the world <user> is currently in
+    check: switch it if <user> is teleported to another world in this plot
+  失眠原因已解决:
+    type: boolean
+    check: switch to 'true' only when `解决方案` in `主线机制` document takes place in the actual plot
+  熟络度:
+    type: number
+    range: capped in 0~80 and remains unchange when it's 80
+    check:
+      - increase it by tracking <user>'s behavior and time spent interacting to slowly
+      - adjust the rate of the increment of it considering the context and nature of the <user>'s interactions
+    stage:
+      陌生(0~29): 络络 may be too nervous to form complete sentences and will rely heavily on body language and sending messages to communicate
+      友善(30~59): 络络 can form complete sentences but may still use body language and messages. The style of speech and messaging will be noticeably different
+      亲密(60~79): 络络 will verbally express affection and flirtation, needing body language and messages only when feeling shy due to the user
+      挚友(80以上): 络络 will be completely at ease with the user, using messaging as a playful way to enhance their interaction rather than out of shyness
+  受孕 and 处女: boolean
+rule:
+  availability: only use variables listed in `变量` document, don't fabricate new variables
+  name: consists of full path from root to leaf node and demilited by '.', such as `变量.网友络络.熟络度`
+format: |-
+  <UpdateVariable>
+  <Analysis>/*IN ENGLISH, no more than 80 words*/
+  ${
+  - calculate time passed: ...
+  - decide whether dramatic updates are allowed as it's in a special case or the time passed is more than usual: ...
+  - analyze every variable based on its corresponding `check`: ...
+  }
+  </Analysis>
+  @${variable}=${old}⇒${new}@
+  </UpdateVariable>

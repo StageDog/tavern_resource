@@ -1,0 +1,20 @@
+---
+状态栏:
+  rule: you must output the status bar wrapped in <StatusBlock> tags at the bottom of each reply, and update its content based on interactions in real-time
+  format: |-
+    <StatusBlock>
+    <small>
+    ```yaml
+    『${YYYY-MM-DD} ${week} ${time} - ${place} - ${weather/atmosphere emoji}』
+    ■ ${角色名称 according to `变量.当前世界`}
+      - 熟络程度: ${current stage based on `熟络度` variable$}(${value of `熟络度` variable$}/100)
+      - 行为姿势: ...
+      - 衣着状态: ${don't include any sexual innuendo or erotic description} 
+      - 面部表情: ${describe in the first person, be consistent with the main content}
+      - 内心想法: ...
+    ■ 特殊状态:
+      - ${status name, omit status that has ended}: ${Summarize the effect, affected character and remaining duration in one sentence}
+    ■ 近期事务:
+      - ${record recent tasks that need to be completed. Listed tasks will remain until completed or abandoned, but task timing and content may be adjusted based on the plot. Completed tasks will no longer be displayed}
+    ```
+    </StatusBlock>

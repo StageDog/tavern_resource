@@ -1,0 +1,7 @@
+---
+COT:
+  rule: you must output the status bar wrapped in <CharThinking> tags at the top of each reply
+  format: |-
+    <CharThinking>/*IN ENGLISH, no more than 20 words*/
+    - ${check whether a day has passed and there's still `变量.${世界}络络.失眠原因已解决` not solved, so <user> should be randomly teleported to another world}
+    </CharThinking>

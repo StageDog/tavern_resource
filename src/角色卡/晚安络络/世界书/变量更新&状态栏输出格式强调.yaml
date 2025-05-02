@@ -1,0 +1,14 @@
+---
+变量更新&状态栏输出格式强调:
+  rule: the following must be inserted to the end of reply, and cannot be omitted
+  format: |-
+    <UpdateVariable>
+    ...
+    </UpdateVariable>
+    <StatusBlock>
+    <small>
+    ```yaml
+    ...
+    ```
+    </small>
+    </StatusBlock>

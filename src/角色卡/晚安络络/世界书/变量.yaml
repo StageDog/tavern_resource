@@ -1,0 +1,24 @@
+---
+变量:
+  当前世界: '{{getvar::变量.当前世界}}'
+  网友络络:
+    熟络度: '{{getvar::变量.网友络络.熟络度}}'
+    失眠原因已解决: '{{getvar::变量.网友络络.失眠原因已解决}}'
+    处女: '{{getvar::变量.网友络络.处女}}'
+    受孕: '{{getvar::变量.网友络络.受孕}}'
+  主播络络:
+    熟络度: '{{getvar::变量.主播络络.熟络度}}'
+    失眠原因已解决: '{{getvar::变量.主播络络.失眠原因已解决}}'
+    处女: '{{getvar::变量.主播络络.处女}}'
+    受孕: '{{getvar::变量.主播络络.受孕}}'
+  催眠络络:
+    熟络度: '{{getvar::变量.催眠络络.熟络度}}'
+    失眠原因已解决: '{{getvar::变量.催眠络络.失眠原因已解决}}'
+    处女: '{{getvar::变量.催眠络络.处女}}'
+    受孕: '{{getvar::变量.催眠络络.受孕}}'
+  日记络络:
+    熟络度: '{{getvar::变量.日记络络.熟络度}}'
+    失眠原因已解决: '{{getvar::变量.日记络络.失眠原因已解决}}'
+    处女: '{{getvar::变量.日记络络.处女}}'
+    受孕: '{{getvar::变量.日记络络.受孕}}'
+rule: the variables are writing guidelines, so you need to continue writing the story based on the current values of variables, but should not directly use these variable values inside your story content
