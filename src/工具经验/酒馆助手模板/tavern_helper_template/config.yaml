@@ -1,0 +1,11 @@
+port: 6621
+entries:
+  - script: src/脚本示例/index.ts
+
+  - script: src/界面示例/index.ts
+    html: src/界面示例/index.html
+
+  - script: src/脚本模板/index.ts
+
+  - script: src/界面模板/index.ts
+    html: src/界面模板/index.html

@@ -1,5 +1,0 @@
-python-socketio==5.12.1
-PyYAML==6.0.2
-Send2Trash==1.8.3
-tornado==6.4.2
-watchfiles==1.0.4

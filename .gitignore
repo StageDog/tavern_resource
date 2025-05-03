@@ -8,3 +8,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+src/工具经验/酒馆助手模板/tavern_helper_template/@types
+src/工具经验/酒馆助手模板/tavern_helper_template/dist
+src/工具经验/酒馆助手模板/tavern_helper_template/slash_command.txt
+src/工具经验/酒馆助手模板/tavern_helper_template/slash_command.txt
