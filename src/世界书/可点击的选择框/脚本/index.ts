@@ -1,6 +1,6 @@
 export {};
 
-import default_css from './default.scss?raw';
+import default_css from './络络扁平化暗色紧凑列表.scss?raw';
 
 const lorebook_name = '【可点击的选择框】' as const;
 const checkbox_tag = '<Checkbox>' as const;
@@ -114,42 +114,18 @@ async function renderAllMessage() {
     });
 }
 
-namespace detail {
-  export function errorCatched<T extends any[], U>(fn: (...args: T) => U): (...args: T) => U {
-    const onError = (error: Error) => {
-      triggerSlash(
-        `/echo severity=error (${getIframeName()})${error.stack ? error.stack : error.name + ': ' + error.message}`,
-      );
-      throw error;
-    };
-    return (...args: T): U => {
-      try {
-        const result = fn(...args);
-        if (result instanceof Promise) {
-          return result.catch(error => {
-            onError(error);
-          }) as U;
-        }
-        return result;
-      } catch (error) {
-        return onError(error as Error);
-      }
-    };
-  }
-}
-
 $(async () => {
-  await detail.errorCatched(option.update)();
-  await detail.errorCatched(render.update)();
-  await detail.errorCatched(renderAllMessage)();
-  eventOn(tavern_events.CHAT_CHANGED, detail.errorCatched(renderAllMessage));
-  eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, detail.errorCatched(renderOneMessage));
-  eventOn(tavern_events.MESSAGE_UPDATED, detail.errorCatched(renderOneMessage));
-  eventOn(tavern_events.MESSAGE_SWIPED, detail.errorCatched(renderOneMessage));
-  eventOn(tavern_events.MESSAGE_DELETED, detail.errorCatched(renderAllMessage));
+  await errorCatched(option.update)();
+  await errorCatched(render.update)();
+  await errorCatched(renderAllMessage)();
+  eventOn(tavern_events.CHAT_CHANGED, errorCatched(renderAllMessage));
+  eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, errorCatched(renderOneMessage));
+  eventOn(tavern_events.MESSAGE_UPDATED, errorCatched(renderOneMessage));
+  eventOn(tavern_events.MESSAGE_SWIPED, errorCatched(renderOneMessage));
+  eventOn(tavern_events.MESSAGE_DELETED, () => setTimeout(errorCatched(renderAllMessage), 1000));
   eventOn(
     tavern_events.WORLDINFO_UPDATED,
-    detail.errorCatched(async lorebook => {
+    errorCatched(async lorebook => {
       if (lorebook !== lorebook_name) {
         return;
       }
