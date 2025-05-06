@@ -8,26 +8,40 @@ const checkbox_regex = /```\S*\s*<checkbox>(.*)<\/checkbox>\s*```/is;
 
 //----------------------------------------------------------------------------------------------------------------------
 namespace option {
-  const default_option = {
-    should_send_directly: true,
+  interface Option {
+    input_mode: '直接发送' | '覆盖输入' | '尾附输入' | '自动推进';
+    auto_content: string;
+  }
+  const default_option: Option = {
+    input_mode: '直接发送',
+    auto_content: '继续推进',
   };
-  type Option = typeof default_option;
 
   export let option: Option;
 
   async function parse_option(): Promise<Option> {
-    const transformers = {
-      '开启则直接发送，关闭则填在输入': (value: Option['should_send_directly']) => ({ should_send_directly: value }),
-    };
-    return _.merge(
+    const options: Record<string, string> = _.merge(
       {},
       ...(await getLorebookEntries(lorebook_name))
-        .filter(entry => entry.comment.startsWith('设置-'))
-        .map(entry => ({ option: entry.comment.replace('设置-', ''), value: entry.enabled }))
-        .map(({ option, value }) =>
-          option in transformers ? transformers[option as keyof typeof transformers]?.(value) : undefined,
-        ),
+        .filter(entry => entry.comment.startsWith('设置-') && entry.enabled)
+        .map(entry => {
+          const option = entry.comment.replace('设置-', '');
+          return { [option]: entry.content };
+        }),
     );
+
+    let result = default_option;
+    if (_.has(options, '直接发送')) {
+      result.input_mode = '直接发送';
+    } else if (_.has(options, '覆盖输入')) {
+      result.input_mode = '覆盖输入';
+    } else if (_.has(options, '尾附输入')) {
+      result.input_mode = '尾附输入';
+    } else if (_.has(options, '自动推进（选择框掉格式则发送这个条目的内容）')) {
+      result.input_mode = '自动推进';
+      result.auto_content = _.get(options, '自动推进（选择框掉格式则发送这个条目的内容）');
+    }
+    return result;
   }
 
   export async function update(): Promise<boolean> {
@@ -42,7 +56,16 @@ namespace render {
   async function divclick($element: JQuery<HTMLDivElement>) {
     if ($element.parents('.last_mes').length > 0) {
       const content = $element.find('.roleplay_checkbox_content').text().trim();
-      triggerSlash(option.option.should_send_directly ? `/send ${content} || /trigger` : `/setinput ${content}`);
+      if (option.option.input_mode === '直接发送' || option.option.input_mode === '自动推进') {
+        triggerSlash(`/send ${content} || /trigger`);
+      } else if (option.option.input_mode === '覆盖输入') {
+        triggerSlash(`/setinput ${content}`);
+      } else if (option.option.input_mode === '尾附输入') {
+        const old_content = $('#send_textarea').val();
+        $('#send_textarea')
+          .val([old_content, content].join('\n') || '')[0]
+          .dispatchEvent(new Event('input', { bubbles: true }));
+      }
     }
   }
 
@@ -106,6 +129,15 @@ async function renderOneMessage(message_id: number) {
   }
 }
 
+function triggerDivclick() {
+  const contents = $('.mes[is_user="false"][is_system="false"]')
+    .last()
+    .find('.roleplay_checkbox_content')
+    .map((_index, element) => $(element).text().trim())
+    .toArray();
+  triggerSlash(`/send ${_.sample([...contents, option.option.auto_content])} || /trigger`);
+}
+
 async function renderAllMessage() {
   $('#chat')
     .children(".mes[is_user='false'][is_system='false']")
@@ -114,10 +146,19 @@ async function renderAllMessage() {
     });
 }
 
+async function init() {
+  await renderAllMessage();
+  if (option.option.input_mode === '自动推进') {
+    eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, triggerDivclick);
+  } else {
+    eventRemoveListener(tavern_events.CHARACTER_MESSAGE_RENDERED, triggerDivclick);
+  }
+}
+
 $(async () => {
   await errorCatched(option.update)();
   await errorCatched(render.update)();
-  await errorCatched(renderAllMessage)();
+  await init();
   eventOn(tavern_events.CHAT_CHANGED, errorCatched(renderAllMessage));
   eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, errorCatched(renderOneMessage));
   eventOn(tavern_events.MESSAGE_UPDATED, errorCatched(renderOneMessage));
@@ -132,7 +173,10 @@ $(async () => {
       if (!(await option.update()) && !(await render.update())) {
         return;
       }
-      await renderAllMessage();
+      await init();
+      if (option.option.input_mode === '自动推进') {
+        triggerDivclick();
+      }
     }),
   );
 });
