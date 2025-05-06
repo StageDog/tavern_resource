@@ -4,7 +4,7 @@ import default_css from './络络扁平化暗色紧凑列表.scss?raw';
 
 const lorebook_name = '【可点击的选择框】' as const;
 const checkbox_tag = '<Checkbox>' as const;
-const checkbox_regex = /```\S*\s*<Checkbox>.*<\/Checkbox>\s*```/s;
+const checkbox_regex = /```\S*\s*<checkbox>(.*)<\/checkbox>\s*```/is;
 
 //----------------------------------------------------------------------------------------------------------------------
 namespace option {
