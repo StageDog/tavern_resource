@@ -6,6 +6,8 @@ on:
     paths-ignore:
       - archive/**
       - dist/**
+    tags-ignore:
+      - '**'
   workflow_dispatch:
 
 concurrency:
@@ -40,6 +42,5 @@ jobs:
         uses: phish108/autotag-action@v1.1.64
         with:
           github-token: ${{ secrets.PAT }}
-          bump: true
       - if: ${{ steps.autotag.outputs.tag != '' }}
         run: git push --delete origin ${{ steps.autotag.outputs.tag }}
