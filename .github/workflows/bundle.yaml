@@ -6,8 +6,6 @@ on:
     paths-ignore:
       - archive/**
       - dist/**
-    tags-ignore:
-      - 'v*'
   workflow_dispatch:
 
 concurrency:
