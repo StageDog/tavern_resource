@@ -186,12 +186,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
     plugins: plugins,
     optimization: {
       minimize: should_minimize,
-      minimizer: [
-        new TerserPlugin({
-          extractComments: false,
-          terserOptions: { keep_classnames: true, keep_fnames: true, mangle: false },
-        }),
-      ],
+      minimizer: [new TerserPlugin()],
       splitChunks: {
         chunks: 'async',
         minSize: 20000,
