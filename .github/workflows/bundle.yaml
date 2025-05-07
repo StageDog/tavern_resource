@@ -7,7 +7,7 @@ on:
       - archive/**
       - dist/**
     tags-ignore:
-      - '**'
+      - 'v*'
   workflow_dispatch:
 
 concurrency:
@@ -31,8 +31,12 @@ jobs:
       - run: pnpm i
       - run: pnpm build
       - run: mkdir -p archive
-      - run: git archive -o archive/lorebook_script.zip HEAD:src/工具经验/世界书同步脚本/lorebook_script --prefix lorebook_script/
-      - run: git archive -o archive/tavern_helper_template.zip HEAD:src/工具经验/酒馆助手编写环境配置/tavern_helper_template --prefix tavern_helper_template/
+      - run:
+          git archive -o archive/lorebook_script.zip HEAD:src/工具经验/世界书同步脚本/lorebook_script --prefix
+          lorebook_script/
+      - run:
+          git archive -o archive/tavern_helper_template.zip
+          HEAD:src/工具经验/酒馆助手编写环境配置/tavern_helper_template --prefix tavern_helper_template/
       - name: Commit changes
         uses: EndBug/add-and-commit@v9.1.3
         with:
@@ -42,5 +46,6 @@ jobs:
         uses: phish108/autotag-action@v1.1.64
         with:
           github-token: ${{ secrets.PAT }}
+          with-v: true
       - if: ${{ steps.autotag.outputs.tag != '' }}
         run: git push --delete origin ${{ steps.autotag.outputs.tag }}
