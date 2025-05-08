@@ -161,7 +161,7 @@ function promoteOnce() {
     .find('.roleplay_checkbox_content')
     .map((_index, element) => $(element).text().trim())
     .toArray();
-  triggerSlash(`/send ${_.sample([...contents, '继续推进'])} || /trigger`);
+  triggerSlash(`/send ${contents.length === 0 ? '继续推进' : _.sample(contents)} || /trigger`);
 }
 const promoteOnceDelayed = () =>
   setTimeout(promoteOnce, _.get(getVariables({ type: 'global' }), [lorebook_name, '自动推进发送间隔'], 3000));
