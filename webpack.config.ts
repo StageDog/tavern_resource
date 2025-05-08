@@ -208,7 +208,8 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         },
       },
     },
-    externals: [/^(jquery|\$)$/i, /^_$/, /^toastr$/],
+    externalsType: 'var',
+    externals: [/^_$/i, /^(jquery|\$)$/i, /^jqueryui$/i, /^toastr$/i, /^yaml$/i],
   });
 }
 
