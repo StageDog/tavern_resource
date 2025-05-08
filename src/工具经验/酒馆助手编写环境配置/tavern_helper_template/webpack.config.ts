@@ -198,8 +198,8 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         },
       },
     },
-    externalsType: 'umd',
-    externals: [/^(jquery|\$)$/i, /^jquery$/, /^lodash$/i, /^toastr$/i, /^yaml$/i],
+    externalsType: 'var',
+    externals: [/^_$/i, /^(jquery|\$)$/i, /^jqueryui$/i, /^toastr$/i, /^yaml$/i],
   });
 }
 
