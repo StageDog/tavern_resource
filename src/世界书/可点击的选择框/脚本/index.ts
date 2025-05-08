@@ -10,11 +10,9 @@ const checkbox_regex = /```\S*\s*<checkbox>(.*)<\/checkbox>\s*```/is;
 namespace option {
   interface Option {
     input_mode: '直接发送' | '覆盖输入' | '尾附输入' | '自动推进';
-    auto_content: string;
   }
   const default_option: Option = {
     input_mode: '直接发送',
-    auto_content: '继续推进',
   };
 
   export let option: Option;
@@ -37,9 +35,6 @@ namespace option {
       result.input_mode = '覆盖输入';
     } else if (_.has(options, '尾附输入')) {
       result.input_mode = '尾附输入';
-    } else if (_.has(options, '自动推进（选择框掉格式则发送这个条目的内容）')) {
-      result.input_mode = '自动推进';
-      result.auto_content = _.get(options, '自动推进（选择框掉格式则发送这个条目的内容）');
     }
     return result;
   }
@@ -54,9 +49,9 @@ namespace option {
 //----------------------------------------------------------------------------------------------------------------------
 namespace render {
   async function divclick($element: JQuery<HTMLDivElement>) {
-    if ($element.parents('.last_mes').length > 0) {
+    if ($element.parents('.last_mes').length > 0 && current_loop_times === -1) {
       const content = $element.find('.roleplay_checkbox_content').text().trim();
-      if (option.option.input_mode === '直接发送' || option.option.input_mode === '自动推进') {
+      if (option.option.input_mode === '直接发送') {
         triggerSlash(`/send ${content} || /trigger`);
       } else if (option.option.input_mode === '覆盖输入') {
         triggerSlash(`/setinput ${content}`);
@@ -129,15 +124,6 @@ async function renderOneMessage(message_id: number) {
   }
 }
 
-function triggerDivclick() {
-  const contents = $('.mes[is_user="false"][is_system="false"]')
-    .last()
-    .find('.roleplay_checkbox_content')
-    .map((_index, element) => $(element).text().trim())
-    .toArray();
-  triggerSlash(`/send ${_.sample([...contents, option.option.auto_content])} || /trigger`);
-}
-
 async function renderAllMessage() {
   $('#chat')
     .children(".mes[is_user='false'][is_system='false']")
@@ -146,19 +132,10 @@ async function renderAllMessage() {
     });
 }
 
-async function init() {
-  await renderAllMessage();
-  if (option.option.input_mode === '自动推进') {
-    eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, triggerDivclick);
-  } else {
-    eventRemoveListener(tavern_events.CHARACTER_MESSAGE_RENDERED, triggerDivclick);
-  }
-}
-
 $(async () => {
   await errorCatched(option.update)();
   await errorCatched(render.update)();
-  await init();
+  await renderAllMessage();
   eventOn(tavern_events.CHAT_CHANGED, errorCatched(renderAllMessage));
   eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, errorCatched(renderOneMessage));
   eventOn(tavern_events.MESSAGE_UPDATED, errorCatched(renderOneMessage));
@@ -173,10 +150,83 @@ $(async () => {
       if (!(await option.update()) && !(await render.update())) {
         return;
       }
-      await init();
-      if (option.option.input_mode === '自动推进') {
-        triggerDivclick();
-      }
+      await renderAllMessage();
     }),
   );
+});
+
+function promoteOnce() {
+  const contents = $('.mes[is_user="false"][is_system="false"]')
+    .last()
+    .find('.roleplay_checkbox_content')
+    .map((_index, element) => $(element).text().trim())
+    .toArray();
+  triggerSlash(`/send ${_.sample([...contents, '继续推进'])} || /trigger`);
+}
+const promoteOnceDelayed = () =>
+  setTimeout(promoteOnce, _.get(getVariables({ type: 'global' }), [lorebook_name, '自动推进发送间隔'], 3000));
+
+let current_loop_times: number | null = null;
+function LoopOnce() {
+  if (current_loop_times === null) {
+    return;
+  }
+  promoteOnceDelayed();
+
+  ++current_loop_times;
+  if (current_loop_times === _.get(getVariables({ type: 'global' }), [lorebook_name, '自动推进循环次数'], -1)) {
+    StopLoop();
+  }
+}
+function StopLoop() {
+  eventRemoveListener(tavern_events.CHARACTER_MESSAGE_RENDERED, LoopOnce);
+  current_loop_times = null;
+  toastr.success('已停止自动推进', lorebook_name);
+}
+
+$(async () => {
+  eventOnButton('设置循环次数', async () => {
+    const result = Number(
+      await SillyTavern.callGenericPopup(
+        `设置循环次数 (-1 为直到按下 '停止自动推进')`,
+        SillyTavern.POPUP_TYPE.INPUT,
+        '-1',
+      ),
+    );
+    if (result !== -1 && result <= 0) {
+      toastr.error('循环次数要么是 -1, 要么是大于 0 的整数');
+      return;
+    }
+    insertOrAssignVariables({ [lorebook_name]: { 自动推进循环次数: result } }, { type: 'global' });
+    if (result === -1) {
+      toastr.success('已设置推进次数为 -1, 即直到按下 "停止自动推进" 才会停止', lorebook_name);
+    } else {
+      toastr.success(`已设置推进次数为 ${result} 次`, lorebook_name);
+    }
+  });
+
+  eventOnButton('设置发送间隔', async () => {
+    const result = Number(
+      await SillyTavern.callGenericPopup(`设置发送间隔 (单位: 毫秒)`, SillyTavern.POPUP_TYPE.INPUT, '3000'),
+    );
+    if (result <= 0) {
+      toastr.error('发送间隔必须大于 0');
+      return;
+    }
+    insertOrAssignVariables({ [lorebook_name]: { 自动推进发送间隔: result } }, { type: 'global' });
+    toastr.success(`已设置发送间隔为 ${result} 毫秒`, lorebook_name);
+  });
+
+  eventOnButton('启动自动推进', () => {
+    if (current_loop_times !== null) {
+      toastr.error('自动推进在之前已开启, 请先停止自动推进');
+      return;
+    }
+    current_loop_times = 0;
+    LoopOnce();
+    eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, LoopOnce);
+    toastr.success('已开启自动推送', lorebook_name);
+  });
+
+  eventOnButton('停止自动推进', StopLoop);
 });
