@@ -49,7 +49,7 @@ namespace option {
 //----------------------------------------------------------------------------------------------------------------------
 namespace render {
   async function divclick($element: JQuery<HTMLDivElement>) {
-    if ($element.parents('.last_mes').length > 0 && current_loop_times === -1) {
+    if ($element.parents('.last_mes').length > 0) {
       const content = $element.find('.roleplay_checkbox_content').text().trim();
       if (option.option.input_mode === '直接发送') {
         triggerSlash(`/send ${content} || /trigger`);
