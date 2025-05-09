@@ -225,7 +225,7 @@ $(async () => {
     current_loop_times = 0;
     LoopOnce();
     eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, LoopOnce);
-    toastr.success('已开启自动推送', lorebook_name);
+    toastr.success('已开启自动推进', lorebook_name);
   });
 
   eventOnButton('停止自动推进', StopLoop);
