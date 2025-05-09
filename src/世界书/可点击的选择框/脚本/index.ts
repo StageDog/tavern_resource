@@ -190,7 +190,7 @@ $(async () => {
       await SillyTavern.callGenericPopup(
         `设置循环次数 (-1 为直到按下 '停止自动推进')`,
         SillyTavern.POPUP_TYPE.INPUT,
-        '-1',
+        _.get(getVariables({ type: 'global' }), [lorebook_name, '自动推进循环次数'], '-1'),
       ),
     );
     if (result !== -1 && result <= 0) {
@@ -207,7 +207,11 @@ $(async () => {
 
   eventOnButton('设置发送间隔', async () => {
     const result = Number(
-      await SillyTavern.callGenericPopup(`设置发送间隔 (单位: 毫秒)`, SillyTavern.POPUP_TYPE.INPUT, '3000'),
+      await SillyTavern.callGenericPopup(
+        `设置发送间隔 (单位: 毫秒)`,
+        SillyTavern.POPUP_TYPE.INPUT,
+        _.get(getVariables({ type: 'global' }), [lorebook_name, '自动推进发送间隔'], '3000'),
+      ),
     );
     if (result <= 0) {
       toastr.error('发送间隔必须大于 0');
