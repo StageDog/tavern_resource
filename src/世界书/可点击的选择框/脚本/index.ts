@@ -182,7 +182,7 @@ function retryLoop() {
   const $mes = $('.mes').slice(-2);
   if ($mes.length === 2 && $mes.first().attr('is_user') === 'false' && $mes.last().attr('is_user') === 'true') {
     toastr.info(`自动推进失败, 正在重试...`, lorebook_name);
-    triggerSlash('/trigger');
+    LoopOnce();
   }
 }
 function StopLoop() {
