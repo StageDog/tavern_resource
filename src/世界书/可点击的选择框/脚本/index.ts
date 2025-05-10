@@ -178,8 +178,15 @@ function LoopOnce() {
     StopLoop();
   }
 }
+function retryLoop() {
+  if ($('.mes').last().attr('is_user') === 'true' && $('#mes_stop').css('display') === 'none') {
+    toastr.info(`自动推进失败, 正在重试...`, lorebook_name);
+    LoopOnce();
+  }
+}
 function StopLoop() {
   eventRemoveListener(tavern_events.CHARACTER_MESSAGE_RENDERED, LoopOnce);
+  eventRemoveListener(tavern_events.GENERATION_ENDED, retryLoop);
   current_loop_times = null;
   toastr.success('已停止自动推进', lorebook_name);
 }
@@ -229,6 +236,7 @@ $(async () => {
     current_loop_times = 0;
     LoopOnce();
     eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, LoopOnce);
+    eventOn(tavern_events.GENERATION_ENDED, LoopOnce);
     toastr.success('已开启自动推进', lorebook_name);
   });
 
