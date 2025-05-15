@@ -108,9 +108,10 @@ async function toggle_tagged_scripts(tags: string[]) {
       const title = $div.find('.script-item-name').text();
       const should_enabled = check_should_enable(title, tags);
 
-      const is_enabled = $div.find('.toggle-script').prop('checked');
+      const $toggle_button = $div.find('.script-toggle');
+      const is_enabled = $toggle_button.hasClass('enabled');
       return {
-        button: $div.find(`.script-toggle-${is_enabled ? 'on' : 'off'}`),
+        button: $toggle_button,
         should_toggle: should_enabled !== is_enabled,
       };
     })
