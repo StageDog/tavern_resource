@@ -8,9 +8,6 @@ importers:
 
   .:
     devDependencies:
-      '@types/file-saver':
-        specifier: ^2.0.7
-        version: 2.0.7
       '@types/jquery':
         specifier: ^3.5.32
         version: 3.5.32
@@ -255,9 +252,6 @@ packages:
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
-
-  '@types/file-saver@2.0.7':
-    resolution: {integrity: sha512-dNKVfHd/jk0SkR/exKGj2ggkB45MAkzvWCaqLUUgkyjITkGNzH8H+yUwr+BLJUBjZOe9w8X3wgmXhZDRg1ED6A==}
 
   '@types/html-minifier-terser@6.1.0':
     resolution: {integrity: sha512-oh/6byDPnL1zeNXFrDXFLyZjkr1MsBG667IM792caf1L2UPOOMf65NFzjUH/ltyfwjAGfs1rsX1eftK0jC/KIg==}
@@ -2301,8 +2295,6 @@ snapshots:
       '@types/json-schema': 7.0.15
 
   '@types/estree@1.0.7': {}
-
-  '@types/file-saver@2.0.7': {}
 
   '@types/html-minifier-terser@6.1.0': {}
 
