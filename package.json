@@ -8,7 +8,6 @@
     "defaults and partially supports es6-module"
   ],
   "devDependencies": {
-    "@types/file-saver": "^2.0.7",
     "@types/jquery": "^3.5.32",
     "@types/jqueryui": "^1.12.24",
     "@types/lodash": "^4.17.16",
