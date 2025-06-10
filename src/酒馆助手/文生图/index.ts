@@ -32,7 +32,7 @@ function extract_button(message_id: number, index: number, prompt: string): JQue
           return;
         }
         const image_data = {
-          index: 0,
+          index,
           image_urls: [result],
         };
         const variables = getVariables({ type: 'message', message_id });
