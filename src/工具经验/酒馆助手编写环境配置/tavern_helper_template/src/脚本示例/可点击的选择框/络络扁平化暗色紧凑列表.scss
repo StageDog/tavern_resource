@@ -1,4 +1,4 @@
-.roleplay_checkbox {
+.roleplay_options {
   &_back {
     background: linear-gradient(160deg, rgba(45, 45, 45, 0.75), rgba(35, 35, 35, 0.85));
     border-radius: 14px;
@@ -34,7 +34,7 @@
     overflow-wrap: anywhere;
 
     /* Long content will trigger this rule */
-    &:not(:empty):not(.short-content) ~ .roleplay_checkbox_title {
+    &:not(:empty):not(.short-content)~.roleplay_options_title {
       width: 100%;
       margin-bottom: 8px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -110,7 +110,7 @@
         opacity: 1;
       }
 
-      .roleplay_checkbox_content {
+      .roleplay_options_content {
         color: #e2e2e2;
       }
     }
@@ -127,7 +127,7 @@
 }
 
 @media (max-width: 768px) {
-  .roleplay_checkbox {
+  .roleplay_options {
     &_back {
       padding: 14px;
       gap: 8px;
@@ -150,7 +150,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .roleplay_checkbox {
+  .roleplay_options {
     &_item {
       transition: none;
 
