@@ -1,15 +1,14 @@
-选择框格式强调:
-  rule: The following must be inserted to the end of each reply, and cannot be omitted
+---
+选择框强调:
+  rule: the following must be inserted to the end of each reply and cannot be omitted
   format: |-
-    <EvilGuidance>
-    <small>
-    ```yaml
+    <evil_guidance>
+    ```
     ...
     ```
-    </small>
-    </EvilGuidance>
+    </evil_guidance>
     ```
-    <Checkbox>
+    <roleplay_options>
     ...
-    </Checkbox>
+    </roleplay_options>
     ```

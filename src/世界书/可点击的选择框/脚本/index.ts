@@ -3,8 +3,8 @@ export {};
 import default_css from './络络扁平化暗色紧凑列表.scss?raw';
 
 const lorebook_name = '【可点击的选择框】' as const;
-const checkbox_tag = '<Checkbox>' as const;
-const checkbox_regex = /```\S*\s*<checkbox>(.*)<\/checkbox>\s*```/is;
+const roleplay_options_tag = '<roleplay_options>' as const;
+const roleplay_options_regex = /```\S*\s*<roleplay_options>(.*)<\/roleplay_options>\s*```/is;
 
 //----------------------------------------------------------------------------------------------------------------------
 namespace option {
@@ -50,7 +50,7 @@ namespace option {
 namespace render {
   async function divclick($element: JQuery<HTMLDivElement>) {
     if ($element.parents('.last_mes').length > 0) {
-      const content = $element.find('.roleplay_checkbox_content').text().trim();
+      const content = $element.find('.roleplay_options_content').text().trim();
       if (option.option.input_mode === '直接发送') {
         triggerSlash(`/send ${content} || /trigger`);
       } else if (option.option.input_mode === '覆盖输入') {
@@ -82,24 +82,24 @@ namespace render {
     return !_.isEqual(style, old_style);
   }
 
-  export function extract_checkbox_element(text: string): JQuery<HTMLDivElement> {
-    const $div = $('<div class="roleplay_checkbox">') as JQuery<HTMLDivElement>;
+  export function extract_roleplay_options_element(text: string): JQuery<HTMLDivElement> {
+    const $div = $('<div class="roleplay_options">') as JQuery<HTMLDivElement>;
     $div.append(style);
     $div.append(
-      ($('<div class="roleplay_checkbox_back">') as JQuery<HTMLDivElement>).append(
+      ($('<div class="roleplay_options_back">') as JQuery<HTMLDivElement>).append(
         [...text.matchAll(/(.+?)[:：]\s*(.+)/gm)]
           .map(match => ({
             title: match[1],
             content: match[2].replace(/^\$\{(.+)\}$/, '$1').replace(/^「(.+)」$/, '$1'),
           }))
           .map(({ title, content }) =>
-            $('<div class="roleplay_checkbox_item" tabindex="1">')
+            $('<div class="roleplay_options_item" tabindex="1">')
               .on('click', function (this: HTMLDivElement) {
                 divclick($(this));
               })
-              .append(`<span class="roleplay_checkbox_title"><strong>${title}</strong></span>`)
-              .append('<hr class="roleplay_checkbox_hr">')
-              .append(`<span class="roleplay_checkbox_content">${content}</span>`),
+              .append(`<span class="roleplay_options_title"><strong>${title}</strong></span>`)
+              .append('<hr class="roleplay_options_hr">')
+              .append(`<span class="roleplay_options_content">${content}</span>`),
           ),
       ),
     );
@@ -110,17 +110,17 @@ namespace render {
 //----------------------------------------------------------------------------------------------------------------------
 async function renderOneMessage(message_id: number) {
   const message: string = getChatMessages(message_id)[0].message;
-  const match = message.match(checkbox_regex);
+  const match = message.match(roleplay_options_regex);
   if (!match) {
     return;
   }
-  const $checkbox_element = render.extract_checkbox_element(match[1]);
+  const $roleplay_options_element = render.extract_roleplay_options_element(match[1]);
 
   const $mes_text = retrieveDisplayedMessage(message_id);
-  const to_render = $mes_text.find(`.roleplay_checkbox, pre:contains("${checkbox_tag}")`);
+  const to_render = $mes_text.find(`.roleplay_options, pre:contains("${roleplay_options_tag}")`);
   if (to_render.length > 0) {
     to_render.remove();
-    $mes_text.append($checkbox_element);
+    $mes_text.append($roleplay_options_element);
   }
 }
 
@@ -158,7 +158,7 @@ $(async () => {
 function promoteOnce() {
   const contents = $('.mes[is_user="false"][is_system="false"]')
     .last()
-    .find('.roleplay_checkbox_content')
+    .find('.roleplay_options_content')
     .map((_index, element) => $(element).text().trim())
     .toArray();
   triggerSlash(`/send ${contents.length === 0 ? '继续推进' : _.sample(contents)} || /trigger`);
