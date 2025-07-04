@@ -7,7 +7,7 @@ const roleplay_options_tag = '<roleplay_options>' as const;
 const roleplay_options_regex = /```\S*\s*<roleplay_options>(.*)<\/roleplay_options>\s*```/is;
 
 //----------------------------------------------------------------------------------------------------------------------
-namespace option {
+namespace option_section {
   interface Option {
     input_mode: '直接发送' | '覆盖输入' | '尾附输入' | '自动推进';
   }
@@ -23,12 +23,12 @@ namespace option {
       ...(await getLorebookEntries(lorebook_name))
         .filter(entry => entry.comment.startsWith('设置-') && entry.enabled)
         .map(entry => {
-          const option = entry.comment.replace('设置-', '');
-          return { [option]: entry.content };
+          const value = entry.comment.replace('设置-', '');
+          return { [value]: entry.content };
         }),
     );
 
-    let result = default_option;
+    const result = default_option;
     if (_.has(options, '直接发送')) {
       result.input_mode = '直接发送';
     } else if (_.has(options, '覆盖输入')) {
@@ -47,15 +47,15 @@ namespace option {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-namespace render {
+namespace render_section {
   async function divclick($element: JQuery<HTMLDivElement>) {
     if ($element.parents('.last_mes').length > 0) {
       const content = $element.find('.roleplay_options_content').text().trim();
-      if (option.option.input_mode === '直接发送') {
+      if (option_section.option.input_mode === '直接发送') {
         triggerSlash(`/send ${content} || /trigger`);
-      } else if (option.option.input_mode === '覆盖输入') {
+      } else if (option_section.option.input_mode === '覆盖输入') {
         triggerSlash(`/setinput ${content}`);
-      } else if (option.option.input_mode === '尾附输入') {
+      } else if (option_section.option.input_mode === '尾附输入') {
         const old_content = $('#send_textarea').val();
         $('#send_textarea')
           .val([old_content, content].join('\n') || '')[0]
@@ -114,7 +114,7 @@ async function renderOneMessage(message_id: number) {
   if (!match) {
     return;
   }
-  const $roleplay_options_element = render.extract_roleplay_options_element(match[1]);
+  const $roleplay_options_element = render_section.extract_roleplay_options_element(match[1]);
 
   const $mes_text = retrieveDisplayedMessage(message_id);
   const to_render = $mes_text.find(`.roleplay_options, pre:contains("${roleplay_options_tag}")`);
@@ -133,8 +133,8 @@ async function renderAllMessage() {
 }
 
 $(async () => {
-  await errorCatched(option.update)();
-  await errorCatched(render.update)();
+  await errorCatched(option_section.update)();
+  await errorCatched(render_section.update)();
   await renderAllMessage();
   eventOn(tavern_events.CHAT_CHANGED, errorCatched(renderAllMessage));
   eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, errorCatched(renderOneMessage));
@@ -147,7 +147,7 @@ $(async () => {
       if (lorebook !== lorebook_name) {
         return;
       }
-      if (!(await option.update()) && !(await render.update())) {
+      if (!(await option_section.update()) && !(await render_section.update())) {
         return;
       }
       await renderAllMessage();

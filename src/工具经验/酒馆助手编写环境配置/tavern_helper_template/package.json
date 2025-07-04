@@ -2,18 +2,27 @@
   "scripts": {
     "build:dev": "webpack --mode development",
     "build": "webpack --mode production",
-    "watch": "webpack --mode development --watch --progress"
+    "watch": "webpack --mode development --watch --progress",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix"
   },
   "browserslist": [
     "defaults and partially supports es6-module"
   ],
   "devDependencies": {
+    "@eslint/js": "^9.29.0",
     "@types/jquery": "^3.5.32",
     "@types/jqueryui": "^1.12.24",
     "@types/lodash": "^4.17.16",
     "@types/toastr": "^2.1.43",
     "@types/webpack": "^5.28.5",
+    "@typescript-eslint/parser": "^8.32.1",
     "autoprefixer": "^10.4.21",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-import-resolver-typescript": "^4.4.3",
+    "eslint-plugin-import-x": "^4.15.2",
+    "eslint-webpack-plugin": "^5.0.2",
     "css-loader": "^7.1.2",
     "html-inline-css-loader": "^0.2.1",
     "html-inline-css-webpack-plugin": "^1.11.2",
