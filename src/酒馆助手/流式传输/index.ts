@@ -23,9 +23,9 @@ async function renderOn(message_element: HTMLDivElement, message?: string): Prom
     return;
   }
 
-  const message_script = `<script>window.message = ${JSON.stringify(message)};<\/script>`;
-  const message_id_script = `<script>window.message_id = ${message_id};<\/script>`;
-  const srcdocWithMessage = srcdoc.replace('</head>', `${message_script}${message_id_script}<\/head>`);
+  const message_script = `<script>window.message = ${JSON.stringify(message)};</script>`;
+  const message_id_script = `<script>window.message_id = ${message_id};</script>`;
+  const srcdocWithMessage = srcdoc.replace('</head>', `${message_script}${message_id_script}</head>`);
 
   const iframe = $('<iframe>')
     .attr('srcdoc', srcdocWithMessage)

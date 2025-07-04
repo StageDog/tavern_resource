@@ -28,8 +28,8 @@ async function get_status(): Promise<void> {
 }
 
 namespace detail {
-  export async function choose_mode(chosen_mode: string, take_over: string): Promise<void> {
-    const char_lorebook = await getCurrentCharPrimaryLorebook();
+  export async function choose_mode_impl(chosen_mode: string, take_over: string): Promise<void> {
+    const char_lorebook = getCurrentCharPrimaryLorebook();
     if (!char_lorebook) {
       triggerSlash('/echo severity=error 未找到 A.U.T.O 世界书, 你是否忘了导入它?');
       return;
@@ -122,7 +122,7 @@ async function choose_mode(): Promise<void> {
   const chosen_mode = await triggerSlash(`/buttons labels=${JSON.stringify(modes)}`);
   const take_over = await triggerSlash(`/buttons labels=${JSON.stringify(take_overs)}`);
   if (chosen_mode && take_over) {
-    detail.choose_mode(chosen_mode, take_over);
+    detail.choose_mode_impl(chosen_mode, take_over);
   }
 }
 
