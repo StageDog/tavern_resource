@@ -1,4 +1,5 @@
 import './index.scss';
+import './加载和卸载时执行函数';
 
 function capture_display_text() {
   // 通过 substitudeMacros 我们可以解析酒馆宏
