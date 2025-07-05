@@ -21,8 +21,7 @@ function capture_display_text() {
 function register_click_event() {
   // 为对 .clickdiv 类的点击事件添加响应函数
   $('.clickdiv').on('click', () => {
-    const text = '变量.络络.下次响应界面选择判断=1';
-    triggerSlash(`/send <UpdateVariable>\n@${text}@\n</UpdateVariable>\n查看日记 || /trigger`);
+    triggerSlash(`/send 查看日记\n<UpdateVariable>\n_.set('世界.下次响应界面选择判断', 1)\n</UpdateVariable> || /trigger`);
   });
 }
 
