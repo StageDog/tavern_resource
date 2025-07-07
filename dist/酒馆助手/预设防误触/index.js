@@ -1,1 +1,1 @@
-function i(i){$("#range_block_openai :input").prop("disabled",i),$("#openai_settings > div:first-child :input").prop("disabled",i),$("#stream_toggle").prop("disabled",!1),$("#openai_show_thoughts").prop("disabled",!1)}$((()=>{i(!0)})),$(window).on("unload",(()=>i(!1)));
+function i(i){$('#range_block_openai :input').prop('disabled',i),$('#openai_settings > div:first-child :input').prop('disabled',i),$('#stream_toggle').prop('disabled',!1),$('#openai_show_thoughts').prop('disabled',!1)}$((()=>{i(!0)})),$(window).on('unload',(()=>i(!1)));
