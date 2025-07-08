@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Use Node.js
         uses: actions/setup-node@v4
         with: { node-version: 22 }
@@ -44,7 +44,7 @@ jobs:
       - id: autotag
         uses: phish108/autotag-action@v1.1.64
         with:
-          github-token: ${{ secrets.PAT }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           with-v: true
       - if: ${{ steps.autotag.outputs.tag != '' }}
         run: git push --delete origin ${{ steps.autotag.outputs.tag }}
