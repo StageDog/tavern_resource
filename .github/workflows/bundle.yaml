@@ -52,5 +52,5 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           with-v: true
-      - if: ${{ steps.autotag.outputs.tag != '' }}
+      - if: ${{ steps.autotag.outputs.tag != '0.0.0' }}
         run: git push --delete origin ${{ steps.autotag.outputs.tag }}
