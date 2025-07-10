@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  compile:
+  bundle:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,6 +55,7 @@ jobs:
         run: git push --delete origin ${{ steps.autotag.outputs.tag }}
 
   sync:
+    needs: bundle
     runs-on: ubuntu-latest
     steps:
       - uses: keninkujovic/gitlab-sync@2.0.0
