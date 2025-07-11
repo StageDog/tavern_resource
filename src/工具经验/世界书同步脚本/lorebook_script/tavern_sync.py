@@ -39,9 +39,10 @@ def extract_file_content(file_path: Path, user_name: str) -> str:
     """Read the content of a file and return it as a string"""
     content = file_path.read_text(encoding="utf-8")
     if user_name and user_name in content:
-        content = content.replace(user_name, "<user>")
-        file_path.write_text(content, encoding="utf-8")
-        print(f"{file_path}: 已替换 {user_name} 为 <user>")
+        new_content = content.replace(user_name, "<user>")
+        if new_content != content:
+            file_path.write_text(content, encoding="utf-8")
+            print(f"{file_path}: 已替换 {user_name} 为 <user>")
     return content
 
 
