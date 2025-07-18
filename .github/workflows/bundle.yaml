@@ -52,13 +52,3 @@ jobs:
           with-v: true
       - if: ${{ steps.autotag.outputs.tag != '0.0.0' }}
         run: git push --delete origin ${{ steps.autotag.outputs.tag }}
-
-  sync:
-    needs: bundle
-    runs-on: ubuntu-latest
-    steps:
-      - uses: keninkujovic/gitlab-sync@2.0.0
-        with:
-          gitlab_url: https://gitgud.io/StageDog/tavern_resource.git
-          username: StageDog
-          gitlab_pat: ${{ secrets.GITLAB_PAT }}
