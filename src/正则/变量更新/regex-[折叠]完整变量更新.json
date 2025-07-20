@@ -1,0 +1,17 @@
+{
+    "id": "24257cec-45ed-4b2b-8bcc-a2f11b064784",
+    "scriptName": "[折叠]完整变量更新",
+    "findRegex": "/<update(?:variable)?>(.*)<\\/update(?:variable)?>/gsi",
+    "replaceString": "<details>\n<summary>变量更新情况</summary>$1\n</details>",
+    "trimStrings": [],
+    "placement": [
+        2
+    ],
+    "disabled": false,
+    "markdownOnly": true,
+    "promptOnly": false,
+    "runOnEdit": false,
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null
+}

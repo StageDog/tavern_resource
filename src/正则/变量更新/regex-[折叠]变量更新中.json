@@ -1,0 +1,17 @@
+{
+    "id": "191c0e23-9dd4-496f-bf07-219bbf8ee72f",
+    "scriptName": "[折叠]变量更新中",
+    "findRegex": "/<update(?:variable)?>(?!.*<\\/update(?:variable)?>)(.*)$/gsi",
+    "replaceString": "<details>\n<summary>变量更新中{{random::.::..::...}}</summary>$1\n</details>",
+    "trimStrings": [],
+    "placement": [
+        2
+    ],
+    "disabled": false,
+    "markdownOnly": true,
+    "promptOnly": false,
+    "runOnEdit": false,
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null
+}

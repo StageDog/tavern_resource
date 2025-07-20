@@ -1,0 +1,17 @@
+{
+    "id": "fadcd097-dc83-4a9c-85ec-c6ec0a714eb9",
+    "scriptName": "[仅提示]完整变量更新",
+    "findRegex": "/<update(?:variable)?>.*<\\/update(?:variable)?>/gsi",
+    "replaceString": "[变量更新完成]",
+    "trimStrings": [],
+    "placement": [
+        2
+    ],
+    "disabled": false,
+    "markdownOnly": true,
+    "promptOnly": false,
+    "runOnEdit": false,
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null
+}

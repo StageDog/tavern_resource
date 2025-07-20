@@ -1,0 +1,17 @@
+{
+    "id": "e5986dfc-e024-4345-932b-82b53af735cf",
+    "scriptName": "[仅提示]变量更新中",
+    "findRegex": "/<update(?:variable)?>(?!.*<\\/update(?:variable)?>).*$/gsi",
+    "replaceString": "[变量更新中{{random::.::..::...}}]",
+    "trimStrings": [],
+    "placement": [
+        2
+    ],
+    "disabled": false,
+    "markdownOnly": true,
+    "promptOnly": false,
+    "runOnEdit": false,
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null
+}

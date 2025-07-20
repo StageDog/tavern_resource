@@ -1,0 +1,17 @@
+{
+    "id": "b3e490b4-fd6d-4977-a8b6-8641aba5c09e",
+    "scriptName": "[不发送]去除变量更新",
+    "disabled": false,
+    "runOnEdit": false,
+    "findRegex": "/<update(?:variable)?>(?:(?!.*<\\/update(?:variable)?>).*$|.*<\\/update(?:variable)?>)/gsi",
+    "replaceString": "",
+    "trimStrings": [],
+    "placement": [
+        2
+    ],
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null,
+    "markdownOnly": false,
+    "promptOnly": true
+}
