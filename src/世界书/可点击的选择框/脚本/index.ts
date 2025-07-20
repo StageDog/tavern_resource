@@ -4,7 +4,7 @@ import default_css from './络络扁平化暗色紧凑列表.scss?raw';
 
 const lorebook_name = '【可点击的选择框】' as const;
 const roleplay_options_tag = '<roleplay_options>' as const;
-const roleplay_options_regex = /```\S*\s*<roleplay_options>(.*)<\/roleplay_options>\s*```/is;
+const roleplay_options_regex = /<roleplay_options>\s*(?:```.*\n)?([\s\S]*?)(?:\n```)?\s*<\/roleplay_options>/im;
 
 //----------------------------------------------------------------------------------------------------------------------
 namespace option_section {
