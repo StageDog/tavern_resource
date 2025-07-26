@@ -219,18 +219,27 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         },
       },
     },
-    externalsType: 'var',
     externals: [
-      {
-        lodash: '_',
-        toastr: 'toastr',
-        yaml: 'YAML',
+      ({ context, request }, callback) => {
+        if (!context || !request || request.startsWith('@') || request.startsWith('.') || request.startsWith('/')) {
+          return callback();
+        }
+
+        if (fs.existsSync(path.join(context, request))) {
+          return callback();
+        }
+
+        const builtin = {
+          lodash: '_',
+          toastr: 'toastr',
+          yaml: 'YAML',
+          jquery: '$',
+        };
+        if (request in builtin) {
+          return callback(null, 'var ' + builtin[request as keyof typeof builtin]);
+        }
+        return callback(null, 'module-import https://fastly.jsdelivr.net/npm/' + request);
       },
-      /^_$/i,
-      /^(jquery|\$)$/i,
-      /^jqueryui$/i,
-      /^toastr$/i,
-      /^yaml$/i,
     ],
   });
 }
