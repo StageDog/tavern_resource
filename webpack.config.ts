@@ -221,7 +221,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
     },
     externals: [
       ({ context, request }, callback) => {
-        if (!context || !request || request.startsWith('@') || request.startsWith('.') || request.startsWith('/')) {
+        if (!context || !request || ['@', '.', '/', 'http'].some(prefix => request.startsWith(prefix))) {
           return callback();
         }
 
