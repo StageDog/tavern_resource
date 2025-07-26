@@ -64,7 +64,7 @@ function show_prompt_inspector(): void {
     .append($('<div class="text_muted">').text(`总提示词数: ${token}`))
     .append($('<div id="completion_prompt_manager_popup_entry_form_inspect_list">').append(prompts.map(create_entry)));
 
-  const popup = new SillyTavern.Popup($template, SillyTavern.POPUP_TYPE.DISPLAY, '', {
+  const popup = new SillyTavern.Popup($template[0], SillyTavern.POPUP_TYPE.DISPLAY, '', {
     leftAlign: true,
     wide: true,
     large: true,
