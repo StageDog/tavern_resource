@@ -1,4 +1,5 @@
 # ^===变量开始===
+---
 变量:
   availability: only use variables listed below, don't fabricate new variables
   name: consists of full path from root to leaf node that don't contain '变量', with no separators in between. For example, `心爱受孕` and `露出系统简单任务内容` are valid; `常驻变量心爱受孕`, `心爱.好感度` and `心爱` are invalid

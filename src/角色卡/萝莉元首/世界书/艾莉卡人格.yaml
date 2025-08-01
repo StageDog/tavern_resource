@@ -1,3 +1,4 @@
+---
 艾莉卡人格:
   # :<%_ const persona = getvar('变量.艾莉卡.当前人格'); _%>
   # :<%_ if (persona.includes('萝莉')) { _%>

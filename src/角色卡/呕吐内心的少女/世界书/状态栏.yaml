@@ -1,3 +1,4 @@
+---
 状态栏:
   rule:
     - You must output the status bar wrapped in <StatusBlock> tags at the bottom of each reply, and update its content based on interactions in real-time
