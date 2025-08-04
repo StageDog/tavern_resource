@@ -6,6 +6,7 @@
       "lodash",
       "toastr",
       "yaml",
+      "type-fest",
     ],
     "target": "ESNext",
     "module": "ESNext",
