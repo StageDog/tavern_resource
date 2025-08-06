@@ -1,1 +1,1 @@
-$((async()=>{const e=SillyTavern.powerUserSettings;['auto_fix_generated_markdown','trim_sentences','forbid_external_media','encode_tags'].map((n=>function(n,t){return e[n]!==t&&(e[n]=t,$(`#${n}`).prop('checked',t),!0)}(n,!1))).some((e=>!!e))&&SillyTavern.saveSettingsDebounced()}));
+$(async()=>{const e=SillyTavern.powerUserSettings;['auto_fix_generated_markdown','trim_sentences','forbid_external_media','encode_tags'].map(n=>function(n,t){return e[n]!==t&&(e[n]=t,$(`#${n}`).prop('checked',t),!0)}(n,!1)).some(e=>!!e)&&SillyTavern.saveSettingsDebounced()});

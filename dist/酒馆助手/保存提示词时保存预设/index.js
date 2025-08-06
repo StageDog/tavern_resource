@@ -1,1 +1,1 @@
-const o=()=>$('#update_oai_preset').trigger('click');$((()=>{$('#completion_prompt_manager_popup_entry_form_save').on('click',o)})),$(window).on('unload',(()=>{$('#completion_prompt_manager_popup_entry_form_save').off('click',o)}));
+const o=()=>$('#update_oai_preset').trigger('click');$(()=>{$('#completion_prompt_manager_popup_entry_form_save').on('click',o)}),$(window).on('unload',()=>{$('#completion_prompt_manager_popup_entry_form_save').off('click',o)});
