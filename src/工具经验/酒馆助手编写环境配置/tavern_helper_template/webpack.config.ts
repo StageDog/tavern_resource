@@ -219,6 +219,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
           request.startsWith('@') ||
           request.startsWith('.') ||
           request.startsWith('/') ||
+          path.isAbsolute(request) ||
           fs.existsSync(path.join(context, request)) ||
           fs.existsSync(request)
         ) {
@@ -234,7 +235,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         if (request in builtin) {
           return callback(null, 'var ' + builtin[request as keyof typeof builtin]);
         }
-        return callback(null, 'module-import https://fastly.jsdelivr.net/npm/' + request);
+        return callback(null, 'module-import https://fastly.jsdelivr.net/npm/' + request + '/+esm');
       },
     ],
   });

@@ -10,19 +10,19 @@
     "defaults and partially supports es6-module"
   ],
   "devDependencies": {
-    "@eslint/js": "^9.29.0",
+    "@eslint/js": "^9.32.0",
     "@types/jquery": "^3.5.32",
     "@types/jqueryui": "^1.12.24",
-    "@types/lodash": "^4.17.16",
+    "@types/lodash": "^4.17.20",
     "@types/toastr": "^2.1.43",
     "@types/webpack": "^5.28.5",
-    "@typescript-eslint/parser": "^8.32.1",
+    "@typescript-eslint/parser": "^8.39.0",
     "autoprefixer": "^10.4.21",
     "css-loader": "^7.1.2",
-    "eslint": "^9.27.0",
-    "eslint-config-prettier": "^10.1.5",
-    "eslint-import-resolver-typescript": "^4.4.3",
-    "eslint-plugin-import-x": "^4.15.2",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import-x": "^4.16.1",
     "eslint-webpack-plugin": "^5.0.2",
     "html-inline-css-loader": "^0.2.1",
     "html-inline-css-webpack-plugin": "^1.11.2",
@@ -30,12 +30,12 @@
     "html-loader": "^5.1.0",
     "html-webpack-inline-svg-plugin": "^2.3.0",
     "html-webpack-plugin": "^5.6.3",
-    "mini-css-extract-plugin": "^2.9.2",
-    "postcss": "^8.5.3",
+    "mini-css-extract-plugin": "^2.9.3",
+    "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
     "postcss-loader": "^8.1.1",
     "postcss-nested": "^7.0.2",
-    "sass": "^1.87.0",
+    "sass": "^1.89.2",
     "sass-loader": "^16.0.5",
     "socket.io": "^4.8.1",
     "terser-webpack-plugin": "^5.3.14",
@@ -44,14 +44,21 @@
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "tslib": "^2.8.1",
     "type-fest": "^4.41.0",
-    "typescript": "^5.8.3",
-    "webpack": "^5.99.8",
-    "webpack-cli": "^6.0.1",
-    "yaml": "^2.7.1"
+    "typescript": "^5.9.2",
+    "webpack": "^5.101.0",
+    "webpack-cli": "^6.0.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@parcel/watcher"
+      "@parcel/watcher",
+      "unrs-resolver"
     ]
+  },
+  "dependencies": {
+    "jquery": "^3.7.1",
+    "jqueryui": "^1.11.1",
+    "lodash": "^4.17.21",
+    "toastr": "^2.1.4",
+    "yaml": "^2.8.1"
   }
 }
