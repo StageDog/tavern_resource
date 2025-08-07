@@ -12,3 +12,4 @@ declare module '*.css' {
 }
 
 declare const YAML: typeof import('yaml');
+declare const z: typeof import('zod');

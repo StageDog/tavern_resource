@@ -242,11 +242,12 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
           toastr: 'toastr',
           yaml: 'YAML',
           jquery: '$',
+          zod: 'z',
         };
         if (request in builtin) {
           return callback(null, 'var ' + builtin[request as keyof typeof builtin]);
         }
-        return callback(null, 'module-import https://fastly.jsdelivr.net/npm/' + request + '/+esm');
+        return callback(null, 'module-import https://testingcf.jsdelivr.net/npm/' + request + '/+esm');
       },
     ],
   });
