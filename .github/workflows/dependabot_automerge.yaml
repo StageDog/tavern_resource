@@ -1,0 +1,11 @@
+name: Dependabot Automerge
+on:
+  pull_request:
+jobs:
+  dependabot-automerge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: halostatue/dependabot-automerge@v1
+        with:
+          update-type: minor
+          merge-type: rebase
