@@ -228,10 +228,11 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         }
 
         if (
-          request.startsWith('http') ||
-          request.startsWith('@') ||
+          request.startsWith('-') ||
           request.startsWith('.') ||
           request.startsWith('/') ||
+          request.startsWith('@') ||
+          request.startsWith('http') ||
           path.isAbsolute(request) ||
           fs.existsSync(path.join(context, request)) ||
           fs.existsSync(request)
