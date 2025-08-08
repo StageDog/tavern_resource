@@ -35,11 +35,21 @@ jobs:
       - run: pnpm build
       - run: mkdir -p archive
       - run: |
-          tar caf ../../../archive/lorebook_script.zip lorebook_script
-        working-directory: src/工具经验/世界书同步脚本
+          tar \
+            --sort=name \
+            --mtime='UTC 1980-02-01' \
+            --owner=0 --group=0 --numeric-owner \
+            --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
+            -caf ../../../../archive/lorebook_script.zip .
+        working-directory: src/工具经验/世界书同步脚本/lorebook_script
       - run: |
-          tar caf ../../../archive/tavern_helper_template.zip tavern_helper_template
-        working-directory: src/工具经验/酒馆助手编写环境配置
+          tar \
+            --sort=name \
+            --mtime='UTC 1980-02-01' \
+            --owner=0 --group=0 --numeric-owner \
+            --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
+            -caf ../../../../archive/tavern_helper_template.zip .
+        working-directory: src/工具经验/酒馆助手编写环境配置/tavern_helper_template
       - name: Commit changes
         uses: EndBug/add-and-commit@v9.1.3
         with:
