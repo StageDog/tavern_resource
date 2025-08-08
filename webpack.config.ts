@@ -188,7 +188,9 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
       minimize: should_minimize,
       minimizer: [
         argv.mode === 'production'
-          ? new TerserPlugin({ terserOptions: { format: { quote_style: 1 } } })
+          ? new TerserPlugin({
+              terserOptions: { format: { quote_style: 1 }, mangle: { reserved: ['_', 'toastr', 'YAML', '$', 'z'] } },
+            })
           : new TerserPlugin({
               extractComments: false,
               terserOptions: {
