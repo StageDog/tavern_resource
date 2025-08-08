@@ -2,7 +2,7 @@
 
 作者: 想做舞台少女的狗
 
-文档见于: <https://sillytavern-stage-girls-dog.readthedocs.io>
+文档见于: <https://sillytavern-stage-girls-dog.readthedocs.io> 和 <https://stagedog.github.io>
 
 ## 参与贡献提示
 
