@@ -9,3 +9,7 @@ $(() => {
   switchToCustomSort();
   $option.prop('disabled', true);
 });
+
+$(window).on('unload', () => {
+  $option.prop('disabled', false);
+});
