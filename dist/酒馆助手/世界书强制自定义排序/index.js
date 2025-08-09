@@ -1,1 +1,1 @@
-const e=$('#world_info_sort_order');$(()=>{e.val('13'),e[0].dispatchEvent(new Event('change')),e.prop('disabled',!0)});
+const o=$('#world_info_sort_order');$(()=>{o.val('13'),o[0].dispatchEvent(new Event('change')),o.prop('disabled',!0)}),$(window).on('unload',()=>{o.prop('disabled',!1)});
