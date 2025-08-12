@@ -3,7 +3,7 @@
   rule: the following must be inserted to the end of each reply and cannot be omitted
   format: |-
     ```
-    <roleplay_options>
+    <evil_guidance>
     ...
-    </roleplay_options>
+    </evil_guidance>
     ```
