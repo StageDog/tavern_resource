@@ -42,6 +42,7 @@
     "sass": "^1.90.0",
     "sass-loader": "^16.0.5",
     "socket.io": "^4.8.1",
+    "tailwindcss": "^4.1.11",
     "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
@@ -55,7 +56,6 @@
     "jquery": "^3.7.1",
     "jqueryui": "^1.11.1",
     "lodash": "^4.17.21",
-    "tailwindcss": "^4.1.11",
     "toastr": "^2.1.4",
     "yaml": "^2.8.1",
     "zod": "^4.0.15"
