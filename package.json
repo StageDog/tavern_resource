@@ -3,6 +3,7 @@
     "build:dev": "webpack --mode development",
     "build": "webpack --mode production",
     "watch": "webpack --mode development --watch --progress",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,scss,html}\"",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix"
   },
