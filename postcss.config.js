@@ -1,5 +1,10 @@
 const config = {
-  plugins: [require('autoprefixer'), require('postcss-nested')],
+  plugins: [
+    require('@tailwindcss/postcss'),
+    require('autoprefixer'),
+    require('postcss-nested'),
+    require('postcss-minify'),
+  ],
 };
 
 module.exports = config;
