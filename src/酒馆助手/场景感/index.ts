@@ -130,7 +130,7 @@ $(() => {
     }
     await createChatMessages([
       {
-        role: 'assistant',
+        role: 'user',
         message:
           '<Request:本故事就此完结。请以第三人称结束这个故事，不要再留下悬念或转折，但可以以欧亨利风格结尾，让读者意犹未尽>' +
           result,
