@@ -114,7 +114,7 @@ $(() => {
       {
         role: 'user',
         message: _([plot, view, writting_style])
-          .filter(string => !string)
+          .filter(string => !!string)
           .join('\n'),
       },
     ]);
