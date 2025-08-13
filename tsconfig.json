@@ -35,8 +35,8 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
+    "@types",
     "src",
-    "tavern_helper/@types",
     "global.d.ts",
   ],
   "exclude": [
