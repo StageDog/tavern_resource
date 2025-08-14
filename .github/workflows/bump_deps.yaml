@@ -28,8 +28,8 @@ jobs:
       - run: |-
           rm -rf @types
           mkdir -p @types
-          wget https://gitlab.com/novi028/JS-Slash-Runner/-/raw/main/dist/@types.zip?ref_type=heads&inline=false -O @types.tar.gz
-          tar -xzf @types.zip -C @types
+          wget https://gitlab.com/novi028/JS-Slash-Runner/-/raw/main/dist/@types.zip -O @types.zip
+          tar -xf @types.zip -C @types
           rm -f @types.zip
         shell: bash
 
