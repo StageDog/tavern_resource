@@ -43,6 +43,7 @@ function replace_toolbox() {
             if (index === -1) {
               return preset;
             }
+            // 3.4.4 以前酒馆助手没能正确处理 id 冲突
             preset.prompts.splice(index + 1, 0, { ...preset.prompts[index], id: crypto.randomUUID() });
             return preset;
           },
