@@ -1,31 +1,29 @@
 export {};
 
-interface Style {
-  title: string;
-  code: string;
+const Settings = z.object({
+  样式加载: z.string().default(''),
+});
+
+const variable_option = { type: 'script', script_id: getScriptId() } as const;
+
+function get_style(): string {
+  const settings = Settings.parse(getVariables(variable_option));
+  insertVariables(settings, variable_option);
+  return settings.样式加载;
 }
 
-function get_styles() {
-  return getTavernRegexes()
-    .filter(regex => regex.enabled && regex.script_name.includes('样式-'))
-    .map<Style>(regex => ({
-      title: regex.script_name.replace('样式-', '').replaceAll(/【.+?】/gs, ''),
-      code: regex.replace_string,
-    }));
+function extract_style_node(style: string) {
+  return $('<style>').attr('id', `script_custom_style-${getScriptId()}`).text(style);
 }
 
-function extract_style_node(style: Style) {
-  return $('<style>').attr('id', `script_custom_style-${style.title}`).text(style.code);
+function reappend_styles(node: JQuery) {
+  const $head = $('head');
+  $head.find(`#script_custom_style-${getScriptId()}`).remove();
+  $head.append(node);
 }
 
-function reappend_styles(nodes: JQuery) {
-  const head = $('head', window.parent.document);
-  head.find('#script_custom_style').remove();
-  head.append(nodes);
-}
-
-$(async () => {
-  const styles = await get_styles();
-  const style_nodes = styles.map(extract_style_node);
-  reappend_styles($('<div>').attr('id', 'script_custom_style').append(style_nodes));
+$(() => {
+  const style = get_style();
+  const style_node = extract_style_node(style);
+  reappend_styles(style_node);
 });
