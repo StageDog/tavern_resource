@@ -4,11 +4,11 @@ function get_prompt_id_from_tool($tool: JQuery) {
 
 function replace_toolbox() {
   observer.disconnect();
-  const $prompt_controls = $('.completion_prompt_manager_prompt:has(.fa-asterisk)').find(
-    '.prompt_manager_prompt_controls',
-  );
+  const $prompts = $('.completion_prompt_manager_prompt:has(.fa-asterisk)');
+  const $prompt_controls = $prompts.find('.prompt_manager_prompt_controls');
 
-  $prompt_controls.find('.prompt-manager-detach-action').remove();
+  $prompts.find('.prompt_manager_prompt_tokens').css('pointer-events', 'none');
+  $prompt_controls.find('span[title="Remove"], span[title="copy"], span[title="delete"]').remove();
   $prompt_controls.prepend(
     $('<span title="delete" class="prompt-manager-remove-action caution fa-solid fa-trash fa-xs"></span>').on(
       'click',
