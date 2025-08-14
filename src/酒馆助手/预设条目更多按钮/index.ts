@@ -4,7 +4,9 @@ function get_prompt_id_from_tool($tool: JQuery) {
 
 function replace_toolbox() {
   observer.disconnect();
-  const $prompt_controls = $('.prompt_manager_prompt_controls:has(span[title="Remove"])');
+  const $prompt_controls = $('.completion_prompt_manager_prompt:has(.fa-asterisk)').find(
+    '.prompt_manager_prompt_controls',
+  );
   $prompt_controls.find('span[title="Remove"]').hide();
   $prompt_controls.find('span[title="copy"]').remove();
   $prompt_controls.find('span[title="delete"]').remove();
