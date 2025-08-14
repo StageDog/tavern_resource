@@ -7,29 +7,8 @@ function replace_toolbox() {
   const $prompt_controls = $('.completion_prompt_manager_prompt:has(.fa-asterisk)').find(
     '.prompt_manager_prompt_controls',
   );
-  $prompt_controls.find('span[title="Remove"]').hide();
-  $prompt_controls.find('span[title="copy"]').remove();
-  $prompt_controls.find('span[title="delete"]').remove();
-  $prompt_controls.prepend(
-    $('<span title="copy" class="prompt-manager-copy-action fa-solid fa-copy fa-xs"></span>').on(
-      'click',
-      async function () {
-        const prompt_id = get_prompt_id_from_tool($(this));
-        await updatePresetWith(
-          'in_use',
-          preset => {
-            const index = preset.prompts.findIndex(prompt => prompt.id === prompt_id);
-            if (index === -1) {
-              return preset;
-            }
-            preset.prompts.splice(index + 1, 0, { ...preset.prompts[index], id: crypto.randomUUID() });
-            return preset;
-          },
-          { render: 'immediate' },
-        );
-      },
-    ),
-  );
+
+  $prompt_controls.find('.prompt-manager-detach-action').remove();
   $prompt_controls.prepend(
     $('<span title="delete" class="prompt-manager-remove-action caution fa-solid fa-trash fa-xs"></span>').on(
       'click',
@@ -53,13 +32,32 @@ function replace_toolbox() {
         );
       },
     ),
+    $('<span title="copy" class="prompt-manager-copy-action fa-solid fa-copy fa-xs"></span>').on(
+      'click',
+      async function () {
+        const prompt_id = get_prompt_id_from_tool($(this));
+        await updatePresetWith(
+          'in_use',
+          preset => {
+            const index = preset.prompts.findIndex(prompt => prompt.id === prompt_id);
+            if (index === -1) {
+              return preset;
+            }
+            preset.prompts.splice(index + 1, 0, { ...preset.prompts[index], id: crypto.randomUUID() });
+            return preset;
+          },
+          { render: 'immediate' },
+        );
+      },
+    ),
   );
+
   observer.observe($('#completion_prompt_manager')[0], {
     childList: true,
     subtree: true,
   });
 }
-const replace_toolbox_debounced = _.debounce(replace_toolbox, 200);
+const replace_toolbox_debounced = _.debounce(replace_toolbox, 500);
 
 const observer = new MutationObserver(replace_toolbox_debounced);
 
@@ -68,10 +66,6 @@ $(() => {
 });
 
 $(window).on('unload', () => {
-  const $prompts = $('.prompt_manager_prompt_controls:has(span[title="Remove"])');
-  $prompts.find('span[title="Remove"]').show();
-  $prompts.find('span[title="copy"]').remove();
-  $prompts.find('span[title="delete"]').remove();
-
+  replacePreset('in_use', getPreset('in_use'));
   observer.disconnect();
 });
