@@ -5,16 +5,31 @@ interface Preload {
   assets: string[];
 }
 
-async function get_preloads() {
-  return getTavernRegexes()
+const Settings = z.object({
+  资源预载: z.string().default(''),
+});
+
+const variable_option = { type: 'script', script_id: getScriptId() } as const;
+
+function get_preloads(): Preload[] {
+  const settings = Settings.parse(getVariables(variable_option));
+  insertVariables(settings, variable_option);
+
+  return _(getTavernRegexes())
     .filter(regex => regex.enabled && regex.script_name.includes('预载-'))
-    .map<Preload>(regex => ({
+    .map(regex => ({
       title: regex.script_name.replace('预载-', '').replaceAll(/【.+?】/gs, ''),
-      assets: regex.replace_string
+      content: regex.replace_string,
+    }))
+    .concat([{ title: '脚本变量', content: settings.资源预载 }])
+    .map(({ title, content }) => ({
+      title,
+      assets: content
         .split('\n')
         .map(asset => asset.trim())
         .filter(asset => !!asset),
-    }));
+    }))
+    .value();
 }
 
 function extract_preload_node(preload: Preload) {
@@ -30,7 +45,7 @@ function reappend_preloads(nodes: JQuery) {
 }
 
 $(async () => {
-  const preloads = await get_preloads();
+  const preloads = get_preloads();
   const preload_nodes = preloads.map(extract_preload_node);
   reappend_preloads($('<div>').attr('id', 'script_preload').append(preload_nodes));
 });

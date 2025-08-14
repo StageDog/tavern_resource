@@ -6,7 +6,7 @@
 **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
 **说明:** 提前缓存
 
-在正则中新建一个 "预载-xxx" 正则, 它的`查找正则表达式`部分不必填写, `替换为`部分每行填入一个你要预载的图片链接
+导入脚本后, 点击编辑脚本将会看到变量表中有一个 "资源预载" 变量, 在值中填入要预载的图片链接, 每行一个
 
 ```txt
 https://gitgud.io/lolodesu/lolobabytutorial/-/raw/master/lologame/角色/水手服/猫爪生气.png&inline=false
