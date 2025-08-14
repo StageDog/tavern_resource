@@ -12,6 +12,10 @@ function replace_toolbox() {
     $('<span title="copy" class="prompt-manager-copy-action fa-solid fa-copy fa-xs"></span>').on(
       'click',
       async function () {
+        const result = await SillyTavern.callGenericPopup('确定要永久删除这个条目吗?', SillyTavern.POPUP_TYPE.CONFIRM);
+        if (!result) {
+          return;
+        }
         const prompt_id = get_prompt_id_from_tool($(this));
         await updatePresetWith(
           'in_use',
