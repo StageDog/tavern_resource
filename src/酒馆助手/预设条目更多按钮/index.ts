@@ -20,7 +20,7 @@ function replace_toolbox() {
             if (index === -1) {
               return preset;
             }
-            preset.prompts.splice(index + 1, 0, preset.prompts[index]);
+            preset.prompts.splice(index + 1, 0, { ...preset.prompts[index], id: crypto.randomUUID() });
             return preset;
           },
           { render: 'immediate' },
