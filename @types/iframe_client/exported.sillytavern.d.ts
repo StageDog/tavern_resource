@@ -18,7 +18,7 @@ declare namespace SillyTavern {
     swipes?: string[];
     variables?: Record<string, any>[];
     extra?: Record<string, any>;
-  }
+  };
 
   /**
    * V1 character data structure.
@@ -57,7 +57,7 @@ declare namespace SillyTavern {
     json_data: string;
     /** if the data is shallow (lazy-loaded) */
     shallow?: boolean;
-  }
+  };
 
   /**
    * V2 character data structure.
@@ -93,7 +93,7 @@ declare namespace SillyTavern {
     character_book: v2WorldInfoBook;
     /** Additional details specific to the character. */
     extensions: v2CharDataExtensionInfos;
-  }
+  };
 
   /**
    * A world info book containing entries.
@@ -103,7 +103,7 @@ declare namespace SillyTavern {
     name: string;
     /** the entries of the book */
     entries: v2DataWorldInfoEntry[];
-  }
+  };
 
   /**
    * A world info entry object.
@@ -131,7 +131,7 @@ declare namespace SillyTavern {
     extensions: v2DataWorldInfoEntryExtensionInfos;
     /** A unique identifier assigned to the entry. */
     id: number;
-  }
+  };
 
   /**
    * An object containing additional details for extensions associated with the entry.
@@ -187,7 +187,7 @@ declare namespace SillyTavern {
     match_scenario: boolean;
     /** Wether to match against the character creator notes. */
     match_creator_notes: boolean;
-  }
+  };
 
   /**
    * Additional details specific to the character.
@@ -223,7 +223,7 @@ declare namespace SillyTavern {
     risuai?: { source: string[] };
     /** SD-specific data associated with the character. */
     sd_character_prompt?: { positive: string; negative: string };
-  }
+  };
 
   /**
    * Regex script data for character processing.
@@ -255,7 +255,74 @@ declare namespace SillyTavern {
     minDepth: number;
     /** The maximum depth */
     maxDepth: number;
-  }
+  };
+
+  type PopupOptions = {
+    /** Custom text for the OK button, or `true` to use the default (If set, the button will always be displayed, no matter the type of popup) */
+    okButton?: string | boolean;
+    /** Custom text for the Cancel button, or `true` to use the default (If set, the button will always be displayed, no matter the type of popup) */
+    cancelButton?: string | boolean;
+    /** The number of rows for the input field */
+    rows?: number;
+    /** Whether to display the popup in wide mode (wide screen, 1/1 aspect ratio) */
+    wide?: boolean;
+    /** Whether to display the popup in wider mode (just wider, no height scaling) */
+    wider?: boolean;
+    /** Whether to display the popup in large mode (90% of screen) */
+    large?: boolean;
+    /** Whether to display the popup in transparent mode (no background, border, shadow or anything, only its content) */
+    transparent?: boolean;
+    /** Whether to allow horizontal scrolling in the popup */
+    allowHorizontalScrolling?: boolean;
+    /** Whether to allow vertical scrolling in the popup */
+    allowVerticalScrolling?: boolean;
+    /** Whether the popup content should be left-aligned by default */
+    leftAlign?: boolean;
+    /** Animation speed for the popup (opening, closing, ...) */
+    animation?: 'slow' | 'fast' | 'none';
+    /** The default result of this popup when Enter is pressed. Can be changed from `POPUP_RESULT.AFFIRMATIVE`. */
+    defaultResult?: number;
+    /** Custom buttons to add to the popup. If only strings are provided, the buttons will be added with default options, and their result will be in order from `2` onward. */
+    customButtons?: CustomPopupButton[] | string[];
+    /** Custom inputs to add to the popup. The display below the content and the input box, one by one. */
+    customInputs?: CustomPopupInput[];
+    /** Handler called before the popup closes, return `false` to cancel the close */
+    onClosing?: (popup: typeof SillyTavern.Popup) => Promise<boolean | void>;
+    /** Handler called after the popup closes, but before the DOM is cleaned up */
+    onClose?: (popup: typeof SillyTavern.Popup) => Promise<void>;
+    /** Handler called after the popup opens */
+    onOpen?: (popup: typeof SillyTavern.Popup) => Promise<void>;
+    /** Aspect ratio for the crop popup */
+    cropAspect?: number;
+    /** Image URL to display in the crop popup */
+    cropImage?: string;
+  };
+
+  type CustomPopupButton = {
+    /** The text of the button */
+    text: string;
+    /** The result of the button - can also be a custom result value to make be able to find out that this button was clicked. If no result is specified, this button will **not** close the popup. */
+    result?: number;
+    /** Optional custom CSS classes applied to the button */
+    classes?: string[] | string;
+    /** Optional action to perform when the button is clicked */
+    action?: () => void;
+    /** Whether to append the button to the end of the popup - by default it will be prepended */
+    appendAtEnd?: boolean;
+  };
+
+  type CustomPopupInput = {
+    /** The id for the html element */
+    id: string;
+    /** The label text for the input */
+    label: string;
+    /** Optional tooltip icon displayed behind the label */
+    tooltip?: string;
+    /** The default state when opening the popup (false if not set) */
+    defaultState?: boolean;
+    /** The type of the input (default is checkbox) */
+    type?: string;
+  };
 }
 
 /**
@@ -372,12 +439,6 @@ declare const SillyTavern: {
     localize?: boolean,
   ) => Promise<string>;
   readonly registerDataBankScraper: (scraper: any) => Promise<void>;
-  readonly callGenericPopup: (
-    content: JQuery<HTMLElement> | string | Element,
-    type: number,
-    inputValue?: string,
-    popupOptions?: any,
-  ) => Promise<number | string | boolean | undefined>;
   readonly showLoader: () => void;
   readonly hideLoader: () => Promise<any>;
   readonly mainApi: any;
@@ -418,7 +479,14 @@ declare const SillyTavern: {
   };
   readonly menuType: any;
   readonly createCharacterData: Record<string, any>;
-  readonly Popup: any;
+  readonly Popup: {
+    new (
+      content: JQuery<HTMLElement> | string | Element,
+      type: number,
+      inputValue?: string,
+      popupOptions?: SillyTavern.PopupOptions,
+    ): { show: () => Promise<void> };
+  };
   readonly POPUP_TYPE: {
     TEXT: number;
     CONFIRM: number;
@@ -429,7 +497,7 @@ declare const SillyTavern: {
   readonly POPUP_RESULT: {
     AFFIRMATIVE: number;
     NEGATIVE: number;
-    CANCELLED: any;
+    CANCELLED: number;
     CUSTOM1: number;
     CUSTOM2: number;
     CUSTOM3: number;
@@ -440,6 +508,12 @@ declare const SillyTavern: {
     CUSTOM8: number;
     CUSTOM9: number;
   };
+  readonly callGenericPopup: (
+    content: JQuery<HTMLElement> | string | Element,
+    type: number,
+    inputValue?: string,
+    popupOptions?: SillyTavern.PopupOptions,
+  ) => Promise<number | string | boolean | undefined>;
   /** oai_settings */
   readonly chatCompletionSettings: any;
   /** textgenerationwebui_settings */

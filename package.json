@@ -11,17 +11,17 @@
     "defaults and partially supports es6-module"
   ],
   "devDependencies": {
-    "@eslint/js": "^9.32.0",
-    "@tailwindcss/postcss": "^4.1.11",
+    "@eslint/js": "^9.33.0",
+    "@tailwindcss/postcss": "^4.1.12",
     "@types/jquery": "^3.5.32",
     "@types/jqueryui": "^1.12.24",
     "@types/lodash": "^4.17.20",
     "@types/toastr": "^2.1.43",
     "@types/webpack": "^5.28.5",
-    "@typescript-eslint/parser": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.1",
     "autoprefixer": "^10.4.21",
     "css-loader": "^7.1.2",
-    "eslint": "^9.32.0",
+    "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import-x": "^4.16.1",
@@ -31,8 +31,8 @@
     "html-inline-script-webpack-plugin": "^3.2.1",
     "html-loader": "^5.1.0",
     "html-webpack-inline-svg-plugin": "^2.3.0",
-    "html-webpack-plugin": "^5.6.3",
-    "mini-css-extract-plugin": "^2.9.3",
+    "html-webpack-plugin": "^5.6.4",
+    "mini-css-extract-plugin": "^2.9.4",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
     "postcss-loader": "^8.1.1",
@@ -43,14 +43,14 @@
     "sass": "^1.90.0",
     "sass-loader": "^16.0.5",
     "socket.io": "^4.8.1",
-    "tailwindcss": "^4.1.11",
+    "tailwindcss": "^4.1.12",
     "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "tslib": "^2.8.1",
     "typescript": "6.0.0-dev.20250807",
-    "webpack": "^5.101.0",
+    "webpack": "^5.101.2",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
@@ -60,7 +60,7 @@
     "lodash": "^4.17.21",
     "toastr": "^2.1.4",
     "yaml": "^2.8.1",
-    "zod": "^4.0.15"
+    "zod": "^4.0.17"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
