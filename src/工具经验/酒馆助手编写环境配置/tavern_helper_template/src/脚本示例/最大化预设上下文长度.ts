@@ -4,7 +4,7 @@ $(() => {
 });
 
 // 在卸载脚本时执行某个函数
-$(window).on('unload', () => lock_inputs(false));
+$(window).on('pagehide', () => lock_inputs(false));
 
 function lock_inputs(enable: boolean) {
   $('#range_block_openai :input').prop('disabled', enable);

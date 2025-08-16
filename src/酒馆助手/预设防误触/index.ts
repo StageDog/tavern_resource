@@ -25,4 +25,4 @@ $(() => {
   lock_inputs(true);
 });
 
-$(window).on('unload', () => lock_inputs(false));
+$(window).on('pagehide', () => lock_inputs(false));

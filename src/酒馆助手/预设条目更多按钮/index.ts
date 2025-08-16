@@ -66,7 +66,7 @@ $(() => {
   replace_toolbox();
 });
 
-$(window).on('unload', () => {
+$(window).on('pagehide', () => {
   replacePreset('in_use', getPreset('in_use'));
   observer.disconnect();
 });

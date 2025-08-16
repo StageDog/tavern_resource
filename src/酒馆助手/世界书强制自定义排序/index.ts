@@ -10,6 +10,6 @@ $(() => {
   $option.prop('disabled', true);
 });
 
-$(window).on('unload', () => {
+$(window).on('pagehide', () => {
   $option.prop('disabled', false);
 });

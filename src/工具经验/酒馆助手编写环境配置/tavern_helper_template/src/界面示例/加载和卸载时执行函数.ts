@@ -5,6 +5,6 @@ $(() => {
 });
 
 // 在界面卸载时执行某个函数
-$(window).on('unload', () => {
+$(window).on('pagehide', () => {
   toastr.info('你已经卸载界面!', '再见!');
 });

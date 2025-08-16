@@ -76,4 +76,4 @@ $(() => {
   toggle_lock(true);
 });
 
-$(window).on('unload', () => toggle_lock(false));
+$(window).on('pagehide', () => toggle_lock(false));

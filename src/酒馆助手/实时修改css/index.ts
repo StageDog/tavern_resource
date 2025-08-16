@@ -20,6 +20,6 @@ let id: number;
 $(() => {
   id = setInterval(refresh_css, delay);
 });
-$(window).on('unload', () => {
+$(window).on('pagehide', () => {
   clearInterval(id);
 });
