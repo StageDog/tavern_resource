@@ -1,4 +1,3 @@
-# yaml-language-server: $schema=https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/工具经验/酒馆助手编写环境配置/config.schema.json
 port: 6621
 entries:
   - script: src/脚本示例/index.ts
