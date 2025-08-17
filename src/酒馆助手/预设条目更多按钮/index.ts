@@ -4,7 +4,9 @@ function get_prompt_id_from_tool($tool: JQuery) {
 
 function replace_toolbox() {
   observer.disconnect();
-  const $prompts = $('.completion_prompt_manager_prompt:has(.fa-asterisk)');
+  const $prompts = $(
+    '.completion_prompt_manager_prompt:has(.fa-asterisk), .completion_prompt_manager_prompt:has(fa-syringe)',
+  );
   const $prompt_controls = $prompts.find('.prompt_manager_prompt_controls');
 
   $prompts.find('.prompt_manager_prompt_tokens').css('pointer-events', 'none');
