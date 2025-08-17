@@ -15,4 +15,5 @@
       ■ 近期事务:
         - ${Record recent tasks that need to be completed. Listed tasks will remain until completed or abandoned, but task timing and content may be adjusted based on the plot. Completed tasks will no longer be displayed}
       ```
+      </small>
       </StatusBlock>
