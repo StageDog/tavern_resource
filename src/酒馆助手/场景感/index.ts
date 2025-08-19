@@ -6,12 +6,12 @@ $(() => {
     { name: '后日谈', visible: true },
   ]);
 
-  eventOnButton('推进', async () => {
+  eventOn(getButtonEvent('推进'), async () => {
     await createChatMessages([{ role: 'user', message: '延续当前剧情' }]);
     await triggerSlash('/trigger');
   });
 
-  eventOnButton('切换视角推进', async () => {
+  eventOn(getButtonEvent('切换视角推进'), async () => {
     const get_and_invoke = async (
       data: Record<string, string | (() => string | undefined) | (() => Promise<string | undefined>)>,
       path: string | undefined,
@@ -48,7 +48,7 @@ $(() => {
           toastr.error('请填写要采用的视角', '场景感');
           return undefined;
         }
-        return result;
+        return `以${result}视角`;
       },
       随机人物: '与当前剧情末尾不同的人物',
       选择媒体: async () => {
@@ -113,7 +113,7 @@ $(() => {
     await createChatMessages([
       {
         role: 'user',
-        message: _([plot, view, writting_style])
+        message: _([view, plot, writting_style])
           .filter(string => !!string)
           .join('\n'),
       },
@@ -121,7 +121,7 @@ $(() => {
     await triggerSlash('/trigger');
   });
 
-  eventOnButton('完结', async () => {
+  eventOn(getButtonEvent('完结'), async () => {
     const result = (await SillyTavern.callGenericPopup('故事将如何完结?', SillyTavern.POPUP_TYPE.INPUT, '', {
       rows: 4,
     })) as string;
@@ -139,7 +139,7 @@ $(() => {
     await triggerSlash('/trigger');
   });
 
-  eventOnButton('后日谈', async () => {
+  eventOn(getButtonEvent('后日谈'), async () => {
     const result = (await SillyTavern.callGenericPopup(
       '该后日谈的标题或详细剧情是?',
       SillyTavern.POPUP_TYPE.INPUT,
