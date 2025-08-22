@@ -372,11 +372,33 @@ declare const SillyTavern: {
   readonly tokenizers: any;
   readonly getTextTokens: (tokenizer_type: number, string: string) => Promise<number>;
   readonly getTokenCountAsync: (string: string, padding?: number | undefined) => Promise<number>;
-  readonly extensionPrompts: any;
+  /**  `/inject`、`setExtensionPrompt` 等注入的所有额外提示词 */
+  readonly extensionPrompts: Record<
+    string,
+    {
+      value: string;
+      position: number;
+      depth: number;
+      scan: boolean;
+      role: number;
+      filter: () => Promise<boolean> | boolean;
+    }
+  >;
+  /**
+   * 注入一段额外的提示词
+   *
+   * @param prompt_id id, 重复则会替换原本的内容
+   * @param content 内容
+   * @param position 位置. 跟聊天补全有关的只有 1, 因此传 1 即可
+   * @param depth 深度
+   * @param scan 是否作为欲扫描文本, 加入世界书绿灯条目扫描文本中
+   * @param role 消息角色. 0 为 system, 1 为 user, 2 为 assistant
+   * @param filter 提示词在什么情况下有效
+   */
   readonly setExtensionPrompt: (
-    key: string,
-    value: string,
-    position: number,
+    prompt_id: string,
+    content: string,
+    position: 1,
     depth: number,
     scan?: boolean,
     role?: number,
