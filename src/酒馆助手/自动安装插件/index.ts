@@ -1,3 +1,5 @@
+export {};
+
 async function get_third_party_extension_names(): Promise<string[]> {
   try {
     const response = await fetch('/api/extensions/discover');
@@ -26,53 +28,62 @@ async function install_extension(url: string): Promise<boolean> {
   });
   if (!request.ok) {
     const text = await request.text();
-    toastr.warning(`扩展安装失败: ${text || request.statusText}`);
+    toastr.warning(`${text || request.statusText}`, '扩展安装失败');
     console.error('扩展安装失败', request.status, request.statusText, text);
     return false;
   }
 
   const response = await request.json();
   toastr.success(
-    `扩展安装成功: 已成功安装由 '${response.author}' 编写的 '${response.display_name}' (版本 ${response.version})!`,
+    `已成功安装由 '${response.author}' 编写的 '${response.display_name}' (版本 ${response.version})!`,
+    '扩展安装成功',
   );
   console.debug(`已成功将 '${response.display_name}' 安装到 ${response.extensionPath}`);
   return true;
 }
 
-$(async () => {
-  const extensions = (await getTavernRegexes({ enable_state: 'enabled' }))
-    .filter(regex => regex.script_name.includes('预安装插件'))
-    .flatMap(regex => Object.entries<string>(YAML.parse(regex.replace_string)))
-    .map(([name, url]) => {
-      let tag = url.replace(/(\.git|\/)$/, '');
-      tag = tag.substring(tag.lastIndexOf('/') + 1);
-      return {
-        [tag]: {
-          name,
-          url,
-        },
-      };
-    })
-    .reduce((previous, current) => _.defaults(previous, current), {});
+const Settings = z.object({
+  自动安装插件: z.record(z.string(), z.string()).default({}),
+});
 
-  const current_extensions = await get_third_party_extension_names();
-  const uninstall_extension_tags = _.difference(Object.keys(extensions), current_extensions);
-  if (uninstall_extension_tags.length === 0) {
-    return;
-  }
+$(() => {
+  setTimeout(async () => {
+    const variable_option = { type: 'script', script_id: getScriptId() } as const;
+    const settings = Settings.parse(getVariables(variable_option));
+    insertVariables(settings);
 
-  if (
-    !(await SillyTavern.callGenericPopup(
-      '以下需要的插件尚未安装, 是否安装?<br>' +
-        uninstall_extension_tags.map(tag => `- ${extensions[tag].name}`).join('<br>'),
-      SillyTavern.POPUP_TYPE.CONFIRM,
-      '',
-      { leftAlign: true },
-    ))
-  ) {
-    return;
-  }
+    const extensions = Object.entries<string>(settings.自动安装插件)
+      .map(([name, url]) => {
+        let tag = url.replace(/(\.git|\/)$/, '');
+        tag = tag.substring(tag.lastIndexOf('/') + 1);
+        return {
+          [tag]: {
+            name,
+            url,
+          },
+        };
+      })
+      .reduce((previous, current) => _.defaults(previous, current), {});
 
-  await Promise.allSettled(uninstall_extension_tags.map(tag => install_extension(extensions[tag].url)));
-  setTimeout(() => triggerSlash('/reload-page'), 3000);
+    const current_extensions = await get_third_party_extension_names();
+    const uninstall_extension_tags = _.difference(Object.keys(extensions), current_extensions);
+    if (uninstall_extension_tags.length === 0) {
+      return;
+    }
+
+    if (
+      !(await SillyTavern.callGenericPopup(
+        '以下需要的插件尚未安装, 是否安装?<br>' +
+          uninstall_extension_tags.map(tag => `- ${extensions[tag].name}`).join('<br>'),
+        SillyTavern.POPUP_TYPE.CONFIRM,
+        '',
+        { leftAlign: true },
+      ))
+    ) {
+      return;
+    }
+
+    await Promise.allSettled(uninstall_extension_tags.map(tag => install_extension(extensions[tag].url)));
+    setTimeout(() => triggerSlash('/reload-page'), 3000);
+  }, 10000);
 });
