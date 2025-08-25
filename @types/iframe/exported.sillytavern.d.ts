@@ -507,7 +507,15 @@ declare const SillyTavern: {
       type: number,
       inputValue?: string,
       popupOptions?: SillyTavern.PopupOptions,
-    ): { show: () => Promise<void> };
+    ): {
+      dlg: HTMLDialogElement;
+
+      show: () => Promise<void>;
+      complete: (result: number) => Promise<void>;
+      completeAffirmative: () => Promise<void>;
+      completeNegative: () => Promise<void>;
+      completeCancelled: () => Promise<void>;
+    };
   };
   readonly POPUP_TYPE: {
     TEXT: number;

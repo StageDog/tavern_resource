@@ -1,9 +1,9 @@
 $(() => {
-  appendInexistentScriptButtons(getScriptId(), [
+  appendInexistentScriptButtons([
     { name: '显示区间', visible: true },
     { name: '恢复默认', visible: true },
   ]);
-  eventOnButton('显示区间', async () => {
+  eventOn(getButtonEvent('显示区间'), async () => {
     const min = 0;
     const max = SillyTavern.chat.length - 1;
 
@@ -29,5 +29,5 @@ $(() => {
       );
     }
   });
-  eventOnButton('恢复默认', SillyTavern.reloadCurrentChat);
+  eventOn(getButtonEvent('恢复默认'), SillyTavern.reloadCurrentChat);
 });

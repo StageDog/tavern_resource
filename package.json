@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "compare-version": "^0.1.2",
+    "compare-versions": "^6.1.1",
     "jquery": "^3.7.1",
     "jqueryui": "^1.11.1",
     "lodash": "^4.17.21",

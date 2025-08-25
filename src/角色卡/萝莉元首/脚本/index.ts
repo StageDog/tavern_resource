@@ -50,7 +50,7 @@ async function initialize_based_on_user_role(): Promise<void> {
       .map(([key, value]) => `\n@${key}=${value}@`)
       .join('') + '\n',
   );
-  await setChatMessage({ message }, 0, { refresh: 'display_current' });
+  await setChatMessages([{ message_id: 0, message }], { refresh: 'affected' });
 }
 
 $(async () => {
