@@ -115,10 +115,15 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
               test: /\.tsx?$/,
               loader: 'ts-loader',
               options: {
+<<<<<<< HEAD
                 compilerOptions: {
                   noUnusedLocals: false,
                   noUnusedParameters: false,
                 },
+=======
+                onlyCompileBundledFiles: true,
+                transpileOnly: true,
+>>>>>>> 615a8078db460666c0d3b97d07644dc5d257ff81
               },
               resourceQuery: /raw/,
               type: 'asset/source',
@@ -143,10 +148,15 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
               test: /\.tsx?$/,
               loader: 'ts-loader',
               options: {
+<<<<<<< HEAD
                 compilerOptions: {
                   noUnusedLocals: false,
                   noUnusedParameters: false,
                 },
+=======
+                onlyCompileBundledFiles: true,
+                transpileOnly: true,
+>>>>>>> 615a8078db460666c0d3b97d07644dc5d257ff81
               },
               exclude: /node_modules/,
             },

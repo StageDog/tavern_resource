@@ -54,6 +54,7 @@
     "webpack": "^5.101.3",
     "webpack-cli": "^6.0.1"
   },
+<<<<<<< HEAD
   "pnpm": {
     "onlyBuiltDependencies": [
       "@parcel/watcher",
@@ -63,6 +64,9 @@
   },
   "dependencies": {
     "compare-versions": "^6.1.1",
+=======
+  "dependencies": {
+>>>>>>> 615a8078db460666c0d3b97d07644dc5d257ff81
     "dedent": "^1.6.0",
     "jquery": "^3.7.1",
     "jqueryui": "^1.11.1",
@@ -70,5 +74,15 @@
     "toastr": "^2.1.4",
     "yaml": "^2.8.1",
     "zod": "^4.1.2"
+<<<<<<< HEAD
+=======
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@tailwindcss/oxide",
+      "unrs-resolver"
+    ]
+>>>>>>> 615a8078db460666c0d3b97d07644dc5d257ff81
   }
 }
