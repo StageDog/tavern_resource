@@ -1,5 +1,7 @@
 .github/workflows
 @types
-README.md
+初始模板
 dist
-slash_command.txt
+src/界面示例
+src/脚本示例
+README.md
