@@ -19,7 +19,11 @@
       ]
     },
     "moduleDetection": "auto",
+<<<<<<< HEAD
     "moduleResolution": "node",
+=======
+    "moduleResolution": "bundler",
+>>>>>>> 615a8078db460666c0d3b97d07644dc5d257ff81
     "allowUmdGlobalAccess": true,
     "allowSyntheticDefaultImports": true,
     "strictBindCallApply": true,
@@ -34,8 +38,20 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
+<<<<<<< HEAD
+=======
+  "include": [
+    "@types",
+    "src",
+    "global.d.ts",
+  ],
+>>>>>>> 615a8078db460666c0d3b97d07644dc5d257ff81
   "exclude": [
     "**/dist/**",
     "**/node_modules/**",
   ]
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 615a8078db460666c0d3b97d07644dc5d257ff81
