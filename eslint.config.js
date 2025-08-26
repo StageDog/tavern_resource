@@ -37,11 +37,5 @@ export default [
     },
   },
   eslintConfigPrettier,
-  globalIgnores([
-    'dist/**',
-    'node_modules/**',
-    'tavern_helper/**',
-    'eslint.config.js',
-    'webpack.config.ts',
-  ]),
+  globalIgnores(['dist/**', 'node_modules/**', 'tavern_helper/**', 'eslint.config.js', 'webpack.config.ts']),
 ];
