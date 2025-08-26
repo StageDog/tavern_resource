@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "build:dev": "webpack --mode development",
-    "build": "webpack --mode production",
+    "build:dev": "pnpx rimraf dist && webpack --mode development",
+    "build": "pnpx rimraf dist && webpack --mode production",
     "watch": "webpack --mode development --watch --progress",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,scss,html}\"",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
@@ -37,9 +37,9 @@
     "postcss-cli": "^11.0.1",
     "postcss-loader": "^8.1.1",
     "postcss-minify": "^1.2.0",
-    "postcss-nested": "^7.0.2",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
+    "rimraf": "^6.0.1",
     "sass": "^1.91.0",
     "sass-loader": "^16.0.5",
     "socket.io": "^4.8.1",
@@ -54,21 +54,20 @@
     "webpack": "^5.101.3",
     "webpack-cli": "^6.0.1"
   },
-  "dependencies": {
-    "compare-version": "^0.1.2",
-    "compare-versions": "^6.1.1",
-    "jquery": "^3.7.1",
-    "jqueryui": "^1.11.1",
-    "lodash": "^4.17.21",
-    "toastr": "^2.1.4",
-    "yaml": "^2.8.1",
-    "zod": "^4.1.3"
-  },
   "pnpm": {
     "onlyBuiltDependencies": [
       "@parcel/watcher",
       "@tailwindcss/oxide",
       "unrs-resolver"
     ]
+  },
+  "dependencies": {
+    "dedent": "^1.6.0",
+    "jquery": "^3.7.1",
+    "jqueryui": "^1.11.1",
+    "lodash": "^4.17.21",
+    "toastr": "^2.1.4",
+    "yaml": "^2.8.1",
+    "zod": "^4.1.2"
   }
 }
