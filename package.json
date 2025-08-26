@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "build:dev": "pnpx rimraf dist && webpack --mode development",
-    "build": "pnpx rimraf dist && webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "build": "webpack --mode production",
     "watch": "webpack --mode development --watch --progress",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,scss,html}\"",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
@@ -39,7 +39,6 @@
     "postcss-minify": "^1.2.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "rimraf": "^6.0.1",
     "sass": "^1.91.0",
     "sass-loader": "^16.0.5",
     "socket.io": "^4.8.1",
