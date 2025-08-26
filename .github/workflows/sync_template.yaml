@@ -23,4 +23,5 @@ jobs:
           pr_title: '[bot] 同步模板仓库的更新'
           pr_commit_msg: '[bot] bump template repository update'
           is_pr_cleanup: true
+          is_force_deletion: true
           template_sync_ignore_file_path: .github/.templatesyncignore
