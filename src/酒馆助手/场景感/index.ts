@@ -1,5 +1,5 @@
 $(() => {
-  appendInexistentScriptButtons(getScriptId(), [
+  appendInexistentScriptButtons([
     { name: '推进', visible: true },
     { name: '切换视角推进', visible: true },
     { name: '完结', visible: true },

@@ -22,20 +22,19 @@ interface Config {
 interface Entry {
   script: string;
   html?: string;
-  minimize?: boolean;
+}
+
+function parse_entry(script_file: string) {
+  const html = path.join(path.dirname(script_file), 'index.html');
+  if (fs.existsSync(html)) {
+    return { script: script_file, html };
+  }
+  return { script: script_file };
 }
 
 const config: Config = {
   port: 6621,
-  entries: [
-    ...fs.globSync(['src/**/index.ts']).map(script => {
-      const html = path.join(path.dirname(script), 'index.html');
-      if (fs.existsSync(html)) {
-        return { script, html };
-      }
-      return { script };
-    }),
-  ],
+  entries: [...fs.globSync('src/**/index.ts'), ...fs.globSync('src/**/index.js')].map(parse_entry),
 };
 
 let io: Server;
@@ -62,7 +61,6 @@ function watch_it(compiler: webpack.Compiler) {
 
 function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Configuration {
   const script_filepath = path.parse(entry.script);
-  const should_minimize = entry.minimize ?? true;
 
   let plugins: webpack.Configuration['plugins'] = [];
   if (entry.html === undefined) {
@@ -72,7 +70,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
       new HtmlWebpackPlugin({
         template: path.join(__dirname, entry.html),
         filename: path.parse(entry.html).base,
-        scriptLoading: 'blocking',
+        scriptLoading: 'module',
         cache: false,
       }),
       new HtmlInlineScriptWebpackPlugin(),
@@ -91,6 +89,9 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
       outputModule: true,
     },
     devtool: argv.mode === 'production' ? false : 'eval-source-map',
+    watchOptions: {
+      ignored: ['**/dist', '**/node_modules'],
+    },
     entry: path.join(__dirname, entry.script),
     target: 'browserslist',
     output: {
@@ -115,23 +116,24 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
               loader: 'ts-loader',
               options: {
                 transpileOnly: true,
+                onlyCompileBundledFiles: true,
+                compilerOptions: {
+                  noUnusedLocals: false,
+                  noUnusedParameters: false,
+                },
               },
               resourceQuery: /raw/,
               type: 'asset/source',
             },
             {
-              test: /\.(sa|sc|c)ss$/,
-              use: [
-                {
-                  loader: 'postcss-loader',
-                  options: {
-                    postcssOptions: {
-                      config: path.resolve(__dirname, 'postcss.config.js'),
-                    },
-                  },
-                },
-                'sass-loader',
-              ],
+              test: /\.(sa|sc)ss$/,
+              use: ['postcss-loader', 'sass-loader'],
+              resourceQuery: /raw/,
+              type: 'asset/source',
+            },
+            {
+              test: /\.css$/,
+              use: ['postcss-loader'],
               resourceQuery: /raw/,
               type: 'asset/source',
             },
@@ -144,6 +146,11 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
               loader: 'ts-loader',
               options: {
                 transpileOnly: true,
+                onlyCompileBundledFiles: true,
+                compilerOptions: {
+                  noUnusedLocals: false,
+                  noUnusedParameters: false,
+                },
               },
               exclude: /node_modules/,
             },
@@ -153,20 +160,18 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
               exclude: /node_modules/,
             },
             {
-              test: /\.(sa|sc|c)ss$/,
+              test: /\.(sa|sc)ss$/,
               use: [
                 MiniCssExtractPlugin.loader,
                 { loader: 'css-loader', options: { url: false } },
-                {
-                  loader: 'postcss-loader',
-                  options: {
-                    postcssOptions: {
-                      config: path.resolve(__dirname, 'postcss.config.js'),
-                    },
-                  },
-                },
+                'postcss-loader',
                 'sass-loader',
               ],
+              exclude: /node_modules/,
+            },
+            {
+              test: /\.css$/,
+              use: [MiniCssExtractPlugin.loader, { loader: 'css-loader', options: { url: false } }, 'postcss-loader'],
               exclude: /node_modules/,
             },
           ],
@@ -185,7 +190,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
     },
     plugins: plugins,
     optimization: {
-      minimize: should_minimize,
+      minimize: true,
       minimizer: [
         argv.mode === 'production'
           ? new TerserPlugin({

@@ -1,8 +1,8 @@
 # 自动关闭前端卡不兼容选项
 
-**作者:** 青空莉想做舞台少女的狗
-**版本:** 2025/04/21
-**源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **作者:** 青空莉想做舞台少女的狗
+- **版本:** 2025/04/21
+- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
 
 启用后会执行一次:
 
