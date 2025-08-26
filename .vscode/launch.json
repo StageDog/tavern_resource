@@ -16,6 +16,9 @@
         "webpack-internal:///*": "${webRoot}/scripts/extensions/third-party/*",
         "webpack:/*": "${webRoot}/scripts/extensions/third-party/*",
       },
+      "skipFiles": [
+        "**/jquery*.min.js"
+      ],
     },
     {
       "name": "调试酒馆网页(Edge)",
@@ -32,6 +35,9 @@
         "webpack-internal:///*": "${webRoot}/scripts/extensions/third-party/*",
         "webpack:/*": "${webRoot}/scripts/extensions/third-party/*",
       },
+      "skipFiles": [
+        "**/jquery*.min.js"
+      ],
     }
   ]
 }
