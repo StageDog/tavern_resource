@@ -3,4 +3,3 @@
 *.{bat,[bB][aA][tT]} text eol=crlf
 
 dist/** merge=ours
-archive/** merge=ours
