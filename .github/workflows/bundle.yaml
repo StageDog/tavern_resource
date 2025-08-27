@@ -2,9 +2,9 @@ name: bundle
 
 on:
   push:
-    branches:
-      - master
-      - main
+    # branches:
+    #   - master
+    #   - main
     paths-ignore:
       - dist/**
   workflow_dispatch:

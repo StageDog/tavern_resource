@@ -1,6 +1,7 @@
 name: sync_template
 
 on:
+  push:
   schedule:
     - cron: 0 3 * * *
   workflow_dispatch:
@@ -25,4 +26,4 @@ jobs:
           is_pr_cleanup: true
           template_sync_ignore_file_path: .github/.templatesyncignore
           is_force_deletion: true
-          git_remote_pull_params: --allow-unrelated-histories --strategy=recursive --no-edit
+          git_remote_pull_params: --allow-unrelated-histories --strategy=recursive --no-edit -X patience -X ignore-all-space
