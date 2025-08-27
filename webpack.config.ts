@@ -8,6 +8,7 @@ import url from 'node:url';
 import { Server } from 'socket.io';
 import TerserPlugin from 'terser-webpack-plugin';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import { VueLoaderPlugin } from 'vue-loader';
 import webpack from 'webpack';
 const require = createRequire(import.meta.url);
 const HTMLInlineCSSWebpackPlugin = require('html-inline-css-webpack-plugin').default;
@@ -80,6 +81,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
           return `<style>${style}</style>`;
         },
       }),
+      new VueLoaderPlugin(),
     );
   }
   plugins.push({ apply: watch_it });
@@ -110,6 +112,11 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
     module: {
       rules: [
         {
+          test: /\.vue$/,
+          use: 'vue-loader',
+          exclude: /node_modules/,
+        },
+        {
           oneOf: [
             {
               test: /\.tsx?$/,
@@ -124,22 +131,26 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
               },
               resourceQuery: /raw/,
               type: 'asset/source',
+              exclude: /node_modules/,
             },
             {
               test: /\.(sa|sc)ss$/,
               use: ['postcss-loader', 'sass-loader'],
               resourceQuery: /raw/,
               type: 'asset/source',
+              exclude: /node_modules/,
             },
             {
               test: /\.css$/,
               use: ['postcss-loader'],
               resourceQuery: /raw/,
               type: 'asset/source',
+              exclude: /node_modules/,
             },
             {
               resourceQuery: /raw/,
               type: 'asset/source',
+              exclude: /node_modules/,
             },
             {
               test: /\.tsx?$/,

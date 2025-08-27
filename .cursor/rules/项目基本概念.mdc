@@ -25,7 +25,7 @@ alwaysApply: true
 
 ### 可用的第三方库
 
-项目使用 pnpm 作为包管理器, 在 `package.json` 的 `dependencies` 部分定义了可用的第三方库 (dedent、jquery、jquery-ui、lodash、toastr、yaml、zod), 你也可以自己通过 `pnpm add` 添加更多第三方库.
+项目使用 pnpm 作为包管理器, 在 `package.json` 的 `dependencies` 部分定义了可用的第三方库 (dedent、jquery、jquery-ui、lodash、toastr、yaml、vue、zod), 你也可以自己通过 `pnpm add` 添加更多第三方库.
 
 ### 与酒馆交互的方式
 
@@ -58,6 +58,10 @@ import css_content from './style.scss?raw';
 ### 导入 html
 
 除了以 `?raw` 直接导入 HTML 文件内容外, 项目还支持用 `import html from './文件.html'` 来通过 html-loader 将 html 文件内容最小化后作为字符串导入.
+
+### 导入 vue
+
+项目直接支持用 `import Vue from './文件.vue'` 来导入 vue 组件.
 
 ### 为前端界面导入样式
 
