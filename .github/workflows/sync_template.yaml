@@ -17,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: |-
+          sudo apt install neovim
+          git config merge.tool nvimdiff
       - uses: AndreasAugustin/actions-template-sync@v2
         with:
           source_repo_path: StageDog/tavern_helper_template
@@ -24,5 +27,4 @@ jobs:
           pr_commit_msg: '[bot] bump template repository update'
           is_pr_cleanup: true
           template_sync_ignore_file_path: .github/.templatesyncignore
-          is_force_deletion: true
-          git_remote_pull_params: --allow-unrelated-histories --strategy=recursive --no-edit
+          git_remote_pull_params: --allow-unrelated-histories
