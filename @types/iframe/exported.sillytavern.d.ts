@@ -389,7 +389,7 @@ declare const SillyTavern: {
    *
    * @param prompt_id id, 重复则会替换原本的内容
    * @param content 内容
-   * @param position 位置. 跟聊天补全有关的只有 1, 因此传 1 即可
+   * @param position 位置. -1 为不注入 (配合 scan=true 来仅用于激活绿灯), 1 为插入到聊天中
    * @param depth 深度
    * @param scan 是否作为欲扫描文本, 加入世界书绿灯条目扫描文本中
    * @param role 消息角色. 0 为 system, 1 为 user, 2 为 assistant
@@ -398,7 +398,7 @@ declare const SillyTavern: {
   readonly setExtensionPrompt: (
     prompt_id: string,
     content: string,
-    position: 1,
+    position: -1 | 1,
     depth: number,
     scan?: boolean,
     role?: number,
@@ -507,7 +507,15 @@ declare const SillyTavern: {
       type: number,
       inputValue?: string,
       popupOptions?: SillyTavern.PopupOptions,
-    ): { show: () => Promise<void> };
+    ): {
+      dlg: HTMLDialogElement;
+
+      show: () => Promise<void>;
+      complete: (result: number) => Promise<void>;
+      completeAffirmative: () => Promise<void>;
+      completeNegative: () => Promise<void>;
+      completeCancelled: () => Promise<void>;
+    };
   };
   readonly POPUP_TYPE: {
     TEXT: number;
