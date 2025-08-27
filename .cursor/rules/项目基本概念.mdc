@@ -25,7 +25,11 @@ alwaysApply: true
 
 ### 可用的第三方库
 
+<<<<<<< HEAD
 项目使用 pnpm 作为包管理器, 在 `package.json` 的 `dependencies` 部分定义了可用的第三方库 (dedent、jquery、jquery-ui、lodash、toastr、yaml、zod), 你也可以自己通过 `pnpm add` 添加更多第三方库.
+=======
+项目使用 pnpm 作为包管理器, 在 `package.json` 的 `dependencies` 部分定义了可用的第三方库 (dedent、jquery、jquery-ui、lodash、toastr、yaml、vue、zod), 你也可以自己通过 `pnpm add` 添加更多第三方库.
+>>>>>>> 229e954cc10207f2818feceb102f431b80c18845
 
 ### 与酒馆交互的方式
 
@@ -59,6 +63,13 @@ import css_content from './style.scss?raw';
 
 除了以 `?raw` 直接导入 HTML 文件内容外, 项目还支持用 `import html from './文件.html'` 来通过 html-loader 将 html 文件内容最小化后作为字符串导入.
 
+<<<<<<< HEAD
+=======
+### 导入 vue
+
+项目直接支持用 `import Vue from './文件.vue'` 来导入 vue 组件.
+
+>>>>>>> 229e954cc10207f2818feceb102f431b80c18845
 ### 为前端界面导入样式
 
 前端界面支持在 typescript 中 `import './index.scss'` 来导入 scss 文件, 并自动将它们打包到最终的 `dist/**/index.html` 中的 `<head>` 部分.
