@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: git config --global core.autocrlf input
       - uses: AndreasAugustin/actions-template-sync@v2
         with:
           source_repo_path: StageDog/tavern_helper_template
