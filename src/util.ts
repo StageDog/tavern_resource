@@ -27,3 +27,13 @@ export async function check_minimum_version(expected: string, title: string) {
     toastr.error(`'${title}' 需要酒馆助手版本 >= '${expected}'`, '版本不兼容');
   }
 }
+
+export async function load_readme(url: string): Promise<boolean> {
+  const readme = await fetch(url);
+  if (!readme.ok) {
+    return false;
+  }
+  const readme_text = await readme.text();
+  replaceScriptInfo(readme_text);
+  return true;
+}

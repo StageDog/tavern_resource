@@ -1,4 +1,4 @@
-import { assign_inplace, check_minimum_version, chunk_by } from '@/util';
+import { assign_inplace, check_minimum_version, chunk_by, load_readme } from '@/util';
 import {
   inject_seperators,
   seperate_prompts,
@@ -51,6 +51,7 @@ function squash_chat_history(prompts: Prompt[]): Prompt {
 
 $(() => {
   check_minimum_version('3.4.15', '压缩相邻同身份消息');
+  load_readme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/dist/酒馆助手/压缩相邻同身份消息/README.md');
   init_panel();
   inject_seperators();
   eventMakeLast(tavern_events.GENERATE_AFTER_DATA, ({ prompt }: Parameters<ListenerType['generate_after_data']>[0]) => {
