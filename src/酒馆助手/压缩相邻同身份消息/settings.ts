@@ -59,6 +59,5 @@ export function get_settings(): Settings {
 }
 export function set_settings(new_settings: Settings) {
   settings = new_settings;
-  console.info(new_settings);
   insertOrAssignVariables(settings, { type: 'script', script_id: getScriptId() });
 }

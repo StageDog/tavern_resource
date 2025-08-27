@@ -60,7 +60,6 @@ $(() => {
       return;
     }
     const { head, chat_history, tail } = chunks;
-    console.info(head, chat_history, tail);
     assign_inplace(prompt, [
       ...squash_messages_by_role(head),
       ...(get_settings().squash_chat_history.enable
@@ -74,5 +73,4 @@ $(() => {
 $(window).on('pagehide', () => {
   destroy_panel();
   uninject_seperators();
-  console.info(YAML.stringify(get_settings()));
 });
