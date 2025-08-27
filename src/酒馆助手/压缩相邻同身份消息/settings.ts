@@ -30,9 +30,9 @@ const Settings = z.object({
       enable: z.boolean().default(true),
       squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
 
-      user_prefix: z.string().default('user: '),
+      user_prefix: z.string().default('{{user}}: '),
       user_suffix: z.string().default(''),
-      assistant_prefix: z.string().default('assistant: '),
+      assistant_prefix: z.string().default('剧情: '),
       assistant_suffix: z.string().default(''),
       system_prefix: z.string().default(''),
       system_suffix: z.string().default(''),
@@ -40,9 +40,9 @@ const Settings = z.object({
     .default({
       enable: true,
       squash_role: 'assistant',
-      user_prefix: 'user: ',
+      user_prefix: '{{user}}: ',
       user_suffix: '',
-      assistant_prefix: 'assistant: ',
+      assistant_prefix: '剧情: ',
       assistant_suffix: '',
       system_prefix: '',
       system_suffix: '',
