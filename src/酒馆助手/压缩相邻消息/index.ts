@@ -54,7 +54,15 @@ $(() => {
   load_readme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/压缩相邻消息/README.md');
   init_panel();
   inject_seperators();
+  let is_dry_run = false;
+  eventOn(tavern_events.GENERATION_AFTER_COMMANDS, (_type, _option, dry_run) => {
+    is_dry_run = dry_run;
+  });
   eventMakeLast(tavern_events.GENERATE_AFTER_DATA, ({ prompt }: Parameters<ListenerType['generate_after_data']>[0]) => {
+    if (is_dry_run) {
+      return;
+    }
+
     const chunks = seperate_prompts(prompt) ?? { head: [], chat_history: [], tail: [] };
     if (!chunks) {
       return;
