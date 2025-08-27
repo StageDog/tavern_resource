@@ -3,10 +3,10 @@ import {
   inject_seperators,
   seperate_prompts,
   uninject_seperators,
-} from '@/酒馆助手/压缩相邻同身份消息/chat_history_seperators';
-import { destroy_panel, init_panel } from '@/酒馆助手/压缩相邻同身份消息/panel';
-import { get_settings } from '@/酒馆助手/压缩相邻同身份消息/settings';
-import { Prompt } from '@/酒馆助手/压缩相邻同身份消息/type';
+} from '@/酒馆助手/压缩相邻消息/chat_history_seperators';
+import { destroy_panel, init_panel } from '@/酒馆助手/压缩相邻消息/panel';
+import { get_settings } from '@/酒馆助手/压缩相邻消息/settings';
+import { Prompt } from '@/酒馆助手/压缩相邻消息/type';
 
 function reject_empty_prompts(prompts: Prompt[]): Prompt[] {
   return prompts.filter(({ content }) => content.trim() !== '');
@@ -50,8 +50,8 @@ function squash_chat_history(prompts: Prompt[]): Prompt {
 }
 
 $(() => {
-  check_minimum_version('3.4.15', '压缩相邻同身份消息');
-  load_readme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/压缩相邻同身份消息/README.md');
+  check_minimum_version('3.4.15', '压缩相邻消息');
+  load_readme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/压缩相邻消息/README.md');
   init_panel();
   inject_seperators();
   eventMakeLast(tavern_events.GENERATE_AFTER_DATA, ({ prompt }: Parameters<ListenerType['generate_after_data']>[0]) => {

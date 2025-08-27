@@ -1,4 +1,4 @@
-import { Prompt } from '@/酒馆助手/压缩相邻同身份消息/type';
+import { Prompt } from '@/酒馆助手/压缩相邻消息/type';
 
 const head_separator = '{【{【聊天记录开头】}】}';
 const tail_separator = '{【{【聊天记录结尾】}】}';

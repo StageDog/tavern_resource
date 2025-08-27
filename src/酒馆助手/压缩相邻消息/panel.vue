@@ -1,7 +1,7 @@
 <template>
   <div class="inline-drawer">
     <div class="inline-drawer-toggle inline-drawer-header">
-      <b>压缩相邻同身份消息</b>
+      <b>压缩相邻消息</b>
       <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
     </div>
 
@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { get_settings, set_settings } from '@/酒馆助手/压缩相邻同身份消息/settings';
+import { get_settings, set_settings } from '@/酒馆助手/压缩相邻消息/settings';
 
 import { reactive, watch } from 'vue';
 
