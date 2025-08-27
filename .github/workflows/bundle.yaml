@@ -1,12 +1,12 @@
 name: bundle
 
 on:
-  push:
-    branches:
-      - master
-      - main
-    paths-ignore:
-      - dist/**
+  # push:
+  #   branches:
+  #     - master
+  #     - main
+  #   paths-ignore:
+  #     - dist/**
   workflow_dispatch:
 
 permissions:
