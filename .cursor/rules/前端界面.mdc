@@ -34,6 +34,8 @@ description: 当需要编写前端界面时, 你应该参考本文件
 
 如果样式复杂到需要使用 `<style>` 标签, 则你不应该直接在 html 里书写 `<style>`, 而应该新建 scss 文件并在 ts 文件中以 `import './index.scss'` 的形式应用到界面上.
 
+或者用 vue 设计组件, 并在 ts 文件中 `import Vue from './文件.vue'` 再将其 `mount` 到界面上.
+
 ### iframe 适配要求
 
 - 当对前端界面高度进行调整时, 禁止使用 `vh` 单位等会受宿主高度影响的单位, 而是使用 `width` 和 `aspect-ratio` 来让高度根据宽度动态调整.
