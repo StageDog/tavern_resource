@@ -14,7 +14,7 @@ const seperators: InjectionPrompt[] = [
     id: '\xff压缩相邻消息',
     position: 'in_chat',
     depth: 0,
-    role: 'assistant',
+    role: 'system',
     content: tail_separator,
   },
 ];
@@ -25,12 +25,18 @@ export function seperate_prompts(prompts: Prompt[]): { head: Prompt[]; chat_hist
   if (head_index === -1 || tail_index === -1) {
     return null;
   }
-  prompts[head_index].content = prompts[head_index].content.replace(new RegExp(`${head_separator}\n?`), '').trim();
-  prompts[tail_index].content = prompts[tail_index].content.replace(new RegExp(`\n?${tail_separator}`), '').trim();
+
+  const [before_head_prompt_content, after_head_prompt_content] = prompts[head_index].content.split(head_separator);
+  const [before_tail_prompt_content, after_tail_prompt_content] = prompts[tail_index].content.split(tail_separator);
+
   return {
-    head: prompts.slice(0, head_index),
-    chat_history: prompts.slice(head_index, tail_index + 1),
-    tail: prompts.slice(tail_index + 1),
+    head: [...prompts.slice(0, head_index), { role: prompts[head_index].role, content: before_head_prompt_content }],
+    chat_history: [
+      { role: prompts[head_index].role, content: after_head_prompt_content },
+      ...prompts.slice(head_index + 1, tail_index),
+      { role: prompts[tail_index].role, content: before_tail_prompt_content },
+    ],
+    tail: [{ role: prompts[tail_index].role, content: after_tail_prompt_content }, ...prompts.slice(tail_index + 1)],
   };
 }
 
