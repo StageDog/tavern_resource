@@ -43,7 +43,7 @@
     {
       "label": "启用网页MCP",
       "type": "shell",
-      "command": "npx",
+      "command": "pnpx",
       "args": [
         "@agentdeskai/browser-tools-server@latest"
       ],
