@@ -4,14 +4,14 @@ const head_separator = '{【{【聊天记录开头】}】}';
 const tail_separator = '{【{【聊天记录结尾】}】}';
 const seperators: InjectionPrompt[] = [
   {
-    id: '\u0000',
+    id: '\u{0000}压缩相邻消息',
     position: 'in_chat',
     depth: 9999,
     role: 'assistant',
     content: head_separator,
   },
   {
-    id: '\u{10FFFF}',
+    id: '\u{10FFFF}压缩相邻消息',
     position: 'in_chat',
     depth: 0,
     role: 'assistant',
