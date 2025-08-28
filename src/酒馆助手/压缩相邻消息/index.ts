@@ -4,7 +4,7 @@ import {
   inject_seperators,
   seperate_prompts,
   uninject_seperators,
-} from '@/酒馆助手/压缩相邻消息/seperate_chat_history';
+} from '@/酒馆助手/压缩相邻消息/seperate';
 import { get_settings } from '@/酒馆助手/压缩相邻消息/settings';
 import { Prompt } from '@/酒馆助手/压缩相邻消息/type';
 

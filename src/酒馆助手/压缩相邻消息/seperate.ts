@@ -35,7 +35,10 @@ export function seperate_prompts(prompts: Prompt[]): { head: Prompt[]; chat_hist
 }
 
 export function inject_seperators() {
-  eventOn(tavern_events.GENERATION_AFTER_COMMANDS, () => {
+  eventOn(tavern_events.GENERATION_AFTER_COMMANDS, (_type, _option, dry_run) => {
+    if (dry_run) {
+      return;
+    }
     injectPrompts(seperators);
   });
 }
