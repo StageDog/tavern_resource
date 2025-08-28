@@ -32,6 +32,10 @@ interface Window {
     readonly formatAsDisplayedMessage: typeof formatAsDisplayedMessage;
     readonly retrieveDisplayedMessage: typeof retrieveDisplayedMessage;
 
+    // inject
+    readonly injectPrompts: typeof injectPrompts;
+    readonly uninjectPrompts: typeof uninjectPrompts;
+
     // generate
     readonly builtin_prompt_default_order: typeof builtin_prompt_default_order;
     readonly generate: typeof generate;

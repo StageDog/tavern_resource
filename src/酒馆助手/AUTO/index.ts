@@ -50,8 +50,9 @@ namespace detail {
     const entries = _.reject(await getLorebookEntries(char_lorebook), entry =>
       _.reject(modes, mode => mode === chosen_mode).some(mode => entry.comment.includes(mode)),
     );
-    for (const entry of entries) {
-      await createLorebookEntry(chat_lorebook, {
+    await createLorebookEntries(
+      chat_lorebook,
+      entries.map(entry => ({
         ...entry,
         enabled:
           entry.comment.match(/\D1\D/) ||
@@ -59,8 +60,8 @@ namespace detail {
           entry.comment.includes(`写卡模式-${take_over}`)
             ? true
             : false,
-      });
-    }
+      })),
+    );
 
     set_variables({ mode: chosen_mode, step: 1 });
     triggerSlash(`/echo severity=success 成功将 '${chosen_mode}' 提取到聊天世界书 '${chat_lorebook}' 中!`);

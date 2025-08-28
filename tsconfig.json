@@ -19,7 +19,7 @@
       ]
     },
     "moduleDetection": "auto",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowUmdGlobalAccess": true,
     "allowSyntheticDefaultImports": true,
     "strictBindCallApply": true,

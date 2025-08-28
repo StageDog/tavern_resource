@@ -26,6 +26,7 @@ async function toggle_lock(should_lock: boolean) {
 }
 
 function register_button() {
+  // @ts-expect-error 为了向后兼容性
   appendInexistentScriptButtons(getScriptId(), [
     {
       name: '处理要禁用递归扫描的世界书',
