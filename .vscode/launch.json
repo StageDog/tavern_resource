@@ -7,7 +7,7 @@
       "request": "launch",
       "preLaunchTask": "开始任务",
       "postDebugTask": "结束任务",
-      "url": "http://localhost:6622",
+      "url": "http://localhost:8000",
       "disableNetworkCache": true,
       "internalConsoleOptions": "openOnSessionStart",
       "cwd": "${workspaceFolder}",
@@ -16,6 +16,28 @@
         "webpack-internal:///*": "${webRoot}/scripts/extensions/third-party/*",
         "webpack:/*": "${webRoot}/scripts/extensions/third-party/*",
       },
+      "skipFiles": [
+        "**/jquery*.min.js"
+      ],
+    },
+    {
+      "name": "调试酒馆网页(Edge)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "开始任务",
+      "postDebugTask": "结束任务",
+      "url": "http://localhost:8000",
+      "disableNetworkCache": true,
+      "internalConsoleOptions": "openOnSessionStart",
+      "cwd": "${workspaceFolder}",
+      "sourceMapPathOverrides": {
+        "webpack://tavern_helper_template/*": "${workspaceFolder}/*",
+        "webpack-internal:///*": "${webRoot}/scripts/extensions/third-party/*",
+        "webpack:/*": "${webRoot}/scripts/extensions/third-party/*",
+      },
+      "skipFiles": [
+        "**/jquery*.min.js"
+      ],
     }
   ]
 }
