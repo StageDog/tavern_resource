@@ -16,11 +16,13 @@ description: 当需要编写前端界面时, 你应该参考本文件
   <!-- 保留一个什么都没有的 <head> 标签, webpack 打包时会在这里插入样式、脚本等 -->
 </head>
 <body>
-  <!-- 这里写 <div>、<span> 等静态内容 -->
+  <!-- 这里写 <div>、<span> 等静态内容, 也可以只写 <div id="app"></div> 交给 Vue 来渲染 -->
 </body>
 ```
 
-- 禁止在 `index.html` 中用 `<link rel="stylesheet" href="./index.css">` 导入样式, 而应该在 Typescript 文件中用 `import './index.css'` 导入. 这样导入的样式将会经过打包最小化后插入到 `<head>` 部分.
+- 禁止在 `index.html` 中用 `<link rel="stylesheet" href="./index.css">` 导入样式, 而应该
+  - 在 Typescript 文件中用 `import './index.css'` 导入, 这样导入的样式将会经过打包最小化后插入到 `<head>` 部分;
+  - 或在 Vue 组件中用 `<style lang="scss">` 书写.
 - 禁止在 `index.html` 中用 `<script src="./index.ts">` 来引用 `index.ts` 或其他本地脚本. `index.ts` 及它导入的文件会由 webpack 直接加入到最终打包好的 `dist/**/index.html` 中.
 - 在 `index.html` 中填入 `<img>` 标签时, 禁止使用 `src=""` 占位. 要么引用实际的图片, 要么不要有这个属性, 否则会导致 webpack 打包错误.
 
@@ -32,9 +34,10 @@ description: 当需要编写前端界面时, 你应该参考本文件
 
 ### 复杂外链样式
 
-如果样式复杂到需要使用 `<style>` 标签, 则你不应该直接在 html 里书写 `<style>`, 而应该新建 scss 文件并在 ts 文件中以 `import './index.scss'` 的形式应用到界面上.
+如果样式复杂到需要使用 `<style>` 标签, 则你不应该直接在 html 里书写 `<style>`, 而应该
 
-或者用 vue 设计组件, 并在 ts 文件中 `import Vue from './文件.vue'` 再将其 `mount` 到界面上.
+- 新建 scss 文件并在 Typescript 文件中以 `import './index.scss'` 的形式应用到界面上.
+- 或设计 Vue 组件 (可使用 pinia 或自己添加其他第三方库), 并在 Typescript 文件中 `import Vue from './文件.vue'` 再将其 `mount` 到界面上.
 
 ### iframe 适配要求
 
