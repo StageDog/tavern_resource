@@ -25,11 +25,11 @@ const Settings = z.object({
       }
       return data;
     }),
-  squash_chat_history: z
+  on_chat_history: z
     .object({
-      enable: z.boolean().default(true),
-      squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
+      type: z.enum(['mixin', 'seperate', 'squash']).default('squash'),
 
+      squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
       user_prefix: z.string().default('{{user}}: '),
       user_suffix: z.string().default(''),
       assistant_prefix: z.string().default('剧情: '),
@@ -38,7 +38,8 @@ const Settings = z.object({
       system_suffix: z.string().default(''),
     })
     .default({
-      enable: true,
+      type: 'squash',
+
       squash_role: 'assistant',
       user_prefix: '{{user}}: ',
       user_suffix: '',

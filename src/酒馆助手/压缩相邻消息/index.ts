@@ -1,10 +1,6 @@
 import { assign_inplace, check_minimum_version, chunk_by, load_readme } from '@/util';
 import { destroy_panel, init_panel } from '@/酒馆助手/压缩相邻消息/panel';
-import {
-  inject_seperators,
-  seperate_prompts,
-  uninject_seperators,
-} from '@/酒馆助手/压缩相邻消息/seperate';
+import { inject_seperators, seperate_prompts, uninject_seperators } from '@/酒馆助手/压缩相邻消息/seperate';
 import { get_settings } from '@/酒馆助手/压缩相邻消息/settings';
 import { Prompt } from '@/酒馆助手/压缩相邻消息/type';
 
@@ -13,7 +9,7 @@ function reject_empty_prompts(prompts: Prompt[]): Prompt[] {
 }
 
 function squash_messages_by_role(prompts: Prompt[]): Prompt[] {
-  return chunk_by(reject_empty_prompts(prompts), (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
+  return chunk_by(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
     role: chunk[0].role,
     content: chunk.map(({ content }) => content.trim()).join(get_settings().seperator.value),
   }));
@@ -21,27 +17,27 @@ function squash_messages_by_role(prompts: Prompt[]): Prompt[] {
 
 function squash_chat_history(prompts: Prompt[]): Prompt {
   return {
-    role: get_settings().squash_chat_history.squash_role,
-    content: _(reject_empty_prompts(prompts))
+    role: get_settings().on_chat_history.squash_role,
+    content: prompts
       .map(({ role, content }) => {
         switch (role) {
           case 'system':
             return (
-              substitudeMacros(get_settings().squash_chat_history.system_prefix) +
+              substitudeMacros(get_settings().on_chat_history.system_prefix) +
               content.trim() +
-              substitudeMacros(get_settings().squash_chat_history.system_suffix)
+              substitudeMacros(get_settings().on_chat_history.system_suffix)
             );
           case 'assistant':
             return (
-              substitudeMacros(get_settings().squash_chat_history.assistant_prefix) +
+              substitudeMacros(get_settings().on_chat_history.assistant_prefix) +
               content.trim() +
-              substitudeMacros(get_settings().squash_chat_history.assistant_suffix)
+              substitudeMacros(get_settings().on_chat_history.assistant_suffix)
             );
           case 'user':
             return (
-              substitudeMacros(get_settings().squash_chat_history.user_prefix) +
+              substitudeMacros(get_settings().on_chat_history.user_prefix) +
               content.trim() +
-              substitudeMacros(get_settings().squash_chat_history.user_suffix)
+              substitudeMacros(get_settings().on_chat_history.user_suffix)
             );
         }
       })
@@ -68,13 +64,21 @@ $(() => {
     if (chunks === null) {
       return;
     }
-    const { head, chat_history, tail } = chunks;
-    const squashed_head = squash_messages_by_role(head);
-    const squashed_chat_history = get_settings().squash_chat_history.enable
-      ? [squash_chat_history(chat_history)]
-      : [...squash_messages_by_role(chat_history)];
-    const squashed_tail = squash_messages_by_role(tail);
-    assign_inplace(prompt, [...squashed_head, ...squashed_chat_history, ...squashed_tail]);
+    const [head, chat_history, tail] = _(chunks)
+      .map(prompts => reject_empty_prompts(prompts))
+      .map(prompts => squash_messages_by_role(prompts))
+      .value();
+    switch (get_settings().on_chat_history.type) {
+      case 'mixin':
+        assign_inplace(prompt, squash_messages_by_role(_.concat(head, chat_history, tail)));
+        break;
+      case 'seperate':
+        assign_inplace(prompt, _.concat(head, chat_history, tail));
+        break;
+      case 'squash':
+        assign_inplace(prompt, _.concat(head, squash_chat_history(chat_history), tail));
+        break;
+    }
   });
 });
 

@@ -26,58 +26,62 @@
       <hr>
 
       <!-- 压缩聊天历史设置 -->
-      <div class="flex-container" title="启用压缩聊天历史">
-        <input v-model="settings.squash_chat_history.enable" type="checkbox" id="squash_chat_history_enable" />
-        <span>启用压缩聊天历史</span>
+      <div class="flex-container flexFlowColumn">
+        <label for="squash_chat_history_type">聊天历史处理方式</label>
+        <select v-model="settings.on_chat_history.type" id="squash_chat_history_type" class="text_pole">
+          <option value="mixin">与其他提示词混合</option>
+          <option value="seperate">与其他提示词隔离</option>
+          <option value="squash">单独压缩为一条消息</option>
+        </select>
       </div>
 
-      <div v-if="settings.squash_chat_history.enable" class="flex-container flexFlowColumn">
+      <div v-if="settings.on_chat_history.type === 'squash'" class="flex-container flexFlowColumn">
         <label for="squash_role">压缩角色</label>
-        <select v-model="settings.squash_chat_history.squash_role" id="squash_role" class="text_pole">
+        <select v-model="settings.on_chat_history.squash_role" id="squash_role" class="text_pole">
           <option value="system">系统</option>
           <option value="user">用户</option>
           <option value="assistant">助手</option>
         </select>
       </div>
 
-      <div v-if="settings.squash_chat_history.enable">
+      <div v-if="settings.on_chat_history.type === 'squash'">
         <!-- 用户前缀后缀 -->
         <div class="flex-container flexFlowColumn" title="用户消息前缀">
           <label for="user_prefix">用户前缀</label>
-          <input v-model="settings.squash_chat_history.user_prefix" id="user_prefix" class="text_pole flex1 wide100p"
+          <input v-model="settings.on_chat_history.user_prefix" id="user_prefix" class="text_pole flex1 wide100p"
             type="text" autocomplete="off" />
         </div>
 
         <div class="flex-container flexFlowColumn" title="用户消息后缀">
           <label for="user_suffix">用户后缀</label>
-          <input v-model="settings.squash_chat_history.user_suffix" id="user_suffix" class="text_pole flex1 wide100p"
+          <input v-model="settings.on_chat_history.user_suffix" id="user_suffix" class="text_pole flex1 wide100p"
             type="text" autocomplete="off" />
         </div>
 
         <!-- 助手前缀后缀 -->
         <div class="flex-container flexFlowColumn" title="助手消息前缀">
           <label for="assistant_prefix">助手前缀</label>
-          <input v-model="settings.squash_chat_history.assistant_prefix" id="assistant_prefix"
+          <input v-model="settings.on_chat_history.assistant_prefix" id="assistant_prefix"
             class="text_pole flex1 wide100p" type="text" autocomplete="off" />
         </div>
 
         <div class="flex-container flexFlowColumn" title="助手消息后缀">
           <label for="assistant_suffix">助手后缀</label>
-          <input v-model="settings.squash_chat_history.assistant_suffix" id="assistant_suffix"
+          <input v-model="settings.on_chat_history.assistant_suffix" id="assistant_suffix"
             class="text_pole flex1 wide100p" type="text" autocomplete="off" />
         </div>
 
         <!-- 系统前缀后缀 -->
         <div class="flex-container flexFlowColumn" title="系统消息前缀">
           <label for="system_prefix">系统前缀</label>
-          <input v-model="settings.squash_chat_history.system_prefix" id="system_prefix"
-            class="text_pole flex1 wide100p" type="text" autocomplete="off" />
+          <input v-model="settings.on_chat_history.system_prefix" id="system_prefix" class="text_pole flex1 wide100p"
+            type="text" autocomplete="off" />
         </div>
 
         <div class="flex-container flexFlowColumn" title="系统消息后缀">
           <label for="system_suffix">系统后缀</label>
-          <input v-model="settings.squash_chat_history.system_suffix" id="system_suffix"
-            class="text_pole flex1 wide100p" type="text" autocomplete="off" />
+          <input v-model="settings.on_chat_history.system_suffix" id="system_suffix" class="text_pole flex1 wide100p"
+            type="text" autocomplete="off" />
         </div>
       </div>
     </div>

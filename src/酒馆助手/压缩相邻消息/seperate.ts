@@ -19,7 +19,7 @@ const seperators: InjectionPrompt[] = [
   },
 ];
 
-export function seperate_prompts(prompts: Prompt[]): { head: Prompt[]; chat_history: Prompt[]; tail: Prompt[] } | null {
+export function seperate_prompts(prompts: Prompt[]): Prompt[][] | null {
   const head_index = prompts.findIndex(({ content }) => content.includes(head_separator));
   const tail_index = prompts.findIndex(({ content }) => content.includes(tail_separator));
   if (head_index === -1 || tail_index === -1) {
@@ -29,15 +29,15 @@ export function seperate_prompts(prompts: Prompt[]): { head: Prompt[]; chat_hist
   const [before_head_prompt_content, after_head_prompt_content] = prompts[head_index].content.split(head_separator);
   const [before_tail_prompt_content, after_tail_prompt_content] = prompts[tail_index].content.split(tail_separator);
 
-  return {
-    head: [...prompts.slice(0, head_index), { role: prompts[head_index].role, content: before_head_prompt_content }],
-    chat_history: [
+  return [
+    [...prompts.slice(0, head_index), { role: prompts[head_index].role, content: before_head_prompt_content }],
+    [
       { role: prompts[head_index].role, content: after_head_prompt_content },
       ...prompts.slice(head_index + 1, tail_index),
       { role: prompts[tail_index].role, content: before_tail_prompt_content },
     ],
-    tail: [{ role: prompts[tail_index].role, content: after_tail_prompt_content }, ...prompts.slice(tail_index + 1)],
-  };
+    [{ role: prompts[tail_index].role, content: after_tail_prompt_content }, ...prompts.slice(tail_index + 1)],
+  ];
 }
 
 export function inject_seperators() {
