@@ -1,10 +1,10 @@
 import { assign_inplace, check_minimum_version, chunk_by, load_readme } from '@/util';
+import { destroy_panel, init_panel } from '@/酒馆助手/压缩相邻消息/panel';
 import {
   inject_seperators,
   seperate_prompts,
   uninject_seperators,
-} from '@/酒馆助手/压缩相邻消息/chat_history_seperators';
-import { destroy_panel, init_panel } from '@/酒馆助手/压缩相邻消息/panel';
+} from '@/酒馆助手/压缩相邻消息/seperate_chat_history';
 import { get_settings } from '@/酒馆助手/压缩相邻消息/settings';
 import { Prompt } from '@/酒馆助手/压缩相邻消息/type';
 
@@ -54,6 +54,7 @@ $(() => {
   load_readme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/压缩相邻消息/README.md');
   init_panel();
   inject_seperators();
+
   let is_dry_run = false;
   eventOn(tavern_events.GENERATION_AFTER_COMMANDS, (_type, _option, dry_run) => {
     is_dry_run = dry_run;
@@ -63,18 +64,17 @@ $(() => {
       return;
     }
 
-    const chunks = seperate_prompts(prompt) ?? { head: [], chat_history: [], tail: [] };
-    if (!chunks) {
+    const chunks = seperate_prompts(prompt);
+    if (chunks === null) {
       return;
     }
     const { head, chat_history, tail } = chunks;
-    assign_inplace(prompt, [
-      ...squash_messages_by_role(head),
-      ...(get_settings().squash_chat_history.enable
-        ? [squash_chat_history(chat_history)]
-        : [...squash_messages_by_role(chat_history)]),
-      ...squash_messages_by_role(tail),
-    ]);
+    const squashed_head = squash_messages_by_role(head);
+    const squashed_chat_history = get_settings().squash_chat_history.enable
+      ? [squash_chat_history(chat_history)]
+      : [...squash_messages_by_role(chat_history)];
+    const squashed_tail = squash_messages_by_role(tail);
+    assign_inplace(prompt, [...squashed_head, ...squashed_chat_history, ...squashed_tail]);
   });
 });
 
