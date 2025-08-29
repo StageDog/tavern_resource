@@ -13,11 +13,7 @@
     "module": "ESNext",
     "outDir": "dist",
     "baseUrl": "src",
-    "paths": {
-      "@/*": [
-        "./*",
-      ]
-    },
+    "paths": {},
     "moduleDetection": "auto",
     "moduleResolution": "bundler",
     "allowUmdGlobalAccess": true,

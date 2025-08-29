@@ -89,14 +89,13 @@
 </template>
 
 <script setup lang="ts">
-import { get_settings, set_settings } from '@/酒馆助手/压缩相邻消息/settings';
+import { get_settings, set_settings } from './settings';
 
 import { reactive, watch } from 'vue';
 
 const settings = reactive(get_settings());
-
 watch(
-  () => _.cloneDeep(settings),
+  () => settings,
   (new_settings) => {
     set_settings(new_settings);
   },
