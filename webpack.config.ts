@@ -246,7 +246,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
           request.startsWith('-') ||
           request.startsWith('.') ||
           request.startsWith('/') ||
-          request.startsWith('@') ||
+          request.startsWith('@/') ||
           request.startsWith('http') ||
           path.isAbsolute(request) ||
           fs.existsSync(path.join(context, request)) ||
@@ -256,10 +256,12 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         }
 
         const builtin = {
+          jquery: '$',
           lodash: '_',
           toastr: 'toastr',
+          vue: 'Vue',
+          'vue-router': 'VueRouter',
           yaml: 'YAML',
-          jquery: '$',
           zod: 'z',
         };
         if (request in builtin) {
