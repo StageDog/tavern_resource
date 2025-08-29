@@ -25,6 +25,10 @@ type injectPromptsOptions = {
 /**
  * 注入提示词
  *
+ * 这样注入的提示词仅在当前聊天文件中有效,
+ * - 如果需要跨聊天文件注入或在新开聊天时重新注入, 你可以监听 `tavern_events.CHAT_CHANGED` 事件.
+ * - 或者, 可以监听 `tavern_events.GENERATION_AFTER_COMMANDS` 事件, 在生成前注入.
+ *
  * @param prompts 要注入的提示词
  * @param options 可选选项
  *   - `once:boolean`: 是否只在下一次请求生成中有效; 默认为 false

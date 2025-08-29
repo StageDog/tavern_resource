@@ -32,6 +32,12 @@ interface Window {
     readonly formatAsDisplayedMessage: typeof formatAsDisplayedMessage;
     readonly retrieveDisplayedMessage: typeof retrieveDisplayedMessage;
 
+    // import_raw
+    readonly importRawCharacter: typeof importRawCharacter;
+    readonly importRawPreset: typeof importRawPreset;
+    readonly importRawWorldbook: typeof importRawWorldbook;
+    readonly importRawTavernRegex: typeof importRawTavernRegex;
+
     // inject
     readonly injectPrompts: typeof injectPrompts;
     readonly uninjectPrompts: typeof uninjectPrompts;
