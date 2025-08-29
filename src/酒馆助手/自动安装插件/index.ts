@@ -47,11 +47,10 @@ const Settings = z.object({
 });
 
 $(() => {
-  setTimeout(async () => {
-    const variable_option = { type: 'script', script_id: getScriptId() } as const;
-    const settings = Settings.parse(getVariables(variable_option));
-    insertVariables(settings);
+  const settings = Settings.parse(getVariables({ type: 'script', script_id: getScriptId() }));
+  insertVariables(settings, { type: 'script', script_id: getScriptId() });
 
+  setTimeout(async () => {
     const extensions = Object.entries<string>(settings.自动安装插件)
       .map(([name, url]) => {
         let tag = url.replace(/(\.git|\/)$/, '');
