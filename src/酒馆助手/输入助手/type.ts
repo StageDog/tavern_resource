@@ -84,7 +84,7 @@ export const Settings = z.object({
       insert_position: 'append',
     },
     {
-      name: '{{U}}',
+      name: 'user',
       enable: true,
       description: '用户标记',
       content: '<user>',
@@ -92,7 +92,7 @@ export const Settings = z.object({
       insert_position: 'as_is',
     },
     {
-      name: '{{C}}',
+      name: 'char',
       enable: true,
       description: '角色标记',
       content: '<char>',
