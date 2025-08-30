@@ -1,14 +1,20 @@
+import { defineStore } from 'pinia';
+import { reactive, watch } from 'vue';
+
 import { Settings } from './type';
 
-let settings: Settings;
-export function get_settings(): Settings {
-  if (!settings) {
-    settings = Settings.parse(getVariables({ type: 'script', script_id: getScriptId() }));
-    insertVariables(settings, { type: 'script', script_id: getScriptId() });
-  }
-  return settings;
-}
-export function set_settings(new_settings: Settings) {
-  settings = new_settings;
-  insertOrAssignVariables(settings, { type: 'script', script_id: getScriptId() });
-}
+export const use_settings_store = defineStore('settings', () => {
+  const settings = reactive(Settings.parse(getVariables({ type: 'script', script_id: getScriptId() })));
+  insertVariables(settings, { type: 'script', script_id: getScriptId() });
+
+  watch(
+    () => settings,
+    new_settings => {
+      insertOrAssignVariables(new_settings, { type: 'script', script_id: getScriptId() });
+    },
+    { deep: true },
+  );
+  return {
+    settings,
+  };
+});

@@ -89,16 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { get_settings, set_settings } from './settings';
+import { use_settings_store } from './settings';
 
-import { reactive, watch } from 'vue';
-
-const settings = reactive(get_settings());
-watch(
-  () => settings,
-  (new_settings) => {
-    set_settings(new_settings);
-  },
-  { deep: true }
-);
+const settings = use_settings_store().settings;
 </script>
