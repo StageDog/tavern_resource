@@ -1,16 +1,18 @@
+import { createPinia } from 'pinia';
 import panel from './panel.vue';
 
-import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 const app = createApp(panel);
+const $app = $('<div>').attr('id', 'input_helper');
 
 export function init_panel() {
-  $('#extensions_settings2').append(`<div id="squash_nearby_same_role_messages_settings"></div>`);
-  app.use(createPinia()).mount($('#squash_nearby_same_role_messages_settings')[0]);
+  $('#extensions_settings2').append($app);
+
+  app.use(createPinia()).mount($app[0]);
 }
 
 export function destroy_panel() {
-  $('#squash_nearby_same_role_messages_settings').remove();
   app.unmount();
+  $app.remove();
 }
