@@ -1,0 +1,103 @@
+export type Button = z.infer<typeof Button>;
+export const Button = z.object({
+  name: z.string(),
+  enable: z.boolean(),
+  description: z.string(),
+  content: z.string(),
+  cursor_position: z.number(),
+  insert_position: z.enum(['prepend', 'as_is', 'append', 'newline']),
+});
+
+export type Settings = z.infer<typeof Settings>;
+export const Settings = z.object({
+  buttons: z.array(Button).default([
+    {
+      name: '**',
+      enable: true,
+      description: '星号之间',
+      content: '**',
+      cursor_position: 1,
+      insert_position: 'as_is',
+    },
+    {
+      name: '“”',
+      enable: true,
+      description: '双引号之间',
+      content: '“”',
+      cursor_position: 1,
+      insert_position: 'as_is',
+    },
+    {
+      name: '（）',
+      enable: true,
+      description: '圆括号之间',
+      content: '（）',
+      cursor_position: 1,
+      insert_position: 'as_is',
+    },
+    {
+      name: '「」',
+      enable: true,
+      description: '直角单引号之间',
+      content: '「」',
+      cursor_position: 1,
+      insert_position: 'as_is',
+    },
+    {
+      name: '《》',
+      enable: true,
+      description: '直角双引号之间',
+      content: '『』',
+      cursor_position: 1,
+      insert_position: 'as_is',
+    },
+    {
+      name: '『』',
+      enable: true,
+      description: '直角书名号之间',
+      content: '《》',
+      cursor_position: 1,
+      insert_position: 'as_is',
+    },
+    {
+      name: '⇤',
+      enable: true,
+      description: '移到行首',
+      content: '',
+      cursor_position: 0,
+      insert_position: 'prepend',
+    },
+    {
+      name: '⇥',
+      enable: true,
+      description: '移到行尾',
+      content: '',
+      cursor_position: 0,
+      insert_position: 'append',
+    },
+    {
+      name: '⏎',
+      enable: true,
+      description: '换行',
+      content: '\n',
+      cursor_position: 0,
+      insert_position: 'append',
+    },
+    {
+      name: '{{U}}',
+      enable: true,
+      description: '用户标记',
+      content: '<user>',
+      cursor_position: 6,
+      insert_position: 'as_is',
+    },
+    {
+      name: '{{C}}',
+      enable: true,
+      description: '角色标记',
+      content: '<char>',
+      cursor_position: 6,
+      insert_position: 'as_is',
+    },
+  ]),
+});
