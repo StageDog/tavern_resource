@@ -7,7 +7,7 @@ import { Button } from './type';
 import { watch } from 'vue';
 
 function click_button(button: Button) {
-  const $textarea = $('#send_textarea, #prompt_textarea').first();
+  const $textarea = $('#send_textarea');
 
   const text = $textarea.val() as string;
   const { start_position, end_position } = (() => {
