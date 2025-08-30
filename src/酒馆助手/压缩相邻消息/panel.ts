@@ -11,6 +11,6 @@ export function init_panel() {
 }
 
 export function destroy_panel() {
-  $('#extensions_settings2').find('#squash_nearby_same_role_messages_settings').remove();
+  $('#squash_nearby_same_role_messages_settings').remove();
   app.unmount();
 }
