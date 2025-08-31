@@ -42,8 +42,11 @@ export function destroy_panel() {
   app.unmount();
   $app.remove();
 }
-
 ```
+
+## 脚本设置
+
+如果需要为用户提供自定义设置, 可以使用脚本变量, 并用 `zod` 来定义设置的类型和默认值.
 
 ## 按钮
 
