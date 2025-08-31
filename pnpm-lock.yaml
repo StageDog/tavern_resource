@@ -8,15 +8,15 @@ importers:
 
   .:
     dependencies:
-<<<<<<< HEAD
-      compare-versions:
-        specifier: ^6.1.1
-        version: 6.1.1
-=======
       '@vueuse/core':
         specifier: ^13.8.0
         version: 13.8.0(vue@3.5.20(typescript@6.0.0-dev.20250807))
->>>>>>> d68bbb61d7937bc2137ad11c79b36f0529e3b18a
+      '@vueuse/integrations':
+        specifier: ^13.8.0
+        version: 13.8.0(axios@1.11.0)(vue@3.5.20(typescript@6.0.0-dev.20250807))
+      compare-versions:
+        specifier: ^6.1.1
+        version: 6.1.1
       dedent:
         specifier: ^1.6.0
         version: 1.6.0
@@ -787,6 +787,48 @@ packages:
     peerDependencies:
       vue: ^3.5.0
 
+  '@vueuse/integrations@13.8.0':
+    resolution: {integrity: sha512-64mD5Q7heVkr8JsqBFDh9xnQJrPLmWJghy8Qtj9UeLosQL9n+JYTcS7d+eNsEVwuvZvxfF7hUSi87jABm/eYpw==}
+    peerDependencies:
+      async-validator: ^4
+      axios: ^1
+      change-case: ^5
+      drauu: ^0.4
+      focus-trap: ^7
+      fuse.js: ^7
+      idb-keyval: ^6
+      jwt-decode: ^4
+      nprogress: ^0.2
+      qrcode: ^1.5
+      sortablejs: ^1
+      universal-cookie: ^7 || ^8
+      vue: ^3.5.0
+    peerDependenciesMeta:
+      async-validator:
+        optional: true
+      axios:
+        optional: true
+      change-case:
+        optional: true
+      drauu:
+        optional: true
+      focus-trap:
+        optional: true
+      fuse.js:
+        optional: true
+      idb-keyval:
+        optional: true
+      jwt-decode:
+        optional: true
+      nprogress:
+        optional: true
+      qrcode:
+        optional: true
+      sortablejs:
+        optional: true
+      universal-cookie:
+        optional: true
+
   '@vueuse/metadata@13.8.0':
     resolution: {integrity: sha512-BYMp3Gp1kBUPv7AfQnJYP96mkX7g7cKdTIgwv/Jgd+pfQhz678naoZOAcknRtPLP4cFblDDW7rF4e3KFa+PfIA==}
 
@@ -1041,8 +1083,8 @@ packages:
   camel-case@4.1.2:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
 
-  caniuse-lite@1.0.30001739:
-    resolution: {integrity: sha512-y+j60d6ulelrNSwpPyrHdl+9mJnQzHBr08xm48Qno0nSk4h3Qojh+ziv2qE6rXf4k3tadF4o1J/1tAbVm1NtnA==}
+  caniuse-lite@1.0.30001737:
+    resolution: {integrity: sha512-BiloLiXtQNrY5UyF0+1nSJLXUENuhka2pzy2Fx5pGxqavdrxSCW4U6Pn/PoG3Efspi2frRbHpBV2XsrPE6EDlw==}
 
   chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
@@ -3835,6 +3877,14 @@ snapshots:
       '@vueuse/shared': 13.8.0(vue@3.5.20(typescript@6.0.0-dev.20250807))
       vue: 3.5.20(typescript@6.0.0-dev.20250807)
 
+  '@vueuse/integrations@13.8.0(axios@1.11.0)(vue@3.5.20(typescript@6.0.0-dev.20250807))':
+    dependencies:
+      '@vueuse/core': 13.8.0(vue@3.5.20(typescript@6.0.0-dev.20250807))
+      '@vueuse/shared': 13.8.0(vue@3.5.20(typescript@6.0.0-dev.20250807))
+      vue: 3.5.20(typescript@6.0.0-dev.20250807)
+    optionalDependencies:
+      axios: 1.11.0
+
   '@vueuse/metadata@13.8.0': {}
 
   '@vueuse/shared@13.8.0(vue@3.5.20(typescript@6.0.0-dev.20250807))':
@@ -4038,7 +4088,7 @@ snapshots:
   autoprefixer@10.4.21(postcss@8.5.6):
     dependencies:
       browserslist: 4.25.4
-      caniuse-lite: 1.0.30001739
+      caniuse-lite: 1.0.30001737
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -4092,7 +4142,7 @@ snapshots:
 
   browserslist@4.25.4:
     dependencies:
-      caniuse-lite: 1.0.30001739
+      caniuse-lite: 1.0.30001737
       electron-to-chromium: 1.5.211
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.25.4)
@@ -4123,7 +4173,7 @@ snapshots:
       pascal-case: 3.1.2
       tslib: 2.8.1
 
-  caniuse-lite@1.0.30001739: {}
+  caniuse-lite@1.0.30001737: {}
 
   chalk@2.4.2:
     dependencies:

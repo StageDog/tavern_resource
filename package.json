@@ -56,11 +56,9 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "compare-versions": "^6.1.1",
-=======
     "@vueuse/core": "^13.8.0",
->>>>>>> d68bbb61d7937bc2137ad11c79b36f0529e3b18a
+    "@vueuse/integrations": "^13.8.0",
+    "compare-versions": "^6.1.1",
     "dedent": "^1.6.0",
     "jquery": "^3.7.1",
     "jqueryui": "^1.11.1",
