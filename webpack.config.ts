@@ -186,34 +186,48 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
               ? <any[]>[
                   {
                     test: /\.vue\.s(a|c)ss$/,
-                    use: ['vue-style-loader', 'css-loader', 'postcss-loader', 'sass-loader'],
+                    use: [
+                      'vue-style-loader',
+                      { loader: 'css-loader', options: { url: false } },
+                      'postcss-loader',
+                      'sass-loader',
+                    ],
                     exclude: /node_modules/,
                   },
                   {
                     test: /\.vue\.css$/,
-                    use: ['vue-style-loader', 'css-loader', 'postcss-loader'],
+                    use: ['vue-style-loader', { loader: 'css-loader', options: { url: false } }, 'postcss-loader'],
                     exclude: /node_modules/,
                   },
                   {
                     test: /\.s(a|c)ss$/,
-                    use: ['css-loader', 'postcss-loader', 'sass-loader'],
+                    use: [{ loader: 'css-loader', options: { url: false } }, 'postcss-loader', 'sass-loader'],
                     exclude: /node_modules/,
                   },
                   {
                     test: /\.css$/,
-                    use: ['css-loader', 'postcss-loader'],
+                    use: [{ loader: 'css-loader', options: { url: false } }, 'postcss-loader'],
                     exclude: /node_modules/,
                   },
                 ]
               : <any[]>[
                   {
                     test: /\.s(a|c)ss$/,
-                    use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'sass-loader'],
+                    use: [
+                      MiniCssExtractPlugin.loader,
+                      { loader: 'css-loader', options: { url: false } },
+                      'postcss-loader',
+                      'sass-loader',
+                    ],
                     exclude: /node_modules/,
                   },
                   {
                     test: /\.css$/,
-                    use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader'],
+                    use: [
+                      MiniCssExtractPlugin.loader,
+                      { loader: 'css-loader', options: { url: false } },
+                      'postcss-loader',
+                    ],
                     exclude: /node_modules/,
                   },
                 ],
