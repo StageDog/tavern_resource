@@ -18,7 +18,7 @@
           :data-original-index="index"
           class="integrated-button-row"
         >
-          <span class="drag-handle menu-handle ui-sortable-handle">☰</span>
+          <span class="drag-handle menu-handle">☰</span>
           <input v-model="button.enable" type="checkbox" />
           <div class="button-preview">{{ button.name }}</div>
           <label :for="button.description">{{ button.description }}</label>
@@ -243,8 +243,8 @@ onMounted(() => {
   nextTick(() => {
     $('.integrated_button_settings').sortable({
       handle: '.drag-handle',
-      placeholder: 'ui-sortable-placeholder',
-      helper: 'clone',
+      placeholder: 'sortable-placeholder',
+      cursor: 'move',
       tolerance: 'pointer',
       update: function (_event, ui) {
         const item = ui.item;
@@ -258,10 +258,10 @@ onMounted(() => {
         update_button_indices();
       },
       start: function (_event, ui) {
-        ui.helper.addClass('ui-sortable-helper');
+        ui.helper.addClass('sortable-helper');
       },
       stop: function (_event, ui) {
-        ui.item.removeClass('ui-sortable-helper');
+        ui.item.removeClass('sortable-helper');
       },
     });
   });
@@ -316,13 +316,13 @@ $small-border-radius: 5px;
     margin-right: 10px;
   }
 
-  &.ui-sortable-helper {
+  &.sortable-helper {
     background-color: rgba(50, 50, 80, 0.6);
     transform: scale(1.02);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   }
 
-  &.ui-sortable-placeholder {
+  &.sortable-placeholder {
     visibility: visible !important;
     background-color: rgba(30, 30, 50, 0.3);
     border: 1px dashed $border-color;
