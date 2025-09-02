@@ -57,8 +57,11 @@
   },
   "dependencies": {
     "@vueuse/core": "^13.9.0",
+<<<<<<< HEAD
     "@vueuse/integrations": "^13.9.0",
     "compare-versions": "^6.1.1",
+=======
+>>>>>>> 9f3e09b30307e2dd3dff2c6a72b71057c2c8ab96
     "dedent": "^1.6.0",
     "jquery": "^3.7.1",
     "jqueryui": "^1.11.1",
