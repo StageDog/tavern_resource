@@ -25,7 +25,7 @@ alwaysApply: true
 
 ### 可用的第三方库
 
-项目使用 pnpm 作为包管理器, 在 `package.json` 的 `dependencies` 部分定义了可用的第三方库 (dedent、jquery、jquery-ui、lodash、pinia、toastr、yaml、vue、vue-router、zod), 你也可以自己通过 `pnpm add` 添加更多第三方库.
+项目使用 pnpm 作为包管理器, 在 `package.json` 的 `dependencies` 部分定义了可用的第三方库 (dedent、jquery、jquery-ui、lodash、pinia、toastr、yaml、vue、vue-router、@vueuse/core、zod), 你也可以自己通过 `pnpm add` 添加更多第三方库, 如添加 (@vueuse/integrations 等).
 
 ### 与酒馆交互的方式
 
@@ -89,6 +89,18 @@ import css_content from './style.scss?raw';
 #### 优先使用 vue 编写界面
 
 vue 相比于 jquery 或 DOM 操作更为简单, 因此你应该尽量使用 vue (可使用 pinia、vue-router 或自己添加其他第三方库) 来编写前端界面, 但要注意 vue-router 的 `createRouter()` 不能写在 `$(() => {})` 中, 必须在全局执行.
+
+当需要监听 vue 的响应式数据变化并存入酒馆数据时 (如酒馆变量、世界书……), 你应该先用 `_.cloneDeep()` 来去除 proxy 层, 以在脚本中编写 vue 并提供用户设置为例:
+
+```typescript
+const Settings = z.object({/*...*/});
+const settings = reactive(Settings.parse(getVariables({ type: 'script', script_id: getScriptId() })));
+watch(
+  settings,
+  settings => replaceVariables(_.cloneDeep(settings), { type: 'script', script_id: getScriptId() }),
+  { immediate: true, deep: true },
+);
+```
 
 #### 正确在加载、卸载前端界面或脚本时执行功能
 
