@@ -5,14 +5,13 @@ import { Settings } from './type';
 
 export const use_settings_store = defineStore('settings', () => {
   const settings = reactive(Settings.parse(getVariables({ type: 'script', script_id: getScriptId() })));
-  insertVariables(settings, { type: 'script', script_id: getScriptId() });
 
   watch(
-    () => settings,
+    settings,
     new_settings => {
-      insertOrAssignVariables(new_settings, { type: 'script', script_id: getScriptId() });
+      insertOrAssignVariables(_.cloneDeep(new_settings), { type: 'script', script_id: getScriptId() });
     },
-    { deep: true },
+    { immediate: true, deep: true },
   );
   return {
     settings,
