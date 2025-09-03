@@ -8,6 +8,7 @@ importers:
 
   .:
     dependencies:
+<<<<<<< HEAD
       '@gitbeaker/core':
         specifier: ^43.5.0
         version: 43.5.0
@@ -23,6 +24,11 @@ importers:
       compare-versions:
         specifier: ^6.1.1
         version: 6.1.1
+=======
+      '@vueuse/core':
+        specifier: ^13.9.0
+        version: 13.9.0(vue@3.5.21(typescript@6.0.0-dev.20250807))
+>>>>>>> a4286da3cec22a180ba289c8bfd521dd41ed35bd
       dedent:
         specifier: ^1.6.0
         version: 1.6.0
@@ -787,6 +793,7 @@ packages:
     peerDependencies:
       vue: ^3.5.0
 
+<<<<<<< HEAD
   '@vueuse/integrations@13.9.0':
     resolution: {integrity: sha512-SDobKBbPIOe0cVL7QxMzGkuUGHvWTdihi9zOrrWaWUgFKe15cwEcwfWmgrcNzjT6kHnNmWuTajPHoIzUjYNYYQ==}
     peerDependencies:
@@ -829,6 +836,8 @@ packages:
       universal-cookie:
         optional: true
 
+=======
+>>>>>>> a4286da3cec22a180ba289c8bfd521dd41ed35bd
   '@vueuse/metadata@13.9.0':
     resolution: {integrity: sha512-1AFRvuiGphfF7yWixZa0KwjYH8ulyjDCC0aFgrGRz8+P4kvDFSdXLVfTk5xAN9wEuD1J6z4/myMoYbnHoX07zg==}
 
@@ -3901,6 +3910,7 @@ snapshots:
       '@vueuse/shared': 13.9.0(vue@3.5.21(typescript@6.0.0-dev.20250807))
       vue: 3.5.21(typescript@6.0.0-dev.20250807)
 
+<<<<<<< HEAD
   '@vueuse/integrations@13.9.0(axios@1.11.0)(vue@3.5.21(typescript@6.0.0-dev.20250807))':
     dependencies:
       '@vueuse/core': 13.9.0(vue@3.5.21(typescript@6.0.0-dev.20250807))
@@ -3909,6 +3919,8 @@ snapshots:
     optionalDependencies:
       axios: 1.11.0
 
+=======
+>>>>>>> a4286da3cec22a180ba289c8bfd521dd41ed35bd
   '@vueuse/metadata@13.9.0': {}
 
   '@vueuse/shared@13.9.0(vue@3.5.21(typescript@6.0.0-dev.20250807))':
