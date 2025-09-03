@@ -56,15 +56,11 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@gitbeaker/core": "^43.5.0",
     "@gitbeaker/rest": "^43.5.0",
     "@vueuse/core": "^13.9.0",
     "@vueuse/integrations": "^13.9.0",
     "compare-versions": "^6.1.1",
-=======
-    "@vueuse/core": "^13.9.0",
->>>>>>> a4286da3cec22a180ba289c8bfd521dd41ed35bd
     "dedent": "^1.6.0",
     "jquery": "^3.7.1",
     "jqueryui": "^1.11.1",
