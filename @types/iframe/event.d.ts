@@ -233,10 +233,10 @@ declare const tavern_events: {
 interface ListenerType {
   [iframe_events.MESSAGE_IFRAME_RENDER_STARTED]: (iframe_name: string) => void;
   [iframe_events.MESSAGE_IFRAME_RENDER_ENDED]: (iframe_name: string) => void;
-  [iframe_events.GENERATION_STARTED]: () => void;
-  [iframe_events.STREAM_TOKEN_RECEIVED_FULLY]: (full_text: string) => void;
-  [iframe_events.STREAM_TOKEN_RECEIVED_INCREMENTALLY]: (incremental_text: string) => void;
-  [iframe_events.GENERATION_ENDED]: (text: string) => void;
+  [iframe_events.GENERATION_STARTED]: (id: string) => void;
+  [iframe_events.STREAM_TOKEN_RECEIVED_FULLY]: (full_text: string, id: string) => void;
+  [iframe_events.STREAM_TOKEN_RECEIVED_INCREMENTALLY]: (incremental_text: string, id: string) => void;
+  [iframe_events.GENERATION_ENDED]: (text: string, id: string) => void;
 
   [tavern_events.APP_READY]: () => void;
   [tavern_events.EXTRAS_CONNECTED]: (modules: any) => void;
@@ -342,6 +342,12 @@ interface ListenerType {
     group_names: string[];
     include_reasoning: boolean;
     reasoning_effort: string;
+    json_schema: {
+      name: string;
+      value: Record<string, any>;
+      description?: string;
+      strict?: boolean;
+    }
     [others: string]: any;
   }) => void;
   [tavern_events.CHAT_COMPLETION_PROMPT_READY]: (event_data: {
