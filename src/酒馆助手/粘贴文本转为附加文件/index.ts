@@ -1,3 +1,5 @@
+export {};
+
 type Settings = z.infer<typeof Settings>;
 const Settings = z.object({
   触发字数下限: z.number().default(400),
@@ -10,27 +12,6 @@ function get_settings() {
     insertVariables(settings, { type: 'script', script_id: getScriptId() });
   }
   return settings;
-}
-
-function human_file_size(bytes: number, si = false, dp = 1) {
-  const thresh = si ? 1000 : 1024;
-
-  if (Math.abs(bytes) < thresh) {
-    return bytes + ' B';
-  }
-
-  const units = si
-    ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-    : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-  let u = -1;
-  const r = 10 ** dp;
-
-  do {
-    bytes /= thresh;
-    ++u;
-  } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
-
-  return bytes.toFixed(dp) + ' ' + units[u];
 }
 
 function attach_file_from_text(text: string) {
