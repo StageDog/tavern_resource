@@ -4,7 +4,7 @@
   format: |-
     <StatusBlock>
     <UpdateVariable>
-    <Analysis>/*IN ENGLISH*/
+    <Analysis>$(IN ENGLISH)
     ${
     - calculate time passed: ...
     - decide whether dramatic updates are allowed as it's in a special case or the time passed is more than usual: yes or no
@@ -17,10 +17,10 @@
 
     <small>
     ```yaml
-    .../*remember to update '特殊状态' and '近期事务'*/
+    ...$(remember to update '特殊状态' and '近期事务')
     ```
     </small>
     <CharacterStatus>
-    .../*only output characters currently interacting with <user>; strictly following `状态栏` rule without omitting or reordering items; must update 角色阶段 according to `associated variable`*/
+    ...$(only output characters currently interacting with <user>; strictly following `状态栏` rule without omitting or reordering items; must update 角色阶段 according to `associated variable`)
     </CharacterStatus>
     </StatusBlock>

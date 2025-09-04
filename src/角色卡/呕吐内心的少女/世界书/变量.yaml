@@ -12,7 +12,7 @@ rule:
     - Switch variables suffixed with '处女' and '受孕' between '是' and '否'
 format: |-
   <UpdateVariable>
-  <Analysis>/*IN ENGLISH, no more than 80 words*/
+  <Analysis>$(IN ENGLISH, no more than 80 words)
   ${
   - calculate time passed: ...
   - decide whether dramatic updates are allowed as it's in a special case or the time passed is more than usual: yes or no

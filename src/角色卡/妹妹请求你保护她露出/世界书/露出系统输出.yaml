@@ -11,11 +11,11 @@
     format:
       basic: |-
         <ExposurePrompt>
-        [系统提示|${title}|${content}/*don't output additional | in the same line after content*/]
+        [系统提示|${title}|${content}$(don't output additional | in the same line after content)]
         </ExposurePrompt>
       specific prompt:
         - title: ${difficulty}任务进度
-          content: ${task content}(${progress})/*reward should not be decreased before the task is fully completed*/
+          content: ${task content}(${progress})$(reward should not be decreased before the task is fully completed)
         - title: 已完成${difficulty}任务-${task content}
           content: 获得${reward}点数
           special: additionally, output a 更换${difficulty}任务 exposure prompt

@@ -24,7 +24,7 @@ rule:
   name: consists of full path from root to leaf node and demilited by '.', such as `变量.网友络络.熟络度`
 format: |-
   <UpdateVariable>
-  <Analysis>/*IN ENGLISH, no more than 80 words*/
+  <Analysis>$(IN ENGLISH, no more than 80 words)
   ${
   - calculate time passed: ...
   - decide whether dramatic updates are allowed as it's in a special case or the time passed is more than usual: ...
