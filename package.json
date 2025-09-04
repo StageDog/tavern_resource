@@ -61,7 +61,7 @@
     "@vueuse/core": "^13.9.0",
     "@vueuse/integrations": "^13.9.0",
     "compare-versions": "^6.1.1",
-    "dedent": "^1.6.0",
+    "dedent": "^1.7.0",
     "jquery": "^3.7.1",
     "jqueryui": "^1.11.1",
     "lodash": "^4.17.21",
