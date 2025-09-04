@@ -18,7 +18,7 @@ const import_preset: Button = {
       return;
     }
     loadPreset(preset_name);
-    toastr.success('导入预设成功', '写卡助手');
+    toastr.success(`导入预设 '${preset_name}' 成功`, '写卡助手');
   },
 };
 
@@ -54,27 +54,20 @@ const switch_to_claude_gpt: Button = {
 
 async function toggle_design_mode(enable: boolean) {
   await updatePresetWith('in_use', preset => {
-    const prompts_all = _.concat(preset.prompts, preset.prompts_unused);
+    const design_start = preset.prompts.findIndex(prompt => prompt.name.includes('<设计模块>'));
+    const design_end = preset.prompts.findIndex(prompt => prompt.name.includes('</设计模块>'));
+    const game_start = preset.prompts.findIndex(prompt => prompt.name.includes('<游玩模块>'));
+    const game_end = preset.prompts.findIndex(prompt => prompt.name.includes('</游玩模块>'));
 
-    const design_start = prompts_all.findIndex(prompt => prompt.name.includes('<设计模块>'));
-    const design_end = prompts_all.findIndex(prompt => prompt.name.includes('</设计模块>'));
-    const game_start = prompts_all.findIndex(prompt => prompt.name.includes('<游玩模块>'));
-    const game_end = prompts_all.findIndex(prompt => prompt.name.includes('</游玩模块>'));
-    if (enable) {
-      preset.prompts.splice(
-        preset.prompts.findIndex(prompt => prompt.name.includes('<游玩模块>')),
-        game_end - game_start + 1,
-        ...prompts_all.slice(design_start, design_end + 1),
-      );
-      preset.prompts_unused = prompts_all.slice(game_start, game_end + 1);
-    } else {
-      preset.prompts.splice(
-        preset.prompts.findIndex(prompt => prompt.name.includes('<设计模块>')),
-        design_end - design_start + 1,
-        ...prompts_all.slice(game_start, game_end + 1),
-      );
-      preset.prompts_unused = prompts_all.slice(design_start, design_end + 1);
-    }
+    const do_enable = (prompt: PresetPrompt) => {
+      prompt.enabled = _.get(prompt, 'extra.original_enable', false);
+    };
+    const do_disbale = (prompt: PresetPrompt) => {
+      _.set(prompt, 'extra.original_enable', prompt.enabled);
+      prompt.enabled = false;
+    };
+    preset.prompts.slice(design_start, design_end + 1).forEach(enable ? do_enable : do_disbale);
+    preset.prompts.slice(game_start, game_end + 1).forEach(enable ? do_disbale : do_enable);
     return preset;
   }).then(
     () =>
@@ -97,7 +90,6 @@ const switch_to_game_mode: Button = {
 };
 
 const design_steps: string[] = [
-  '核心玩法及变量用途沟通',
   '变量初始设置 ([initvar])',
   '变量列表 (D1)',
   '变量更新规则 (D4)',
@@ -182,7 +174,7 @@ async function check_button_status(): Promise<Button[]> {
     result.push(switch_to_gemini);
   }
 
-  if (preset.prompts.some(prompt => prompt.name === '<设计模块>')) {
+  if (preset.prompts.some(prompt => prompt.name === '<设计模块>' && prompt.enabled)) {
     const current_step = await get_current_step(preset.prompts);
     result.push(
       switch_to_game_mode,
