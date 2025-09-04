@@ -59,8 +59,11 @@
     "@gitbeaker/core": "^43.5.0",
     "@gitbeaker/rest": "^43.5.0",
     "@vueuse/core": "^13.9.0",
+<<<<<<< HEAD
     "@vueuse/integrations": "^13.9.0",
     "compare-versions": "^6.1.1",
+=======
+>>>>>>> 4da779a200380870872b12f3b5f29b322640e2c1
     "dedent": "^1.7.0",
     "jquery": "^3.7.1",
     "jqueryui": "^1.11.1",
