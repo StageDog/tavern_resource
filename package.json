@@ -12,7 +12,7 @@
   ],
   "devDependencies": {
     "@eslint/js": "^9.34.0",
-    "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindcss/postcss": "^4.1.13",
     "@types/jquery": "^3.5.33",
     "@types/jqueryui": "^1.12.24",
     "@types/lodash": "^4.17.20",
@@ -42,7 +42,7 @@
     "sass": "^1.92.0",
     "sass-loader": "^16.0.5",
     "socket.io": "^4.8.1",
-    "tailwindcss": "^4.1.12",
+    "tailwindcss": "^4.1.13",
     "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
