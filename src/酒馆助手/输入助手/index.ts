@@ -77,4 +77,5 @@ $(() => {
 
 $(window).on('pagehide', () => {
   destroy_panel();
+  replaceScriptButtons([]);
 });
