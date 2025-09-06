@@ -60,10 +60,14 @@ async function toggle_design_mode(enable: boolean) {
     const game_end = preset.prompts.findIndex(prompt => prompt.name.includes('</游玩模块>'));
 
     const do_enable = (prompt: PresetPrompt) => {
-      prompt.enabled = _.get(prompt, 'extra.original_enable', false);
+      prompt.enabled = _.get(prompt, 'extra.was_enabled', false);
     };
     const do_disbale = (prompt: PresetPrompt) => {
-      _.set(prompt, 'extra.original_enable', prompt.enabled);
+      if (prompt.enabled) {
+        _.set(prompt, 'extra.was_enabled', true);
+      } else {
+        _.unset(prompt, 'extra.was_enabled');
+      }
       prompt.enabled = false;
     };
     preset.prompts.slice(design_start, design_end + 1).forEach(enable ? do_enable : do_disbale);
@@ -90,7 +94,7 @@ const switch_to_game_mode: Button = {
 };
 
 const design_steps: string[] = [
-  '变量初始设置 ([initvar])',
+  '变量初始设置 (initvar)',
   '变量列表 (D1)',
   '变量更新规则 (D4)',
   '变量更新强调 (D0)',
@@ -117,7 +121,7 @@ async function switch_to_step(step: number) {
   }).then(
     () =>
       toastr.success(
-        `已切换为第${step}步 '${design_steps[step]}'${design_steps[step].includes('动态化提示词') ? ', 你可以让它生成使用变量的提示词, 也可以提供一段提示词让它改用变量动态化' : ''}`,
+        `已切换为 '${design_steps[step]}'${design_steps[step].includes('动态化提示词') ? ', 你可以让它生成使用变量的提示词, 也可以提供一段提示词让它改用变量动态化' : ''}`,
         '切换步骤成功',
       ),
     error => toastr.error(`${error}`, '切换步骤失败'),
@@ -139,8 +143,23 @@ function make_step_prev(step: number): Button {
 
 function make_step_info(step: number): Button {
   // TODO: 说明步骤内容
-  return { name: `第${step}步: ${design_steps[step]}`, function: () => toastr.error('玩丝之歌去咯', '咕咕咕') };
+  return {
+    name: `当前：${design_steps[step]}`,
+    function: () => toastr.error('暂无功能具体说明，请直接输入要求让 AI 生成', '咕咕咕'),
+  };
 }
+
+const select_step: Button = {
+  name: '选择功能',
+  function: async () => {
+    console.info(JSON.stringify(design_steps));
+    const result = await triggerSlash(`/buttons labels=${JSON.stringify(design_steps)} 请选择功能`);
+    if (!result) {
+      return;
+    }
+    await switch_to_step(design_steps.findIndex(item => item === result));
+  },
+};
 
 function make_step_next(step: number): Button {
   return {
@@ -181,6 +200,7 @@ async function check_button_status(): Promise<Button[]> {
       make_step_prev(current_step),
       make_step_info(current_step),
       make_step_next(current_step),
+      select_step,
     );
   } else {
     result.push(switch_to_design_mode);
