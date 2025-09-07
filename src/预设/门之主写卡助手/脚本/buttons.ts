@@ -103,6 +103,7 @@ const design_steps: string[] = [
   '角色阶段 (D3)',
   '角色列表 (D2)',
   '生成或转换成动态化提示词',
+  '评价和润色提示词',
   '状态栏-纯文字',
   '状态栏-酒馆助手前端界面',
 ];
@@ -122,9 +123,9 @@ async function switch_to_step(step: number) {
     () =>
       toastr.success(
         `已切换为 '${design_steps[step]}'${design_steps[step].includes('动态化提示词') ? ', 你可以让它生成使用变量的提示词, 也可以提供一段提示词让它改用变量动态化' : ''}`,
-        '切换步骤成功',
+        '切换功能成功',
       ),
-    error => toastr.error(`${error}`, '切换步骤失败'),
+    error => toastr.error(`${error}`, '切换功能失败'),
   );
 }
 
@@ -142,7 +143,7 @@ function make_step_prev(step: number): Button {
 }
 
 function make_step_info(step: number): Button {
-  // TODO: 说明步骤内容
+  // TODO: 说明功能内容
   return {
     name: `当前：${design_steps[step]}`,
     function: () => toastr.error('暂无功能具体说明，请直接输入要求让 AI 生成', '咕咕咕'),
