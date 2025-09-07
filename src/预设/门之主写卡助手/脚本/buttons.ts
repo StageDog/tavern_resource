@@ -1,3 +1,4 @@
+import example_chat_content from '../../../../../private/预设/【门之主】写卡助手 - 示例.jsonl?raw';
 import preset_content from '../../../../../private/预设/【门之主】写卡助手.json?raw';
 import { preset_name } from './settings';
 
@@ -94,14 +95,14 @@ const switch_to_game_mode: Button = {
 };
 
 const design_steps: string[] = [
-  '变量初始设置 (initvar)',
-  '变量列表 (D1)',
-  '变量更新规则 (D4)',
-  '变量更新强调 (D0)',
   '角色详情 (角色定义之前)',
   '角色关键信息 (D4)',
-  '角色阶段 (D3)',
   '角色列表 (D2)',
+  '变量列表及更新规则 (D1)',
+  '更复杂的变量更新规则 (D4)',
+  '变量更新强调 (D0)',
+  '变量初始设置 (initvar)',
+  '角色阶段 (D3)',
   '生成或转换成动态化提示词',
   '评价和润色提示词',
   '状态栏-纯文字',
@@ -146,7 +147,7 @@ function make_step_info(step: number): Button {
   // TODO: 说明功能内容
   return {
     name: `当前：${design_steps[step]}`,
-    function: () => toastr.error('暂无功能具体说明，请直接输入要求让 AI 生成', '咕咕咕'),
+    function: () => toastr.error('暂无功能具体说明，请参考示例聊天记录，直接输入要求让 AI 生成', '咕咕咕'),
   };
 }
 
@@ -159,6 +160,37 @@ const select_step: Button = {
       return;
     }
     await switch_to_step(design_steps.findIndex(item => item === result));
+  },
+};
+
+const import_example_chat: Button = {
+  name: '导入示例聊天',
+  function: () => {
+    if (SillyTavern.characterId === undefined) {
+      throw Error('导入聊天文件失败, 请先选择一张角色卡');
+    }
+
+    const form_data = new FormData();
+    form_data.append(
+      'avatar',
+      new File([example_chat_content], `${preset_name} - 示例.jsonl`, { type: 'application/json' }),
+    );
+    form_data.append('file_type', 'jsonl');
+    form_data.append('avatar_url', SillyTavern.characters[SillyTavern.characterId].avatar);
+    form_data.append('character_name', SillyTavern.characters[SillyTavern.characterId].name);
+    form_data.append('user_name', SillyTavern.name1);
+
+    const headers = SillyTavern.getRequestHeaders();
+    _.unset(headers, 'Content-Type');
+    return fetch(`/api/chats/import`, {
+      method: 'POST',
+      headers: headers,
+      body: form_data,
+      cache: 'no-cache',
+    }).then(
+      () => toastr.success(`由于酒馆限制, 请自行在 '管理聊天文件' 中切换示例`, '导入示例聊天成功'),
+      error => toastr.error(`${error}`, '导入示例聊天失败'),
+    );
   },
 };
 
@@ -202,6 +234,7 @@ async function check_button_status(): Promise<Button[]> {
       make_step_info(current_step),
       make_step_next(current_step),
       select_step,
+      import_example_chat,
     );
   } else {
     result.push(switch_to_design_mode);

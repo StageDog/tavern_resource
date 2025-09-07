@@ -1,1 +1,1 @@
-export const preset_name = '【门之主】写卡助手v1.1.0';
+export const preset_name = '【门之主】写卡助手v1.2.0';
