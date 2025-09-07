@@ -10,6 +10,7 @@ import TerserPlugin from 'terser-webpack-plugin';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import { VueLoaderPlugin } from 'vue-loader';
 import webpack from 'webpack';
+import WebpackObfuscator from 'webpack-obfuscator';
 const require = createRequire(import.meta.url);
 const HTMLInlineCSSWebpackPlugin = require('html-inline-css-webpack-plugin').default;
 
@@ -97,6 +98,7 @@ function watch_it(compiler: webpack.Compiler) {
 }
 
 function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Configuration {
+  const should_obfuscate = fs.readFileSync(path.join(__dirname, entry.script), 'utf-8').includes('@obfuscate');
   const script_filepath = path.parse(entry.script);
 
   return (_env, argv) => ({
@@ -264,7 +266,21 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
             },
           }),
         ]
-    ).concat({ apply: watch_it }, new VueLoaderPlugin()),
+    )
+      .concat({ apply: watch_it }, new VueLoaderPlugin())
+      .concat(
+        should_obfuscate
+          ? [
+              new WebpackObfuscator({
+                controlFlowFlattening: true,
+                numbersToExpressions: true,
+                selfDefending: true,
+                simplify: true,
+                splitStrings: true,
+              }),
+            ]
+          : [],
+      ),
     optimization: {
       minimize: true,
       minimizer: [
