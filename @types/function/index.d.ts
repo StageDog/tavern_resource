@@ -34,6 +34,7 @@ interface Window {
 
     // import_raw
     readonly importRawCharacter: typeof importRawCharacter;
+    readonly importRawChat: typeof importRawChat;
     readonly importRawPreset: typeof importRawPreset;
     readonly importRawWorldbook: typeof importRawWorldbook;
     readonly importRawTavernRegex: typeof importRawTavernRegex;
