@@ -1,4 +1,4 @@
-import { preset_name } from './settings';
+import { preset_name } from './imports';
 
 function toggle_extension_settings(enable: boolean) {
   const $macro_replace_disable_toggle = $('#macro-replace-disable-toggle');

@@ -1,6 +1,4 @@
-import example_chat_content from '../../../../../private/预设/【门之主】写卡助手 - 示例.jsonl?raw';
-import preset_content from '../../../../../private/预设/【门之主】写卡助手.json?raw';
-import { preset_name } from './settings';
+import { example_chat_content, preset_content, preset_name } from './imports';
 
 interface Button {
   name: string;
