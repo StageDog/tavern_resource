@@ -1,8 +1,9 @@
 {
   "mcpServers": {
     "browsermcp": {
-      "command": "pnpx",
+      "command": "pnpm",
       "args": [
+        "dlx",
         "@browsermcp/mcp@latest"
       ]
     }
