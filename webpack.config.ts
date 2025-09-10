@@ -318,40 +318,38 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         },
       },
     },
-    externals: [
-      ({ context, request }, callback) => {
-        if (!context || !request) {
-          return callback();
-        }
+    externals: ({ context, request }, callback) => {
+      if (!context || !request) {
+        return callback();
+      }
 
-        if (
-          request.startsWith('-') ||
-          request.startsWith('.') ||
-          request.startsWith('/') ||
-          request.startsWith('!') ||
-          request.startsWith('http') ||
-          path.isAbsolute(request) ||
-          fs.existsSync(path.join(context, request)) ||
-          fs.existsSync(request)
-        ) {
-          return callback();
-        }
+      if (
+        request.startsWith('-') ||
+        request.startsWith('.') ||
+        request.startsWith('/') ||
+        request.startsWith('!') ||
+        request.startsWith('http') ||
+        path.isAbsolute(request) ||
+        fs.existsSync(path.join(context, request)) ||
+        fs.existsSync(request)
+      ) {
+        return callback();
+      }
 
-        const builtin = {
-          jquery: '$',
-          lodash: '_',
-          toastr: 'toastr',
-          vue: 'Vue',
-          'vue-router': 'VueRouter',
-          yaml: 'YAML',
-          zod: 'z',
-        };
-        if (request in builtin) {
-          return callback(null, 'var ' + builtin[request as keyof typeof builtin]);
-        }
-        return callback(null, 'module-import https://testingcf.jsdelivr.net/npm/' + request + '/+esm');
-      },
-    ],
+      const builtin = {
+        jquery: '$',
+        lodash: '_',
+        toastr: 'toastr',
+        vue: 'Vue',
+        'vue-router': 'VueRouter',
+        yaml: 'YAML',
+        zod: 'z',
+      };
+      if (request in builtin) {
+        return callback(null, 'var ' + builtin[request as keyof typeof builtin]);
+      }
+      return callback(null, 'module-import https://testingcf.jsdelivr.net/npm/' + request + '/+esm');
+    },
   });
 }
 
