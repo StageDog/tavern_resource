@@ -108,17 +108,18 @@
 import { use_settings_store } from './settings';
 import { Button } from './type';
 
-import { nextTick, onMounted, reactive } from 'vue';
+import { storeToRefs } from 'pinia';
+import { nextTick, onMounted, Ref, ref } from 'vue';
 
-const settings = use_settings_store().settings;
+const { settings } = storeToRefs(use_settings_store());
 
-const modal: {
+const modal: Ref<{
   show: boolean;
   title: string;
   editing_index: number;
   form_data: Omit<Button, 'enable'>;
   cursor_position_type: 'begin' | 'middle' | 'end' | 'custom';
-} = reactive({
+}> = ref({
   show: false,
   title: '',
   editing_index: -1,
@@ -144,39 +145,39 @@ function update_button_indices() {
 
 async function delete_button(index: number) {
   const result = await SillyTavern.callGenericPopup(
-    `确定要删除按钮 '${settings.buttons[index].name}' 吗? 此操作无法撤销`,
+    `确定要删除按钮 '${settings.value.buttons[index].name}' 吗? 此操作无法撤销`,
     SillyTavern.POPUP_TYPE.CONFIRM,
   );
   if (result) {
-    settings.buttons.splice(index, 1);
+    settings.value.buttons.splice(index, 1);
     update_button_indices();
   }
 }
 
 function add_button() {
-  modal.title = '添加按钮';
-  modal.editing_index = -1;
-  modal.form_data = {
+  modal.value.title = '添加按钮';
+  modal.value.editing_index = -1;
+  modal.value.form_data = {
     name: '',
     description: '',
     content: '',
     cursor_position: 0,
     insert_position: 'as_is',
   };
-  modal.cursor_position_type = 'end';
-  modal.show = true;
+  modal.value.cursor_position_type = 'end';
+  modal.value.show = true;
 }
 
 function edit_button(index: number) {
-  modal.title = '编辑按钮';
-  modal.editing_index = index;
+  modal.value.title = '编辑按钮';
+  modal.value.editing_index = index;
 
-  const button = settings.buttons[index];
-  modal.form_data.name = button.name;
-  modal.form_data.description = button.description;
-  modal.form_data.content = button.content;
-  modal.form_data.cursor_position = button.cursor_position;
-  modal.form_data.insert_position = button.insert_position;
+  const button = settings.value.buttons[index];
+  modal.value.form_data.name = button.name;
+  modal.value.form_data.description = button.description;
+  modal.value.form_data.content = button.content;
+  modal.value.form_data.cursor_position = button.cursor_position;
+  modal.value.form_data.insert_position = button.insert_position;
 
   const get_position_type = () => {
     switch (button.cursor_position) {
@@ -190,31 +191,31 @@ function edit_button(index: number) {
         return 'custom';
     }
   };
-  modal.cursor_position_type = get_position_type();
-  modal.form_data.cursor_position = modal.form_data.cursor_position;
+  modal.value.cursor_position_type = get_position_type();
+  modal.value.form_data.cursor_position = modal.value.form_data.cursor_position;
 
-  modal.show = true;
+  modal.value.show = true;
 }
 
 function close_modal() {
-  modal.show = false;
+  modal.value.show = false;
 }
 
 function save_button() {
-  if (modal.form_data.name === '') {
+  if (modal.value.form_data.name === '') {
     return;
   }
 
   const get_position_number = () => {
-    switch (modal.cursor_position_type) {
+    switch (modal.value.cursor_position_type) {
       case 'begin':
         return 0;
       case 'middle':
-        return Math.floor(modal.form_data.content.length / 2);
+        return Math.floor(modal.value.form_data.content.length / 2);
       case 'end':
-        return modal.cursor_position_type.length;
+        return modal.value.cursor_position_type.length;
       case 'custom':
-        return modal.form_data.cursor_position;
+        return modal.value.form_data.cursor_position;
       default:
         return 0;
     }
@@ -222,17 +223,17 @@ function save_button() {
   const cursor_position = get_position_number();
 
   const button: Button = {
-    name: modal.form_data.name,
-    enable: settings.buttons.at(modal.editing_index)?.enable ?? true,
-    description: modal.form_data.description,
-    content: modal.form_data.content,
-    insert_position: modal.form_data.insert_position,
+    name: modal.value.form_data.name,
+    enable: settings.value.buttons.at(modal.value.editing_index)?.enable ?? true,
+    description: modal.value.form_data.description,
+    content: modal.value.form_data.content,
+    insert_position: modal.value.form_data.insert_position,
     cursor_position: cursor_position,
   };
-  if (modal.editing_index === -1) {
-    settings.buttons.push(button);
+  if (modal.value.editing_index === -1) {
+    settings.value.buttons.push(button);
   } else {
-    settings.buttons[modal.editing_index] = button;
+    settings.value.buttons[modal.value.editing_index] = button;
   }
 
   close_modal();
@@ -251,9 +252,9 @@ onMounted(() => {
         const old_index = item.data('original-index');
         let new_index = item.index();
 
-        const button_to_move = settings.buttons[old_index];
-        settings.buttons.splice(old_index, 1);
-        settings.buttons.splice(new_index, 0, button_to_move);
+        const button_to_move = settings.value.buttons[old_index];
+        settings.value.buttons.splice(old_index, 1);
+        settings.value.buttons.splice(new_index, 0, button_to_move);
 
         update_button_indices();
       },

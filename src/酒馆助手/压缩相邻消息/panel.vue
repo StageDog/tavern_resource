@@ -19,11 +19,16 @@
 
       <div v-if="settings.seperator.type === 'custom'" class="flex-container flexFlowColumn">
         <label for="squash_separator_value">自定义分隔符</label>
-        <input v-model="settings.seperator.value" id="squash_separator_value" class="text_pole flex1 wide100p"
-          type="text" autocomplete="off" />
+        <input
+          v-model="settings.seperator.value"
+          id="squash_separator_value"
+          class="text_pole flex1 wide100p"
+          type="text"
+          autocomplete="off"
+        />
       </div>
 
-      <hr>
+      <hr />
 
       <!-- 压缩聊天历史设置 -->
       <div class="flex-container flexFlowColumn">
@@ -48,40 +53,70 @@
         <!-- 用户前缀后缀 -->
         <div class="flex-container flexFlowColumn" title="用户消息前缀">
           <label for="user_prefix">用户前缀</label>
-          <input v-model="settings.on_chat_history.user_prefix" id="user_prefix" class="text_pole flex1 wide100p"
-            type="text" autocomplete="off" />
+          <input
+            v-model="settings.on_chat_history.user_prefix"
+            id="user_prefix"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+          />
         </div>
 
         <div class="flex-container flexFlowColumn" title="用户消息后缀">
           <label for="user_suffix">用户后缀</label>
-          <input v-model="settings.on_chat_history.user_suffix" id="user_suffix" class="text_pole flex1 wide100p"
-            type="text" autocomplete="off" />
+          <input
+            v-model="settings.on_chat_history.user_suffix"
+            id="user_suffix"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+          />
         </div>
 
         <!-- 助手前缀后缀 -->
         <div class="flex-container flexFlowColumn" title="助手消息前缀">
           <label for="assistant_prefix">助手前缀</label>
-          <input v-model="settings.on_chat_history.assistant_prefix" id="assistant_prefix"
-            class="text_pole flex1 wide100p" type="text" autocomplete="off" />
+          <input
+            v-model="settings.on_chat_history.assistant_prefix"
+            id="assistant_prefix"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+          />
         </div>
 
         <div class="flex-container flexFlowColumn" title="助手消息后缀">
           <label for="assistant_suffix">助手后缀</label>
-          <input v-model="settings.on_chat_history.assistant_suffix" id="assistant_suffix"
-            class="text_pole flex1 wide100p" type="text" autocomplete="off" />
+          <input
+            v-model="settings.on_chat_history.assistant_suffix"
+            id="assistant_suffix"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+          />
         </div>
 
         <!-- 系统前缀后缀 -->
         <div class="flex-container flexFlowColumn" title="系统消息前缀">
           <label for="system_prefix">系统前缀</label>
-          <input v-model="settings.on_chat_history.system_prefix" id="system_prefix" class="text_pole flex1 wide100p"
-            type="text" autocomplete="off" />
+          <input
+            v-model="settings.on_chat_history.system_prefix"
+            id="system_prefix"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+          />
         </div>
 
         <div class="flex-container flexFlowColumn" title="系统消息后缀">
           <label for="system_suffix">系统后缀</label>
-          <input v-model="settings.on_chat_history.system_suffix" id="system_suffix" class="text_pole flex1 wide100p"
-            type="text" autocomplete="off" />
+          <input
+            v-model="settings.on_chat_history.system_suffix"
+            id="system_suffix"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+          />
         </div>
       </div>
     </div>
@@ -91,5 +126,7 @@
 <script setup lang="ts">
 import { use_settings_store } from './settings';
 
-const settings = use_settings_store().settings;
+import { storeToRefs } from 'pinia';
+
+const { settings } = storeToRefs(use_settings_store());
 </script>
