@@ -27,6 +27,8 @@ alwaysApply: true
 
 项目使用 pnpm 作为包管理器, 在 `package.json` 的 `dependencies` 部分定义了可用的第三方库 (dedent、jquery、jquery-ui、lodash、pinia、toastr、yaml、vue、vue-router、@vueuse/core、zod), 你也可以自己通过 `pnpm add` 添加更多第三方库, 如添加 (@vueuse/integrations 等).
 
+前端界面或脚本都是在浏览器中使用, 因此你不能使用 nodejs 库
+
 ### 与酒馆交互的方式
 
 前端界面或脚本主要使用酒馆助手所提供的接口与酒馆进行交互. 这些接口定义在 `@types` 文件夹中, 如 `@types/function/variables.d.ts` 中描述了该如何操控酒馆变量.
@@ -76,7 +78,7 @@ import css_content from './style.scss?raw';
 项目参考文件中的功能往往更为简单正确, 因此你应该尽量使用它们. 例如:
 
 - 使用 jquery 而不是 javascript 内置的 DOM 操作
-- 使用 zod 处理数据校验和纠错而不是 if else
+- 使用 zod 处理数据校验和纠错而不是 if else, 并用 `z.prettifyError()` 来格式化错误信息
 - 使用 `getIframeName()` 而不是 `(this.frameElement as Element).id`
 
 #### 优先使用酒馆助手提供的接口
