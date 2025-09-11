@@ -1,3 +1,5 @@
+import { check_minimum_version, load_readme } from '../../util';
+
 function get_prompt_id_from_tool($tool: JQuery) {
   return $tool.closest('.completion_prompt_manager_prompt').attr('data-pm-identifier')!;
 }
@@ -45,8 +47,7 @@ function replace_toolbox() {
             if (index === -1) {
               return preset;
             }
-            // 3.4.4 以前酒馆助手没能正确处理 id 冲突
-            preset.prompts.splice(index + 1, 0, { ...preset.prompts[index], id: crypto.randomUUID() });
+            preset.prompts.splice(index + 1, 0, preset.prompts[index]);
             return preset;
           },
           { render: 'immediate' },
@@ -65,6 +66,9 @@ const replace_toolbox_debounced = _.debounce(replace_toolbox, 500);
 const observer = new MutationObserver(replace_toolbox_debounced);
 
 $(() => {
+  check_minimum_version('3.4.4', '预设条目更多按钮');
+  load_readme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/预设条目更多按钮/README.md');
+
   replace_toolbox();
 });
 
