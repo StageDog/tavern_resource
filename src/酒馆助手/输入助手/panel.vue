@@ -109,17 +109,17 @@ import { use_settings_store } from './settings';
 import { Button } from './type';
 
 import { storeToRefs } from 'pinia';
-import { nextTick, onMounted, Ref, ref } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 
 const { settings } = storeToRefs(use_settings_store());
 
-const modal: Ref<{
+const modal = ref<{
   show: boolean;
   title: string;
   editing_index: number;
   form_data: Omit<Button, 'enable'>;
   cursor_position_type: 'begin' | 'middle' | 'end' | 'custom';
-}> = ref({
+}>({
   show: false,
   title: '',
   editing_index: -1,
