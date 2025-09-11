@@ -34,7 +34,7 @@
     overflow-wrap: anywhere;
 
     /* Long content will trigger this rule */
-    &:not(:empty):not(.short-content)~.roleplay_options_title {
+    &:not(:empty):not(.short-content) ~ .roleplay_options_title {
       width: 100%;
       margin-bottom: 8px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
