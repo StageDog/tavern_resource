@@ -124,9 +124,8 @@
 </template>
 
 <script setup lang="ts">
-import { use_settings_store } from './settings';
-
 import { storeToRefs } from 'pinia';
+import { use_settings_store } from './settings';
 
 const { settings } = storeToRefs(use_settings_store());
 </script>

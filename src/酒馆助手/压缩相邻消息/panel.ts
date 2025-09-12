@@ -1,7 +1,6 @@
 import { createPinia } from 'pinia';
-import panel from './panel.vue';
-
 import { createApp } from 'vue';
+import panel from './panel.vue';
 
 const app = createApp(panel);
 const $app = $('<div>').attr('id', 'suqash_adjacent_messages');

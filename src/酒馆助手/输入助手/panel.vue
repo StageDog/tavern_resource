@@ -105,11 +105,10 @@
 </template>
 
 <script setup lang="ts">
-import { use_settings_store } from './settings';
-import { Button } from './type';
-
 import { storeToRefs } from 'pinia';
 import { nextTick, onMounted, ref } from 'vue';
+import { use_settings_store } from './settings';
+import { Button } from './type';
 
 const { settings } = storeToRefs(use_settings_store());
 

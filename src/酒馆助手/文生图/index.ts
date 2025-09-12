@@ -1,5 +1,3 @@
-export {};
-
 import swipe_style from './分页.scss?raw';
 import button_style from './按钮.scss?raw';
 

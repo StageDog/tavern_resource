@@ -37,3 +37,11 @@ export async function load_readme(url: string): Promise<boolean> {
   replaceScriptInfo(readme_text);
   return true;
 }
+
+export function teleport_vue_style() {
+  $(`<div id="style-${getScriptId()}">`).append($(`head > style[data-vue-ssr-id]`, document)).appendTo('head');
+}
+
+export function deteleport_vue_style() {
+  $(`head > div[id="style-${getScriptId()}"]`).remove();
+}
