@@ -1,3 +1,4 @@
+import { marked } from 'marked';
 import { example_chat_content, preset_content, preset_name } from './imports';
 
 interface Button {
@@ -105,17 +106,32 @@ const design_steps: string[] = [
   '评价和润色提示词',
   '状态栏-纯文字',
   '状态栏-酒馆助手前端界面',
+  '❌状态栏-流式美化',
+  '❌流式楼层美化',
+  '❌文风',
 ];
 
 async function switch_to_step(step: number) {
   await updatePresetWith('in_use', preset => {
+    const prompt = preset.prompts.find(prompt => prompt.name.includes(design_steps[step]))!;
+
+    if (design_steps[step].includes('❌')) {
+      marked
+        .parse(`# ${design_steps[step]} 尚不可用\n\n${prompt.content!}`, { async: true, breaks: true })
+        .then(html => {
+          SillyTavern.callGenericPopup(html, SillyTavern.POPUP_TYPE.TEXT, '', { leftAlign: true });
+        });
+      throw Error(`${design_steps[step]} 尚不可用`);
+    }
+
     const design_start = preset.prompts.findIndex(prompt => prompt.name.includes('<设计模块>'));
     const design_end = preset.prompts.findIndex(prompt => prompt.name.includes('</设计模块>'));
     preset.prompts.slice(design_start, design_end + 1).forEach(prompt => {
       prompt.enabled = false;
     });
+
     preset.prompts[design_start].enabled = true;
-    preset.prompts.find(prompt => prompt.name.includes(design_steps[step]))!.enabled = true;
+    prompt.enabled = true;
     preset.prompts[design_end].enabled = true;
     return preset;
   }).then(
