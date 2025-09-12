@@ -9,38 +9,24 @@ description: 当需要编写脚本时, 你应该参考本文件
 
 ## jquery
 
-脚本中的 jquery 将直接作用于整个酒馆页面而非仅作用于脚本所在的 iframe. 例如 `$('body')` 将选择酒馆网页的 `<body>` 标签, 而不是脚本所在的 iframe 的 `<body>` 标签.
+脚本中的 jquery 将直接作用于整个酒馆页面而非仅作用于脚本所在的 iframe. 例如 `$('body')` 将选择酒馆网页的 `<body>` 标签, 而不是脚本所在的 iframe 的 `<body>` 标签; 但 `appendTo` 等参数中的选择器依旧作用于脚本所在的 iframe, 因此请小心使用.
 
 ## vue
 
 由于脚本运行在 iframe 中, 当需要在脚本中向酒馆页面挂载 vue 组件时, 你应该使用 jquery 来创建一个要挂载的位置, 将其添加到酒馆网页上, 并使用 `app.mount($app[0])` 来挂载.
 
-此外, vue-style-loader 会将样式注入到 iframe 的 `<head>` 中, 为了使样式生效, 你需要:
-
-- 在 vue 组件中使用 scoped style 从而让组件具有 `data-v-xxx` 属性
-- 在 mount 后获取该属性, 使用 `$('head > style:contains("data-v-xxx")', document)` 查找样式来尾附到组件所在的元素中.
-
-即,
+此外, vue-style-loader 会将样式注入到 iframe 的 `<head>` 中, 为了使样式生效, 你需要将样式复制到酒馆网页的 `<head>` 中:
 
 ```typescript
-const $app = $('<div>').attr('id', 'input_helper');
-const app = createApp(panel);
-
-export function init_panel() {
-  $('#extensions_settings2').append($app);
-
-  app.mount($app[0]);
-
-  const scope_id = $app
-    .find('div')[0]
-    .getAttributeNames()
-    .find(value => value.startsWith('data-v-'));
-  $app.append($(`head > style:contains("${scope_id}")`, document));
+export function teleport_vue_style() {
+  $(`<div>`)
+    .attr('script_id', getScriptId())
+    .append($(`head > style[data-vue-ssr-id]`, document).clone())
+    .appendTo('head');
 }
 
-export function destroy_panel() {
-  app.unmount();
-  $app.remove();
+export function deteleport_vue_style() {
+  $(`head > div[script_id="${getScriptId()}"]`).remove();
 }
 ```
 

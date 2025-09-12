@@ -192,7 +192,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
                   {
                     test: /\.vue\.s(a|c)ss$/,
                     use: [
-                      'vue-style-loader',
+                      { loader: 'vue-style-loader', options: { ssrId: true } },
                       { loader: 'css-loader', options: { url: false } },
                       'postcss-loader',
                       'sass-loader',
@@ -201,7 +201,11 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
                   },
                   {
                     test: /\.vue\.css$/,
-                    use: ['vue-style-loader', { loader: 'css-loader', options: { url: false } }, 'postcss-loader'],
+                    use: [
+                      { loader: 'vue-style-loader', options: { ssrId: true } },
+                      { loader: 'css-loader', options: { url: false } },
+                      'postcss-loader',
+                    ],
                     exclude: /node_modules/,
                   },
                   {
