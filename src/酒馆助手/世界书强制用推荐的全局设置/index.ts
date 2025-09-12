@@ -30,7 +30,7 @@ function register_button() {
   appendInexistentScriptButtons(getScriptId(), [
     {
       name: '处理要禁用递归扫描的世界书',
-      visible: false,
+      visible: true,
     },
   ]);
 
