@@ -39,9 +39,13 @@ export async function load_readme(url: string): Promise<boolean> {
 }
 
 export function teleport_vue_style() {
-  $(`<div id="style-${getScriptId()}">`).append($(`head > style[data-vue-ssr-id]`, document)).appendTo('head');
+  if ($(`head > div[script_id="${getScriptId()}"]`).length > 0) {
+    return;
+  }
+  const $div = $(`<div>`).attr('script_id', getScriptId()).append($(`head > style[data-vue-ssr-id]`, document).clone());
+  $('head').append($div);
 }
 
 export function deteleport_vue_style() {
-  $(`head > div[id="style-${getScriptId()}"]`).remove();
+  $(`head > div[script_id="${getScriptId()}"]`).remove();
 }

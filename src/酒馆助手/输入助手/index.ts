@@ -1,5 +1,5 @@
 import { watchEffect } from 'vue';
-import { check_minimum_version, deteleport_vue_style, load_readme, teleport_vue_style } from '../../util';
+import { check_minimum_version, load_readme } from '../../util';
 import { destroy_panel, init_panel } from './panel';
 import { use_settings_store } from './settings';
 import { Button } from './type';
@@ -62,10 +62,7 @@ function rebind_buttons(buttons: Button[]) {
 $(() => {
   check_minimum_version('3.4.19', '输入助手');
   load_readme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/输入助手/README.md');
-
-  teleport_vue_style();
   init_panel();
-
   const settings_store = use_settings_store();
   watchEffect(() => {
     rebind_buttons(settings_store.settings.buttons.filter(button => button.enable));
@@ -73,8 +70,6 @@ $(() => {
 });
 
 $(window).on('pagehide', () => {
-  deteleport_vue_style();
   destroy_panel();
-
   replaceScriptButtons([]);
 });
