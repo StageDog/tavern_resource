@@ -38,14 +38,14 @@ export async function load_readme(url: string): Promise<boolean> {
   return true;
 }
 
-export function teleport_vue_style() {
+export function teleport_style() {
   if ($(`head > div[script_id="${getScriptId()}"]`).length > 0) {
     return;
   }
-  const $div = $(`<div>`).attr('script_id', getScriptId()).append($(`head > style[data-vue-ssr-id]`, document).clone());
+  const $div = $(`<div>`).attr('script_id', getScriptId()).append($(`head > style`, document).clone());
   $('head').append($div);
 }
 
-export function deteleport_vue_style() {
+export function deteleport_style() {
   $(`head > div[script_id="${getScriptId()}"]`).remove();
 }
