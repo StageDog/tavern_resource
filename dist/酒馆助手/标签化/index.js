@@ -1,1 +1,108 @@
-function t(t){return[...t.matchAll(/【(.*?)】/g)].map(t=>t[1].toLowerCase())}function e(t,e){return[...t.matchAll(/【(.*?)】/g)].map(t=>t[1]).some(t=>t.split('&').map(t=>t.toLowerCase()).every(t=>e.includes(t)))}const n=_.throttle(async function(){const n=_.sortedUniq(_.sortBy([...t($('#settings_preset_openai').find(':selected').text()),...$('#world_info').find(':selected').toArray().map(t=>$(t).text()).flatMap(t),...t($('#connection_profiles').find(':checked').text())]));!async function(t){const n=$('#completion_prompt_manager').find('a[title]').filter(function(){return null!==$(this).text().match(/【.*?】/)}).toArray().map(n=>{const i=$(n),r=i.closest('li');return{identifier:r.attr('data-pm-identifier'),should_toggle:e(i.attr('title'),t)!==r.find('.prompt-manager-toggle-action').hasClass('fa-toggle-on')}}).filter(({should_toggle:t})=>t).map(({identifier:t})=>`identifier=${t}`);0!==n.length&&await triggerSlash(`/setpromptentry ${n.join(' ')}`)}(n),async function(t){const n=getTavernRegexes({scope:'all'}),i=structuredClone(n);i.filter(t=>null!==t.script_name.match(/【.*?】/)).forEach(n=>{n.enabled=e(n.script_name,t)}),_.isEqual(n,i)||await replaceTavernRegexes(i,{scope:'all'})}(n),async function(t){const n=$('#script-settings-content').find('.script-item').filter(function(){return null!==$(this).find('.script-item-name').text().match(/【.*?】/)}).toArray().map(n=>{const i=$(n),r=e(i.find('.script-item-name').text(),t),o=i.find('.script-toggle'),a=o.hasClass('enabled');return{button:o,should_toggle:r!==a}}).filter(({should_toggle:t})=>t).map(({button:t})=>t);for(const t of n)t.trigger('click')}(n)},1e3,{trailing:!1});$(()=>{n(),eventMakeFirst(tavern_events.SETTINGS_UPDATED,n)});
+function get_current_preset_name() {
+    return $('#settings_preset_openai').find(':selected').text();
+}
+function get_current_global_lorebooks() {
+    return $('#world_info')
+        .find(':selected')
+        .toArray()
+        .map(node => $(node).text());
+}
+function get_current_connection_profile() {
+    return $('#connection_profiles').find(':checked').text();
+}
+function extract_tags_from(name) {
+    return [...name.matchAll(/【(.*?)】/g)].map(match => match[1].toLowerCase());
+}
+function extract_control_tags() {
+    return _.sortedUniq(_.sortBy([
+        ...extract_tags_from(get_current_preset_name()),
+        ...get_current_global_lorebooks().flatMap(extract_tags_from),
+        ...extract_tags_from(get_current_connection_profile()),
+    ]));
+}
+function check_should_enable(title, tags) {
+    return [...title.matchAll(/【(.*?)】/g)]
+        .map(match => match[1])
+        .some(tag_list => tag_list
+        .split('&')
+        .map(tag => tag.toLowerCase())
+        .every(expected => tags.includes(expected)));
+}
+async function toggle_tagged_preset_prompts(tags) {
+    const prompt_anchors = $('#completion_prompt_manager')
+        .find('a[title]')
+        .filter(function () {
+        return ($(this)
+            .text()
+            .match(/【.*?】/) !== null);
+    })
+        .toArray();
+    const prompt_identifiers_to_be_toggled = prompt_anchors
+        .map(prompt_anchor => {
+        const $anchor = $(prompt_anchor);
+        const $li = $anchor.closest('li');
+        const identifier = $li.attr('data-pm-identifier');
+        const should_enable = check_should_enable($anchor.attr('title'), tags);
+        const is_enabled = $li.find('.prompt-manager-toggle-action').hasClass('fa-toggle-on');
+        return { identifier, should_toggle: should_enable !== is_enabled };
+    })
+        .filter(({ should_toggle }) => should_toggle)
+        .map(({ identifier }) => `identifier=${identifier}`);
+    if (prompt_identifiers_to_be_toggled.length !== 0) {
+        await triggerSlash(`/setpromptentry ${prompt_identifiers_to_be_toggled.join(' ')}`);
+    }
+}
+async function toggle_tagged_regexes(tags) {
+    const regexes = getTavernRegexes({ scope: 'all' });
+    const new_regexes = structuredClone(regexes);
+    new_regexes
+        .filter(regex => regex.script_name.match(/【.*?】/) !== null)
+        .forEach(regex => {
+        regex.enabled = check_should_enable(regex.script_name, tags);
+    });
+    if (_.isEqual(regexes, new_regexes)) {
+        return;
+    }
+    await replaceTavernRegexes(new_regexes, { scope: 'all' });
+}
+async function toggle_tagged_scripts(tags) {
+    const scripts = $('#script-settings-content')
+        .find('.script-item')
+        .filter(function () {
+        return ($(this)
+            .find('.script-item-name')
+            .text()
+            .match(/【.*?】/) !== null);
+    })
+        .toArray();
+    const scripts_to_be_toggled = scripts
+        .map(script => {
+        const $div = $(script);
+        const title = $div.find('.script-item-name').text();
+        const should_enabled = check_should_enable(title, tags);
+        const $toggle_button = $div.find('.script-toggle');
+        const is_enabled = $toggle_button.hasClass('enabled');
+        return {
+            button: $toggle_button,
+            should_toggle: should_enabled !== is_enabled,
+        };
+    })
+        .filter(({ should_toggle }) => should_toggle)
+        .map(({ button }) => button);
+    for (const script of scripts_to_be_toggled) {
+        script.trigger('click');
+    }
+}
+async function toggle_tags() {
+    const tags = extract_control_tags();
+    toggle_tagged_preset_prompts(tags);
+    toggle_tagged_regexes(tags);
+    toggle_tagged_scripts(tags);
+}
+const toggle_tags_throttled = _.throttle(toggle_tags, 1000, { trailing: false });
+$(() => {
+    toggle_tags_throttled();
+    eventMakeFirst(tavern_events.SETTINGS_UPDATED, toggle_tags_throttled);
+});
+
+

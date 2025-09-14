@@ -1,1 +1,473 @@
-import{compare as e}from'https://testingcf.jsdelivr.net/npm/compare-versions/+esm';import{createPinia as t,defineStore as n,storeToRefs as o}from'https://testingcf.jsdelivr.net/npm/pinia/+esm';function s(e,t){return e.length=0,e.push(...t),e}const r=Vue,a=z.object({seperator:z.object({type:z.enum(['space','newline','double newline','custom']).default('double newline'),value:z.string().default('\n\n')}).prefault({}).transform(e=>{switch(e.type){case'space':e.value=' ';break;case'newline':e.value='\n';break;case'double newline':e.value='\n\n'}return e}),on_chat_history:z.object({type:z.enum(['mixin','seperate','squash']).default('squash'),squash_role:z.enum(['user','assistant','system']).default('assistant'),user_prefix:z.string().default('{{user}}: '),user_suffix:z.string().default(''),assistant_prefix:z.string().default('剧情: '),assistant_suffix:z.string().default(''),system_prefix:z.string().default(''),system_suffix:z.string().default('')}).prefault({})}),i=n('settings',()=>{const e=(0,r.ref)(a.parse(getVariables({type:'script',script_id:getScriptId()})));return(0,r.watchEffect)(()=>{insertOrAssignVariables(_.cloneDeep(e.value),{type:'script',script_id:getScriptId()})}),{settings:e}}),l={class:'inline-drawer'},c={class:'inline-drawer-content'},u={class:'flex-container flexFlowColumn'},d={key:0,class:'flex-container flexFlowColumn'},f={class:'flex-container flexFlowColumn'},p={key:1,class:'flex-container flexFlowColumn'},m={key:2},h={class:'flex-container flexFlowColumn',title:'用户消息前缀'},x={class:'flex-container flexFlowColumn',title:'用户消息后缀'},v={class:'flex-container flexFlowColumn',title:'助手消息前缀'},y={class:'flex-container flexFlowColumn',title:'助手消息后缀'},V={class:'flex-container flexFlowColumn',title:'系统消息前缀'},E={class:'flex-container flexFlowColumn',title:'系统消息后缀'},N=(0,r.defineComponent)({__name:'panel',setup(e){const{settings:t}=o(i());return(e,n)=>((0,r.openBlock)(),(0,r.createElementBlock)('div',l,[n[24]||(n[24]=(0,r.createElementVNode)('div',{class:'inline-drawer-toggle inline-drawer-header'},[(0,r.createElementVNode)('b',null,'压缩相邻消息'),(0,r.createElementVNode)('div',{class:'inline-drawer-icon fa-solid fa-circle-chevron-down down'})],-1)),(0,r.createElementVNode)('div',c,[(0,r.createCommentVNode)(' 分隔符设置 '),(0,r.createElementVNode)('div',u,[n[11]||(n[11]=(0,r.createElementVNode)('label',{for:'squash_separator_type'},'消息分隔符',-1)),(0,r.withDirectives)((0,r.createElementVNode)('select',{'onUpdate:modelValue':n[0]||(n[0]=e=>(0,r.unref)(t).seperator.type=e),id:'squash_separator_type',class:'text_pole'},[...n[10]||(n[10]=[(0,r.createElementVNode)('option',{value:'space'},'空格',-1),(0,r.createElementVNode)('option',{value:'newline'},'换行',-1),(0,r.createElementVNode)('option',{value:'double newline'},'双换行',-1),(0,r.createElementVNode)('option',{value:'custom'},'自定义',-1)])],512),[[r.vModelSelect,(0,r.unref)(t).seperator.type]])]),'custom'===(0,r.unref)(t).seperator.type?((0,r.openBlock)(),(0,r.createElementBlock)('div',d,[n[12]||(n[12]=(0,r.createElementVNode)('label',{for:'squash_separator_value'},'自定义分隔符',-1)),(0,r.withDirectives)((0,r.createElementVNode)('input',{'onUpdate:modelValue':n[1]||(n[1]=e=>(0,r.unref)(t).seperator.value=e),id:'squash_separator_value',class:'text_pole flex1 wide100p',type:'text',autocomplete:'off'},null,512),[[r.vModelText,(0,r.unref)(t).seperator.value]])])):(0,r.createCommentVNode)('v-if',!0),n[23]||(n[23]=(0,r.createElementVNode)('hr',null,null,-1)),(0,r.createCommentVNode)(' 压缩聊天历史设置 '),(0,r.createElementVNode)('div',f,[n[14]||(n[14]=(0,r.createElementVNode)('label',{for:'squash_chat_history_type'},'聊天历史处理方式',-1)),(0,r.withDirectives)((0,r.createElementVNode)('select',{'onUpdate:modelValue':n[2]||(n[2]=e=>(0,r.unref)(t).on_chat_history.type=e),id:'squash_chat_history_type',class:'text_pole'},[...n[13]||(n[13]=[(0,r.createElementVNode)('option',{value:'mixin'},'与其他提示词混合',-1),(0,r.createElementVNode)('option',{value:'seperate'},'与其他提示词隔离',-1),(0,r.createElementVNode)('option',{value:'squash'},'单独压缩为一条消息',-1)])],512),[[r.vModelSelect,(0,r.unref)(t).on_chat_history.type]])]),'squash'===(0,r.unref)(t).on_chat_history.type?((0,r.openBlock)(),(0,r.createElementBlock)('div',p,[n[16]||(n[16]=(0,r.createElementVNode)('label',{for:'squash_role'},'压缩角色',-1)),(0,r.withDirectives)((0,r.createElementVNode)('select',{'onUpdate:modelValue':n[3]||(n[3]=e=>(0,r.unref)(t).on_chat_history.squash_role=e),id:'squash_role',class:'text_pole'},[...n[15]||(n[15]=[(0,r.createElementVNode)('option',{value:'system'},'系统',-1),(0,r.createElementVNode)('option',{value:'user'},'用户',-1),(0,r.createElementVNode)('option',{value:'assistant'},'助手',-1)])],512),[[r.vModelSelect,(0,r.unref)(t).on_chat_history.squash_role]])])):(0,r.createCommentVNode)('v-if',!0),'squash'===(0,r.unref)(t).on_chat_history.type?((0,r.openBlock)(),(0,r.createElementBlock)('div',m,[(0,r.createCommentVNode)(' 用户前缀后缀 '),(0,r.createElementVNode)('div',h,[n[17]||(n[17]=(0,r.createElementVNode)('label',{for:'user_prefix'},'用户前缀',-1)),(0,r.withDirectives)((0,r.createElementVNode)('input',{'onUpdate:modelValue':n[4]||(n[4]=e=>(0,r.unref)(t).on_chat_history.user_prefix=e),id:'user_prefix',class:'text_pole flex1 wide100p',type:'text',autocomplete:'off'},null,512),[[r.vModelText,(0,r.unref)(t).on_chat_history.user_prefix]])]),(0,r.createElementVNode)('div',x,[n[18]||(n[18]=(0,r.createElementVNode)('label',{for:'user_suffix'},'用户后缀',-1)),(0,r.withDirectives)((0,r.createElementVNode)('input',{'onUpdate:modelValue':n[5]||(n[5]=e=>(0,r.unref)(t).on_chat_history.user_suffix=e),id:'user_suffix',class:'text_pole flex1 wide100p',type:'text',autocomplete:'off'},null,512),[[r.vModelText,(0,r.unref)(t).on_chat_history.user_suffix]])]),(0,r.createCommentVNode)(' 助手前缀后缀 '),(0,r.createElementVNode)('div',v,[n[19]||(n[19]=(0,r.createElementVNode)('label',{for:'assistant_prefix'},'助手前缀',-1)),(0,r.withDirectives)((0,r.createElementVNode)('input',{'onUpdate:modelValue':n[6]||(n[6]=e=>(0,r.unref)(t).on_chat_history.assistant_prefix=e),id:'assistant_prefix',class:'text_pole flex1 wide100p',type:'text',autocomplete:'off'},null,512),[[r.vModelText,(0,r.unref)(t).on_chat_history.assistant_prefix]])]),(0,r.createElementVNode)('div',y,[n[20]||(n[20]=(0,r.createElementVNode)('label',{for:'assistant_suffix'},'助手后缀',-1)),(0,r.withDirectives)((0,r.createElementVNode)('input',{'onUpdate:modelValue':n[7]||(n[7]=e=>(0,r.unref)(t).on_chat_history.assistant_suffix=e),id:'assistant_suffix',class:'text_pole flex1 wide100p',type:'text',autocomplete:'off'},null,512),[[r.vModelText,(0,r.unref)(t).on_chat_history.assistant_suffix]])]),(0,r.createCommentVNode)(' 系统前缀后缀 '),(0,r.createElementVNode)('div',V,[n[21]||(n[21]=(0,r.createElementVNode)('label',{for:'system_prefix'},'系统前缀',-1)),(0,r.withDirectives)((0,r.createElementVNode)('input',{'onUpdate:modelValue':n[8]||(n[8]=e=>(0,r.unref)(t).on_chat_history.system_prefix=e),id:'system_prefix',class:'text_pole flex1 wide100p',type:'text',autocomplete:'off'},null,512),[[r.vModelText,(0,r.unref)(t).on_chat_history.system_prefix]])]),(0,r.createElementVNode)('div',E,[n[22]||(n[22]=(0,r.createElementVNode)('label',{for:'system_suffix'},'系统后缀',-1)),(0,r.withDirectives)((0,r.createElementVNode)('input',{'onUpdate:modelValue':n[9]||(n[9]=e=>(0,r.unref)(t).on_chat_history.system_suffix=e),id:'system_suffix',class:'text_pole flex1 wide100p',type:'text',autocomplete:'off'},null,512),[[r.vModelText,(0,r.unref)(t).on_chat_history.system_suffix]])])])):(0,r.createCommentVNode)('v-if',!0)])]))}}),w=(0,r.createApp)(N);function g(){!function(){if($(`head > div[script_id="${getScriptId()}"]`).length>0)return;const e=$('<div>').attr('script_id',getScriptId()).append($('head > style',document).clone());$('head').append(e)}();const e=$('<div>').attr('script_id',getScriptId());$('#extensions_settings2').append(e),w.use(t()).mount(e[0])}function b(){w.unmount(),$(`#extensions_settings2 > div[script_id="${getScriptId()}"]`).remove(),$(`head > div[script_id="${getScriptId()}"]`).remove()}const M='{【{【聊天记录开头】}】}',C='{【{【聊天记录结尾】}】}',q=[{id:'\0压缩相邻消息',position:'in_chat',depth:9999,role:'assistant',content:M},{id:'ÿ压缩相邻消息',position:'in_chat',depth:0,role:'system',content:C}];function k(e,t){return function(e,t){if(0===e.length)return[];const n=[[e[0]]];for(const[o,s]of _.zip(_.drop(e),_.dropRight(e)))t(o,s)?n[n.length-1].push(o):n.push([o]);return n}(e,(e,t)=>e.role===t.role).map(e=>({role:e[0].role,content:e.map(({content:e})=>e.trim()).join(t.seperator.value)}))}function D(e){let t=!1;eventOn(tavern_events.GENERATION_AFTER_COMMANDS,(e,n,o)=>{t=o}),eventMakeLast(tavern_events.GENERATE_AFTER_DATA,({prompt:n})=>{if(t)return;const o=function(e){const t=e.findIndex(({content:e})=>e.includes(M)),n=e.findIndex(({content:e})=>e.includes(C));if(-1===t||-1===n)return null;const[o,s]=e[t].content.split(M),[r,a]=e[n].content.split(C);return[[...e.slice(0,t),{role:e[t].role,content:o}],[{role:e[t].role,content:s},...e.slice(t+1,n),{role:e[n].role,content:r}],[{role:e[n].role,content:a},...e.slice(n+1)]]}(n);if(null===o)return;const[r,a,i]=_(o).map(e=>function(e){return e.filter(({content:e})=>''!==e.trim())}(e)).map(t=>k(t,e)).value();switch(e.on_chat_history.type){case'mixin':s(n,k(_.concat(r,a,i),e));break;case'seperate':s(n,_.concat(r,a,i));break;case'squash':s(n,_.concat(r,function(e,t){return{role:t.on_chat_history.squash_role,content:e.map(({role:e,content:n})=>{switch(e){case'system':return substitudeMacros(t.on_chat_history.system_prefix)+n.trim()+substitudeMacros(t.on_chat_history.system_suffix);case'assistant':return substitudeMacros(t.on_chat_history.assistant_prefix)+n.trim()+substitudeMacros(t.on_chat_history.assistant_suffix);case'user':return substitudeMacros(t.on_chat_history.user_prefix)+n.trim()+substitudeMacros(t.on_chat_history.user_suffix)}}).join(t.seperator.value)}}(a,e),i))}})}function T(e){eventOn(tavern_events.GENERATION_AFTER_COMMANDS,(e,t,n)=>{n||injectPrompts(q)}),D(e)}function S(){uninjectPrompts(q.map(({id:e})=>e))}$(()=>{!async function(t,n){e(await getTavernHelperVersion(),t,'<')&&toastr.error(`'${n}' 需要酒馆助手版本 >= '${t}'`,'版本不兼容')}('3.4.17','压缩相邻消息'),async function(e){const t=await fetch(e);if(!t.ok)return!1;const n=await t.text();replaceScriptInfo(n)}('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/压缩相邻消息/README.md'),g(),T(i().settings)}),$(window).on('pagehide',()=>{b(),S()});
+import { compare } from "https://testingcf.jsdelivr.net/npm/compare-versions/+esm";
+import { createPinia, defineStore, storeToRefs } from "https://testingcf.jsdelivr.net/npm/pinia/+esm";
+
+;// external "https://testingcf.jsdelivr.net/npm/compare-versions/+esm"
+
+;// ./src/util.ts
+
+function assign_inplace(destination, new_array) {
+    destination.length = 0;
+    destination.push(...new_array);
+    return destination;
+}
+function chunk_by(array, predicate) {
+    if (array.length === 0) {
+        return [];
+    }
+    const chunks = [[array[0]]];
+    for (const [lhs, rhs] of _.zip(_.drop(array), _.dropRight(array))) {
+        if (predicate(lhs, rhs)) {
+            chunks[chunks.length - 1].push(lhs);
+        }
+        else {
+            chunks.push([lhs]);
+        }
+    }
+    return chunks;
+}
+async function check_minimum_version(expected, title) {
+    if (compare(await getTavernHelperVersion(), expected, '<')) {
+        toastr.error(`'${title}' 需要酒馆助手版本 >= '${expected}'`, '版本不兼容');
+    }
+}
+async function load_readme(url) {
+    const readme = await fetch(url);
+    if (!readme.ok) {
+        return false;
+    }
+    const readme_text = await readme.text();
+    replaceScriptInfo(readme_text);
+    return true;
+}
+function teleport_style() {
+    if ($(`head > div[script_id="${getScriptId()}"]`).length > 0) {
+        return;
+    }
+    const $div = $(`<div>`).attr('script_id', getScriptId()).append($(`head > style`, document).clone());
+    $('head').append($div);
+}
+function deteleport_style() {
+    $(`head > div[script_id="${getScriptId()}"]`).remove();
+}
+
+;// external "https://testingcf.jsdelivr.net/npm/pinia/+esm"
+
+;// external "Vue"
+const external_Vue_namespaceObject = Vue;
+;// ./src/酒馆助手/压缩相邻消息/type.ts
+const Settings = z.object({
+    seperator: z
+        .object({
+        type: z.enum(['space', 'newline', 'double newline', 'custom']).default('double newline'),
+        value: z.string().default('\n\n'),
+    })
+        .prefault({})
+        .transform(data => {
+        switch (data.type) {
+            case 'space':
+                data.value = ' ';
+                break;
+            case 'newline':
+                data.value = '\n';
+                break;
+            case 'double newline':
+                data.value = '\n\n';
+                break;
+            case 'custom':
+                break;
+        }
+        return data;
+    }),
+    on_chat_history: z
+        .object({
+        type: z.enum(['mixin', 'seperate', 'squash']).default('squash'),
+        squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
+        user_prefix: z.string().default('{{user}}: '),
+        user_suffix: z.string().default(''),
+        assistant_prefix: z.string().default('剧情: '),
+        assistant_suffix: z.string().default(''),
+        system_prefix: z.string().default(''),
+        system_suffix: z.string().default(''),
+    })
+        .prefault({}),
+});
+
+;// ./src/酒馆助手/压缩相邻消息/settings.ts
+
+
+
+const use_settings_store = defineStore('settings', () => {
+    const settings = (0,external_Vue_namespaceObject.ref)(Settings.parse(getVariables({ type: 'script', script_id: getScriptId() })));
+    (0,external_Vue_namespaceObject.watchEffect)(() => {
+        insertOrAssignVariables(_.cloneDeep(settings.value), { type: 'script', script_id: getScriptId() });
+    });
+    return {
+        settings,
+    };
+});
+
+;// ./node_modules/.pnpm/ts-loader@9.5.4_typescript@6.0.0-dev.20250807_webpack@5.101.3/node_modules/ts-loader/index.js??clonedRuleSet-424!./node_modules/.pnpm/vue-loader@17.4.2_vue@3.5.21_typescript@6.0.0-dev.20250807__webpack@5.101.3/node_modules/vue-loader/dist/index.js??ruleSet[1].rules[4].use[0]!./src/酒馆助手/压缩相邻消息/panel.vue?vue&type=script&setup=true&lang=ts
+
+
+const _hoisted_1 = { class: "inline-drawer" };
+const _hoisted_2 = { class: "inline-drawer-content" };
+const _hoisted_3 = { class: "flex-container flexFlowColumn" };
+const _hoisted_4 = {
+    key: 0,
+    class: "flex-container flexFlowColumn"
+};
+const _hoisted_5 = { class: "flex-container flexFlowColumn" };
+const _hoisted_6 = {
+    key: 1,
+    class: "flex-container flexFlowColumn"
+};
+const _hoisted_7 = { key: 2 };
+const _hoisted_8 = {
+    class: "flex-container flexFlowColumn",
+    title: "用户消息前缀"
+};
+const _hoisted_9 = {
+    class: "flex-container flexFlowColumn",
+    title: "用户消息后缀"
+};
+const _hoisted_10 = {
+    class: "flex-container flexFlowColumn",
+    title: "助手消息前缀"
+};
+const _hoisted_11 = {
+    class: "flex-container flexFlowColumn",
+    title: "助手消息后缀"
+};
+const _hoisted_12 = {
+    class: "flex-container flexFlowColumn",
+    title: "系统消息前缀"
+};
+const _hoisted_13 = {
+    class: "flex-container flexFlowColumn",
+    title: "系统消息后缀"
+};
+
+
+/* harmony default export */ const panelvue_type_script_setup_true_lang_ts = (/*@__PURE__*/(0,external_Vue_namespaceObject.defineComponent)({
+    __name: 'panel',
+    setup(__props) {
+        const { settings } = storeToRefs(use_settings_store());
+        return (_ctx, _cache) => {
+            return ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_1, [
+                _cache[24] || (_cache[24] = (0,external_Vue_namespaceObject.createElementVNode)("div", { class: "inline-drawer-toggle inline-drawer-header" }, [
+                    (0,external_Vue_namespaceObject.createElementVNode)("b", null, "压缩相邻消息"),
+                    (0,external_Vue_namespaceObject.createElementVNode)("div", { class: "inline-drawer-icon fa-solid fa-circle-chevron-down down" })
+                ], -1 /* CACHED */)),
+                (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_2, [
+                    (0,external_Vue_namespaceObject.createCommentVNode)(" 分隔符设置 "),
+                    (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_3, [
+                        _cache[11] || (_cache[11] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_separator_type" }, "消息分隔符", -1 /* CACHED */)),
+                        (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("select", {
+                            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).seperator.type) = $event)),
+                            id: "squash_separator_type",
+                            class: "text_pole"
+                        }, [...(_cache[10] || (_cache[10] = [
+                                (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "space" }, "空格", -1 /* CACHED */),
+                                (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "newline" }, "换行", -1 /* CACHED */),
+                                (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "double newline" }, "双换行", -1 /* CACHED */),
+                                (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "custom" }, "自定义", -1 /* CACHED */)
+                            ]))], 512 /* NEED_PATCH */), [
+                            [external_Vue_namespaceObject.vModelSelect, (0,external_Vue_namespaceObject.unref)(settings).seperator.type]
+                        ])
+                    ]),
+                    ((0,external_Vue_namespaceObject.unref)(settings).seperator.type === 'custom')
+                        ? ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_4, [
+                            _cache[12] || (_cache[12] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_separator_value" }, "自定义分隔符", -1 /* CACHED */)),
+                            (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
+                                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).seperator.value) = $event)),
+                                id: "squash_separator_value",
+                                class: "text_pole flex1 wide100p",
+                                type: "text",
+                                autocomplete: "off"
+                            }, null, 512 /* NEED_PATCH */), [
+                                [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).seperator.value]
+                            ])
+                        ]))
+                        : (0,external_Vue_namespaceObject.createCommentVNode)("v-if", true),
+                    _cache[23] || (_cache[23] = (0,external_Vue_namespaceObject.createElementVNode)("hr", null, null, -1 /* CACHED */)),
+                    (0,external_Vue_namespaceObject.createCommentVNode)(" 压缩聊天历史设置 "),
+                    (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_5, [
+                        _cache[14] || (_cache[14] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_chat_history_type" }, "聊天历史处理方式", -1 /* CACHED */)),
+                        (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("select", {
+                            "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.type) = $event)),
+                            id: "squash_chat_history_type",
+                            class: "text_pole"
+                        }, [...(_cache[13] || (_cache[13] = [
+                                (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "mixin" }, "与其他提示词混合", -1 /* CACHED */),
+                                (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "seperate" }, "与其他提示词隔离", -1 /* CACHED */),
+                                (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "squash" }, "单独压缩为一条消息", -1 /* CACHED */)
+                            ]))], 512 /* NEED_PATCH */), [
+                            [external_Vue_namespaceObject.vModelSelect, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.type]
+                        ])
+                    ]),
+                    ((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.type === 'squash')
+                        ? ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_6, [
+                            _cache[16] || (_cache[16] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_role" }, "压缩角色", -1 /* CACHED */)),
+                            (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("select", {
+                                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.squash_role) = $event)),
+                                id: "squash_role",
+                                class: "text_pole"
+                            }, [...(_cache[15] || (_cache[15] = [
+                                    (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "system" }, "系统", -1 /* CACHED */),
+                                    (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "user" }, "用户", -1 /* CACHED */),
+                                    (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "assistant" }, "助手", -1 /* CACHED */)
+                                ]))], 512 /* NEED_PATCH */), [
+                                [external_Vue_namespaceObject.vModelSelect, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.squash_role]
+                            ])
+                        ]))
+                        : (0,external_Vue_namespaceObject.createCommentVNode)("v-if", true),
+                    ((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.type === 'squash')
+                        ? ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_7, [
+                            (0,external_Vue_namespaceObject.createCommentVNode)(" 用户前缀后缀 "),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_8, [
+                                _cache[17] || (_cache[17] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "user_prefix" }, "用户前缀", -1 /* CACHED */)),
+                                (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
+                                    "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.user_prefix) = $event)),
+                                    id: "user_prefix",
+                                    class: "text_pole flex1 wide100p",
+                                    type: "text",
+                                    autocomplete: "off"
+                                }, null, 512 /* NEED_PATCH */), [
+                                    [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.user_prefix]
+                                ])
+                            ]),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_9, [
+                                _cache[18] || (_cache[18] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "user_suffix" }, "用户后缀", -1 /* CACHED */)),
+                                (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
+                                    "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.user_suffix) = $event)),
+                                    id: "user_suffix",
+                                    class: "text_pole flex1 wide100p",
+                                    type: "text",
+                                    autocomplete: "off"
+                                }, null, 512 /* NEED_PATCH */), [
+                                    [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.user_suffix]
+                                ])
+                            ]),
+                            (0,external_Vue_namespaceObject.createCommentVNode)(" 助手前缀后缀 "),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_10, [
+                                _cache[19] || (_cache[19] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "assistant_prefix" }, "助手前缀", -1 /* CACHED */)),
+                                (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
+                                    "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.assistant_prefix) = $event)),
+                                    id: "assistant_prefix",
+                                    class: "text_pole flex1 wide100p",
+                                    type: "text",
+                                    autocomplete: "off"
+                                }, null, 512 /* NEED_PATCH */), [
+                                    [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.assistant_prefix]
+                                ])
+                            ]),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_11, [
+                                _cache[20] || (_cache[20] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "assistant_suffix" }, "助手后缀", -1 /* CACHED */)),
+                                (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
+                                    "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.assistant_suffix) = $event)),
+                                    id: "assistant_suffix",
+                                    class: "text_pole flex1 wide100p",
+                                    type: "text",
+                                    autocomplete: "off"
+                                }, null, 512 /* NEED_PATCH */), [
+                                    [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.assistant_suffix]
+                                ])
+                            ]),
+                            (0,external_Vue_namespaceObject.createCommentVNode)(" 系统前缀后缀 "),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_12, [
+                                _cache[21] || (_cache[21] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "system_prefix" }, "系统前缀", -1 /* CACHED */)),
+                                (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
+                                    "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.system_prefix) = $event)),
+                                    id: "system_prefix",
+                                    class: "text_pole flex1 wide100p",
+                                    type: "text",
+                                    autocomplete: "off"
+                                }, null, 512 /* NEED_PATCH */), [
+                                    [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.system_prefix]
+                                ])
+                            ]),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_13, [
+                                _cache[22] || (_cache[22] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "system_suffix" }, "系统后缀", -1 /* CACHED */)),
+                                (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
+                                    "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.system_suffix) = $event)),
+                                    id: "system_suffix",
+                                    class: "text_pole flex1 wide100p",
+                                    type: "text",
+                                    autocomplete: "off"
+                                }, null, 512 /* NEED_PATCH */), [
+                                    [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.system_suffix]
+                                ])
+                            ])
+                        ]))
+                        : (0,external_Vue_namespaceObject.createCommentVNode)("v-if", true)
+                ])
+            ]));
+        };
+    }
+}));
+
+;// ./src/酒馆助手/压缩相邻消息/panel.vue?vue&type=script&setup=true&lang=ts
+ 
+;// ./src/酒馆助手/压缩相邻消息/panel.vue
+
+
+
+const __exports__ = panelvue_type_script_setup_true_lang_ts;
+
+/* harmony default export */ const panel = (__exports__);
+;// ./src/酒馆助手/压缩相邻消息/panel.ts
+
+
+
+
+const app = (0,external_Vue_namespaceObject.createApp)(panel);
+function init_panel() {
+    teleport_style();
+    const $app = $('<div>').attr('script_id', getScriptId());
+    $('#extensions_settings2').append($app);
+    app.use(createPinia()).mount($app[0]);
+}
+function destroy_panel() {
+    app.unmount();
+    $(`#extensions_settings2 > div[script_id="${getScriptId()}"]`).remove();
+    deteleport_style();
+}
+
+;// ./src/酒馆助手/压缩相邻消息/squash.ts
+
+//----------------------------------------------------------------------------------------------------------------------
+const head_separator = '{【{【聊天记录开头】}】}';
+const tail_separator = '{【{【聊天记录结尾】}】}';
+const seperators = [
+    {
+        id: '\0压缩相邻消息',
+        position: 'in_chat',
+        depth: 9999,
+        role: 'assistant',
+        content: head_separator,
+    },
+    {
+        id: '\xff压缩相邻消息',
+        position: 'in_chat',
+        depth: 0,
+        role: 'system',
+        content: tail_separator,
+    },
+];
+function inject_seperators() {
+    eventOn(tavern_events.GENERATION_AFTER_COMMANDS, (_type, _option, dry_run) => {
+        if (dry_run) {
+            return;
+        }
+        injectPrompts(seperators);
+    });
+}
+function uninject_seperators() {
+    uninjectPrompts(seperators.map(({ id }) => id));
+}
+//----------------------------------------------------------------------------------------------------------------------
+function seperate_prompts(prompts) {
+    const head_index = prompts.findIndex(({ content }) => content.includes(head_separator));
+    const tail_index = prompts.findIndex(({ content }) => content.includes(tail_separator));
+    if (head_index === -1 || tail_index === -1) {
+        return null;
+    }
+    const [before_head_prompt_content, after_head_prompt_content] = prompts[head_index].content.split(head_separator);
+    const [before_tail_prompt_content, after_tail_prompt_content] = prompts[tail_index].content.split(tail_separator);
+    return [
+        [...prompts.slice(0, head_index), { role: prompts[head_index].role, content: before_head_prompt_content }],
+        [
+            { role: prompts[head_index].role, content: after_head_prompt_content },
+            ...prompts.slice(head_index + 1, tail_index),
+            { role: prompts[tail_index].role, content: before_tail_prompt_content },
+        ],
+        [{ role: prompts[tail_index].role, content: after_tail_prompt_content }, ...prompts.slice(tail_index + 1)],
+    ];
+}
+function reject_empty_prompts(prompts) {
+    return prompts.filter(({ content }) => content.trim() !== '');
+}
+function squash_messages_by_role(prompts, settings) {
+    return chunk_by(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
+        role: chunk[0].role,
+        content: chunk.map(({ content }) => content.trim()).join(settings.seperator.value),
+    }));
+}
+function squash_chat_history(prompts, settings) {
+    return {
+        role: settings.on_chat_history.squash_role,
+        content: prompts
+            .map(({ role, content }) => {
+            switch (role) {
+                case 'system':
+                    return (substitudeMacros(settings.on_chat_history.system_prefix) +
+                        content.trim() +
+                        substitudeMacros(settings.on_chat_history.system_suffix));
+                case 'assistant':
+                    return (substitudeMacros(settings.on_chat_history.assistant_prefix) +
+                        content.trim() +
+                        substitudeMacros(settings.on_chat_history.assistant_suffix));
+                case 'user':
+                    return (substitudeMacros(settings.on_chat_history.user_prefix) +
+                        content.trim() +
+                        substitudeMacros(settings.on_chat_history.user_suffix));
+            }
+        })
+            .join(settings.seperator.value),
+    };
+}
+function listen_event(settings) {
+    let is_dry_run = false;
+    eventOn(tavern_events.GENERATION_AFTER_COMMANDS, (_type, _option, dry_run) => {
+        is_dry_run = dry_run;
+    });
+    eventMakeLast(tavern_events.GENERATE_AFTER_DATA, ({ prompt }) => {
+        if (is_dry_run) {
+            return;
+        }
+        const chunks = seperate_prompts(prompt);
+        if (chunks === null) {
+            return;
+        }
+        const [head, chat_history, tail] = _(chunks)
+            .map(prompts => reject_empty_prompts(prompts))
+            .map(prompts => squash_messages_by_role(prompts, settings))
+            .value();
+        switch (settings.on_chat_history.type) {
+            case 'mixin':
+                assign_inplace(prompt, squash_messages_by_role(_.concat(head, chat_history, tail), settings));
+                break;
+            case 'seperate':
+                assign_inplace(prompt, _.concat(head, chat_history, tail));
+                break;
+            case 'squash':
+                assign_inplace(prompt, _.concat(head, squash_chat_history(chat_history, settings), tail));
+                break;
+        }
+    });
+}
+//----------------------------------------------------------------------------------------------------------------------
+function init_squash(settings) {
+    inject_seperators();
+    listen_event(settings);
+}
+function destory_squash() {
+    uninject_seperators();
+}
+
+;// ./src/酒馆助手/压缩相邻消息/index.ts
+
+
+
+
+$(() => {
+    check_minimum_version('3.4.17', '压缩相邻消息');
+    load_readme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/压缩相邻消息/README.md');
+    init_panel();
+    init_squash(use_settings_store().settings);
+});
+$(window).on('pagehide', () => {
+    destroy_panel();
+    destory_squash();
+});
+

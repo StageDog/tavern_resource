@@ -1,1 +1,28 @@
-$(()=>{appendInexistentScriptButtons([{name:'显示区间',visible:!0},{name:'恢复默认',visible:!0}]),eventOn(getButtonEvent('显示区间'),async()=>{const e=SillyTavern.chat.length-1,t=await SillyTavern.callGenericPopup(`请输入显示区间 (格式: 0-10, 范围: 0-${e})`,SillyTavern.POPUP_TYPE.INPUT);if(!t)return void toastr.error('未填入有效区间');const[n,r]=t.split('-').map(Number);if(n<0||n>r||r>e)toastr.error('未填入有效区间');else{$('#chat').children().remove();for(let e=n;e<=r;e++)builtin.addOneMessage(SillyTavern.chat[e],{forceId:e}),eventEmit(SillyTavern.chat[e].is_user?tavern_events.USER_MESSAGE_RENDERED:tavern_events.CHARACTER_MESSAGE_RENDERED,e)}}),eventOn(getButtonEvent('恢复默认'),SillyTavern.reloadCurrentChat)});
+
+$(() => {
+    appendInexistentScriptButtons([
+        { name: '显示区间', visible: true },
+        { name: '恢复默认', visible: true },
+    ]);
+    eventOn(getButtonEvent('显示区间'), async () => {
+        const min = 0;
+        const max = SillyTavern.chat.length - 1;
+        const range = (await SillyTavern.callGenericPopup(`请输入显示区间 (格式: 0-10, 范围: ${min}-${max})`, SillyTavern.POPUP_TYPE.INPUT));
+        if (!range) {
+            toastr.error('未填入有效区间');
+            return;
+        }
+        const [start, end] = range.split('-').map(Number);
+        if (start < min || start > end || end > max) {
+            toastr.error('未填入有效区间');
+            return;
+        }
+        $('#chat').children().remove();
+        for (let i = start; i <= end; i++) {
+            builtin.addOneMessage(SillyTavern.chat[i], { forceId: i });
+            eventEmit(SillyTavern.chat[i].is_user ? tavern_events.USER_MESSAGE_RENDERED : tavern_events.CHARACTER_MESSAGE_RENDERED, i);
+        }
+    });
+    eventOn(getButtonEvent('恢复默认'), SillyTavern.reloadCurrentChat);
+});
+

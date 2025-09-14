@@ -1,1 +1,62 @@
-let e='';async function t(t,n){const s=$(t),r=parseInt(s.attr('mesid'));n=n??await triggerSlash(`/messages names=off ${r}`)??'';const a=s.find('.mes_text');a.prop('hidden',!0);const i=s.find('.frontend-app');if(i.length>0)return i.prop('hidden',!1),void eventEmit(`app-${r}`,n);const c=`<script>window.message = ${JSON.stringify(n)};<\/script>`,o=`<script>window.message_id = ${r};<\/script>`,d=e.replace('</head>',`${c}${o}</head>`),E=$('<iframe>').attr('srcdoc',d).addClass('frontend-app').css('border','none').css('margin','5px auto').css('width','100%').insertAfter(s.find('.ch_name'));new MutationObserver(()=>{$('#curEditTextarea').parent().is(a)&&(a.prop('hidden',!1),E.prop('hidden',!0))}).observe(a.get(0),{childList:!0,subtree:!0,characterData:!0})}async function n(){const e=$('#chat').children('.mes[is_user=\'false\'][is_system=\'false\']');for(const n of e)t(n)}!function(){const t=$('#script-iframe-App').attr('srcdoc');if(!t)throw Error('{Render} 未找到要渲染的 html 界面');e=t}(),n(),eventOn(tavern_events.MESSAGE_DELETED,n),eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED,n),eventOn(tavern_events.USER_MESSAGE_RENDERED,n),eventOn(tavern_events.MESSAGE_UPDATED,n),eventOn(tavern_events.MESSAGE_SWIPED,n),eventOn(tavern_events.STREAM_TOKEN_RECEIVED,async function(e){const n=$('#chat').children('.mes.last_mes').get(0);n&&t(n,e)});
+
+let srcdoc = '';
+function initApp() {
+    // FIXME: App 没必要是全局脚本, 可以直接用 `document.head` 获取本 iframe 的 head 再加上别的数据
+    const app = $('#script-iframe-App').attr('srcdoc');
+    if (!app) {
+        throw Error(`{Render} 未找到要渲染的 html 界面`);
+    }
+    srcdoc = app;
+}
+async function renderOn(message_element, message) {
+    const jquery_message_element = $(message_element);
+    const message_id = parseInt(jquery_message_element.attr('mesid'));
+    message = message ?? (await triggerSlash(`/messages names=off ${message_id}`)) ?? '';
+    const mes_text = jquery_message_element.find('.mes_text');
+    mes_text.prop('hidden', true);
+    const app = jquery_message_element.find('.frontend-app');
+    if (app.length > 0) {
+        app.prop('hidden', false);
+        eventEmit(`app-${message_id}`, message);
+        return;
+    }
+    const message_script = `<script>window.message = ${JSON.stringify(message)};</script>`;
+    const message_id_script = `<script>window.message_id = ${message_id};</script>`;
+    const srcdocWithMessage = srcdoc.replace('</head>', `${message_script}${message_id_script}</head>`);
+    const iframe = $('<iframe>')
+        .attr('srcdoc', srcdocWithMessage)
+        .addClass('frontend-app')
+        .css('border', 'none')
+        .css('margin', '5px auto')
+        .css('width', '100%')
+        .insertAfter(jquery_message_element.find('.ch_name'));
+    const observer = new MutationObserver(() => {
+        const isEditing = $('#curEditTextarea');
+        if (isEditing.parent().is(mes_text)) {
+            mes_text.prop('hidden', false);
+            iframe.prop('hidden', true);
+        }
+    });
+    observer.observe(mes_text.get(0), { childList: true, subtree: true, characterData: true });
+}
+async function renderAll() {
+    const nodes = $('#chat').children(".mes[is_user='false'][is_system='false']");
+    for (const node of nodes) {
+        renderOn(node);
+    }
+}
+async function renderLast(message) {
+    const node = $('#chat').children('.mes.last_mes').get(0);
+    if (node) {
+        renderOn(node, message);
+    }
+}
+initApp();
+renderAll();
+eventOn(tavern_events.MESSAGE_DELETED, renderAll);
+eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, renderAll);
+eventOn(tavern_events.USER_MESSAGE_RENDERED, renderAll);
+eventOn(tavern_events.MESSAGE_UPDATED, renderAll);
+eventOn(tavern_events.MESSAGE_SWIPED, renderAll);
+eventOn(tavern_events.STREAM_TOKEN_RECEIVED, renderLast);
+
