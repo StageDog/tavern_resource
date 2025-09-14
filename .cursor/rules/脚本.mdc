@@ -18,14 +18,14 @@ description: 当需要编写脚本时, 你应该参考本文件
 此外, vue-style-loader 会将样式注入到 iframe 的 `<head>` 中, 为了使样式生效, 你需要将样式复制到酒馆网页的 `<head>` 中:
 
 ```typescript
-export function teleport_vue_style() {
+export function teleport_style() {
   $(`<div>`)
     .attr('script_id', getScriptId())
-    .append($(`head > style[data-vue-ssr-id]`, document).clone())
+    .append($(`head > style`, document).clone())
     .appendTo('head');
 }
 
-export function deteleport_vue_style() {
+export function deteleport_style() {
   $(`head > div[script_id="${getScriptId()}"]`).remove();
 }
 ```

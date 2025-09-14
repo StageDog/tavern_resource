@@ -30,7 +30,7 @@ description: 当需要编写前端界面时, 你应该参考本文件
 
 ### 简单内嵌样式
 
-对于简单的样式, 你可以在 `index.html` 中直接使用 tailwindcss 书写.
+对于简单的样式, 你可以在 `index.html` 中直接使用 tailwindcss 书写. 为此需要新建一个内容有 `@import 'tailwindcss'` 的 css 文件并 `import ./文件.css`.
 
 ### 复杂外链样式
 

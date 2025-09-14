@@ -209,12 +209,17 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
                   },
                   {
                     test: /\.s(a|c)ss$/,
-                    use: [{ loader: 'css-loader', options: { url: false } }, 'postcss-loader', 'sass-loader'],
+                    use: [
+                      'style-loader',
+                      { loader: 'css-loader', options: { url: false } },
+                      'postcss-loader',
+                      'sass-loader',
+                    ],
                     exclude: /node_modules/,
                   },
                   {
                     test: /\.css$/,
-                    use: [{ loader: 'css-loader', options: { url: false } }, 'postcss-loader'],
+                    use: ['style-loader', { loader: 'css-loader', options: { url: false } }, 'postcss-loader'],
                     exclude: /node_modules/,
                   },
                 ]
@@ -286,7 +291,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
           : [],
       ),
     optimization: {
-      minimize: true,
+      minimize: false,
       minimizer: [
         argv.mode === 'production'
           ? new TerserPlugin({
