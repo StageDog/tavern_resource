@@ -5,10 +5,7 @@ export const Settings = z.object({
       type: z.enum(['space', 'newline', 'double newline', 'custom']).default('double newline'),
       value: z.string().default('\n\n'),
     })
-    .default({
-      type: 'double newline',
-      value: '\n\n',
-    })
+    .prefault({})
     .transform(data => {
       switch (data.type) {
         case 'space':
@@ -37,15 +34,5 @@ export const Settings = z.object({
       system_prefix: z.string().default(''),
       system_suffix: z.string().default(''),
     })
-    .default({
-      type: 'squash',
-
-      squash_role: 'assistant',
-      user_prefix: '{{user}}: ',
-      user_suffix: '',
-      assistant_prefix: '剧情: ',
-      assistant_suffix: '',
-      system_prefix: '',
-      system_suffix: '',
-    }),
+    .prefault({}),
 });
