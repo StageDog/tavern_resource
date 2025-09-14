@@ -50,6 +50,8 @@ export default [
       'prefer-const': 'warn',
       'vue/multi-word-component-names': 'off',
       yoda: 'error',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': 'off',
     },
   },
   eslintConfigPrettier,
