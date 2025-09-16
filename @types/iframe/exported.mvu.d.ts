@@ -28,7 +28,7 @@ declare namespace Mvu {
 
 /**
  * mvu 变量框架脚本提供的额外功能, 必须额外安装 mvu 变量框架脚本, 具体内容见于 https://github.com/MagicalAstrogy/MagVarUpdate/blob/master/src/export_globals.ts
- * **要使用它, 你必须保证你的脚本/界面加载在 mvu 脚本之后
+ * **在使用它之前, 你应该先通过 `await waitGlobalInitialized('Mvu')` 来等待 Mvu 初始化完毕**
  * 你也可以在酒馆页面按 f12, 在控制台中输入 `window.Mvu` 来查看当前 Mvu 变量框架所提供的接口
  */
 declare const Mvu: {
@@ -89,7 +89,7 @@ declare const Mvu: {
   getMvuData: (options: VariableOption) => Mvu.MvuData;
 
   /**
-   * 完全替换变量表为包含 mvu 数据的 `mvu_data` (但更建议监听 mvu 事件来修改 mvu 数据!)
+   * 完全替换变量表为包含 mvu 数据的 `mvu_data` (但如果没用 parseMessages 自行处理变量, 则更建议监听 mvu 事件来修改 mvu 数据!)
    *
    * @param variables 要用于替换的变量表
    * @param option 可选选项
