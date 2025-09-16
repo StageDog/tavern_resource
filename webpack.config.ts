@@ -345,7 +345,11 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         return callback();
       }
 
-      const builtin = {
+      const builtin = ['vue3-pixi', 'vue-demi'];
+      if (builtin.includes(request)) {
+        return callback();
+      }
+      const global = {
         jquery: '$',
         lodash: '_',
         toastr: 'toastr',
@@ -355,13 +359,14 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         zod: 'z',
         'pixi.js': 'PIXI',
       };
-      if (request in builtin) {
-        return callback(null, 'var ' + builtin[request as keyof typeof builtin]);
+      if (request in global) {
+        return callback(null, 'var ' + global[request as keyof typeof global]);
       }
-      if (['vue3-pixi', 'vue-demi'].includes(request)) {
-        return callback();
-      }
-      return callback(null, 'module-import https://testingcf.jsdelivr.net/npm/' + request + '/+esm');
+      const cdn = {};
+      return callback(
+        null,
+        'module-import ' + (cdn[request as keyof typeof cdn] ?? `https://testingcf.jsdelivr.net/npm/${request}/+esm`),
+      );
     },
   });
 }
