@@ -362,7 +362,9 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
       if (request in global) {
         return callback(null, 'var ' + global[request as keyof typeof global]);
       }
-      const cdn = {};
+      const cdn = {
+        sass: 'https://jspm.dev/sass',
+      };
       return callback(
         null,
         'module-import ' + (cdn[request as keyof typeof cdn] ?? `https://testingcf.jsdelivr.net/npm/${request}/+esm`),
