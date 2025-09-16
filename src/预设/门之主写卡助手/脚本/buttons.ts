@@ -1,5 +1,5 @@
 import { marked } from 'marked';
-import { example_chat_content, preset_content, preset_name } from './imports';
+import { changelog_content, example_chat_content, preset_content, preset_name } from './imports';
 
 interface Button {
   name: string;
@@ -19,6 +19,15 @@ const import_preset: Button = {
     }
     loadPreset(preset_name);
     toastr.success(`导入预设 '${preset_name}' 成功`, '写卡助手');
+  },
+};
+
+const show_changelog: Button = {
+  name: '更新日志',
+  function: () => {
+    marked.parse(changelog_content, { async: true, breaks: true }).then(html => {
+      SillyTavern.callGenericPopup(html, SillyTavern.POPUP_TYPE.TEXT, '', { leftAlign: true });
+    });
   },
 };
 
@@ -226,7 +235,7 @@ function register_buttons(buttons: Button[]) {
 
 async function check_button_status(): Promise<Button[]> {
   if (!getPresetNames().includes(preset_name)) {
-    return [import_preset];
+    return [import_preset, show_changelog];
   }
   if (!getLoadedPresetName().includes(preset_name)) {
     return [{ name: '点击切换预设', function: () => loadPreset(preset_name) }];
