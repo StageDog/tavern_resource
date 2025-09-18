@@ -5,6 +5,7 @@
     "replaceString": "[变量更新中{{random::.::..::...}}]",
     "trimStrings": [],
     "placement": [
+        1,
         2
     ],
     "disabled": false,

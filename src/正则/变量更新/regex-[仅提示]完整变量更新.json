@@ -5,6 +5,7 @@
     "replaceString": "[变量更新完成]",
     "trimStrings": [],
     "placement": [
+        1,
         2
     ],
     "disabled": false,

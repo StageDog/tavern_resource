@@ -5,6 +5,7 @@
     "replaceString": "<details>\n<summary>变量更新情况</summary>\n$1\n</details>",
     "trimStrings": [],
     "placement": [
+        1,
         2
     ],
     "disabled": false,
