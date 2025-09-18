@@ -41,35 +41,19 @@ function check_should_enable(title: string, tags: string[]): boolean {
 }
 
 async function toggle_tagged_preset_prompts(tags: string[]) {
-  const prompt_anchors = $('#completion_prompt_manager')
-    .find('a[title]')
-    .filter(function () {
-      return (
-        $(this)
-          .text()
-          .match(/【.*?】/) !== null
-      );
-    })
-    .toArray();
+  const preset = getPreset('in_use');
 
-  const prompt_identifiers_to_be_toggled = prompt_anchors
-    .map(prompt_anchor => {
-      const $anchor = $(prompt_anchor);
-      const $li = $anchor.closest('li');
+  const new_preset = structuredClone(preset);
+  new_preset.prompts
+    .filter(prompt => prompt.name.match(/【.*?】/) !== null)
+    .forEach(prompt => {
+      prompt.enabled = check_should_enable(prompt.name, tags);
+    });
 
-      const identifier = $li.attr('data-pm-identifier') as string;
-
-      const should_enable = check_should_enable($anchor.attr('title') as string, tags);
-      const is_enabled = $li.find('.prompt-manager-toggle-action').hasClass('fa-toggle-on');
-
-      return { identifier, should_toggle: should_enable !== is_enabled };
-    })
-    .filter(({ should_toggle }) => should_toggle)
-    .map(({ identifier }) => `identifier=${identifier}`);
-
-  if (prompt_identifiers_to_be_toggled.length !== 0) {
-    await triggerSlash(`/setpromptentry ${prompt_identifiers_to_be_toggled.join(' ')}`);
+  if (_.isEqual(preset, new_preset)) {
+    return;
   }
+  await replacePreset('in_use', new_preset);
 }
 
 async function toggle_tagged_regexes(tags: string[]) {
@@ -125,9 +109,9 @@ async function toggle_tagged_scripts(tags: string[]) {
 
 async function toggle_tags(): Promise<void> {
   const tags = extract_control_tags();
-  toggle_tagged_preset_prompts(tags);
-  toggle_tagged_regexes(tags);
-  toggle_tagged_scripts(tags);
+  await toggle_tagged_preset_prompts(tags);
+  await toggle_tagged_regexes(tags);
+  await toggle_tagged_scripts(tags);
 }
 const toggle_tags_throttled = _.throttle(toggle_tags, 1000, { trailing: false });
 
