@@ -146,8 +146,9 @@ const { settings } = storeToRefs(use_settings_store());
 
 function showHelp() {
   SillyTavern.callGenericPopup(
-    `<p>按照一些预设作者和角色卡作者的说法, Gemini 和 Claude 不同, 不必将条目插入聊天记录中.</p>
-     <p>勾选这个选项会将注入到聊天深度的系统消息按照原有顺序移动到聊天记录的末尾 (即 D0), 而不是保持在原来的深度位置. 确保系统消息不会干扰聊天记录的连续性.</p>`,
+    `<p>按照<a href="https://discord.com/channels/1134557553011998840/1413538722078785576">一些预设作者和角色卡作者的说法</a>, Gemini 和 Claude 不同, 不必将条目插入聊天记录中</p>
+     <p>勾选这个选项会将注入到聊天深度的系统消息按照原有顺序移动到聊天记录的末尾 (即 D0), 而不是保持在原来的深度位置. 确保系统消息不会干扰聊天记录的连续性.</p>
+     <p>这个选项很需要角色卡适配, 如果角色详情放在了深度条目, 则勾选这个选项容易使角色固化</p>`,
     SillyTavern.POPUP_TYPE.TEXT,
     '',
     { leftAlign: true },
