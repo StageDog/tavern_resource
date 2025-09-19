@@ -291,7 +291,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
           : [],
       ),
     optimization: {
-      minimize: false,
+      minimize: true,
       minimizer: [
         argv.mode === 'production'
           ? new TerserPlugin({
