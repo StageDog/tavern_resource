@@ -159,9 +159,9 @@ const _hoisted_15 = {
     setup(__props) {
         const { settings } = storeToRefs(use_settings_store());
         function showHelp() {
-            SillyTavern.callGenericPopup(`<p>按照<a href="https://discord.com/channels/1134557553011998840/1413538722078785576">一些预设作者和角色卡作者的说法</a>, Gemini 和 Claude 不同, 不必将条目插入聊天记录中</p>
-     <p>勾选这个选项会将注入到聊天深度的系统消息按照原有顺序移动到聊天记录的末尾 (即 D0), 而不是保持在原来的深度位置. 确保系统消息不会干扰聊天记录的连续性.</p>
-     <p>这个选项很需要角色卡适配, 如果角色详情放在了深度条目, 则勾选这个选项容易使角色固化</p>`, SillyTavern.POPUP_TYPE.TEXT, '', { leftAlign: true });
+            SillyTavern.callGenericPopup(`<p>按照<a href="https://discord.com/channels/1134557553011998840/1413538722078785576">一些预设作者和角色卡作者的说法</a>, Gemini 和 Claude 不同, 不必将条目插入聊天记录中, 插入其中反而会干扰聊天记录的连续性.</p>
+     <p>但玩家依旧可能使用 Claude、GPT 等游玩. 因此这个选项将注入到聊天深度的系统消息按照原有顺序移动到聊天记录的末尾 (即 D0), 而不是保持在原来的深度位置, 而关闭这个选项系统消息将会保持原有深度.</p>
+     <p>这个选项虽然已经不用角色卡作者自行将条目全设置为 D0, 但仍很需要角色卡适配; 如果角色详情等会随剧情发展的设定放在了深度条目, 则勾选这个选项容易使角色固化</p>`, SillyTavern.POPUP_TYPE.TEXT, '', { leftAlign: true });
         }
         return (_ctx, _cache) => {
             return ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_1, [
