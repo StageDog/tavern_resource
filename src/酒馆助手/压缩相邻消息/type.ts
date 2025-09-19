@@ -22,6 +22,7 @@ export const Settings = z.object({
       }
       return data;
     }),
+  put_system_injection_after_chat_history: z.boolean().default(false),
   on_chat_history: z
     .object({
       type: z.enum(['mixin', 'seperate', 'squash']).default('squash'),

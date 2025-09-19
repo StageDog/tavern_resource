@@ -73,29 +73,24 @@ function squash_messages_by_role(prompts: Prompt[], settings: Settings): Prompt[
 }
 
 function squash_chat_history(prompts: Prompt[], settings: Settings): Prompt {
+  // TODO: zod encode
+  const system_prefix = substitudeMacros(settings.on_chat_history.system_prefix);
+  const system_suffix = substitudeMacros(settings.on_chat_history.system_suffix);
+  const assistant_prefix = substitudeMacros(settings.on_chat_history.assistant_prefix);
+  const assistant_suffix = substitudeMacros(settings.on_chat_history.assistant_suffix);
+  const user_prefix = substitudeMacros(settings.on_chat_history.user_prefix);
+  const user_suffix = substitudeMacros(settings.on_chat_history.user_suffix);
   return {
     role: settings.on_chat_history.squash_role,
     content: prompts
       .map(({ role, content }) => {
         switch (role) {
           case 'system':
-            return (
-              substitudeMacros(settings.on_chat_history.system_prefix) +
-              content.trim() +
-              substitudeMacros(settings.on_chat_history.system_suffix)
-            );
+            return system_prefix + content.trim() + system_suffix;
           case 'assistant':
-            return (
-              substitudeMacros(settings.on_chat_history.assistant_prefix) +
-              content.trim() +
-              substitudeMacros(settings.on_chat_history.assistant_suffix)
-            );
+            return assistant_prefix + content.trim() + assistant_suffix;
           case 'user':
-            return (
-              substitudeMacros(settings.on_chat_history.user_prefix) +
-              content.trim() +
-              substitudeMacros(settings.on_chat_history.user_suffix)
-            );
+            return user_prefix + content.trim() + user_suffix;
         }
       })
       .join(settings.seperator.value),
@@ -115,6 +110,12 @@ function listen_event(settings: Settings) {
     const chunks = seperate_prompts(prompt);
     if (chunks === null) {
       return;
+    }
+    if (settings.put_system_injection_after_chat_history) {
+      chunks[2] = _.concat(
+        _.remove(chunks[1], ({ role }) => role === 'system'),
+        chunks[2],
+      );
     }
     const [head, chat_history, tail] = _(chunks)
       .map(prompts => reject_empty_prompts(prompts))
