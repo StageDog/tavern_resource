@@ -1,10 +1,10 @@
 # 压缩相邻消息
 
 - **作者:** 青空莉想做舞台少女的狗
-- **版本:** 2025/08/28
+- **版本:** 2025/09/19
 - **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
 
-像 [NoAss](https://gitgud.io/Monblant/noass) 那样压缩消息以及将聊天消息转换为单个身份消息, 从而
+像 [NoAss](https://gitgud.io/Monblant/noass) 那样压缩消息、剥离系统深度条目以及将聊天消息转换为单个身份消息, 从而
 
 - 内容理解更连贯：在发送给 llm 后，消息和消息之间可能存在 <|im_start|>system 等间隔，而压缩相邻同身份消息后自然省去了这些间隔
 - 自建对话语境：所有聊天记录合并成一个消息里的 A 和 B 对话而不是 user 和 ai 对话，免受模型有关 user 和 ai 对话理解的影响
