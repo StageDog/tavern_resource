@@ -1,14 +1,1 @@
-
-const $option = $('#world_info_sort_order');
-function switchToCustomSort() {
-    $option.val('13');
-    $option[0].dispatchEvent(new Event('change'));
-}
-$(() => {
-    switchToCustomSort();
-    $option.prop('disabled', true);
-});
-$(window).on('pagehide', () => {
-    $option.prop('disabled', false);
-});
-
+const d=$('#world_info_sort_order');$(()=>{d.val('13'),d[0].dispatchEvent(new Event('change')),d.prop('disabled',!0)}),$(window).on('pagehide',()=>{d.prop('disabled',!1)});
