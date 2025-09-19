@@ -78,6 +78,7 @@ const Settings = z.object({
         }
         return data;
     }),
+    put_system_injection_after_chat_history: z.boolean().default(false),
     on_chat_history: z
         .object({
         type: z.enum(['mixin', 'seperate', 'squash']).default('squash'),
@@ -118,31 +119,36 @@ const _hoisted_4 = {
 };
 const _hoisted_5 = { class: "flex-container flexFlowColumn" };
 const _hoisted_6 = {
+    class: "checkbox_label",
+    for: "put_system_injection_after_chat_history"
+};
+const _hoisted_7 = { class: "flex-container flexFlowColumn" };
+const _hoisted_8 = {
     key: 1,
     class: "flex-container flexFlowColumn"
 };
-const _hoisted_7 = { key: 2 };
-const _hoisted_8 = {
+const _hoisted_9 = { key: 2 };
+const _hoisted_10 = {
     class: "flex-container flexFlowColumn",
     title: "用户消息前缀"
 };
-const _hoisted_9 = {
+const _hoisted_11 = {
     class: "flex-container flexFlowColumn",
     title: "用户消息后缀"
 };
-const _hoisted_10 = {
+const _hoisted_12 = {
     class: "flex-container flexFlowColumn",
     title: "助手消息前缀"
 };
-const _hoisted_11 = {
+const _hoisted_13 = {
     class: "flex-container flexFlowColumn",
     title: "助手消息后缀"
 };
-const _hoisted_12 = {
+const _hoisted_14 = {
     class: "flex-container flexFlowColumn",
     title: "系统消息前缀"
 };
-const _hoisted_13 = {
+const _hoisted_15 = {
     class: "flex-container flexFlowColumn",
     title: "系统消息后缀"
 };
@@ -152,21 +158,24 @@ const _hoisted_13 = {
     __name: 'panel',
     setup(__props) {
         const { settings } = storeToRefs(use_settings_store());
+        function showHelp() {
+            SillyTavern.callGenericPopup(`<p>按照一些预设作者和角色卡作者的说法, Gemini 和 Claude 不同, 不必将条目插入聊天记录中.</p>
+     <p>勾选这个选项会将注入到聊天深度的系统消息按照原有顺序移动到聊天记录的末尾 (即 D0), 而不是保持在原来的深度位置. 确保系统消息不会干扰聊天记录的连续性.</p>`, SillyTavern.POPUP_TYPE.TEXT, '', { leftAlign: true });
+        }
         return (_ctx, _cache) => {
             return ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_1, [
-                _cache[24] || (_cache[24] = (0,external_Vue_namespaceObject.createElementVNode)("div", { class: "inline-drawer-toggle inline-drawer-header" }, [
+                _cache[27] || (_cache[27] = (0,external_Vue_namespaceObject.createElementVNode)("div", { class: "inline-drawer-toggle inline-drawer-header" }, [
                     (0,external_Vue_namespaceObject.createElementVNode)("b", null, "压缩相邻消息"),
                     (0,external_Vue_namespaceObject.createElementVNode)("div", { class: "inline-drawer-icon fa-solid fa-circle-chevron-down down" })
                 ], -1 /* CACHED */)),
                 (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_2, [
-                    (0,external_Vue_namespaceObject.createCommentVNode)(" 分隔符设置 "),
                     (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_3, [
-                        _cache[11] || (_cache[11] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_separator_type" }, "消息分隔符", -1 /* CACHED */)),
+                        _cache[12] || (_cache[12] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_separator_type" }, "消息分隔符", -1 /* CACHED */)),
                         (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("select", {
-                            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).seperator.type) = $event)),
                             id: "squash_separator_type",
+                            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).seperator.type) = $event)),
                             class: "text_pole"
-                        }, [...(_cache[10] || (_cache[10] = [
+                        }, [...(_cache[11] || (_cache[11] = [
                                 (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "space" }, "空格", -1 /* CACHED */),
                                 (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "newline" }, "换行", -1 /* CACHED */),
                                 (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "double newline" }, "双换行", -1 /* CACHED */),
@@ -177,10 +186,10 @@ const _hoisted_13 = {
                     ]),
                     ((0,external_Vue_namespaceObject.unref)(settings).seperator.type === 'custom')
                         ? ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_4, [
-                            _cache[12] || (_cache[12] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_separator_value" }, "自定义分隔符", -1 /* CACHED */)),
+                            _cache[13] || (_cache[13] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_separator_value" }, "自定义分隔符", -1 /* CACHED */)),
                             (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
-                                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).seperator.value) = $event)),
                                 id: "squash_separator_value",
+                                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).seperator.value) = $event)),
                                 class: "text_pole flex1 wide100p",
                                 type: "text",
                                 autocomplete: "off"
@@ -189,15 +198,33 @@ const _hoisted_13 = {
                             ])
                         ]))
                         : (0,external_Vue_namespaceObject.createCommentVNode)("v-if", true),
-                    _cache[23] || (_cache[23] = (0,external_Vue_namespaceObject.createElementVNode)("hr", null, null, -1 /* CACHED */)),
-                    (0,external_Vue_namespaceObject.createCommentVNode)(" 压缩聊天历史设置 "),
+                    _cache[25] || (_cache[25] = (0,external_Vue_namespaceObject.createElementVNode)("hr", null, null, -1 /* CACHED */)),
                     (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_5, [
-                        _cache[14] || (_cache[14] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_chat_history_type" }, "聊天历史处理方式", -1 /* CACHED */)),
+                        (0,external_Vue_namespaceObject.createElementVNode)("label", _hoisted_6, [
+                            _cache[14] || (_cache[14] = (0,external_Vue_namespaceObject.createElementVNode)("span", null, "将 D⚙ (系统深度条目) 按序移到聊天记录后", -1 /* CACHED */)),
+                            (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
+                                id: "put_system_injection_after_chat_history",
+                                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).put_system_injection_after_chat_history) = $event)),
+                                type: "checkbox"
+                            }, null, 512 /* NEED_PATCH */), [
+                                [external_Vue_namespaceObject.vModelCheckbox, (0,external_Vue_namespaceObject.unref)(settings).put_system_injection_after_chat_history]
+                            ]),
+                            (0,external_Vue_namespaceObject.createElementVNode)("i", {
+                                class: "fa-solid fa-circle-question fa-sm note-link-span",
+                                style: { "cursor": "pointer" },
+                                title: "将注入到聊天深度的系统消息按照原有顺序移动到聊天记录的末尾，而不是保持在原来的深度位置。这可以确保系统消息不会干扰聊天记录的连续性。",
+                                onClick: showHelp
+                            })
+                        ])
+                    ]),
+                    _cache[26] || (_cache[26] = (0,external_Vue_namespaceObject.createElementVNode)("hr", null, null, -1 /* CACHED */)),
+                    (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_7, [
+                        _cache[16] || (_cache[16] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_chat_history_type" }, "聊天历史处理方式", -1 /* CACHED */)),
                         (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("select", {
-                            "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.type) = $event)),
                             id: "squash_chat_history_type",
+                            "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.type) = $event)),
                             class: "text_pole"
-                        }, [...(_cache[13] || (_cache[13] = [
+                        }, [...(_cache[15] || (_cache[15] = [
                                 (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "mixin" }, "与其他提示词混合", -1 /* CACHED */),
                                 (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "seperate" }, "与其他提示词隔离", -1 /* CACHED */),
                                 (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "squash" }, "单独压缩为一条消息", -1 /* CACHED */)
@@ -206,13 +233,13 @@ const _hoisted_13 = {
                         ])
                     ]),
                     ((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.type === 'squash')
-                        ? ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_6, [
-                            _cache[16] || (_cache[16] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_role" }, "压缩角色", -1 /* CACHED */)),
+                        ? ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_8, [
+                            _cache[18] || (_cache[18] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "squash_role" }, "压缩角色", -1 /* CACHED */)),
                             (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("select", {
-                                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.squash_role) = $event)),
                                 id: "squash_role",
+                                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.squash_role) = $event)),
                                 class: "text_pole"
-                            }, [...(_cache[15] || (_cache[15] = [
+                            }, [...(_cache[17] || (_cache[17] = [
                                     (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "system" }, "系统", -1 /* CACHED */),
                                     (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "user" }, "用户", -1 /* CACHED */),
                                     (0,external_Vue_namespaceObject.createElementVNode)("option", { value: "assistant" }, "助手", -1 /* CACHED */)
@@ -222,13 +249,13 @@ const _hoisted_13 = {
                         ]))
                         : (0,external_Vue_namespaceObject.createCommentVNode)("v-if", true),
                     ((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.type === 'squash')
-                        ? ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_7, [
+                        ? ((0,external_Vue_namespaceObject.openBlock)(), (0,external_Vue_namespaceObject.createElementBlock)("div", _hoisted_9, [
                             (0,external_Vue_namespaceObject.createCommentVNode)(" 用户前缀后缀 "),
-                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_8, [
-                                _cache[17] || (_cache[17] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "user_prefix" }, "用户前缀", -1 /* CACHED */)),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_10, [
+                                _cache[19] || (_cache[19] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "user_prefix" }, "用户前缀", -1 /* CACHED */)),
                                 (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
-                                    "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.user_prefix) = $event)),
                                     id: "user_prefix",
+                                    "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.user_prefix) = $event)),
                                     class: "text_pole flex1 wide100p",
                                     type: "text",
                                     autocomplete: "off"
@@ -236,11 +263,11 @@ const _hoisted_13 = {
                                     [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.user_prefix]
                                 ])
                             ]),
-                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_9, [
-                                _cache[18] || (_cache[18] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "user_suffix" }, "用户后缀", -1 /* CACHED */)),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_11, [
+                                _cache[20] || (_cache[20] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "user_suffix" }, "用户后缀", -1 /* CACHED */)),
                                 (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
-                                    "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.user_suffix) = $event)),
                                     id: "user_suffix",
+                                    "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.user_suffix) = $event)),
                                     class: "text_pole flex1 wide100p",
                                     type: "text",
                                     autocomplete: "off"
@@ -248,12 +275,11 @@ const _hoisted_13 = {
                                     [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.user_suffix]
                                 ])
                             ]),
-                            (0,external_Vue_namespaceObject.createCommentVNode)(" 助手前缀后缀 "),
-                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_10, [
-                                _cache[19] || (_cache[19] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "assistant_prefix" }, "助手前缀", -1 /* CACHED */)),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_12, [
+                                _cache[21] || (_cache[21] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "assistant_prefix" }, "助手前缀", -1 /* CACHED */)),
                                 (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
-                                    "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.assistant_prefix) = $event)),
                                     id: "assistant_prefix",
+                                    "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.assistant_prefix) = $event)),
                                     class: "text_pole flex1 wide100p",
                                     type: "text",
                                     autocomplete: "off"
@@ -261,11 +287,11 @@ const _hoisted_13 = {
                                     [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.assistant_prefix]
                                 ])
                             ]),
-                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_11, [
-                                _cache[20] || (_cache[20] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "assistant_suffix" }, "助手后缀", -1 /* CACHED */)),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_13, [
+                                _cache[22] || (_cache[22] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "assistant_suffix" }, "助手后缀", -1 /* CACHED */)),
                                 (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
-                                    "onUpdate:modelValue": _cache[7] || (_cache[7] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.assistant_suffix) = $event)),
                                     id: "assistant_suffix",
+                                    "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.assistant_suffix) = $event)),
                                     class: "text_pole flex1 wide100p",
                                     type: "text",
                                     autocomplete: "off"
@@ -273,12 +299,11 @@ const _hoisted_13 = {
                                     [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.assistant_suffix]
                                 ])
                             ]),
-                            (0,external_Vue_namespaceObject.createCommentVNode)(" 系统前缀后缀 "),
-                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_12, [
-                                _cache[21] || (_cache[21] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "system_prefix" }, "系统前缀", -1 /* CACHED */)),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_14, [
+                                _cache[23] || (_cache[23] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "system_prefix" }, "系统前缀", -1 /* CACHED */)),
                                 (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
-                                    "onUpdate:modelValue": _cache[8] || (_cache[8] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.system_prefix) = $event)),
                                     id: "system_prefix",
+                                    "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.system_prefix) = $event)),
                                     class: "text_pole flex1 wide100p",
                                     type: "text",
                                     autocomplete: "off"
@@ -286,11 +311,11 @@ const _hoisted_13 = {
                                     [external_Vue_namespaceObject.vModelText, (0,external_Vue_namespaceObject.unref)(settings).on_chat_history.system_prefix]
                                 ])
                             ]),
-                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_13, [
-                                _cache[22] || (_cache[22] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "system_suffix" }, "系统后缀", -1 /* CACHED */)),
+                            (0,external_Vue_namespaceObject.createElementVNode)("div", _hoisted_15, [
+                                _cache[24] || (_cache[24] = (0,external_Vue_namespaceObject.createElementVNode)("label", { for: "system_suffix" }, "系统后缀", -1 /* CACHED */)),
                                 (0,external_Vue_namespaceObject.withDirectives)((0,external_Vue_namespaceObject.createElementVNode)("input", {
-                                    "onUpdate:modelValue": _cache[9] || (_cache[9] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.system_suffix) = $event)),
                                     id: "system_suffix",
+                                    "onUpdate:modelValue": _cache[10] || (_cache[10] = ($event) => (((0,external_Vue_namespaceObject.unref)(settings).on_chat_history.system_suffix) = $event)),
                                     class: "text_pole flex1 wide100p",
                                     type: "text",
                                     autocomplete: "off"
@@ -394,23 +419,24 @@ function squash_messages_by_role(prompts, settings) {
     }));
 }
 function squash_chat_history(prompts, settings) {
+    // TODO: zod encode
+    const system_prefix = substitudeMacros(settings.on_chat_history.system_prefix);
+    const system_suffix = substitudeMacros(settings.on_chat_history.system_suffix);
+    const assistant_prefix = substitudeMacros(settings.on_chat_history.assistant_prefix);
+    const assistant_suffix = substitudeMacros(settings.on_chat_history.assistant_suffix);
+    const user_prefix = substitudeMacros(settings.on_chat_history.user_prefix);
+    const user_suffix = substitudeMacros(settings.on_chat_history.user_suffix);
     return {
         role: settings.on_chat_history.squash_role,
         content: prompts
             .map(({ role, content }) => {
             switch (role) {
                 case 'system':
-                    return (substitudeMacros(settings.on_chat_history.system_prefix) +
-                        content.trim() +
-                        substitudeMacros(settings.on_chat_history.system_suffix));
+                    return system_prefix + content.trim() + system_suffix;
                 case 'assistant':
-                    return (substitudeMacros(settings.on_chat_history.assistant_prefix) +
-                        content.trim() +
-                        substitudeMacros(settings.on_chat_history.assistant_suffix));
+                    return assistant_prefix + content.trim() + assistant_suffix;
                 case 'user':
-                    return (substitudeMacros(settings.on_chat_history.user_prefix) +
-                        content.trim() +
-                        substitudeMacros(settings.on_chat_history.user_suffix));
+                    return user_prefix + content.trim() + user_suffix;
             }
         })
             .join(settings.seperator.value),
@@ -428,6 +454,9 @@ function listen_event(settings) {
         const chunks = seperate_prompts(prompt);
         if (chunks === null) {
             return;
+        }
+        if (settings.put_system_injection_after_chat_history) {
+            chunks[2] = _.concat(_.remove(chunks[1], ({ role }) => role === 'system'), chunks[2]);
         }
         const [head, chat_history, tail] = _(chunks)
             .map(prompts => reject_empty_prompts(prompts))
