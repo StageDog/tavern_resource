@@ -109,9 +109,9 @@ async function toggle_tagged_scripts(tags: string[]) {
 
 async function toggle_tags(): Promise<void> {
   const tags = extract_control_tags();
-  await toggle_tagged_preset_prompts(tags);
-  await toggle_tagged_regexes(tags);
-  await toggle_tagged_scripts(tags);
+  toggle_tagged_preset_prompts(tags);
+  toggle_tagged_regexes(tags);
+  toggle_tagged_scripts(tags);
 }
 const toggle_tags_throttled = _.throttle(toggle_tags, 1000, { trailing: false });
 
