@@ -5,16 +5,13 @@
       "name": "调试酒馆网页(Chrome)",
       "type": "chrome",
       "request": "launch",
-      "preLaunchTask": "开始任务",
-      "postDebugTask": "结束任务",
-      "url": "http://localhost:8000",
+      "url": "http://localhost:6622",
       "disableNetworkCache": true,
       "internalConsoleOptions": "openOnSessionStart",
       "cwd": "${workspaceFolder}",
       "sourceMapPathOverrides": {
+        "src://tavern_helper_template/*": "${workspaceFolder}/*",
         "webpack://tavern_helper_template/*": "${workspaceFolder}/*",
-        "webpack-internal:///*": "${webRoot}/scripts/extensions/third-party/*",
-        "webpack:/*": "${webRoot}/scripts/extensions/third-party/*",
       },
       "skipFiles": [
         "**/jquery*.min.js"
@@ -31,9 +28,8 @@
       "internalConsoleOptions": "openOnSessionStart",
       "cwd": "${workspaceFolder}",
       "sourceMapPathOverrides": {
+        "src://tavern_helper_template/*": "${workspaceFolder}/*",
         "webpack://tavern_helper_template/*": "${workspaceFolder}/*",
-        "webpack-internal:///*": "${webRoot}/scripts/extensions/third-party/*",
-        "webpack:/*": "${webRoot}/scripts/extensions/third-party/*",
       },
       "skipFiles": [
         "**/jquery*.min.js"
