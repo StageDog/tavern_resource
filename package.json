@@ -82,7 +82,7 @@
     "vue-router": "^4.5.1",
     "vue3-pixi": "1.0.0-beta.3",
     "yaml": "^2.8.1",
-    "zod": "^4.1.9"
+    "zod": "^4.1.11"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
