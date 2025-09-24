@@ -228,6 +228,8 @@ declare const tavern_events: {
   CONNECTION_PROFILE_LOADED: 'connection_profile_loaded';
   TOOL_CALLS_PERFORMED: 'tool_calls_performed';
   TOOL_CALLS_RENDERED: 'tool_calls_rendered';
+  /** since SillyTavern v1.13.4 */
+  WORLDINFO_ENTRIES_LOADED: 'worldinfo_entries_loaded';
 };
 
 interface ListenerType {
@@ -322,7 +324,9 @@ interface ListenerType {
     prompt: { role: 'user' | 'assistant' | 'system'; content: string }[];
   }) => void;
   [tavern_events.GROUP_MEMBER_DRAFTED]: (character_id: string) => void;
-  [tavern_events.WORLD_INFO_ACTIVATED]: (entries: any[]) => void;
+  [tavern_events.WORLD_INFO_ACTIVATED]: (
+    entries: ({ uid: string; world: string } & SillyTavern.v2DataWorldInfoEntry)[],
+  ) => void;
   [tavern_events.TEXT_COMPLETION_SETTINGS_READY]: () => void;
   [tavern_events.CHAT_COMPLETION_SETTINGS_READY]: (generate_data: {
     messages: { role: 'user' | 'assistant' | 'system'; content: string }[];
@@ -347,7 +351,7 @@ interface ListenerType {
       value: Record<string, any>;
       description?: string;
       strict?: boolean;
-    }
+    };
     [others: string]: any;
   }) => void;
   [tavern_events.CHAT_COMPLETION_PROMPT_READY]: (event_data: {
@@ -374,5 +378,11 @@ interface ListenerType {
   [tavern_events.CONNECTION_PROFILE_LOADED]: (profile_name: string) => void;
   [tavern_events.TOOL_CALLS_PERFORMED]: (tool_invocations: Object[]) => void;
   [tavern_events.TOOL_CALLS_RENDERED]: (tool_invocations: Object[]) => void;
+  [tavern_events.WORLDINFO_ENTRIES_LOADED]: (lores: {
+    globalLore: ({ uid: string; world: string } & SillyTavern.v2DataWorldInfoEntry)[];
+    characterLore: ({ uid: string; world: string } & SillyTavern.v2DataWorldInfoEntry)[];
+    chatLore: ({ uid: string; world: string } & SillyTavern.v2DataWorldInfoEntry)[];
+    personaLore: ({ uid: string; world: string } & SillyTavern.v2DataWorldInfoEntry)[];
+  }) => void;
   [custom_event: string]: (...args: any) => any;
 }
