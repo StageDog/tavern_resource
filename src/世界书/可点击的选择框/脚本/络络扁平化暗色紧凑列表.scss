@@ -1,61 +1,10 @@
-<<<<<<< HEAD:src/世界书/可点击的选择框/脚本/络络扁平化暗色紧凑列表.scss
-=======
-<template>
-  <div class="roleplay_options">
-    <div class="roleplay_options_back">
-      <div
-        v-for="item in items"
-        :key="item.title"
-        class="roleplay_options_item"
-        tabindex="1"
-        @click="handleItemClick(item)"
-      >
-        <span class="roleplay_options_title">
-          <strong>{{ item.title }}</strong>
-        </span>
-        <hr class="roleplay_options_hr" />
-        <span class="roleplay_options_content">{{ item.content }}</span>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script setup lang="ts">
-interface RoleplayOption {
-  title: string;
-  content: string;
-}
-
-const items = ref<RoleplayOption[]>([]);
-
-function extractItems(): RoleplayOption[] {
-  const chat_message = getChatMessages(getCurrentMessageId())[0];
-  const text = chat_message.message.match(/<roleplay_options>(.*?)<\/roleplay_options>/s)?.[1] ?? '';
-
-  const item_matches = [...text.matchAll(/(.+?)[:：]\s*(.+)/gm)];
-  return item_matches.map(match => ({
-    title: match[1],
-    content: match[2].replace(/^\$\{(.+)\}$/, '$1').replace(/^「(.+)」$/, '$1'),
-  }));
-}
-
-onMounted(() => {
-  items.value = extractItems();
-});
-
-async function handleItemClick(item: RoleplayOption) {
-  await createChatMessages([{ role: 'user', message: item.content }]);
-  triggerSlash('/trigger');
-}
-</script>
-
-<style lang="scss" scoped>
->>>>>>> b60922cd0c09adccad0085e7a3bb47da34f25da5:src/界面示例/选择框.vue
 .roleplay_options {
   &_back {
     background: linear-gradient(160deg, rgba(45, 45, 45, 0.75), rgba(35, 35, 35, 0.85));
     border-radius: 14px;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15), 0 3px 10px rgba(0, 0, 0, 0.12);
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.15),
+      0 3px 10px rgba(0, 0, 0, 0.12);
     padding: 16px 18px;
     display: flex;
     flex-direction: column;
