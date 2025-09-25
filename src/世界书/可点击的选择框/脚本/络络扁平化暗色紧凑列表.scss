@@ -2,7 +2,9 @@
   &_back {
     background: linear-gradient(160deg, rgba(45, 45, 45, 0.75), rgba(35, 35, 35, 0.85));
     border-radius: 14px;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15), 0 3px 10px rgba(0, 0, 0, 0.12);
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.15),
+      0 3px 10px rgba(0, 0, 0, 0.12);
     padding: 16px 18px;
     display: flex;
     flex-direction: column;
