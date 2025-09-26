@@ -1,12 +1,11 @@
-import { load_readme } from '../../util';
+import { loadReadme } from '../../util';
 
-// @ts-expect-error
 const hljs = window.parent.hljs;
 
 const original_highlightElement = hljs.highlightElement;
 
 $(() => {
-  load_readme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/取消代码块高亮/README.md');
+  loadReadme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/取消代码块高亮/README.md');
 
   hljs.highlightElement = () => {};
   $('pre code')

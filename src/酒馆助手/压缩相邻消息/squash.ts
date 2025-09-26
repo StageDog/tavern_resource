@@ -1,4 +1,4 @@
-import { assign_inplace, chunk_by } from '../../util';
+import { assignInplace, chunkBy } from '../../util';
 import { Settings } from './type';
 
 type Prompt = {
@@ -66,7 +66,7 @@ function reject_empty_prompts(prompts: Prompt[]): Prompt[] {
 }
 
 function squash_messages_by_role(prompts: Prompt[], settings: Settings): Prompt[] {
-  return chunk_by(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
+  return chunkBy(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
     role: chunk[0].role,
     content: chunk.map(({ content }) => content.trim()).join(settings.seperator.value),
   }));
@@ -123,13 +123,13 @@ function listen_event(settings: Settings) {
       .value();
     switch (settings.on_chat_history.type) {
       case 'mixin':
-        assign_inplace(prompt, squash_messages_by_role(_.concat(head, chat_history, tail), settings));
+        assignInplace(prompt, squash_messages_by_role(_.concat(head, chat_history, tail), settings));
         break;
       case 'seperate':
-        assign_inplace(prompt, _.concat(head, chat_history, tail));
+        assignInplace(prompt, _.concat(head, chat_history, tail));
         break;
       case 'squash':
-        assign_inplace(prompt, _.concat(head, squash_chat_history(chat_history, settings), tail));
+        assignInplace(prompt, _.concat(head, squash_chat_history(chat_history, settings), tail));
         break;
     }
   });

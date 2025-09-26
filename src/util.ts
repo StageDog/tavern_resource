@@ -1,12 +1,12 @@
 import { compare } from 'compare-versions';
 
-export function assign_inplace<T>(destination: T[], new_array: T[]): T[] {
+export function assignInplace<T>(destination: T[], new_array: T[]): T[] {
   destination.length = 0;
   destination.push(...new_array);
   return destination;
 }
 
-export function chunk_by<T>(array: T[], predicate: (lhs: T, rhs: T) => boolean): T[][] {
+export function chunkBy<T>(array: T[], predicate: (lhs: T, rhs: T) => boolean): T[][] {
   if (array.length === 0) {
     return [];
   }
@@ -22,13 +22,13 @@ export function chunk_by<T>(array: T[], predicate: (lhs: T, rhs: T) => boolean):
   return chunks;
 }
 
-export async function check_minimum_version(expected: string, title: string) {
+export async function checkMinimumVersion(expected: string, title: string) {
   if (compare(await getTavernHelperVersion(), expected, '<')) {
     toastr.error(`'${title}' 需要酒馆助手版本 >= '${expected}'`, '版本不兼容');
   }
 }
 
-export async function load_readme(url: string): Promise<boolean> {
+export async function loadReadme(url: string): Promise<boolean> {
   const readme = await fetch(url);
   if (!readme.ok) {
     return false;
@@ -38,7 +38,7 @@ export async function load_readme(url: string): Promise<boolean> {
   return true;
 }
 
-export function teleport_style() {
+export function teleportStyle() {
   if ($(`head > div[script_id="${getScriptId()}"]`).length > 0) {
     return;
   }
@@ -46,6 +46,14 @@ export function teleport_style() {
   $('head').append($div);
 }
 
-export function deteleport_style() {
+export function deteleportStyle() {
   $(`head > div[script_id="${getScriptId()}"]`).remove();
+}
+
+export function createScriptIdDiv(): JQuery<HTMLDivElement> {
+  return $('<div>').attr('script_id', getScriptId()) as JQuery<HTMLDivElement>;
+}
+
+export function destroyScriptIdDiv(): void {
+  $(`div[script_id="${getScriptId()}"]`).remove();
 }

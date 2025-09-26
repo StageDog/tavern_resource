@@ -1,12 +1,12 @@
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
-import { deteleport_style, teleport_style } from '../../util';
+import { deteleportStyle, teleportStyle } from '../../util';
 import panel from './panel.vue';
 
 const app = createApp(panel);
 
 export function init_panel() {
-  teleport_style();
+  teleportStyle();
 
   const $app = $('<div>').attr('script_id', getScriptId());
   $('#extensions_settings2').append($app);
@@ -19,5 +19,5 @@ export function destroy_panel() {
 
   $(`#extensions_settings2 > div[script_id="${getScriptId()}"]`).remove();
 
-  deteleport_style();
+  deteleportStyle();
 }

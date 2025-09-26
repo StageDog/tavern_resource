@@ -1,4 +1,4 @@
-import { check_minimum_version, load_readme } from '../../util';
+import { checkMinimumVersion, loadReadme } from '../../util';
 
 function get_prompt_id_from_tool($tool: JQuery) {
   return $tool.closest('.completion_prompt_manager_prompt').attr('data-pm-identifier')!;
@@ -66,8 +66,8 @@ const replace_toolbox_debounced = _.debounce(replace_toolbox, 500);
 const observer = new MutationObserver(replace_toolbox_debounced);
 
 $(() => {
-  check_minimum_version('3.4.4', '预设条目更多按钮');
-  load_readme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/预设条目更多按钮/README.md');
+  checkMinimumVersion('3.4.4', '预设条目更多按钮');
+  loadReadme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/预设条目更多按钮/README.md');
 
   replace_toolbox();
 });
