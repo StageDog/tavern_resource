@@ -26,7 +26,7 @@ const seperators: InjectionPrompt[] = [
   },
 ];
 
-function inject_seperators() {
+function injectSeperators() {
   eventOn(tavern_events.GENERATION_AFTER_COMMANDS, (_type, _option, dry_run) => {
     if (dry_run) {
       return;
@@ -35,12 +35,12 @@ function inject_seperators() {
   });
 }
 
-function uninject_seperators() {
+function uninjectSeperators() {
   uninjectPrompts(seperators.map(({ id }) => id));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-function seperate_prompts(prompts: Prompt[]): Prompt[][] | null {
+function seperatePrompts(prompts: Prompt[]): Prompt[][] | null {
   const head_index = prompts.findIndex(({ content }) => content.includes(head_separator));
   const tail_index = prompts.findIndex(({ content }) => content.includes(tail_separator));
   if (head_index === -1 || tail_index === -1) {
@@ -61,18 +61,18 @@ function seperate_prompts(prompts: Prompt[]): Prompt[][] | null {
   ];
 }
 
-function reject_empty_prompts(prompts: Prompt[]): Prompt[] {
+function rejectEmptyPrompts(prompts: Prompt[]): Prompt[] {
   return prompts.filter(({ content }) => content.trim() !== '');
 }
 
-function squash_messages_by_role(prompts: Prompt[], settings: Settings): Prompt[] {
+function squashMessageByRole(prompts: Prompt[], settings: Settings): Prompt[] {
   return chunkBy(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
     role: chunk[0].role,
     content: chunk.map(({ content }) => content.trim()).join(settings.seperator.value),
   }));
 }
 
-function squash_chat_history(prompts: Prompt[], settings: Settings): Prompt {
+function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
   // TODO: zod encode
   const system_prefix = substitudeMacros(settings.on_chat_history.system_prefix);
   const system_suffix = substitudeMacros(settings.on_chat_history.system_suffix);
@@ -97,7 +97,7 @@ function squash_chat_history(prompts: Prompt[], settings: Settings): Prompt {
   };
 }
 
-function listen_event(settings: Settings) {
+function listenEvent(settings: Settings) {
   let is_dry_run = false;
   eventOn(tavern_events.GENERATION_AFTER_COMMANDS, (_type, _option, dry_run) => {
     is_dry_run = dry_run;
@@ -107,7 +107,7 @@ function listen_event(settings: Settings) {
       return;
     }
 
-    const chunks = seperate_prompts(prompt);
+    const chunks = seperatePrompts(prompt);
     if (chunks === null) {
       return;
     }
@@ -118,29 +118,29 @@ function listen_event(settings: Settings) {
       );
     }
     const [head, chat_history, tail] = _(chunks)
-      .map(prompts => reject_empty_prompts(prompts))
-      .map(prompts => squash_messages_by_role(prompts, settings))
+      .map(prompts => rejectEmptyPrompts(prompts))
+      .map(prompts => squashMessageByRole(prompts, settings))
       .value();
     switch (settings.on_chat_history.type) {
       case 'mixin':
-        assignInplace(prompt, squash_messages_by_role(_.concat(head, chat_history, tail), settings));
+        assignInplace(prompt, squashMessageByRole(_.concat(head, chat_history, tail), settings));
         break;
       case 'seperate':
         assignInplace(prompt, _.concat(head, chat_history, tail));
         break;
       case 'squash':
-        assignInplace(prompt, _.concat(head, squash_chat_history(chat_history, settings), tail));
+        assignInplace(prompt, _.concat(head, squashChatHistory(chat_history, settings), tail));
         break;
     }
   });
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-export function init_squash(settings: Settings) {
-  inject_seperators();
-  listen_event(settings);
+export function initSquash(settings: Settings) {
+  injectSeperators();
+  listenEvent(settings);
 }
 
-export function destory_squash() {
-  uninject_seperators();
+export function destroySquash() {
+  uninjectSeperators();
 }
