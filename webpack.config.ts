@@ -9,6 +9,7 @@ import { Server } from 'socket.io';
 import TerserPlugin from 'terser-webpack-plugin';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
 import unpluginAutoImport from 'unplugin-auto-import/webpack';
+import { VueUseComponentsResolver, VueUseDirectiveResolver } from 'unplugin-vue-components/resolvers';
 import unpluginVueComponents from 'unplugin-vue-components/webpack';
 import { VueLoaderPlugin } from 'vue-loader';
 import webpack from 'webpack';
@@ -305,6 +306,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         unpluginVueComponents({
           dts: true,
           // globs: ['src/panel/component/*.vue'],
+          resolvers: [VueUseComponentsResolver(), VueUseDirectiveResolver()],
         }),
         new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
       )
