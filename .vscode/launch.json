@@ -15,7 +15,8 @@
         "webpack://tavern_helper_template/*": "${workspaceFolder}/*",
       },
       "skipFiles": [
-        "**/jquery*.min.js"
+        "**/jquery*.min.js",
+        "**/node_modules/**"
       ],
     },
     {
@@ -34,7 +35,8 @@
         "webpack://tavern_helper_template/*": "${workspaceFolder}/*",
       },
       "skipFiles": [
-        "**/jquery*.min.js"
+        "**/jquery*.min.js",
+        "**/node_modules/**"
       ],
     },
     {
@@ -51,7 +53,8 @@
         "webpack://tavern_helper_template/*": "${workspaceFolder}/*",
       },
       "skipFiles": [
-        "**/jquery*.min.js"
+        "**/jquery*.min.js",
+        "**/node_modules/**"
       ],
     },
     {
@@ -68,7 +71,8 @@
         "webpack://tavern_helper_template/*": "${workspaceFolder}/*",
       },
       "skipFiles": [
-        "**/jquery*.min.js"
+        "**/jquery*.min.js",
+        "**/node_modules/**"
       ],
     }
   ]
