@@ -1,8 +1,9 @@
+import { loadReadme } from '../../util';
 import tip from './tip.md';
 
 const Settings = z
   .object({
-    threshold: z.number().default(80000),
+    token数阈值: z.number().default(80000),
   })
   .prefault({});
 type Settings = z.infer<typeof Settings>;
@@ -29,10 +30,10 @@ const onChatCompletionPromptReady = ({ chat, dryRun }: Parameters<ListenerType['
       }),
     );
     const total_tokens = tokens.reduce((result, current) => result + current, 0);
-    if (total_tokens > getSettings().threshold) {
+    if (total_tokens > getSettings().token数阈值) {
       toastr.warning(
         `<u>点击查看如何减少 token</u><br>如果不想被提醒，请通过 '酒馆助手-工具箱' 关闭此功能`,
-        `token 数 (${total_tokens}) 超过建议 (${getSettings().threshold})`,
+        `token 数 (${total_tokens}) 超过建议 (${getSettings().token数阈值})`,
         {
           showDuration: 1000,
           escapeHtml: false,
@@ -50,6 +51,7 @@ const onChatCompletionPromptReady = ({ chat, dryRun }: Parameters<ListenerType['
 
 $(() => {
   getSettings();
+  loadReadme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/token数过多提醒/README.md');
   eventOn(
     tavern_events.CHAT_COMPLETION_PROMPT_READY,
     _.debounce(onChatCompletionPromptReady, 1000, { leading: true, trailing: false }),
