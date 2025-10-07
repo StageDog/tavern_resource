@@ -17,15 +17,11 @@ function getSettings(): Settings {
   return settings;
 }
 
-const onChatCompletionPromptReady = ({ chat, dryRun }: Parameters<ListenerType['chat_completion_prompt_ready']>[0]) => {
-  if (dryRun) {
-    return;
-  }
-
+const onGenerateAfterData = ({ prompt }: Parameters<ListenerType['generate_after_data']>[0]) => {
   setTimeout(async () => {
     // 依次计算 toekn 从而利用酒馆对 token 的缓存
     const tokens = await Promise.all(
-      chat.map(async message => {
+      prompt.map(async message => {
         return await SillyTavern.getTokenCountAsync(message.content);
       }),
     );
@@ -52,8 +48,5 @@ const onChatCompletionPromptReady = ({ chat, dryRun }: Parameters<ListenerType['
 $(() => {
   getSettings();
   loadReadme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/token数过多提醒/README.md');
-  eventOn(
-    tavern_events.CHAT_COMPLETION_PROMPT_READY,
-    _.debounce(onChatCompletionPromptReady, 1000, { leading: true, trailing: false }),
-  );
+  eventOn(tavern_events.GENERATE_AFTER_DATA, _.debounce(onGenerateAfterData, 1000, { leading: true, trailing: false }));
 });
