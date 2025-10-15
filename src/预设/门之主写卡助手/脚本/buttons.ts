@@ -104,6 +104,7 @@ const switch_to_game_mode: Button = {
 
 const design_steps: string[] = [
   '角色详情 (角色定义之前)',
+  '角色详情nova版 (角色定义之前)',
   '角色关键信息 (D4)',
   '角色列表 (D2)',
   '变量列表及更新规则 (D1)',
