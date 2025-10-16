@@ -110,7 +110,8 @@ async function toggle_tagged_scripts_backward(tags: string[]) {
 }
 
 async function toggle_tagged_scripts(tags: string[]) {
-  const scripts = $('#tavern_helper')
+  // TODO: 4.0 正式合并后移除 #tavern_helper_new
+  const scripts = $('#tavern_helper, #tavern_helper_new')
     .find('[data-script-id]')
     .filter(function () {
       return (
