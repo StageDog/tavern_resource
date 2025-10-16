@@ -1,5 +1,5 @@
 export function toggleExtensionSettings(enable: boolean) {
-  const $macro_replace_disable_toggle = $('#macro-replace-disable-toggle');
+  const $macro_replace_disable_toggle = $('#macro-replace-disable-toggle, #TH-macro-enabled');
   if ($macro_replace_disable_toggle.length > 0 && $macro_replace_disable_toggle.prop('checked') !== !enable) {
     $macro_replace_disable_toggle
       .prop('checked', !enable)

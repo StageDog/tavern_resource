@@ -28,7 +28,7 @@ $(() => {
         button = possible_button;
       }
 
-      const is_disabled = $('#macro-replace-disable-toggle').prop('checked');
+      const is_disabled = $('#macro-replace-disable-toggle, #TH-macro-enabled').prop('checked');
       const should_enable = button.name === '启用酒馆助手宏和提示词模板';
       if (is_disabled === should_enable) {
         return;
