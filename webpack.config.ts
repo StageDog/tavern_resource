@@ -351,14 +351,16 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
             'pinia',
             '@vueuse/core',
             { from: 'dedent', imports: [['default', 'dedent']] },
+            { from: 'klona', imports: ['klona'] },
+            { from: 'vue-final-modal', imports: ['useModal'] },
             { from: 'zod', imports: ['z'] },
           ],
         }),
         unpluginVueComponents({
           dts: true,
           syncMode: 'overwrite',
-          resolvers: [VueUseComponentsResolver(), VueUseDirectiveResolver()],
           // globs: ['src/panel/component/*.vue'],
+          resolvers: [VueUseComponentsResolver(), VueUseDirectiveResolver()],
         }),
         new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
         new webpack.DefinePlugin({

@@ -106,12 +106,12 @@ typescript 更容易写对, 你应该使用 typescript 而非 javascript
 
 vue 相比于 jquery 或 DOM 操作更为简单, 因此你应该尽量使用 vue (可使用 pinia、vue-router 或自己添加其他第三方库) 来编写前端界面, 但要注意 vue-router 的 `createRouter()` 不能写在 `$(() => {})` 中, 必须在全局执行.
 
-当需要监听 vue 的响应式数据变化并存入酒馆数据时 (如酒馆变量、世界书……), 你应该先用 `_.cloneDeep()` 来去除 proxy 层, 以在脚本中编写 vue 并提供用户设置为例:
+当需要监听 vue 的响应式数据变化并存入酒馆数据时 (如酒馆变量、世界书……), 你应该先用 `klona()` 来去除 proxy 层, 以在脚本中编写 vue 并提供用户设置为例:
 
 ```typescript
 const Settings = z.object({/*...*/}); // 用 zod 定义设置的类型和默认值
 const settings = ref(Settings.parse(getVariables({ type: 'script', script_id: getScriptId() })));
-watchEffect(() => replaceVariables(_.cloneDeep(settings.value), { type: 'script', script_id: getScriptId() }));
+watchEffect(() => replaceVariables(klona(settings.value), { type: 'script', script_id: getScriptId() }));
 ```
 
 前端界面和脚本都是 iframe, 因此你在使用 vue-router 时, 应该使用 `history: createMemoryHistory()` 来创建路由, 否则将无法正常路由.
