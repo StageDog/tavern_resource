@@ -11,7 +11,7 @@
     "defaults and partially supports es6-module"
   ],
   "devDependencies": {
-    "@eslint/js": "^9.37.0",
+    "@eslint/js": "^9.38.0",
     "@tailwindcss/postcss": "^4.1.14",
     "@types/jquery": "^3.5.33",
     "@types/jqueryui": "^1.12.24",
@@ -21,7 +21,7 @@
     "@typescript-eslint/parser": "^8.46.1",
     "autoprefixer": "^10.4.21",
     "css-loader": "^7.1.2",
-    "eslint": "^9.37.0",
+    "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-better-tailwindcss": "^3.7.10",
@@ -81,13 +81,13 @@
     "jqueryui": "^1.11.1",
     "klona": "^2.0.6",
     "lodash": "^4.17.21",
-    "marked": "^16.4.0",
+    "marked": "^16.4.1",
     "pinia": "^3.0.3",
     "pixi.js": "^8.14.0",
     "toastr": "^2.1.4",
     "vue": "^3.5.22",
     "vue-final-modal": "^4.5.5",
-    "vue-router": "^4.6.2",
+    "vue-router": "^4.6.3",
     "vue3-pixi": "1.0.0-beta.3",
     "yaml": "^2.8.1",
     "zod": "^4.1.12"
