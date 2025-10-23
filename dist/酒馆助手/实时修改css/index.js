@@ -1,1 +1,2 @@
 const t='填入你的css链接';let e,n;async function s(){const n=await fetch(t);if(!n.ok)return void toastr.error(`未能从 '${t}' 获取 css 文件, 请确认链接是否有效`,'实时修改css');const s=await n.text();e!=s&&(e=s,$('#customCSS').val(e)[0].dispatchEvent(new Event('input')))}$(()=>{n=setInterval(s,1e3)}),$(window).on('pagehide',()=>{clearInterval(n)});
+//# sourceMappingURL=index.js.map

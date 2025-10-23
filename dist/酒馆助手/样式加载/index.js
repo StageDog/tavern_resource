@@ -1,1 +1,2 @@
 const t=z,e=t.z.object({样式加载:t.z.string().default('')}),r={type:'script',script_id:getScriptId()};$(()=>{const t=function(t){return $('<style>').attr('id',`script_custom_style-${getScriptId()}`).text(t)}(function(){const t=e.parse(getVariables(r));return insertVariables(t,r),t.样式加载}());!function(t){const e=$('head');e.find(`#script_custom_style-${getScriptId()}`).remove(),e.append(t)}(t)});
+//# sourceMappingURL=index.js.map

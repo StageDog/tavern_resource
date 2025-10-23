@@ -1,1 +1,2 @@
 import'https://testingcf.jsdelivr.net/npm/compare-versions/+esm';const t=window.parent.hljs,e=t.highlightElement;$(()=>{!async function(t){const e=await fetch(t);if(!e.ok)return!1;const i=await e.text();replaceScriptInfo(i)}('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/取消代码块高亮/README.md'),t.highlightElement=()=>{},$('pre code').removeAttr('data-highlighted').text(function(){return $(this).text()})}),$(window).on('pagehide',()=>{t.highlightElement=e,$('pre code').each((e,i)=>{t.highlightElement(i)})});
+//# sourceMappingURL=index.js.map

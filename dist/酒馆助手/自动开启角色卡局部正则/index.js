@@ -1,1 +1,2 @@
 $(()=>{eventOn(tavern_events.CHAT_CHANGED,async()=>{const a=SillyTavern.characters,e=SillyTavern.characterId;if(void 0===e)return;const t=a[e].avatar,n=SillyTavern.extensionSettings.character_allowed_regex;n.includes(t)||(n.push(t),await TavernHelper.builtin.saveSettings(),await SillyTavern.saveChat(),await SillyTavern.reloadCurrentChat())})});
+//# sourceMappingURL=index.js.map

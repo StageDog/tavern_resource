@@ -1,1 +1,2 @@
 const o=()=>$('#update_oai_preset').trigger('click');$(()=>{$('#completion_prompt_manager_popup_entry_form_save').on('click',o)}),$(window).on('pagehide',()=>{$('#completion_prompt_manager_popup_entry_form_save').off('click',o)});
+//# sourceMappingURL=index.js.map
