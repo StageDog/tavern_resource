@@ -117,6 +117,7 @@ async function renderOneMessage(message_id: number) {
   const $mes_text = retrieveDisplayedMessage(message_id);
   const $to_render = $mes_text.find(`.roleplay_options, pre:contains("${roleplay_options_tag}")`);
   if ($to_render.length > 0) {
+    $to_render.parent('.TH-render').remove();
     $to_render.remove();
     $mes_text.append($roleplay_options_element);
   }
