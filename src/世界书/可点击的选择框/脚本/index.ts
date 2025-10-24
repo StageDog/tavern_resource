@@ -173,6 +173,9 @@ function LoopOnce() {
   if (current_loop_times === null) {
     return;
   }
+  if ($('.last_mes').attr('is_user') === 'true') {
+    return;
+  }
   promoteOnceDelayed();
 
   ++current_loop_times;
