@@ -106,7 +106,7 @@ namespace render_section {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-async function renderOneMessage(message_id: number) {
+async function renderOneMessage(message_id: number | string) {
   const message: string = getChatMessages(message_id)[0].message;
   const match = message.match(roleplay_options_regex);
   if (!match) {
@@ -114,7 +114,7 @@ async function renderOneMessage(message_id: number) {
   }
   const $roleplay_options_element = render_section.extract_roleplay_options_element(match[1]);
 
-  const $mes_text = retrieveDisplayedMessage(message_id);
+  const $mes_text = retrieveDisplayedMessage(Number(message_id));
   const $to_render = $mes_text.find(`.roleplay_options, pre:contains("${roleplay_options_tag}")`);
   if ($to_render.length > 0) {
     $to_render.parent('.TH-render').remove();
@@ -127,7 +127,10 @@ async function renderAllMessage() {
   $('#chat')
     .children(".mes[is_user='false'][is_system='false']")
     .each((_index, node) => {
-      renderOneMessage(Number(node.getAttribute('mesid')));
+      const message_id = $(node).attr('mesid');
+      if (message_id) {
+        renderOneMessage(Number(message_id));
+      }
     });
 }
 
