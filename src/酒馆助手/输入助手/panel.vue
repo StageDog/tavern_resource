@@ -211,7 +211,7 @@ function save_button() {
       case 'end':
         return modal.value.form_data.content.length;
       case 'custom':
-        return modal.value.form_data.cursor_position;
+        return _.clamp(modal.value.form_data.cursor_position, 0, modal.value.form_data.content.length);
       default:
         return 0;
     }
