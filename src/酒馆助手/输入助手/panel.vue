@@ -11,13 +11,8 @@
         <div class="note">管理按钮显示和快捷键，点击输入框并按下键盘组合可设置快捷键</div>
         <div class="note">拖动排序按钮调整工具栏中的显示顺序</div>
       </div>
-      <div class="integrated_button_settings">
-        <div
-          v-for="(button, index) in settings.buttons"
-          :key="button.name"
-          :data-original-index="index"
-          class="integrated-button-row"
-        >
+      <div ref="el" class="integrated_button_settings">
+        <div v-for="(button, index) in store.settings.buttons" :key="index" class="integrated-button-row">
           <span class="drag-handle menu-handle">☰</span>
           <input v-model="button.enable" type="checkbox" />
           <div class="button-preview">{{ button.name }}</div>
@@ -105,12 +100,11 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import { nextTick, onMounted, ref } from 'vue';
+import { useDraggable } from 'vue-draggable-plus';
 import { use_settings_store } from './settings';
 import { Button } from './type';
 
-const { settings } = storeToRefs(use_settings_store());
+const store = use_settings_store();
 
 const modal = ref<{
   show: boolean;
@@ -133,23 +127,27 @@ const modal = ref<{
 });
 const modal_teleport = $('body')[0];
 
-function update_button_indices() {
-  nextTick(() => {
-    $('.integrated-button-row').each(function (index) {
-      $(this).attr('data-original-index', index);
-      $(this).find('.edit-button, .delete-button').attr('data-index', index);
-    });
-  });
-}
+const el = useTemplateRef('el');
+
+// TODO: 拖动时闪烁问题
+const { start } = useDraggable(el, toRef(store.settings, 'buttons'), {
+  handle: '.drag-handle',
+  dragClass: 'sortbale-helper',
+  ghostClass: 'sortable-placeholder',
+  fallbackOffset: { x: 0, y: 0 },
+  fallbackOnBody: true,
+});
+onMounted(() => {
+  start();
+});
 
 async function delete_button(index: number) {
   const result = await SillyTavern.callGenericPopup(
-    `确定要删除按钮 '${settings.value.buttons[index].name}' 吗? 此操作无法撤销`,
+    `确定要删除按钮 '${store.settings.buttons[index].name}' 吗? 此操作无法撤销`,
     SillyTavern.POPUP_TYPE.CONFIRM,
   );
   if (result) {
-    settings.value.buttons.splice(index, 1);
-    update_button_indices();
+    store.settings.buttons.splice(index, 1);
   }
 }
 
@@ -171,7 +169,7 @@ function edit_button(index: number) {
   modal.value.title = '编辑按钮';
   modal.value.editing_index = index;
 
-  const button = settings.value.buttons[index];
+  const button = store.settings.buttons[index];
   modal.value.form_data.name = button.name;
   modal.value.form_data.description = button.description;
   modal.value.form_data.content = button.content;
@@ -191,7 +189,6 @@ function edit_button(index: number) {
     }
   };
   modal.value.cursor_position_type = get_position_type();
-  modal.value.form_data.cursor_position = modal.value.form_data.cursor_position;
 
   modal.value.show = true;
 }
@@ -212,7 +209,7 @@ function save_button() {
       case 'middle':
         return Math.floor(modal.value.form_data.content.length / 2);
       case 'end':
-        return modal.value.cursor_position_type.length;
+        return modal.value.form_data.content.length;
       case 'custom':
         return modal.value.form_data.cursor_position;
       default:
@@ -223,49 +220,20 @@ function save_button() {
 
   const button: Button = {
     name: modal.value.form_data.name,
-    enable: settings.value.buttons.at(modal.value.editing_index)?.enable ?? true,
+    enable: store.settings.buttons.at(modal.value.editing_index)?.enable ?? true,
     description: modal.value.form_data.description,
     content: modal.value.form_data.content,
     insert_position: modal.value.form_data.insert_position,
     cursor_position: cursor_position,
   };
   if (modal.value.editing_index === -1) {
-    settings.value.buttons.push(button);
+    store.settings.buttons.push(button);
   } else {
-    settings.value.buttons[modal.value.editing_index] = button;
+    store.settings.buttons[modal.value.editing_index] = button;
   }
 
   close_modal();
-  update_button_indices();
 }
-
-onMounted(() => {
-  nextTick(() => {
-    $('.integrated_button_settings').sortable({
-      handle: '.drag-handle',
-      placeholder: 'sortable-placeholder',
-      cursor: 'move',
-      tolerance: 'pointer',
-      update: function (_event, ui) {
-        const item = ui.item;
-        const old_index = item.data('original-index');
-        let new_index = item.index();
-
-        const button_to_move = settings.value.buttons[old_index];
-        settings.value.buttons.splice(old_index, 1);
-        settings.value.buttons.splice(new_index, 0, button_to_move);
-
-        update_button_indices();
-      },
-      start: function (_event, ui) {
-        ui.helper.addClass('sortable-helper');
-      },
-      stop: function (_event, ui) {
-        ui.item.removeClass('sortable-helper');
-      },
-    });
-  });
-});
 </script>
 
 <style lang="scss" scoped>
