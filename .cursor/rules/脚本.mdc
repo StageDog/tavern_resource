@@ -9,7 +9,7 @@ description: 当需要编写脚本时, 你应该参考本文件
 
 ## jquery
 
-脚本中的 jquery 将直接作用于整个酒馆页面而非仅作用于脚本所在的 iframe. 例如 `$('body')` 将选择酒馆网页的 `<body>` 标签, 而不是脚本所在的 iframe 的 `<body>` 标签; 但 `appendTo` 等参数中的选择器依旧作用于脚本所在的 iframe, 因此请小心使用.
+脚本中的 jquery 将直接作用于整个酒馆页面而非仅作用于脚本所在的 iframe, 因为它是通过 `window.$ = window.parent.$` 得到的. 例如 `$('body')` 将选择酒馆网页的 `<body>` 标签, 而不是脚本所在的 iframe 的 `<body>` 标签.
 
 ## vue
 
