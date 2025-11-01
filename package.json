@@ -11,7 +11,7 @@
     "defaults and partially supports es6-module"
   ],
   "devDependencies": {
-    "@eslint/js": "^9.38.0",
+    "@eslint/js": "^9.39.0",
     "@tailwindcss/postcss": "^4.1.16",
     "@types/jquery": "^3.5.33",
     "@types/jqueryui": "^1.12.24",
@@ -22,7 +22,7 @@
     "@typescript-eslint/parser": "^8.46.2",
     "autoprefixer": "^10.4.21",
     "css-loader": "^7.1.2",
-    "eslint": "^9.38.0",
+    "eslint": "^9.39.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-better-tailwindcss": "^3.7.10",
@@ -48,7 +48,7 @@
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
     "remark-loader": "^6.0.0",
-    "sass": "^1.93.2",
+    "sass": "^1.93.3",
     "sass-loader": "^16.0.6",
     "socket.io": "^4.8.1",
     "style-loader": "^4.0.0",
