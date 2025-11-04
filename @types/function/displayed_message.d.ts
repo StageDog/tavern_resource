@@ -1,5 +1,5 @@
 /**
- * 获取消息楼层号对应的消息内容 JQuery
+ * 获取消息楼层号对应的消息内容 JQuery 实例
  *
  * 相比于一个实用函数, 这更像是一个告诉你可以用 JQuery 的示例
  *
@@ -21,7 +21,7 @@
 declare function retrieveDisplayedMessage(message_id: number): JQuery<HTMLDivElement>;
 
 type FormatAsDisplayedMessageOption = {
-  /** 消息所在的楼层, 要求该楼层已经存在, 即在 `[0, await getLastMessageId()]` 范围内; 默认为 'last' */
+  /** 消息所在的楼层, 要求该楼层已经存在, 即在 `[0, getLastMessageId()]` 范围内; 默认为 'last' */
   message_id?: 'last' | 'last_user' | 'last_char' | number;
 };
 
@@ -33,9 +33,11 @@ type FormatAsDisplayedMessageOption = {
  *
  * @param text 要处理的字符串
  * @param option 可选选项
- *   - `message_id?:number`: 消息所在的楼层, 要求该楼层已经存在, 即在 `[0, await getLastMessageId()]` 范围内; 默认为最新楼层
+ *   - `message_id?:number`: 消息所在的楼层, 要求该楼层已经存在, 即在 `[0, getLastMessageId()]` 范围内; 默认为最新楼层
  *
  * @returns 处理结果
+ *
+ * @throws 如果提供的消息楼层号 `message_id` 不在 `[0, getLastMessageId()]` 范围内, 将会抛出错误
  *
  * @example
  * const text = formatAsDisplayedMessage("{{char}} speaks in {{lastMessageId}}");
