@@ -2,7 +2,7 @@ import default_css from './络络扁平化暗色紧凑列表.scss?raw';
 
 const lorebook_name = '【可点击的选择框】' as const;
 const roleplay_options_tag = '<roleplay_options>' as const;
-const roleplay_options_regex = /<roleplay_options>\s*(?:```.*\n)?([\s\S]*?)(?:\n```)?\s*<\/roleplay_options>/im;
+const roleplay_options_regex = /<(roleplay_options)>\s*(?:```.*\n)?((?:(?!<\1>)[\s\S])*?)(?:\n```)?\s*<\/\1>/im;
 
 //----------------------------------------------------------------------------------------------------------------------
 namespace option_section {
@@ -112,7 +112,7 @@ async function renderOneMessage(message_id: number | string) {
   if (!match) {
     return;
   }
-  const $roleplay_options_element = render_section.extract_roleplay_options_element(match[1]);
+  const $roleplay_options_element = render_section.extract_roleplay_options_element(match[2]);
 
   const $mes_text = retrieveDisplayedMessage(Number(message_id));
   const $to_render = $mes_text.find(`.roleplay_options, pre:contains("${roleplay_options_tag}")`);
