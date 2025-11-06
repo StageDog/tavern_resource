@@ -1,3 +1,5 @@
+import { loadReadme } from 'util';
+
 export {};
 
 const Settings = z.object({
@@ -34,6 +36,7 @@ async function refresh_css() {
 
 let id: number;
 $(() => {
+  loadReadme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/实时修改css/README.md');
   id = setInterval(refresh_css, get_settings().延迟);
 });
 $(window).on('pagehide', () => {
