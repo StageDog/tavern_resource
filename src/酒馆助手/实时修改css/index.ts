@@ -1,11 +1,24 @@
-const css_url = '填入你的css链接';
-const delay = 1000;
+export {};
+
+const Settings = z.object({
+  链接: z.string().default(''),
+  延迟: z.number().default(1000),
+});
+type Settings = z.infer<typeof Settings>;
+
+const variable_option = { type: 'script', script_id: getScriptId() } as const;
+
+function get_settings(): Settings {
+  const settings = Settings.parse(getVariables(variable_option));
+  insertVariables(settings, variable_option);
+  return settings;
+}
 
 let css: string;
 async function refresh_css() {
-  const response = await fetch(css_url);
+  const response = await fetch(get_settings().链接);
   if (!response.ok) {
-    toastr.error(`未能从 '${css_url}' 获取 css 文件, 请确认链接是否有效`, '实时修改css');
+    toastr.error(get_settings().链接);
     return;
   }
 
@@ -18,7 +31,7 @@ async function refresh_css() {
 
 let id: number;
 $(() => {
-  id = setInterval(refresh_css, delay);
+  id = setInterval(refresh_css, get_settings().延迟);
 });
 $(window).on('pagehide', () => {
   clearInterval(id);
