@@ -16,9 +16,12 @@ function get_settings(): Settings {
 
 let css: string;
 async function refresh_css() {
+  if (!get_settings().链接) {
+    return;
+  }
   const response = await fetch(get_settings().链接);
   if (!response.ok) {
-    toastr.error(get_settings().链接);
+    toastr.error(`未能从 '${get_settings().链接}' 获取 css 文件, 请确认链接是否有效`, '实时修改css');
     return;
   }
 
