@@ -51,7 +51,7 @@ function common_path(lhs: string, rhs: string) {
 
 function glob_script_files() {
   const files: string[] = fs
-    .globSync(`src/**/index.{ts,js}`)
+    .globSync(`src/**/index.{ts,tsx,js,jsx}`)
     .filter(file => process.env.CI !== 'true' || !fs.readFileSync(path.join(__dirname, file)).includes('@no-ci'));
 
   const results: string[] = [];
@@ -442,6 +442,9 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         return callback();
       }
       if (argv.mode !== 'production' && ['vue', 'pixi'].some(key => request.includes(key))) {
+        return callback();
+      }
+      if (['react'].some(key => request.includes(key))) {
         return callback();
       }
       const global = {
