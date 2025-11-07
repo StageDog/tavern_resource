@@ -35,15 +35,20 @@ function click_button(button: Button) {
       text.substring(end_position),
   );
 
-  setTimeout(() => {
+  const textarea_element = $textarea.get(0) as HTMLTextAreaElement | undefined;
+  if (textarea_element) {
     const cursor_position =
       start_position +
       _.clamp(button.cursor_position, 0, button.content.length) +
       (button.insert_position === 'newline' ? 1 : 0);
-    $textarea.prop('selectionStart', cursor_position);
-    $textarea.prop('selectionEnd', cursor_position);
-    $textarea.trigger('focus');
-  });
+    textarea_element.focus();
+    try {
+      textarea_element.setSelectionRange(cursor_position, cursor_position);
+    } catch {
+      $textarea.prop('selectionStart', cursor_position);
+      $textarea.prop('selectionEnd', cursor_position);
+    }
+  }
 }
 
 function rebind_buttons(buttons: Button[]) {
