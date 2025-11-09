@@ -128,8 +128,12 @@ async function renderAllMessage() {
     .children(".mes[is_user='false'][is_system='false']")
     .each((_index, node) => {
       const message_id = $(node).attr('mesid');
-      if (message_id) {
-        renderOneMessage(Number(message_id));
+      try {
+        if (message_id) {
+          renderOneMessage(parseInt(message_id));
+        }
+      } catch (error) {
+        /** empty */
       }
     });
 }
