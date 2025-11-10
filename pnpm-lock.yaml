@@ -20,6 +20,9 @@ importers:
       '@vueuse/integrations':
         specifier: ^13.9.0
         version: 13.9.0(axios@1.13.2)(focus-trap@7.6.5)(vue@3.5.24(typescript@6.0.0-dev.20250807))
+      chinese-simple2traditional:
+        specifier: ^2.2.2
+        version: 2.2.2
       compare-versions:
         specifier: ^6.1.1
         version: 6.1.1
@@ -1366,6 +1369,9 @@ packages:
   cheerio@1.1.2:
     resolution: {integrity: sha512-IkxPpb5rS/d1IiLbHMgfPuS0FgiWTtFIm/Nj+2woXDLTZ7fOT2eqzgYbdMlLweqlHbsZjxEChoVK+7iph7jyQg==}
     engines: {node: '>=20.18.1'}
+
+  chinese-simple2traditional@2.2.2:
+    resolution: {integrity: sha512-IzQ+Z6PHqB9JCZTNgEYLp9YFJ/3Wmgaj2tFeYqDo0LtIQYkAwIO9/Atpx2WXibP6GxWhK4SfVPkCnLy+8TrhAQ==}
 
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
@@ -5194,6 +5200,8 @@ snapshots:
       parse5-parser-stream: 7.1.2
       undici: 7.16.0
       whatwg-mimetype: 4.0.0
+
+  chinese-simple2traditional@2.2.2: {}
 
   chokidar@3.6.0:
     dependencies:
