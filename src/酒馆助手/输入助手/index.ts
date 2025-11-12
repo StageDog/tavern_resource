@@ -1,7 +1,7 @@
 import { watchEffect } from 'vue';
 import { checkMinimumVersion, loadReadme } from '../../util';
 import { destroy_panel, init_panel } from './panel';
-import { use_settings_store } from './settings';
+import { useSettingsStore } from './settings';
 import { Button } from './type';
 
 function click_button(button: Button) {
@@ -68,7 +68,7 @@ $(() => {
   checkMinimumVersion('3.4.19', '输入助手');
   loadReadme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/输入助手/README.md');
   init_panel();
-  const settings_store = use_settings_store();
+  const settings_store = useSettingsStore();
   watchEffect(() => {
     rebind_buttons(settings_store.settings.buttons.filter(button => button.enable));
   });

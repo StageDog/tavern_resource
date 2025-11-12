@@ -107,10 +107,10 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { nextTick, onMounted, ref } from 'vue';
-import { use_settings_store } from './settings';
+import { useSettingsStore } from './settings';
 import { Button } from './type';
 
-const { settings } = storeToRefs(use_settings_store());
+const { settings } = storeToRefs(useSettingsStore());
 
 const modal = ref<{
   show: boolean;
