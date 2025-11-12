@@ -116,6 +116,21 @@ watchEffect(() => replaceVariables(klona(settings.value), { type: 'script', scri
 
 前端界面和脚本都是 iframe, 因此你在使用 vue-router 时, 应该使用 `history: createMemoryHistory()` 来创建路由, 否则将无法正常路由.
 
+### 优先使用 pinia、zod 管理数据状态
+
+当需要从酒馆读取配置/数据时, 你应该用 pinia 实现响应式读写:
+
+```typescript
+const Settings = z.object({ button_selected: z.boolean().default(false) }).prefault({});
+export const useSettingsStore = defineStore('settings', () => {
+  const settings = ref(Settings.parse(getVariables({ type: 'script', script_id: getScriptId() })));
+  watchEffect(() => {
+    replaceVariables(klona(settings.value), { type: 'script', script_id: getScriptId() });
+  });
+  return { settings };
+});
+```
+
 ### 尝试使用 @pixi/react 编写界面
 
 当有很多多媒体资源时, 我们的前端界面更像是一个完整的游戏, 因此你应该使用 @pixi/react 在 .tsx 中编写界面, 并使用 pixi.js 来实现资源预先加载等逻辑.
