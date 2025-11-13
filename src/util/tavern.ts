@@ -22,6 +22,14 @@ export function chunkBy<T>(array: T[], predicate: (lhs: T, rhs: T) => boolean): 
   return chunks;
 }
 
+export function uuidv4(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export async function checkMinimumVersion(expected: string, title: string) {
   if (compare(await getTavernHelperVersion(), expected, '<')) {
     toastr.error(`'${title}' 需要酒馆助手版本 >= '${expected}'`, '版本不兼容');

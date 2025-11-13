@@ -12,10 +12,11 @@ export function initPanel() {
   $('#extensions_settings2').append($app);
 
   app.use(createPinia()).mount($app[0]);
-}
-
-export function destroyPanel() {
-  app.unmount();
-  destroyScriptIdDiv();
-  deteleportStyle();
+  return {
+    destroy: () => {
+      app.unmount();
+      destroyScriptIdDiv();
+      deteleportStyle();
+    },
+  };
 }

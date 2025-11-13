@@ -3,6 +3,7 @@ import { ref, watchEffect } from 'vue';
 
 export type Settings = z.infer<typeof Settings>;
 export const Settings = z.object({
+  name: z.string().default('压缩相邻消息'),
   seperator: z
     .object({
       type: z.enum(['space', 'newline', 'double newline', 'custom']).default('double newline'),

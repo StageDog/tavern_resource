@@ -1,4 +1,4 @@
-import { assignInplace, chunkBy } from 'util/tavern';
+import { assignInplace, chunkBy, uuidv4 } from 'util/tavern';
 import { Settings } from './settings';
 
 type Prompt = {
@@ -7,58 +7,72 @@ type Prompt = {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-const head_separator = '{【{【聊天记录开头】}】}';
-const deep_separator = '{【{【聊天记录深度分割】}】}';
-const tail_separator = '{【{【聊天记录结尾】}】}';
-const seperators: InjectionPrompt[] = [
-  {
-    id: '\0压缩相邻消息',
-    position: 'in_chat',
-    depth: 9999,
-    role: 'assistant',
-    content: head_separator,
-  },
-  {
-    id: '\xff压缩相邻消息深度分割',
-    position: 'in_chat',
-    depth: 10,
-    role: 'system',
-    content: deep_separator,
-  },
-  {
-    id: '\xff压缩相邻消息',
-    position: 'in_chat',
-    depth: 0,
-    role: 'system',
-    content: tail_separator,
-  },
-];
+type Seperators = {
+  head: InjectionPrompt;
+  deep: InjectionPrompt;
+  tail: InjectionPrompt;
+};
 
-function injectSeperators() {
-  eventOn(tavern_events.GENERATION_AFTER_COMMANDS, (_type, _option, dry_run) => {
+function injectSeperators(settings: Settings) {
+  const seperators = Object.freeze({
+    head: {
+      id: `\0${settings.name}`,
+      position: 'in_chat',
+      depth: 9999,
+      role: 'assistant',
+      content: uuidv4(),
+    },
+    deep: {
+      id: `\xff${settings.name}深度分割`,
+      position: 'in_chat',
+      depth: 10,
+      role: 'system',
+      content: uuidv4(),
+    },
+    tail: {
+      id: `\xff${settings.name}`,
+      position: 'in_chat',
+      depth: 0,
+      role: 'system',
+      content: uuidv4(),
+    },
+  } as const);
+
+  const inject = (_type: string, _option: object, dry_run: boolean) => {
     if (dry_run) {
       return;
     }
-    injectPrompts(seperators);
-  });
-}
+    injectPrompts(Object.values(seperators));
+  };
+  eventOn(tavern_events.GENERATION_AFTER_COMMANDS, inject);
 
-function uninjectSeperators() {
-  uninjectPrompts(seperators.map(({ id }) => id));
+  return {
+    seperators,
+    uninject: () => {
+      eventRemoveListener(tavern_events.GENERATION_AFTER_COMMANDS, inject);
+      uninjectPrompts(Object.values(seperators).map(({ id }) => id));
+    },
+  };
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-function seperatePrompts(prompts: Prompt[]): Prompt[][] | null {
-  const head_index = prompts.findIndex(({ content }) => content.includes(head_separator));
-  const deep_index = prompts.findIndex(({ content }) => content.includes(deep_separator));
-  const tail_index = prompts.findIndex(({ content }) => content.includes(tail_separator));
+function seperatePrompts(prompts: Prompt[], seperators: Seperators): Prompt[][] | null {
+  const head_index = prompts.findIndex(({ content }) => content.includes(seperators.head.content));
+  const deep_index = prompts.findIndex(({ content }) => content.includes(seperators.deep.content));
+  const tail_index = prompts.findIndex(({ content }) => content.includes(seperators.tail.content));
   if (head_index === -1 || deep_index === -1 || tail_index === -1) {
     return null;
   }
 
-  const [before_head_prompt_content, after_head_prompt_content] = prompts[head_index].content.split(head_separator);
-  const [before_deep_prompt_content, after_deep_prompt_content] = prompts[deep_index].content.split(deep_separator);
-  const [before_tail_prompt_content, after_tail_prompt_content] = prompts[tail_index].content.split(tail_separator);
+  const [before_head_prompt_content, after_head_prompt_content] = prompts[head_index].content.split(
+    seperators.head.content,
+  );
+  const [before_deep_prompt_content, after_deep_prompt_content] = prompts[deep_index].content.split(
+    seperators.deep.content,
+  );
+  const [before_tail_prompt_content, after_tail_prompt_content] = prompts[tail_index].content.split(
+    seperators.tail.content,
+  );
 
   return [
     [...prompts.slice(0, head_index), { role: prompts[head_index].role, content: before_head_prompt_content }],
@@ -112,72 +126,82 @@ function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
   };
 }
 
-function listenEvent(settings: Settings) {
+function listenEvent(settings: Settings, seperators: Seperators) {
   let check_dry_run = false;
-  eventOn(tavern_events.GENERATION_AFTER_COMMANDS, (_type, _option, dry_run) => {
+  const checkDryRun = (_type: string, _option: object, dry_run: boolean) => {
     check_dry_run = dry_run;
-  });
-  eventMakeLast(
-    tavern_events.GENERATE_AFTER_DATA,
-    ({ prompt }: { prompt: SillyTavern.SendingMessage[] }, dry_run?: boolean) => {
-      // 1.13.4 及之前 GENERATE_AFTER_DATA 没有 dry_run 参数
-      if (dry_run ?? check_dry_run) {
-        return;
-      }
+  };
+  eventOn(tavern_events.GENERATION_AFTER_COMMANDS, checkDryRun);
 
-      if (prompt.some(({ content }) => typeof content !== 'string')) {
-        // TODO: 支持带图片、多媒体的脚本
-        return;
-      }
+  const handlePrompts = ({ prompt }: { prompt: SillyTavern.SendingMessage[] }, dry_run?: boolean) => {
+    // 1.13.4 及之前 GENERATE_AFTER_DATA 没有 dry_run 参数
+    if (dry_run ?? check_dry_run) {
+      return;
+    }
 
-      const chunks = seperatePrompts(prompt);
-      if (chunks === null) {
-        return;
-      }
-      if (settings.put_system_injection_after_chat_history) {
-        chunks[0] = _.concat(
-          chunks[0],
-          _.remove(chunks[1], ({ role }) => role === 'system'),
+    if (prompt.some(({ content }) => typeof content !== 'string')) {
+      // TODO: 支持带图片、多媒体的脚本
+      return;
+    }
+
+    // @ts-expect-error 类型正确
+    const chunks = seperatePrompts(prompt, seperators);
+    if (chunks === null) {
+      return;
+    }
+    if (settings.put_system_injection_after_chat_history) {
+      chunks[0] = _.concat(
+        chunks[0],
+        _.remove(chunks[1], ({ role }) => role === 'system'),
+      );
+      chunks[3] = _.concat(
+        _.remove(chunks[2], ({ role }) => role === 'system'),
+        chunks[3],
+      );
+    }
+    const [head, before_chat_history, after_chat_history, tail] = _(chunks)
+      .map(prompts => rejectEmptyPrompts(prompts))
+      .map(prompts => squashMessageByRole(prompts, settings))
+      .value();
+    switch (settings.on_chat_history.type) {
+      case 'mixin':
+        assignInplace(
+          prompt,
+          squashMessageByRole(_.concat(head, before_chat_history, after_chat_history, tail), settings),
         );
-        chunks[3] = _.concat(
-          _.remove(chunks[2], ({ role }) => role === 'system'),
-          chunks[3],
+        break;
+      case 'seperate':
+        assignInplace(
+          prompt,
+          _.concat(head, squashMessageByRole(_.concat(before_chat_history, after_chat_history), settings), tail),
         );
-      }
-      const [head, before_chat_history, after_chat_history, tail] = _(chunks)
-        .map(prompts => rejectEmptyPrompts(prompts))
-        .map(prompts => squashMessageByRole(prompts, settings))
-        .value();
-      switch (settings.on_chat_history.type) {
-        case 'mixin':
-          assignInplace(
-            prompt,
-            squashMessageByRole(_.concat(head, before_chat_history, after_chat_history, tail), settings),
-          );
-          break;
-        case 'seperate':
-          assignInplace(
-            prompt,
-            _.concat(head, squashMessageByRole(_.concat(before_chat_history, after_chat_history), settings), tail),
-          );
-          break;
-        case 'squash':
-          assignInplace(
-            prompt,
-            _.concat(head, squashChatHistory(_.concat(before_chat_history, after_chat_history), settings), tail),
-          );
-          break;
-      }
+        break;
+      case 'squash':
+        assignInplace(
+          prompt,
+          _.concat(head, squashChatHistory(_.concat(before_chat_history, after_chat_history), settings), tail),
+        );
+        break;
+    }
+  };
+  eventOn(tavern_events.GENERATE_AFTER_DATA, handlePrompts);
+
+  return {
+    unlisten: () => {
+      eventRemoveListener(tavern_events.GENERATION_AFTER_COMMANDS, checkDryRun);
+      eventRemoveListener(tavern_events.GENERATE_AFTER_DATA, handlePrompts);
     },
-  );
+  };
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 export function initSquash(settings: Settings) {
-  injectSeperators();
-  listenEvent(settings);
-}
-
-export function destroySquash() {
-  uninjectSeperators();
+  const { seperators, uninject } = injectSeperators(settings);
+  const { unlisten } = listenEvent(settings, seperators);
+  return {
+    destroy: () => {
+      uninject();
+      unlisten();
+    },
+  };
 }
