@@ -1,6 +1,6 @@
 import { createPinia } from 'pinia';
+import { deteleportStyle, teleportStyle } from 'util/tavern';
 import { createApp } from 'vue';
-import { deteleportStyle, teleportStyle } from '../../util';
 import panel from './panel.vue';
 
 const app = createApp(panel);

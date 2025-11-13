@@ -1,4 +1,4 @@
-import { loadReadme } from '../../util';
+import { loadReadme } from 'util/tavern';
 import tip from './tip.md';
 
 const Settings = z

@@ -1,4 +1,4 @@
-import { checkMinimumVersion, loadReadme } from '../../util';
+import { checkMinimumVersion, loadReadme } from 'util/tavern';
 import { destroyPanel, initPanel } from './panel';
 import { useSettingsStore } from './settings';
 import { destroySquash, initSquash } from './squash';

@@ -1,4 +1,4 @@
-import { loadReadme } from '../../util';
+import { loadReadme } from 'util/tavern';
 
 const hljs = window.parent.hljs;
 

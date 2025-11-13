@@ -1,6 +1,6 @@
 import { createPinia } from 'pinia';
+import { createScriptIdDiv, destroyScriptIdDiv, deteleportStyle, teleportStyle } from 'util/tavern';
 import { createApp } from 'vue';
-import { createScriptIdDiv, destroyScriptIdDiv, deteleportStyle, teleportStyle } from '../../util';
 import Panel from './Panel.vue';
 
 const app = createApp(Panel);

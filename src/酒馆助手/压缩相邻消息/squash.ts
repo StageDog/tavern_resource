@@ -1,4 +1,4 @@
-import { assignInplace, chunkBy } from '../../util';
+import { assignInplace, chunkBy } from 'util/tavern';
 import { Settings } from './settings';
 
 type Prompt = {
