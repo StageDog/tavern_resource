@@ -368,6 +368,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
     )
       .concat(
         { apply: watch_it },
+        { apply: dump_schema },
         new VueLoaderPlugin(),
         unpluginAutoImport({
           dts: true,
