@@ -1,4 +1,4 @@
-export function registerSchema(schema: z.ZodType<any>) {
+export function registerMvuSchema(schema: z.ZodType<any>) {
   eventOn('mag_command_parsed', (variables, commands) => {
     for (const command of commands) {
       const new_data = klona(variables.stat_data);
