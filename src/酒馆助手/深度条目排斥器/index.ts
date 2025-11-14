@@ -6,7 +6,7 @@ $(() => {
   checkMinimumVersion('3.4.17', '深度条目排斥器');
   loadReadme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/深度条目排斥器/README.md');
   const { destroy } = initSquash(
-    Settings.parse({
+    Settings.decode({
       name: '深度排斥器',
       put_system_injection_after_chat_history: true,
       on_chat_history: {
