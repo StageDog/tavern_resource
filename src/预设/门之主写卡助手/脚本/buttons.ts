@@ -200,8 +200,8 @@ const import_example_chat: Button = {
       new File([example_chat_content], `${preset_name} - 示例.jsonl`, { type: 'application/json' }),
     );
     form_data.append('file_type', 'jsonl');
-    form_data.append('avatar_url', SillyTavern.characters[SillyTavern.characterId].avatar);
-    form_data.append('character_name', SillyTavern.characters[SillyTavern.characterId].name);
+    form_data.append('avatar_url', SillyTavern.characters[Number(SillyTavern.characterId)].avatar);
+    form_data.append('character_name', SillyTavern.characters[Number(SillyTavern.characterId)].name);
     form_data.append('user_name', SillyTavern.name1);
 
     const headers = SillyTavern.getRequestHeaders();
