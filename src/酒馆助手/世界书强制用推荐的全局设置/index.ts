@@ -1,3 +1,4 @@
+import { loadReadme } from 'util/tavern';
 import { registerDisableRecursionButton } from '酒馆助手/一键禁用条目递归/button';
 
 async function sync_lorebook_settings() {
@@ -26,6 +27,9 @@ async function toggle_lock(should_lock: boolean) {
 }
 
 $(() => {
+  loadReadme(
+    'https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/世界书强制用推荐的全局设置/README.md',
+  );
   registerDisableRecursionButton(false);
   sync_lorebook_settings();
   toggle_lock(true);
