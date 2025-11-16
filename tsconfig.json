@@ -16,7 +16,7 @@
     "paths": {
       "@/*": [
         "./*"
-      ],
+      ]
     },
     "moduleDetection": "auto",
     "moduleResolution": "bundler",

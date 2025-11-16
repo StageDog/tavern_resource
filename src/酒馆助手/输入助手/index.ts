@@ -1,4 +1,5 @@
-import { checkMinimumVersion, loadReadme } from '@/util/tavern';
+import { checkMinimumVersion } from '@/util/common';
+import { loadReadme } from '@/util/script';
 import { watchEffect } from 'vue';
 import { destroy_panel, init_panel } from './panel';
 import { useSettingsStore } from './settings';

@@ -1,4 +1,4 @@
-import { deteleportStyle, teleportStyle } from '@/util/tavern';
+import { deteleportStyle, teleportStyle } from '@/util/script';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import panel from './panel.vue';

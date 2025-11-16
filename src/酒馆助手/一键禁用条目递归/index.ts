@@ -1,4 +1,4 @@
-import { loadReadme } from '@/util/tavern';
+import { loadReadme } from '@/util/script';
 import { registerDisableRecursionButton } from './button';
 
 $(() => {

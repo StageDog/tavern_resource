@@ -1,4 +1,4 @@
-import { loadReadme } from '@/util/tavern';
+import { loadReadme } from '@/util/script';
 import tip from './tip.md';
 
 const Settings = z
@@ -19,11 +19,13 @@ function getSettings(): Settings {
 
 const onGenerateAfterData = ({ prompt }: Parameters<ListenerType['generate_after_data']>[0]) => {
   setTimeout(async () => {
-    // 依次计算 toekn 从而利用酒馆对 token 的缓存
+    // 依次计算 token 从而利用酒馆对 token 的缓存
     const tokens = await Promise.all(
-      prompt.map(async message => {
-        return await SillyTavern.getTokenCountAsync(message.content);
-      }),
+      prompt
+        .filter(prompt => typeof prompt.content === 'string')
+        .map(async prompt => {
+          return await SillyTavern.getTokenCountAsync(prompt.content);
+        }),
     );
     const total_tokens = tokens.reduce((result, current) => result + current, 0);
     if (total_tokens > getSettings().token数阈值) {

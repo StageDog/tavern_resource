@@ -79,6 +79,7 @@
     "@vueuse/components": "^14.0.0",
     "@vueuse/core": "^13.9.0",
     "@vueuse/integrations": "^13.9.0",
+    "@vueuse/shared": "^13.9.0",
     "chinese-simple2traditional": "^2.2.2",
     "compare-versions": "^6.1.1",
     "dedent": "^1.7.0",

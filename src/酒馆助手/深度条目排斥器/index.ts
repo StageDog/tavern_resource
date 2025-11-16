@@ -1,4 +1,5 @@
-import { checkMinimumVersion, loadReadme } from '@/util/tavern';
+import { checkMinimumVersion } from '@/util/common';
+import { loadReadme } from '@/util/script';
 import { Settings } from '@/酒馆助手/压缩相邻消息/settings';
 import { initSquash } from '@/酒馆助手/压缩相邻消息/squash';
 
