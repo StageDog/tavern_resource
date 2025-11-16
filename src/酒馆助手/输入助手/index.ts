@@ -5,7 +5,9 @@ import { useSettingsStore } from './settings';
 import { Button } from './type';
 
 function click_button(button: Button) {
-  const $textarea = $('#send_textarea');
+  const $edit = $('#curEditTextarea');
+  const $send = $('#send_textarea');
+  const $textarea = $edit.length ? $edit : $send;
 
   const text = $textarea.val() as string;
   const { start_position, end_position } = (() => {
