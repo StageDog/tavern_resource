@@ -1,4 +1,4 @@
-import { checkMinimumVersion, loadReadme } from 'util/tavern';
+import { checkMinimumVersion, loadReadme } from '@/util/tavern';
 
 function get_prompt_id_from_tool($tool: JQuery) {
   return $tool.closest('.completion_prompt_manager_prompt').attr('data-pm-identifier')!;

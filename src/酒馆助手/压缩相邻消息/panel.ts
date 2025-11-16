@@ -1,5 +1,5 @@
+import { createScriptIdDiv, destroyScriptIdDiv, deteleportStyle, teleportStyle } from '@/util/tavern';
 import { createPinia } from 'pinia';
-import { createScriptIdDiv, destroyScriptIdDiv, deteleportStyle, teleportStyle } from 'util/tavern';
 import { createApp } from 'vue';
 import Panel from './Panel.vue';
 

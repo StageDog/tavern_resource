@@ -1,5 +1,5 @@
+import { loadReadme } from '@/util/tavern';
 import { toSimplified, toTraditional } from 'chinese-simple2traditional';
-import { loadReadme } from 'util/tavern';
 
 async function chooseLorebook(): Promise<string | null> {
   const lorebooks = getLorebooks();

@@ -1,4 +1,4 @@
-import { loadReadme } from 'util/tavern';
+import { loadReadme } from '@/util/tavern';
 
 const Settings = z.object({
   要绑定的预设名称: z.string().default(() => getLoadedPresetName()),

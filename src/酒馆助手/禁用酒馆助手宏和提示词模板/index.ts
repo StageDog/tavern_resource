@@ -1,4 +1,4 @@
-import { loadReadme } from 'util/tavern';
+import { loadReadme } from '@/util/tavern';
 import { toggleExtensionSettings } from './toggle';
 
 $(() => {

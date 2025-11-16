@@ -1,5 +1,5 @@
-import { loadReadme } from 'util/tavern';
-import { registerDisableRecursionButton } from '酒馆助手/一键禁用条目递归/button';
+import { loadReadme } from '@/util/tavern';
+import { registerDisableRecursionButton } from '@/酒馆助手/一键禁用条目递归/button';
 
 async function sync_lorebook_settings() {
   const EXPECTED_SETTINGS: Partial<LorebookSettings> = {

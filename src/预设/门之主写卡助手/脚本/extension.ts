@@ -1,4 +1,4 @@
-import { toggleExtensionSettings } from '酒馆助手/禁用酒馆助手宏和提示词模板/toggle';
+import { toggleExtensionSettings } from '@/酒馆助手/禁用酒馆助手宏和提示词模板/toggle';
 import { preset_name } from './imports';
 
 function check_extension_settings() {

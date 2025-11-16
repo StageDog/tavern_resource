@@ -1,6 +1,6 @@
-import { checkMinimumVersion, loadReadme } from 'util/tavern';
-import { Settings } from '酒馆助手/压缩相邻消息/settings';
-import { initSquash } from '酒馆助手/压缩相邻消息/squash';
+import { checkMinimumVersion, loadReadme } from '@/util/tavern';
+import { Settings } from '@/酒馆助手/压缩相邻消息/settings';
+import { initSquash } from '@/酒馆助手/压缩相邻消息/squash';
 
 $(() => {
   checkMinimumVersion('3.4.17', '深度条目排斥器');

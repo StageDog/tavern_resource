@@ -1,4 +1,4 @@
-import { assignInplace, chunkBy, uuidv4 } from 'util/tavern';
+import { assignInplace, chunkBy, uuidv4 } from '@/util/tavern';
 import { Settings } from './settings';
 
 type Prompt = {
