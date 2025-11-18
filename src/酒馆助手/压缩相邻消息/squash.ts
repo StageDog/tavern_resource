@@ -186,6 +186,35 @@ function listenEvent(settings: Settings, seperators: Seperators) {
   };
   eventOn(tavern_events.GENERATE_AFTER_DATA, handlePrompts);
 
+  const handleStopStringOnStream = (text: string) => {
+    if (!settings.stop_string) {
+      return;
+    }
+    if (settings.stop_string.test(text)) {
+      SillyTavern.stopGeneration();
+    }
+  };
+  eventMakeFirst(tavern_events.STREAM_TOKEN_RECEIVED, handleStopStringOnStream);
+
+  const handleStopStringOnReceived = async (message_id: number | string) => {
+    if (!settings.stop_string) {
+      return;
+    }
+
+    const chat_message = SillyTavern.chat[Number(message_id)];
+
+    const match = chat_message.mes.match(settings.stop_string);
+    if (match) {
+      chat_message.mes = chat_message.mes.slice(0, match.index);
+      if (chat_message.swipes) {
+        _.set(chat_message, ['swipes', chat_message.swipe_id!], chat_message.mes);
+      }
+      SillyTavern.updateMessageBlock(Number(message_id), chat_message);
+      await SillyTavern.saveChat();
+    }
+  };
+  eventMakeFirst(tavern_events.MESSAGE_RECEIVED, handleStopStringOnReceived);
+
   return {
     unlisten: () => {
       eventRemoveListener(tavern_events.GENERATION_AFTER_COMMANDS, checkDryRun);

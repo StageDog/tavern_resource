@@ -31,7 +31,7 @@
             class="fa-solid fa-circle-question fa-sm note-link-span"
             style="cursor: pointer"
             title="将注入到聊天深度的系统消息按照原有顺序移动到聊天记录的末尾，而不是保持在原来的深度位置。这可以确保系统消息不会干扰聊天记录的连续性。"
-            @click="showHelp"
+            @click="showDepthHelp"
           />
         </div>
       </div>
@@ -117,6 +117,27 @@
           />
         </div>
       </div>
+
+      <hr />
+
+      <div class="flex-container flexFlowColumn">
+        <label>
+          <span>停止字符串</span>
+          <i
+            class="fa-solid fa-circle-question fa-sm note-link-span"
+            style="cursor: pointer"
+            title="当模型输出了对应字符串时将会停止"
+            @click="showStopStringHelp"
+          />
+        </label>
+        <input
+          v-model="settings.stop_string"
+          class="text_pole flex1 wide100p"
+          type="text"
+          placeholder="请输入字符串或 /正则/"
+          autocomplete="off"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -127,12 +148,22 @@ import { useSettingsStore } from './settings';
 
 const { settings } = storeToRefs(useSettingsStore());
 
-function showHelp() {
+function showDepthHelp() {
   SillyTavern.callGenericPopup(
     `<p>按照<a href="https://discord.com/channels/1134557553011998840/1413538722078785576">一些预设作者和角色卡作者的说法</a>, Gemini 和 Claude 不同, 不必将条目插入聊天记录中, 插入其中反而会干扰聊天记录的连续性, 重要条目应该都插入到 D0.</p>
      <p>但玩家依旧可能使用 Claude、GPT 等游玩, 而对它们还是需要用 D4 等深度的.</p>
      <p>因此本脚本提供了这个选项: 勾选这个选项, D10 以下的条目将会被移动到 D0 位置, 而 D10 及以上条目将会被移动到 D9999 位置; 而关闭这个选项系统消息将会保持原有深度.</p>
      <p>这个选项虽然已经不用角色卡作者自行将条目全设置为 D0, 但仍很需要角色卡适配; 如果角色详情等会随剧情发展的设定放在了深度条目, 则勾选这个选项容易使角色固化</p>`,
+    SillyTavern.POPUP_TYPE.TEXT,
+    '',
+    { leftAlign: true },
+  );
+}
+
+function showStopStringHelp() {
+  SillyTavern.callGenericPopup(
+    `<p>如果填入停止字符串, 则 AI 输出了对应文本时将会结束输出</p>
+     <p>停止字符串可以是字符串或正则, 如 <code>User:</code> 或 <code>/User:|System:/</code></p>`,
     SillyTavern.POPUP_TYPE.TEXT,
     '',
     { leftAlign: true },
