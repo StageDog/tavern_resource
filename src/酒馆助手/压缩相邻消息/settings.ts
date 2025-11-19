@@ -1,4 +1,3 @@
-import { regexFromString } from '@/util/common';
 import { defineStore } from 'pinia';
 import { ref, watchEffect } from 'vue';
 
@@ -41,10 +40,7 @@ export const Settings = z.object({
       system_suffix: z.string().default(''),
     })
     .prefault({}),
-  stop_string: z
-    .string()
-    .default('')
-    .transform(string => (string ? regexFromString(substitudeMacros(string)) : null)),
+  stop_string: z.string().default('').catch(''),
 });
 
 export const useSettingsStore = defineStore('settings', () => {

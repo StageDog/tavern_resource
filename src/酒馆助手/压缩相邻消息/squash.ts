@@ -1,4 +1,4 @@
-import { assignInplace, chunkBy, uuidv4 } from '@/util/common';
+import { assignInplace, chunkBy, regexFromString, uuidv4 } from '@/util/common';
 import { Settings } from './settings';
 
 type Prompt = {
@@ -190,7 +190,11 @@ function listenEvent(settings: Settings, seperators: Seperators) {
     if (!settings.stop_string) {
       return;
     }
-    if (settings.stop_string.test(text)) {
+    const regex = regexFromString(settings.stop_string);
+    if (!regex) {
+      return;
+    }
+    if (regex.test(text)) {
       SillyTavern.stopGeneration();
     }
   };
@@ -203,7 +207,11 @@ function listenEvent(settings: Settings, seperators: Seperators) {
 
     const chat_message = SillyTavern.chat[Number(message_id)];
 
-    const match = chat_message.mes.match(settings.stop_string);
+    const regex = regexFromString(settings.stop_string);
+    if (!regex) {
+      return;
+    }
+    const match = chat_message.mes.match(regex);
     if (match) {
       chat_message.mes = chat_message.mes.slice(0, match.index);
       if (chat_message.swipes) {
