@@ -2,9 +2,7 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
   eventOn('mag_variable_initialized', (variables, swipe_id) => {
     const result = schema.safeParse(variables);
     if (result.error) {
-      toastr.error(z.prettifyError(result.error), `[MVU zod]第 ${swipe_id + 1} 条开场白的变量初始化失败`, {
-        escapeHtml: false,
-      });
+      toastr.error(z.prettifyError(result.error), `[MVU zod]第 ${swipe_id + 1} 条开场白的变量初始化失败`);
     }
   });
 
@@ -18,7 +16,10 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
         return true;
       }
       if (notification_enabled && should_toastr) {
-        toastr.warning(z.prettifyError(result.error), `[MVU zod]发生变量更新错误，可能需要重Roll: ${command.full_match}`)
+        toastr.warning(
+          z.prettifyError(result.error),
+          `[MVU zod]发生变量更新错误，可能需要重Roll: ${command.full_match}`,
+        );
       }
       return false;
     };
