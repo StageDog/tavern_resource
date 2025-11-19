@@ -217,6 +217,7 @@ function listenEvent(settings: Settings, seperators: Seperators) {
       if (chat_message.swipes) {
         _.set(chat_message, ['swipes', chat_message.swipe_id!], chat_message.mes);
       }
+      // 与 https://gitgud.io/Monblant/noass 采用相同逻辑而不使用 setChatMessages, 因为 CHARACTER_MESSAGE_RENDERED 将会随后自然触发
       SillyTavern.updateMessageBlock(Number(message_id), chat_message);
       await SillyTavern.saveChat();
     }
