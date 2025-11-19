@@ -23,10 +23,13 @@ export function chunkBy<T>(array: T[], predicate: (lhs: T, rhs: T) => boolean): 
 }
 
 export function regexFromString(input: string): RegExp | null {
+  if (!input) {
+    return null;
+  }
   try {
-    const match = input.match(/(\/?)(.+)\1([a-z]*)/i);
+    const match = input.match(/\/(.+)\/([a-z]*)/i);
     if (!match) {
-      return null;
+      return new RegExp(_.escapeRegExp(input), 'gi');
     }
     if (match[3] && !/^(?!.*?(.).*?\1)[gmixXsuUAJ]+$/.test(match[3])) {
       return new RegExp(input, 'gi');
