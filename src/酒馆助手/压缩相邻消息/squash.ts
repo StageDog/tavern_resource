@@ -211,9 +211,9 @@ function listenEvent(settings: Settings, seperators: Seperators) {
     if (!regex) {
       return;
     }
-    const match = chat_message.mes.match(regex);
-    if (match) {
-      chat_message.mes = chat_message.mes.slice(0, match.index);
+    const result = regex.exec(chat_message.mes);
+    if (result) {
+      chat_message.mes = chat_message.mes.slice(0, result.index);
       if (chat_message.swipes) {
         _.set(chat_message, ['swipes', chat_message.swipe_id!], chat_message.mes);
       }
