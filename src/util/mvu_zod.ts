@@ -1,10 +1,24 @@
 export function registerMvuSchema(schema: z.ZodType<any>) {
+  eventOn('mag_variable_initialized', (variables, swipe_id) => {
+    const result = schema.safeParse(variables);
+    if (result.error) {
+      toastr.error(z.prettifyError(result.error), `[MVU zod]第 ${swipe_id + 1} 条开场白的变量初始化失败`, {
+        escapeHtml: false,
+      });
+    }
+  });
+
   eventOn('mag_command_parsed', (variables, commands) => {
-    const check_and_apply = (data: any) => {
+    const notification_enabled = Boolean($('#mvu_notification_error').prop('checked'));
+
+    const check_and_apply = (data: any, command: Mvu.CommandInfo, should_toastr: boolean) => {
       const result = schema.safeParse(data);
       if (result.success) {
         variables.stat_data = result.data;
         return true;
+      }
+      if (notification_enabled && should_toastr) {
+        toastr.warning(z.prettifyError(result.error), `[MVU zod]发生变量更新错误，可能需要重Roll: ${command.full_match}`)
       }
       return false;
     };
@@ -18,14 +32,14 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
             command.args.splice(1, 1);
           }
           _.set(data, path, parseCommandValue(command.args[1]));
-          check_and_apply(data);
+          check_and_apply(data, command, true);
           break;
         }
         case 'insert': {
           const key_or_index = parseCommandValue(command.args[1]);
           const value = parseCommandValue(command.args.at(-1)!);
 
-          const insert = (data: any) => {
+          const insert = (data: any, should_toastr: boolean) => {
             const collection = _.get(data, path);
             const is_array = _.isArray(collection);
             if (command.args.length === 2) {
@@ -39,7 +53,7 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
             } else {
               collection[String(key_or_index)] = value;
             }
-            return check_and_apply(data);
+            return check_and_apply(data, command, should_toastr);
           };
 
           const collection = _.get(data, path);
@@ -48,18 +62,18 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
             continue;
           }
           if (!is_nil) {
-            insert(data);
+            insert(data, true);
             continue;
           }
           const filled = _(klona(data));
-          if (!insert(filled.set(path, {}).value())) {
-            insert(filled.set(path, []).value());
+          if (!insert(filled.set(path, {}).value(), false)) {
+            insert(filled.set(path, []).value(), true);
           }
           break;
         }
         case 'delete': {
           _.unset(data, command.args.map(trimQuotesAndBackslashes));
-          check_and_apply(data);
+          check_and_apply(data, command, true);
           break;
         }
       }
