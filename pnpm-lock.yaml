@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@pixi/react':
         specifier: 8.0.0-beta.25
-        version: 8.0.0-beta.25(@types/react@19.2.6)(pixi.js@8.14.2)(react@19.2.0)
+        version: 8.0.0-beta.25(@types/react@19.2.6)(pixi.js@8.14.3)(react@19.2.0)
       '@vueuse/components':
         specifier: ^14.0.0
         version: 14.0.0(vue@3.5.24(typescript@6.0.0-dev.20250807))
@@ -54,8 +54,8 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4(typescript@6.0.0-dev.20250807)(vue@3.5.24(typescript@6.0.0-dev.20250807))
       pixi.js:
-        specifier: ^8.14.2
-        version: 8.14.2
+        specifier: ^8.14.3
+        version: 8.14.3
       react:
         specifier: ^19.2.0
         version: 19.2.0
@@ -136,14 +136,14 @@ importers:
         specifier: ^4.4.4
         version: 4.4.4(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.47.0(eslint@9.39.1(jiti@2.6.1))(typescript@6.0.0-dev.20250807))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-better-tailwindcss:
-        specifier: ^3.7.10
-        version: 3.7.10(eslint@9.39.1(jiti@2.6.1))(tailwindcss@4.1.17)
+        specifier: ^3.7.11
+        version: 3.7.11(eslint@9.39.1(jiti@2.6.1))(tailwindcss@4.1.17)
       eslint-plugin-import-x:
         specifier: ^4.16.1
         version: 4.16.1(@typescript-eslint/utils@8.47.0(eslint@9.39.1(jiti@2.6.1))(typescript@6.0.0-dev.20250807))(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-pinia:
-        specifier: ^0.4.1
-        version: 0.4.1(@typescript-eslint/utils@8.47.0(eslint@9.39.1(jiti@2.6.1))(typescript@6.0.0-dev.20250807))(eslint@9.39.1(jiti@2.6.1))
+        specifier: ^0.4.2
+        version: 0.4.2(@typescript-eslint/utils@8.47.0(eslint@9.39.1(jiti@2.6.1))(typescript@6.0.0-dev.20250807))(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-vue:
         specifier: ^10.5.1
         version: 10.5.1(@typescript-eslint/parser@8.47.0(eslint@9.39.1(jiti@2.6.1))(typescript@6.0.0-dev.20250807))(eslint@9.39.1(jiti@2.6.1))(vue-eslint-parser@10.2.0(eslint@9.39.1(jiti@2.6.1)))
@@ -205,11 +205,11 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0(remark@15.0.1)(webpack@5.103.0)
       sass:
-        specifier: ^1.94.1
-        version: 1.94.1
+        specifier: ^1.94.2
+        version: 1.94.2
       sass-loader:
         specifier: ^16.0.6
-        version: 16.0.6(sass@1.94.1)(webpack@5.103.0)
+        version: 16.0.6(sass@1.94.2)(webpack@5.103.0)
       socket.io:
         specifier: ^4.8.1
         version: 4.8.1
@@ -337,8 +337,8 @@ packages:
     resolution: {integrity: sha512-yL/sLrpmtDaFEiUj1osRP4TI2MDz1AddJL+jZ7KSqvBuliN4xqYY54IfdN8qD8Toa6g1iloph1fxQNkjOxrrpQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@eslint/css-tree@3.6.6':
-    resolution: {integrity: sha512-C3YiJMY9OZyZ/3vEMFWJIesdGaRY6DmIYvmtyxMT934CbrOKqRs+Iw7NWSRlJQEaK4dPYy2lZ2y1zkaj8z0p5A==}
+  '@eslint/css-tree@3.6.8':
+    resolution: {integrity: sha512-s0f40zY7dlMp8i0Jf0u6l/aSswS0WRAgkhgETgiCJRcxIWb4S/Sp9uScKHWbkM3BnoFLbJbmOYk5AZUDFVxaLA==}
     engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0}
 
   '@eslint/eslintrc@3.3.1':
@@ -1257,8 +1257,8 @@ packages:
     resolution: {integrity: sha512-lGe34o6EHj9y3Kts9R4ZYs/Gr+6N7MCaMlIFA3F1R2O5/m7K06AxfSeO5530PEERE6/WyEg3lsuyw4GHlPZHog==}
     engines: {node: ^4.5.0 || >= 5.9}
 
-  baseline-browser-mapping@2.8.29:
-    resolution: {integrity: sha512-sXdt2elaVnhpDNRDz+1BDx1JQoJRuNk7oVlAlbGiFkLikHCAQiccexF/9e91zVi6RCgqspl04aP+6Cnl9zRLrA==}
+  baseline-browser-mapping@2.8.30:
+    resolution: {integrity: sha512-aTUKW4ptQhS64+v2d6IkPzymEzzhw+G0bA1g3uBRV3+ntkH+svttKseW5IOR4Ed6NUVKqnY7qT3dKvzQ7io4AA==}
     hasBin: true
 
   batch@0.6.1:
@@ -1314,8 +1314,8 @@ packages:
   camel-case@4.1.2:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
 
-  caniuse-lite@1.0.30001755:
-    resolution: {integrity: sha512-44V+Jm6ctPj7R52Na4TLi3Zri4dWUljJd+RDm+j8LtNCc/ihLCT+X1TzoOAkRETEWqjuLnh9581Tl80FvK7jVA==}
+  caniuse-lite@1.0.30001756:
+    resolution: {integrity: sha512-4HnCNKbMLkLdhJz3TToeVWHSnfJvPaq6vu/eRP0Ahub/07n484XHhBF5AJoSGHdVrS8tKFauUQz8Bp9P7LVx7A==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -1691,8 +1691,8 @@ packages:
   earcut@3.0.2:
     resolution: {integrity: sha512-X7hshQbLyMJ/3RPhyObLARM2sNxxmRALLKx1+NVFFnQ9gKzmCrxm9+uLIAdBcvc8FNLpctqlQ2V6AE92Ol9UDQ==}
 
-  electron-to-chromium@1.5.256:
-    resolution: {integrity: sha512-uqYq1IQhpXXLX+HgiXdyOZml7spy4xfy42yPxcCCRjswp0fYM2X+JwCON07lqnpLEGVCj739B7Yr+FngmHBMEQ==}
+  electron-to-chromium@1.5.259:
+    resolution: {integrity: sha512-I+oLXgpEJzD6Cwuwt1gYjxsDmu/S/Kd41mmLA3O+/uH2pFRO/DvOjUyGozL8j3KeLV6WyZ7ssPwELMsXCcsJAQ==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -1819,8 +1819,8 @@ packages:
       eslint-plugin-import-x:
         optional: true
 
-  eslint-plugin-better-tailwindcss@3.7.10:
-    resolution: {integrity: sha512-a6Hif4A9lPJZwpoMir2WVs1ZL4IK6fzwbZvVhQQchoqqg3BycL+ZGLHGIuqKBqwnZgOC6olwmu0sDzM3uSkEFw==}
+  eslint-plugin-better-tailwindcss@3.7.11:
+    resolution: {integrity: sha512-A2x5UrBoYLfZLMGvXBq/7epVMKNMxCkDRgRO1w/N1yQbFYM0L1yk6qDZV1l6Otrl0hNuBHSKFG3Uw5TDoSGStA==}
     engines: {node: ^20.11.0 || >=21.2.0}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
@@ -1839,8 +1839,8 @@ packages:
       eslint-import-resolver-node:
         optional: true
 
-  eslint-plugin-pinia@0.4.1:
-    resolution: {integrity: sha512-fiidH7GZ/OMbTHDwHS/tpbdBVBwCk/uEpWCZfzCK7HeiLKUGBBQr3MfHMYx15ACmgRyVu2eGwKELB3s6SMoWbQ==}
+  eslint-plugin-pinia@0.4.2:
+    resolution: {integrity: sha512-Bf6x2iMa+NOP52OsW66ewg5Xn7rkoolxnWWBud0yFoUF6xVk/rm9F88GsSIMyNajobYws4DweEzL1sWKZg+YNQ==}
     engines: {node: '>= 18'}
     peerDependencies:
       '@typescript-eslint/utils': '>= 7.5 || 8.0.1'
@@ -2543,8 +2543,8 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
-  libphonenumber-js@1.12.27:
-    resolution: {integrity: sha512-8gHhHzzcnY1EF4BS5L/lrjv2VAZWd6ltU7c/sqoktRZSQvZl4g8hrgXtXHXGkSFKFYArFON12zUNJrNVqJ9u4g==}
+  libphonenumber-js@1.12.29:
+    resolution: {integrity: sha512-P2aLrbeqHbmh8+9P35LXQfXOKc7XJ0ymUKl7tyeyQjdRNfzunXWxQXGc4yl3fUf28fqLRfPY+vIVvFXK7KEBTw==}
 
   lightningcss-android-arm64@1.30.2:
     resolution: {integrity: sha512-BH9sEdOCahSgmkVhBLeU7Hc9DWeZ1Eb6wNS6Da8igvUwAe0sqROHddIlvU06q3WyXVEOYDZ6ykBZQnjTbmo4+A==}
@@ -3061,8 +3061,8 @@ packages:
     peerDependencies:
       pixi.js: '>=8.0.0-0'
 
-  pixi.js@8.14.2:
-    resolution: {integrity: sha512-UjZ2OQ/dU0hDJOKQvUGu8j131cd7uBOkIAmzgLmLB5wegKy+DpeQqagfARSfo85E7Hb8GUJ2n+p58V/prETRrA==}
+  pixi.js@8.14.3:
+    resolution: {integrity: sha512-6xGYARV8D9E/fO1c2NmYn+k2dQ5oZldVm5tNlLQJ8obTlOQXdL5QpMc217qTpRyHVDFaw5eoFCLF1gr6p5ZcjQ==}
 
   pkg-dir@4.2.0:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
@@ -3389,8 +3389,8 @@ packages:
       webpack:
         optional: true
 
-  sass@1.94.1:
-    resolution: {integrity: sha512-/YVm5FRQaRlr3oNh2LLFYne1PdPlRZGyKnHh1sLleOqLcohTR4eUUvBjBIqkl1fEXd1MGOHgzJGJh+LgTtV4KQ==}
+  sass@1.94.2:
+    resolution: {integrity: sha512-N+7WK20/wOr7CzA2snJcUSSNTCzeCGUTFY3OgeQP3mZ1aj9NMQ0mSTXwlrnd89j33zzQJGqIN52GIOmYrfq46A==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -4129,7 +4129,7 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
 
-  '@eslint/css-tree@3.6.6':
+  '@eslint/css-tree@3.6.8':
     dependencies:
       mdn-data: 2.23.0
       source-map-js: 1.2.1
@@ -4311,10 +4311,10 @@ snapshots:
 
   '@pixi/colord@2.9.6': {}
 
-  '@pixi/react@8.0.0-beta.25(@types/react@19.2.6)(pixi.js@8.14.2)(react@19.2.0)':
+  '@pixi/react@8.0.0-beta.25(@types/react@19.2.6)(pixi.js@8.14.3)(react@19.2.0)':
     dependencies:
       its-fine: 1.2.5(@types/react@19.2.6)(react@19.2.0)
-      pixi.js: 8.14.2
+      pixi.js: 8.14.3
       react: 19.2.0
       react-reconciler: 0.31.0(react@19.2.0)
     transitivePeerDependencies:
@@ -5027,7 +5027,7 @@ snapshots:
   autoprefixer@10.4.22(postcss@8.5.6):
     dependencies:
       browserslist: 4.28.0
-      caniuse-lite: 1.0.30001755
+      caniuse-lite: 1.0.30001756
       fraction.js: 5.3.4
       normalize-range: 0.1.2
       picocolors: 1.1.1
@@ -5058,7 +5058,7 @@ snapshots:
 
   base64id@2.0.0: {}
 
-  baseline-browser-mapping@2.8.29: {}
+  baseline-browser-mapping@2.8.30: {}
 
   batch@0.6.1: {}
 
@@ -5085,9 +5085,9 @@ snapshots:
 
   browserslist@4.28.0:
     dependencies:
-      baseline-browser-mapping: 2.8.29
-      caniuse-lite: 1.0.30001755
-      electron-to-chromium: 1.5.256
+      baseline-browser-mapping: 2.8.30
+      caniuse-lite: 1.0.30001756
+      electron-to-chromium: 1.5.259
       node-releases: 2.0.27
       update-browserslist-db: 1.1.4(browserslist@4.28.0)
 
@@ -5117,7 +5117,7 @@ snapshots:
       pascal-case: 3.1.2
       tslib: 2.8.1
 
-  caniuse-lite@1.0.30001755: {}
+  caniuse-lite@1.0.30001756: {}
 
   ccount@2.0.1: {}
 
@@ -5211,7 +5211,7 @@ snapshots:
   class-validator@0.14.1:
     dependencies:
       '@types/validator': 13.15.10
-      libphonenumber-js: 1.12.27
+      libphonenumber-js: 1.12.29
       validator: 13.15.23
 
   clean-css@5.3.3:
@@ -5525,7 +5525,7 @@ snapshots:
 
   earcut@3.0.2: {}
 
-  electron-to-chromium@1.5.256: {}
+  electron-to-chromium@1.5.259: {}
 
   emoji-regex@8.0.0: {}
 
@@ -5693,9 +5693,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-better-tailwindcss@3.7.10(eslint@9.39.1(jiti@2.6.1))(tailwindcss@4.1.17):
+  eslint-plugin-better-tailwindcss@3.7.11(eslint@9.39.1(jiti@2.6.1))(tailwindcss@4.1.17):
     dependencies:
-      '@eslint/css-tree': 3.6.6
+      '@eslint/css-tree': 3.6.8
       enhanced-resolve: 5.18.3
       eslint: 9.39.1(jiti@2.6.1)
       jiti: 2.6.1
@@ -5723,7 +5723,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-pinia@0.4.1(@typescript-eslint/utils@8.47.0(eslint@9.39.1(jiti@2.6.1))(typescript@6.0.0-dev.20250807))(eslint@9.39.1(jiti@2.6.1)):
+  eslint-plugin-pinia@0.4.2(@typescript-eslint/utils@8.47.0(eslint@9.39.1(jiti@2.6.1))(typescript@6.0.0-dev.20250807))(eslint@9.39.1(jiti@2.6.1)):
     dependencies:
       eslint: 9.39.1(jiti@2.6.1)
     optionalDependencies:
@@ -6499,7 +6499,7 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  libphonenumber-js@1.12.27: {}
+  libphonenumber-js@1.12.29: {}
 
   lightningcss-android-arm64@1.30.2:
     optional: true
@@ -7076,12 +7076,12 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.0-dev.20250807
 
-  pixi-filters@6.1.4(pixi.js@8.14.2):
+  pixi-filters@6.1.4(pixi.js@8.14.3):
     dependencies:
       '@types/gradient-parser': 0.1.5
-      pixi.js: 8.14.2
+      pixi.js: 8.14.3
 
-  pixi.js@8.14.2:
+  pixi.js@8.14.3:
     dependencies:
       '@pixi/colord': 2.9.6
       '@types/css-font-loading-module': 0.0.12
@@ -7407,14 +7407,14 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sass-loader@16.0.6(sass@1.94.1)(webpack@5.103.0):
+  sass-loader@16.0.6(sass@1.94.2)(webpack@5.103.0):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
-      sass: 1.94.1
+      sass: 1.94.2
       webpack: 5.103.0(webpack-cli@6.0.1)
 
-  sass@1.94.1:
+  sass@1.94.2:
     dependencies:
       chokidar: 4.0.3
       immutable: 5.1.4
@@ -8053,8 +8053,8 @@ snapshots:
       '@antfu/utils': 0.7.10
       '@vueuse/core': 10.11.1(vue@3.5.24(typescript@6.0.0-dev.20250807))
       nanoid: 4.0.2
-      pixi-filters: 6.1.4(pixi.js@8.14.2)
-      pixi.js: 8.14.2
+      pixi-filters: 6.1.4(pixi.js@8.14.3)
+      pixi.js: 8.14.3
       vue-demi: 0.14.10(vue@3.5.24(typescript@6.0.0-dev.20250807))
     transitivePeerDependencies:
       - '@vue/composition-api'
