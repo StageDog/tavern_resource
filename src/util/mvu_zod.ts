@@ -78,7 +78,7 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
           break;
         }
         case 'delete': {
-          _.unset(data, command.args.map(trimQuotesAndBackslashes));
+          _.unset(data, command.args.map(trimQuotesAndBackslashes).join('.'));
           check_and_apply(data, command, true);
           break;
         }
