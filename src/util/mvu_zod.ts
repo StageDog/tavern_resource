@@ -78,7 +78,14 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
           break;
         }
         case 'delete': {
-          _.unset(data, command.args.map(trimQuotesAndBackslashes).join('.'));
+          const path = command.args.map(trimQuotesAndBackslashes).join('.');
+          const path_array = _(path).toPath().value()
+          const parent_path = _(path_array).dropRight().join('.');
+          if (_.isArray(_.get(data, parent_path))) {
+            _.pullAt(_.get(data, parent_path), Number(_(path_array).last()));
+          } else {
+            _.unset(data, path);
+          }
           check_and_apply(data, command, true);
           break;
         }
