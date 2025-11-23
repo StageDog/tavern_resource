@@ -1,6 +1,6 @@
 export function registerMvuSchema(schema: z.ZodType<any>) {
   eventOn('mag_variable_initialized', (variables, swipe_id) => {
-    const result = schema.safeParse(variables);
+    const result = schema.safeParse(_.get(variables, 'stat_data', {}));
     if (result.error) {
       toastr.error(z.prettifyError(result.error), `[MVU zod]第 ${swipe_id + 1} 条开场白的变量初始化失败`);
     }
