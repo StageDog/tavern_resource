@@ -26,6 +26,10 @@ description: 当需要编写前端界面时, 你应该参考本文件
 - 禁止在 `index.html` 中用 `<script src="./index.ts">` 来引用 `index.ts` 或其他本地脚本. `index.ts` 及它导入的文件会由 webpack 直接加入到最终打包好的 `dist/**/index.html` 中.
 - 在 `index.html` 中填入 `<img>` 标签时, 禁止使用 `src=""` 占位. 要么引用实际的图片, 要么不要有这个属性, 否则会导致 webpack 打包错误.
 
+## 图标使用
+
+你可以任意使用 fontawesome 的免费图标.
+
 ## 样式设计
 
 ### 简单内嵌样式
