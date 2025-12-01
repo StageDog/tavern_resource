@@ -1,4 +1,5 @@
 import { compare } from 'compare-versions';
+import { toDotPath } from 'zod/v4/core';
 
 export function assignInplace<T>(destination: T[], new_array: T[]): T[] {
   destination.length = 0;
@@ -59,4 +60,20 @@ export async function checkMinimumVersion(expected: string, title: string) {
   if (compare(await getTavernHelperVersion(), expected, '<')) {
     toastr.error(`'${title}' 需要酒馆助手版本 >= '${expected}'`, '版本不兼容');
   }
+}
+
+export function prettifyErrorWithInput(error: z.ZodError) {
+  return _([...error.issues])
+    .sortBy(issue => issue.path?.length ?? 0)
+    .flatMap(issue => {
+      const lines = [`✖ ${issue.message}`];
+      if (issue.path?.length) {
+        lines.push(`  → 路径: ${toDotPath(issue.path)}`);
+      }
+      if (issue.input !== undefined) {
+        lines.push(`  → 输入: ${JSON.stringify(issue.input)}`);
+      }
+      return lines;
+    })
+    .join('\n');
 }

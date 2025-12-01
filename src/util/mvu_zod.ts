@@ -1,3 +1,5 @@
+import { prettifyErrorWithInput } from '@/util/common';
+
 export function registerMvuSchema(schema: z.ZodType<any>) {
   eventOn('mag_variable_initialized', (variables, swipe_id) => {
     const result = schema.safeParse(_.get(variables, 'stat_data', {}));
@@ -14,14 +16,14 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
     const notification_enabled = Boolean($('#mvu_notification_error').prop('checked'));
 
     const check_and_apply = (data: any, command: Mvu.CommandInfo, should_toastr: boolean) => {
-      const result = schema.safeParse(data);
+      const result = schema.safeParse(data, { reportInput: true });
       if (result.success) {
         variables.stat_data = result.data;
         return true;
       }
       if (notification_enabled && should_toastr) {
         toastr.warning(
-          z.prettifyError(result.error).replaceAll('\n', '<br>'),
+          prettifyErrorWithInput(result.error).replaceAll('\n', '<br>'),
           `[MVU zod]发生变量更新错误，可能需要重Roll: ${command.full_match}`,
           { escapeHtml: false },
         );
@@ -79,7 +81,7 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
         }
         case 'delete': {
           const path = command.args.map(trimQuotesAndBackslashes).join('.');
-          const path_array = _(path).toPath().value()
+          const path_array = _(path).toPath().value();
           const parent_path = _(path_array).dropRight().join('.');
           if (_.isArray(_.get(data, parent_path))) {
             _.pullAt(_.get(data, parent_path), Number(_(path_array).last()));
