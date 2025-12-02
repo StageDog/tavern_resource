@@ -1,6 +1,10 @@
 import { prettifyErrorWithInput } from '@/util/common';
 
 export function registerMvuSchema(schema: z.ZodType<any>) {
+  if (typeof registerVariableSchema === 'function') {
+    registerVariableSchema(z.object({ stat_data: schema }), { type: 'message' });
+  }
+
   eventOn('mag_variable_initialized', (variables, swipe_id) => {
     const result = schema.safeParse(_.get(variables, 'stat_data', {}));
     if (result.error) {
