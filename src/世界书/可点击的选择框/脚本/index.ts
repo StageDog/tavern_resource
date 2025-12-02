@@ -107,7 +107,11 @@ namespace render_section {
 
 //----------------------------------------------------------------------------------------------------------------------
 async function renderOneMessage(message_id: number | string) {
-  const message: string = getChatMessages(message_id)[0].message;
+  const chat_messages = getChatMessages(message_id);
+  if (chat_messages.length === 0) {
+    return;
+  }
+  const message: string = chat_messages[0].message ?? '';
   const match = message.match(roleplay_options_regex);
   if (!match) {
     return;
