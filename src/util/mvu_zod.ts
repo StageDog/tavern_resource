@@ -1,11 +1,27 @@
 import { prettifyErrorWithInput } from '@/util/common';
 
-export function registerMvuSchema(schema: z.ZodType<any>) {
+export function registerMvuSchema(input: z.ZodType<any> | (() => z.ZodType<any>)) {
+  // @ts-expect-error registerVariableSchema 在更高版本酒馆助手中才存在
   if (typeof registerVariableSchema === 'function') {
+    // @ts-expect-error registerVariableSchema 在更高版本酒馆助手中才存在
     registerVariableSchema(z.object({ stat_data: schema }), { type: 'message' });
   }
 
+  const unwrapSchema = () => {
+    if (typeof input === 'function') {
+      const schema = input();
+      // @ts-expect-error registerVariableSchema 在更高版本酒馆助手中才存在
+      if (typeof registerVariableSchema === 'function') {
+        // @ts-expect-error registerVariableSchema 在更高版本酒馆助手中才存在
+        registerVariableSchema(z.object({ stat_data: schema }), { type: 'message' });
+      }
+      return schema;
+    }
+    return input;
+  };
+
   eventOn('mag_variable_initialized', (variables, swipe_id) => {
+    const schema = unwrapSchema();
     const result = schema.safeParse(_.get(variables, 'stat_data', {}));
     if (result.error) {
       toastr.error(
@@ -17,6 +33,7 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
   });
 
   eventOn('mag_command_parsed', (variables, commands) => {
+    const schema = unwrapSchema();
     const notification_enabled = Boolean($('#mvu_notification_error').prop('checked'));
 
     const check_and_apply = (data: any, command: Mvu.CommandInfo, should_toastr: boolean) => {
