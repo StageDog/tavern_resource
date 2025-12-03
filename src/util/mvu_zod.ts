@@ -36,14 +36,18 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
     };
 
     for (const command of commands) {
-      const data = klona(variables.stat_data);
+      let data = klona(variables.stat_data);
       const path = trimQuotesAndBackslashes(command.args[0]);
       switch (command.type) {
         case 'set': {
           if (command.args.length === 3) {
             command.args.splice(1, 1);
           }
-          _.set(data, path, parseCommandValue(command.args[1]));
+          if (path) {
+            _.set(data, path, parseCommandValue(command.args[1]));
+          } else {
+            data = parseCommandValue(command.args[1]);
+          }
           check_and_apply(data, command, true);
           break;
         }
@@ -52,7 +56,7 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
           const value = parseCommandValue(command.args.at(-1)!);
 
           const insert = (data: any, should_toastr: boolean) => {
-            const collection = _.get(data, path);
+            const collection = path === '' ? data : _.get(data, path);
             const is_array = _.isArray(collection);
             if (command.args.length === 2) {
               if (is_array) {
@@ -68,7 +72,7 @@ export function registerMvuSchema(schema: z.ZodType<any>) {
             return check_and_apply(data, command, should_toastr);
           };
 
-          const collection = _.get(data, path);
+          const collection = path === '' ? data : _.get(data, path);
           const is_nil = _.isNil(collection);
           if (!is_nil && !_.isArray(collection) && !_.isPlainObject(collection)) {
             continue;
