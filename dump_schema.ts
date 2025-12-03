@@ -11,9 +11,13 @@ fs.globSync('src/**/schema.ts').forEach(async schema_file => {
     globalThis.z = z;
     const module = await import(path.resolve(import.meta.dirname, schema_file));
     if (_.has(module, 'Schema')) {
+      const schema = _.get(module, 'Schema');
+      if (_.isFunction(schema)) {
+        schema = schema();
+      }
       fs.writeFileSync(
         path.join(path.dirname(schema_file), 'schema.json'),
-        JSON.stringify(z.toJSONSchema(_.get(module, 'Schema'), { io: 'input', reused: 'ref' }), null, 2),
+        JSON.stringify(z.toJSONSchema(schema, { io: 'input', reused: 'ref' }), null, 2),
       );
     }
   } catch (e) {
