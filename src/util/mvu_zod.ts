@@ -20,11 +20,7 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
     const schema = unwrapSchema();
     const result = schema.safeParse(_.get(variables, 'stat_data', {}));
     if (result.error) {
-      toastr.error(
-        z.prettifyError(result.error).replaceAll('\n', '<br>'),
-        `[MVU zod]第 ${swipe_id + 1} 条开场白的变量初始化失败`,
-        { escapeHtml: false },
-      );
+      reportError(z.prettifyError(result.error), `第 ${swipe_id + 1} 条开场白的变量初始化失败`);
     }
   });
 
@@ -39,11 +35,7 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
         return true;
       }
       if (notification_enabled && should_toastr) {
-        toastr.warning(
-          prettifyErrorWithInput(result.error).replaceAll('\n', '<br>'),
-          `[MVU zod]发生变量更新错误，可能需要重Roll: ${command.full_match}`,
-          { escapeHtml: false },
-        );
+        reportError(prettifyErrorWithInput(result.error), `发生变量更新错误，可能需要重Roll: ${command.full_match}`);
       }
       return false;
     };
@@ -116,6 +108,13 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
     }
     commands.length = 0;
   });
+
+  console.info('变量结构注册成功');
+}
+
+function reportError(content: string, title: string) {
+  toastr.error(content.replaceAll('\n', '<br>'), `[MVU zod]` + title, { escapeHtml: false });
+  console.warn(`${title} ${content}`);
 }
 
 function trimQuotesAndBackslashes(string: string): string {
