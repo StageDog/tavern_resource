@@ -4,7 +4,7 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
   // @ts-expect-error registerVariableSchema 在更高版本酒馆助手中才存在
   if (typeof registerVariableSchema === 'function') {
     // @ts-expect-error registerVariableSchema 在更高版本酒馆助手中才存在
-    registerVariableSchema(z.object({ stat_data: schema }), { type: 'message' });
+    registerVariableSchema(z.object({ stat_data: input }), { type: 'message' });
   }
 
   const unwrapSchema = () => {
