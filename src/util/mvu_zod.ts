@@ -2,7 +2,7 @@ import { prettifyErrorWithInput } from '@/util/common';
 
 export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
   if (typeof registerVariableSchema === 'function') {
-    registerVariableSchema(z.object({ stat_data: input }), { type: 'message' });
+    registerVariableSchema(z.object({ stat_data: typeof input === 'function' ? input() : input }), { type: 'message' });
   }
 
   const unwrapSchema = () => {
