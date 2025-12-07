@@ -18,9 +18,18 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
 
   eventOn('mag_variable_initialized', (variables, swipe_id) => {
     const schema = unwrapSchema();
-    const result = schema.safeParse(_.get(variables, 'stat_data', {}));
-    if (result.error) {
-      reportError(z.prettifyError(result.error), `第 ${swipe_id + 1} 条开场白的变量初始化失败`);
+    try {
+      const result = schema.safeParse(_.get(variables, 'stat_data', {}));
+      if (result.error) {
+        reportError('warn', z.prettifyError(result.error), `第 ${swipe_id + 1} 条开场白的变量初始化失败`);
+      }
+    } catch (e) {
+      const error = e as Error;
+      reportError(
+        'error',
+        error.stack ? error.stack : error.name + ': ' + error.message,
+        `第 ${swipe_id + 1} 条开场白的变量初始化失败`,
+      );
     }
   });
 
@@ -29,13 +38,26 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
     const notification_enabled = Boolean($('#mvu_notification_error').prop('checked'));
 
     const check_and_apply = (data: any, command: Mvu.CommandInfo, should_toastr: boolean) => {
-      const result = schema.safeParse(data, { reportInput: true });
-      if (result.success) {
-        variables.stat_data = result.data;
-        return true;
-      }
-      if (notification_enabled && should_toastr) {
-        reportError(prettifyErrorWithInput(result.error), `发生变量更新错误，可能需要重Roll: ${command.full_match}`);
+      try {
+        const result = schema.safeParse(data, { reportInput: true });
+        if (result.success) {
+          variables.stat_data = result.data;
+          return true;
+        }
+        if (notification_enabled && should_toastr) {
+          reportError(
+            'warn',
+            prettifyErrorWithInput(result.error),
+            `发生变量更新错误，可能需要重Roll: ${command.full_match}`,
+          );
+        }
+      } catch (e) {
+        const error = e as Error;
+        reportError(
+          'error',
+          error.stack ? error.stack : error.name + ': ' + error.message,
+          `发生变量更新错误，可能需要重Roll: ${command.full_match}`,
+        );
       }
       return false;
     };
@@ -112,9 +134,11 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
   console.info('变量结构注册成功');
 }
 
-function reportError(content: string, title: string) {
-  toastr.error(content.replaceAll('\n', '<br>'), `[MVU zod]` + title, { escapeHtml: false });
-  console.warn(`${title} ${content}`);
+function reportError(level: 'error' | 'warn', content: string, title: string) {
+  toastr[level === 'warn' ? 'warning' : 'error'](content.replaceAll('\n', '<br>'), `[MVU zod]` + title, {
+    escapeHtml: false,
+  });
+  console[level](`${title} ${content}`);
 }
 
 function trimQuotesAndBackslashes(string: string): string {
