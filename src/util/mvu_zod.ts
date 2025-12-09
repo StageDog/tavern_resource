@@ -62,6 +62,8 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
       return false;
     };
 
+    const old_data = klona(variables.stat_data);
+
     for (const command of commands) {
       let data = klona(variables.stat_data);
       const path = trimQuotesAndBackslashes(command.args[0]);
@@ -128,6 +130,32 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
         }
       }
     }
+
+    function keepReadonly(new_data: Record<string, any>, old_data: Record<string, any>): void {
+      function traverse(obj: Record<string, any>, path: Array<string | number> = []) {
+        if (!_.isObjectLike(obj)) {
+          return;
+        }
+        _.forOwn(obj, (value, key) => {
+          const current_path = [...path, key];
+          if (key.startsWith('_')) {
+            const rhs_value = _.get(old_data, current_path);
+            if (rhs_value !== undefined) {
+              _.set(new_data, current_path, rhs_value);
+            }
+          }
+          if (_.isObjectLike(value)) {
+            traverse(value, current_path);
+          }
+        });
+      }
+      traverse(new_data);
+    }
+    keepReadonly(variables.stat_data, old_data);
+
+    _.unset(variables, 'schema');
+    _.unset(variables, 'display_data');
+    _.unset(variables, 'delta_data');
     commands.length = 0;
   });
 
