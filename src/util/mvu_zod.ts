@@ -20,9 +20,11 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
     const schema = unwrapSchema();
     try {
       const result = schema.safeParse(_.get(variables, 'stat_data', {}));
-      if (result.error) {
-        reportError('warn', z.prettifyError(result.error), `第 ${swipe_id + 1} 条开场白的变量初始化失败`);
+      if (result.success) {
+        variables.stat_data = result.data;
+        return;
       }
+      reportError('warn', z.prettifyError(result.error), `第 ${swipe_id + 1} 条开场白的变量初始化失败`);
     } catch (e) {
       const error = e as Error;
       reportError(
