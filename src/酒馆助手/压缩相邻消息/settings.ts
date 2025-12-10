@@ -40,7 +40,7 @@ export const Settings = z.object({
       system_suffix: z.string().default(''),
     })
     .prefault({}),
-  stop_string: z.string().default('').catch(''),
+  stop_string: z.string().default('<|im_end|>').catch('<|im_end|>'),
 });
 
 export const useSettingsStore = defineStore('settings', () => {
