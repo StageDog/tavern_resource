@@ -1,4 +1,5 @@
 import { assignInplace, chunkBy, regexFromString, uuidv4 } from '@/util/common';
+import { compare } from 'compare-versions';
 import { Settings } from './settings';
 
 type Prompt = {
@@ -127,15 +128,8 @@ function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
 }
 
 function listenEvent(settings: Settings, seperators: Seperators) {
-  let check_dry_run = false;
-  const checkDryRun = (_type: string, _option: object, dry_run: boolean) => {
-    check_dry_run = dry_run;
-  };
-  eventOn(tavern_events.GENERATION_AFTER_COMMANDS, checkDryRun);
-
-  const handlePrompts = ({ prompt }: { prompt: SillyTavern.SendingMessage[] }, dry_run?: boolean) => {
-    // 1.13.4 及之前 GENERATE_AFTER_DATA 没有 dry_run 参数
-    if (dry_run ?? check_dry_run) {
+  const handlePrompts = ({ prompt }: { prompt: SillyTavern.SendingMessage[] }, dry_run: boolean) => {
+    if (dry_run) {
       return;
     }
 
@@ -184,7 +178,15 @@ function listenEvent(settings: Settings, seperators: Seperators) {
         break;
     }
   };
-  eventOn(tavern_events.GENERATE_AFTER_DATA, handlePrompts);
+  const handlePrompts2 = ({ messages }: { messages: SillyTavern.SendingMessage[] }) => {
+    handlePrompts({ prompt: messages }, false);
+  };
+
+  if (compare(getTavernVersion(), '1.13.4', '>')) {
+    eventMakeFirst(tavern_events.GENERATE_AFTER_DATA, handlePrompts);
+  } else {
+    eventMakeFirst(tavern_events.CHAT_COMPLETION_SETTINGS_READY, handlePrompts2);
+  }
 
   const handleStopStringOnStream = (text: string) => {
     if (!settings.stop_string) {
@@ -226,8 +228,10 @@ function listenEvent(settings: Settings, seperators: Seperators) {
 
   return {
     unlisten: () => {
-      eventRemoveListener(tavern_events.GENERATION_AFTER_COMMANDS, checkDryRun);
       eventRemoveListener(tavern_events.GENERATE_AFTER_DATA, handlePrompts);
+      eventRemoveListener(tavern_events.CHAT_COMPLETION_SETTINGS_READY, handlePrompts2);
+      eventRemoveListener(tavern_events.STREAM_TOKEN_RECEIVED, handleStopStringOnStream);
+      eventRemoveListener(tavern_events.MESSAGE_RECEIVED, handleStopStringOnReceived);
     },
   };
 }
