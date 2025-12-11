@@ -155,10 +155,13 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
     }
     keepReadonly(variables.stat_data, old_data);
 
+    commands.length = 0;
+  });
+
+  eventOn('mag_variable_update_ended_for_zod', variables => {
     _.unset(variables, 'schema');
     _.unset(variables, 'display_data');
     _.unset(variables, 'delta_data');
-    commands.length = 0;
   });
 
   console.info('变量结构注册成功');
