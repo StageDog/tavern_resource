@@ -159,7 +159,7 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
   });
 
   eventOn('mag_variable_update_ended_for_zod', variables => {
-    _.unset(variables, 'schema');
+    _.set(variables, 'schema', '没有用别管这个');
     _.unset(variables, 'display_data');
     _.unset(variables, 'delta_data');
   });
