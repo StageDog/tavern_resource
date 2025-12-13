@@ -96,7 +96,7 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
                 _.assign(collection, value);
               }
             } else if (is_array) {
-              collection.splice(key_or_index, 0, value);
+              collection.splice(key_or_index === '-' ? collection.length : key_or_index, 0, value);
             } else {
               collection[String(key_or_index)] = value;
             }
