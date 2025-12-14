@@ -2,6 +2,7 @@
 @types
 初始模板
 dist
+src/角色卡示例
 src/界面示例
 src/脚本示例
 package.json

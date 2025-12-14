@@ -6,7 +6,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,scss,html,vue}\"",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "dump": "node dump_schema.ts"
+    "dump": "node dump_schema.ts",
+    "sync": "node tavern_sync.mjs"
   },
   "browserslist": [
     "defaults and partially supports es6-module"

@@ -35,6 +35,10 @@ jobs:
           tar -xf @types.zip -C @types
           rm -f @types.zip
 
+      - run: |-
+          rm -f tavern_sync.mjs
+          wget https://raw.githubusercontent.com/StageDog/tavern_sync/refs/heads/main/dist/tavern_sync.mjs
+
       - name: Check if only pnpm-lock.yaml is changed
         id: should_commit
         run: |-
