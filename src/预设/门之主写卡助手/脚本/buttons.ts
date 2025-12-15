@@ -31,7 +31,7 @@ const show_changelog: Button = {
   },
 };
 
-async function toggle_gemini(enable: boolean) {
+async function toggleGemini(enable: boolean) {
   await updatePresetWith('in_use', preset => {
     preset.prompts
       .filter(prompt => prompt.name.includes('🟦'))
@@ -53,15 +53,15 @@ async function toggle_gemini(enable: boolean) {
 
 const switch_to_gemini: Button = {
   name: '更换为Gemini',
-  function: () => toggle_gemini(true),
+  function: () => toggleGemini(true),
 };
 
 const switch_to_claude_gpt: Button = {
   name: '更换为Claude/GPT',
-  function: () => toggle_gemini(false),
+  function: () => toggleGemini(false),
 };
 
-async function toggle_design_mode(enable: boolean) {
+async function toggleDesignMode(enable: boolean) {
   await updatePresetWith('in_use', preset => {
     const design_start = preset.prompts.findIndex(prompt => prompt.name.includes('<设计模块>'));
     const design_end = preset.prompts.findIndex(prompt => prompt.name.includes('</设计模块>'));
@@ -94,12 +94,12 @@ async function toggle_design_mode(enable: boolean) {
 
 const switch_to_design_mode: Button = {
   name: '切换为写卡模式',
-  function: () => toggle_design_mode(true),
+  function: () => toggleDesignMode(true),
 };
 
 const switch_to_game_mode: Button = {
   name: '切换为游玩模式',
-  function: () => toggle_design_mode(false),
+  function: () => toggleDesignMode(false),
 };
 
 const design_steps: string[] = [
@@ -122,7 +122,7 @@ const design_steps: string[] = [
   '❌文风',
 ];
 
-async function switch_to_step(step: number) {
+async function switchToStep(step: number) {
   await updatePresetWith('in_use', preset => {
     const prompt = preset.prompts.find(prompt => prompt.name.includes(design_steps[step]))!;
 
@@ -155,20 +155,20 @@ async function switch_to_step(step: number) {
   );
 }
 
-async function get_current_step(prompts: PresetPrompt[]): Promise<number> {
+async function getCurrentStep(prompts: PresetPrompt[]): Promise<number> {
   const step = prompts.find(prompt => design_steps.some(item => prompt.name.includes(item) && prompt.enabled));
   if (!step) {
-    await switch_to_step(0);
+    await switchToStep(0);
     return 0;
   }
   return design_steps.findIndex(item => step.name.includes(item));
 }
 
-function make_step_prev(step: number): Button {
-  return { name: '⇐', function: step > 0 ? () => switch_to_step(step - 1) : () => {} };
+function makeStepPrev(step: number): Button {
+  return { name: '⇐', function: step > 0 ? () => switchToStep(step - 1) : () => {} };
 }
 
-function make_step_info(step: number): Button {
+function makeStepInfo(step: number): Button {
   // TODO: 说明功能内容
   return {
     name: `当前：${design_steps[step]}`,
@@ -184,7 +184,7 @@ const select_step: Button = {
     if (!result) {
       return;
     }
-    await switch_to_step(design_steps.findIndex(item => item === result));
+    await switchToStep(design_steps.findIndex(item => item === result));
   },
 };
 
@@ -219,15 +219,15 @@ const import_example_chat: Button = {
   },
 };
 
-function make_step_next(step: number): Button {
+function makeStepNext(step: number): Button {
   return {
     name: '⇒',
-    function: step < design_steps.length - 1 ? () => switch_to_step(step + 1) : () => {},
+    function: step < design_steps.length - 1 ? () => switchToStep(step + 1) : () => {},
   };
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-function register_buttons(buttons: Button[]) {
+function registerButtons(buttons: Button[]) {
   buttons.forEach(button => {
     eventClearEvent(getButtonEvent(button.name));
     eventOn(getButtonEvent(button.name), button.function);
@@ -235,7 +235,7 @@ function register_buttons(buttons: Button[]) {
   replaceScriptButtons(buttons.map(button => ({ name: button.name, visible: true })));
 }
 
-async function check_button_status(): Promise<Button[]> {
+async function checkButtonStatus(): Promise<Button[]> {
   if (!getPresetNames().includes(preset_name)) {
     return [import_preset, show_changelog];
   }
@@ -252,12 +252,12 @@ async function check_button_status(): Promise<Button[]> {
   }
 
   if (preset.prompts.some(prompt => prompt.name === '<设计模块>' && prompt.enabled)) {
-    const current_step = await get_current_step(preset.prompts);
+    const current_step = await getCurrentStep(preset.prompts);
     result.push(
       switch_to_game_mode,
-      make_step_prev(current_step),
-      make_step_info(current_step),
-      make_step_next(current_step),
+      makeStepPrev(current_step),
+      makeStepInfo(current_step),
+      makeStepNext(current_step),
       select_step,
       import_example_chat,
     );
@@ -268,8 +268,8 @@ async function check_button_status(): Promise<Button[]> {
   return result;
 }
 
-async function change_buttons() {
-  const new_button_status = await check_button_status();
+async function changeButtons() {
+  const new_button_status = await checkButtonStatus();
   const old_buttons = getScriptButtons();
   if (
     _.isEqual(
@@ -279,15 +279,15 @@ async function change_buttons() {
   ) {
     return;
   }
-  register_buttons(new_button_status);
+  registerButtons(new_button_status);
 }
-const change_buttons_throttled = _.throttle(change_buttons, 1000, { trailing: false });
+const changeButtonsThrottled = _.throttle(changeButtons, 1000, { trailing: false });
 
-export async function init_buttons() {
-  register_buttons(await check_button_status());
-  eventOn(tavern_events.SETTINGS_UPDATED, change_buttons_throttled);
+export async function initButtons() {
+  registerButtons(await checkButtonStatus());
+  eventOn(tavern_events.SETTINGS_UPDATED, changeButtonsThrottled);
 }
 
-export function destory_buttons() {
+export function destroy_buttons() {
   replaceScriptButtons([]);
 }

@@ -1,5 +1,3 @@
-export {};
-
 async function get_third_party_extension_names(): Promise<string[]> {
   try {
     const response = await fetch('/api/extensions/discover');
