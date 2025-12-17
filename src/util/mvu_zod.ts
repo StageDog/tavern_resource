@@ -140,7 +140,7 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
         }
         _.forOwn(obj, (value, key) => {
           const current_path = [...path, key];
-          if (key.startsWith('_')) {
+          if (key.startsWith('_') || key.startsWith('$')) {
             const rhs_value = _.get(old_data, current_path);
             if (rhs_value !== undefined) {
               _.set(new_data, current_path, rhs_value);
