@@ -35,7 +35,7 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
     }
   });
 
-  eventOn('mag_command_parsed', (variables, commands) => {
+  eventOn('mag_command_parsed_for_zod', (variables, commands) => {
     const schema = unwrapSchema();
     const notification_enabled = Boolean($('#mvu_notification_error').prop('checked'));
 
