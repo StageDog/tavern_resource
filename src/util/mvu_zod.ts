@@ -171,7 +171,7 @@ function reportError(level: 'error' | 'warn', content: string, title: string) {
   toastr[level === 'warn' ? 'warning' : 'error'](content.replaceAll('\n', '<br>'), `[MVU zod]` + title, {
     escapeHtml: false,
   });
-  console[level](`${title} ${content}`);
+  console[level](`${title}\n${content}`);
 }
 
 function trimQuotesAndBackslashes(string: string): string {
