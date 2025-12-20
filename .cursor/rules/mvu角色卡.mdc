@@ -32,7 +32,7 @@ export const Schema = z.object({
 
 ```yaml
 rule:
-  - libraries: "`z` from zod and `_` from lodash are available by default, so you can use them directly and should prefer to use them; don't import them again"
+  - libraries: "`z` from zod and `_` from lodash are available by default, so you can use them directly and should prefer to use them; don't import them in the generated code"
   - zod 4: stick to use zod 4.x, never ever use `.passthrough`!
   - idempotent operation: the schema is intended to parse the updates of the world status incrementally, thus, the output of `Schema.parse(input)` must be a valid input of `Schema.parse` itself; that is, you should use z.transform carefully, keeping `Schema.parse(Schema.parse(input))` equal to `Schema.parse(input)`
   - for number schema: prefer `z.coerce.number()` over `z.number()` whenever you expect a number since it will try to convert the input to a number if it's not a number; but don't use other `z.coerce.xxx()` such as `z.coerce.boolean()`, just use `z.boolean()` directly
@@ -57,7 +57,7 @@ rule:
       - '`registerMvuSchema = (schema: z.ZodObject | (() => z.ZodObject)) => void`, the function input `() => z.ZodObject` could be used when the schema is not ready at the time of registering, or the schema depends on runtime data/function'
       - '`z.transform(value => value)`'
       - '`z.prefault/z.catch(value | () => value)`'
-  - REPEAT: don't set any default value or impose any restriction to the schema unless Explorer requests them
+  - REPEAT: don't set any variable as optional or impose any restriction to the schema unless Explorer requests them
 ```
 
 如果用户提供了 `export const Schema`, 你应该区分用户提供的是直接的 `schema.ts` 还是变量结构脚本. 具体地,
