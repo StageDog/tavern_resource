@@ -1,0 +1,1 @@
+../../.cursor/rules/mvu角色卡.mdc

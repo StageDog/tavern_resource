@@ -1,5 +1,6 @@
 ---
 description: 当需要编写脚本时, 你应该参考本文件
+alwaysApply: false
 ---
 # 脚本
 

@@ -1,5 +1,6 @@
 ---
 description: 当需要编写前端界面时, 你应该参考本文件
+alwaysApply: false
 ---
 # 前端界面
 
