@@ -82,6 +82,21 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
           check_and_apply(data, command, true);
           break;
         }
+        case 'add': {
+          if (!path) {
+            break;
+          }
+          const old_value = _.get(data, path);
+          const delta_value = parseCommandValue(command.args[1]);
+          if (
+            typeof old_value === typeof delta_value &&
+            (typeof old_value === 'number' || typeof old_value === 'string')
+          ) {
+            _.update(data, path, value => value + delta_value);
+            check_and_apply(data, command, true);
+          }
+          break;
+        }
         case 'insert': {
           const key_or_index = parseCommandValue(command.args[1]);
           const value = parseCommandValue(command.args.at(-1)!);
