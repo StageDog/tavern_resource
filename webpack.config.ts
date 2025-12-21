@@ -86,7 +86,7 @@ function watch_tavern_helper(compiler: webpack.Compiler) {
     if (!io) {
       const port = config.port ?? 6621;
       io = new Server(port, { cors: { origin: '*' } });
-      console.info(`\x1b[36m[tavern_helper]\x1b[0m 已启动酒馆监听服务, 正在监听: http://0.0.0.0:${port}`);
+      console.info(`\x1b[36m[tavern_helper]\x1b[0m 已启动酒馆监听服务`);
       io.on('connect', socket => {
         console.info(`\x1b[36m[tavern_helper]\x1b[0m 成功连接到酒馆网页 '${socket.id}', 初始化推送...`);
         io.emit('iframe_updated');

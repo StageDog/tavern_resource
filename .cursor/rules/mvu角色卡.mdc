@@ -63,7 +63,7 @@ rule:
 如果用户提供了 `export const Schema`, 你应该区分用户提供的是直接的 `schema.ts` 还是变量结构脚本. 具体地,
 
 - `schema.ts` 中只应该有 `export const Schema` 负责定义和导出变量结构, 而没有其他副作用;
-- 变量结构脚本可能在开头有 `import { registerMvuSchema } from 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/dist/util/mvu_zod.js';`, 在结尾有 `$(() => { registerMvuSchema(Schema); });`, 如果是这样, 则你应该去除开头结尾, 只保留 `export const Schema`.
+- 变量结构脚本可能在开头有 `import { registerMvuSchema } from 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/dist/util/mvu_zod.js';`, 在结尾有 `$(() => { registerMvuSchema(Schema); });`, 如果是这样, **则你应该去除开头结尾, 只保留 `export const Schema`**.
 
 ## 脚本
 
