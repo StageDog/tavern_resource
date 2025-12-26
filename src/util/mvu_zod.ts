@@ -68,7 +68,9 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
 
     for (const command of commands) {
       let data = klona(variables.stat_data);
-      const path = trimQuotesAndBackslashes(command.args[0]);
+      const path = trimQuotesAndBackslashes(command.args[0])
+        // 一些错误提示词写法会导致 AI 在更新变量时带上 `stat_data.` 前缀, 这里将它去掉
+        .replace(/^stat_data\./, '');
       switch (command.type) {
         case 'set': {
           if (command.args.length === 3) {
@@ -134,7 +136,11 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
           break;
         }
         case 'delete': {
-          const path = command.args.map(trimQuotesAndBackslashes).join('.');
+          const path = (command.args satisfies string[])
+            .map(trimQuotesAndBackslashes)
+            .join('.')
+            // 一些错误提示词写法会导致 AI 在更新变量时带上 `stat_data.` 前缀, 这里将它去掉
+            .replace(/^stat_data\./, '');
           const path_array = _(path).toPath().value();
           const parent_path = _(path_array).dropRight().join('.');
           if (_.isArray(_.get(data, parent_path))) {
