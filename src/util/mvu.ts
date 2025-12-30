@@ -16,13 +16,19 @@ export function defineMvuDataStore(schema: z.ZodObject, variable_option: Variabl
       const data = ref(schema.parse(_.get(getVariables(variable_option), 'stat_data', {})));
 
       useIntervalFn(() => {
-        const result = schema.safeParse(_.get(getVariables(variable_option), 'stat_data', {}));
-        if (result.error || _.isEqual(result.data, data.value)) {
+        const stat_data = _.get(getVariables(variable_option), 'stat_data', {});
+        const result = schema.safeParse(stat_data);
+        if (result.error) {
           return;
         }
-        ignoreUpdates(() => {
-          data.value = result.data;
-        });
+        if (!_.isEqual(data.value, result.data)) {
+          ignoreUpdates(() => {
+            data.value = result.data;
+          });
+        }
+        if (!_.isEqual(stat_data, result.data)) {
+          updateVariablesWith(variables => _.set(variables, 'stat_data', result.data), variable_option);
+        }
       }, 2000);
 
       const { ignoreUpdates } = watchIgnorable(
@@ -32,7 +38,7 @@ export function defineMvuDataStore(schema: z.ZodObject, variable_option: Variabl
           if (result.error) {
             return;
           }
-          if (!_.isEqual(result, new_data)) {
+          if (!_.isEqual(new_data, result.data)) {
             ignoreUpdates(() => {
               data.value = result.data;
             });
