@@ -6,9 +6,9 @@ import { useSettingsStore } from './settings';
 import { Button } from './type';
 
 function click_button(button: Button) {
-  const active_element = document.activeElement;
-  const $textarea =
-    active_element && active_element.tagName === 'TEXTAREA' ? $(active_element) : $('#send_textarea');
+  const $edit = $('#curEditTextarea');
+  const $send = $('#send_textarea');
+  const $textarea = $edit.length ? $edit : $send;
 
   const text = $textarea.val() as string;
   const { start_position, end_position } = (() => {
