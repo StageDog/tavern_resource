@@ -6,9 +6,16 @@ import { useSettingsStore } from './settings';
 import { Button } from './type';
 
 function click_button(button: Button) {
-  const $edit = $('#curEditTextarea');
-  const $send = $('#send_textarea');
-  const $textarea = $edit.length ? $edit : $send;
+  const active_element = window.parent.document.activeElement;
+  const possible_textarea =
+    active_element?.tagName === 'IFRAME'
+      ? (active_element as HTMLIFrameElement).contentDocument?.activeElement
+      : active_element;
+  console.info(active_element);
+  console.info(possible_textarea);
+  console.info(active_element?.tagName === 'IFRAME');
+  const $textarea =
+    possible_textarea && possible_textarea.tagName === 'TEXTAREA' ? $(possible_textarea) : $('#send_textarea');
 
   const text = $textarea.val() as string;
   const { start_position, end_position } = (() => {
