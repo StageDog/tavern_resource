@@ -101,7 +101,7 @@
     "vue-router": "^4.6.4",
     "vue3-pixi": "1.0.0-beta.3",
     "yaml": "^2.8.2",
-    "zod": "^4.2.1"
+    "zod": "^4.3.4"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
