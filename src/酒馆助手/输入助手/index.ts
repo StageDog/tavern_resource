@@ -11,11 +11,12 @@ function click_button(button: Button) {
     active_element?.tagName === 'IFRAME'
       ? (active_element as HTMLIFrameElement).contentDocument?.activeElement
       : active_element;
-  console.info(active_element);
-  console.info(possible_textarea);
-  console.info(active_element?.tagName === 'IFRAME');
   const $textarea =
     possible_textarea && possible_textarea.tagName === 'TEXTAREA' ? $(possible_textarea) : $('#send_textarea');
+  if ($textarea.length === 0) {
+    return;
+  }
+  const textarea_element = $textarea[0] as HTMLTextAreaElement;
 
   const text = $textarea.val() as string;
   const { start_position, end_position } = (() => {
@@ -45,19 +46,16 @@ function click_button(button: Button) {
       text.substring(end_position),
   );
 
-  const textarea_element = $textarea.get(0) as HTMLTextAreaElement | undefined;
-  if (textarea_element) {
-    const cursor_position =
-      start_position +
-      _.clamp(button.cursor_position, 0, button.content.length) +
-      (button.insert_position === 'newline' ? 1 : 0);
-    textarea_element.focus();
-    try {
-      textarea_element.setSelectionRange(cursor_position, cursor_position);
-    } catch {
-      $textarea.prop('selectionStart', cursor_position);
-      $textarea.prop('selectionEnd', cursor_position);
-    }
+  const cursor_position =
+    start_position +
+    _.clamp(button.cursor_position, 0, button.content.length) +
+    (button.insert_position === 'newline' ? 1 : 0);
+  textarea_element.focus();
+  try {
+    textarea_element.setSelectionRange(cursor_position, cursor_position);
+  } catch {
+    $textarea.prop('selectionStart', cursor_position);
+    $textarea.prop('selectionEnd', cursor_position);
   }
 }
 
