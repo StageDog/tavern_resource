@@ -12,11 +12,15 @@ function click_button(button: Button) {
       ? (active_element as HTMLIFrameElement).contentDocument?.activeElement
       : active_element;
   const $textarea =
-    possible_textarea && possible_textarea.tagName === 'TEXTAREA' ? $(possible_textarea) : $('#send_textarea');
+    possible_textarea &&
+    (possible_textarea.tagName === 'TEXTAREA' ||
+      (possible_textarea.tagName === 'INPUT' && $(possible_textarea).prop('type') === 'text'))
+      ? $(possible_textarea)
+      : $('#send_textarea');
   if ($textarea.length === 0) {
     return;
   }
-  const textarea_element = $textarea[0] as HTMLTextAreaElement;
+  const textarea_element = $textarea[0] as HTMLTextAreaElement | HTMLInputElement;
 
   const text = $textarea.val() as string;
   const { start_position, end_position } = (() => {
