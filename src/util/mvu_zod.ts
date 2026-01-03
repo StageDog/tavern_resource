@@ -1,27 +1,23 @@
 import { prettifyErrorWithInput } from '@/util/common';
 
 export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
-  if (typeof registerVariableSchema === 'function') {
-    registerVariableSchema(z.object({ stat_data: typeof input === 'function' ? input() : input }), { type: 'message' });
-  }
-
   const unwrapSchema = () => {
-    if (typeof input === 'function') {
-      const schema = input();
-      if (typeof registerVariableSchema === 'function') {
-        registerVariableSchema(z.object({ stat_data: schema }), { type: 'message' });
-      }
-      return schema;
+    const original_schema = typeof input === 'function' ? input() : input;
+    const schema = original_schema instanceof z.ZodObject ? z.looseObject(original_schema.shape) : original_schema;
+    if (typeof registerVariableSchema === 'function') {
+      registerVariableSchema(z.object({ stat_data: schema }), { type: 'message' });
     }
-    return input;
+    return schema;
   };
+
+  unwrapSchema();
 
   eventOn('mag_variable_initialized', (variables, swipe_id) => {
     const schema = unwrapSchema();
     try {
-      const result = schema.safeParse(_.get(variables, 'stat_data', {}));
+      const result = schema.safeParse(_.get(variables, 'stat_data', {}), { reportInput: true });
       if (result.success) {
-        variables.stat_data = result.data;
+        variables.stat_data = { ...variables.stat_data, ...result.data };
         return;
       }
       reportError('warn', z.prettifyError(result.error), `第 ${swipe_id + 1} 条开场白的变量初始化失败`);
@@ -43,7 +39,7 @@ export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
       try {
         const result = schema.safeParse(data, { reportInput: true });
         if (result.success) {
-          variables.stat_data = result.data;
+          variables.stat_data = { ...variables.stat_data, ...result.data };
           return true;
         }
         if (notification_enabled && should_toastr) {
