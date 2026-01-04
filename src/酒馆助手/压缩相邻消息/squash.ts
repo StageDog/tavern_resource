@@ -65,29 +65,37 @@ function seperatePrompts(prompts: Prompt[], seperators: Seperators): Prompt[][] 
     return null;
   }
 
-  const [before_head_prompt_content, after_head_prompt_content] = prompts[head_index].content.split(
-    seperators.head.content,
-  );
-  const [before_deep_prompt_content, after_deep_prompt_content] = prompts[deep_index].content.split(
-    seperators.deep.content,
-  );
-  const [before_tail_prompt_content, after_tail_prompt_content] = prompts[tail_index].content.split(
-    seperators.tail.content,
-  );
+  const split_with_context = (
+    splitted_before: [string, string],
+    before_index: number,
+    current_index: number,
+    splitter: string,
+  ): [string, string] => {
+    if (before_index !== current_index) {
+      return prompts[current_index].content.split(splitter) as [string, string];
+    }
+    const splitted = splitted_before[1].split(splitter) as [string, string];
+    splitted_before[1] = '';
+    return splitted;
+  };
+
+  const splitted_head = split_with_context(['', ''], -1, head_index, seperators.head.content);
+  const splitted_deep = split_with_context(splitted_head, head_index, deep_index, seperators.deep.content);
+  const splitted_tail = split_with_context(splitted_deep, deep_index, tail_index, seperators.tail.content);
 
   return [
-    [...prompts.slice(0, head_index), { role: prompts[head_index].role, content: before_head_prompt_content }],
+    [...prompts.slice(0, head_index), { role: prompts[head_index].role, content: splitted_head[0] }],
     [
-      { role: prompts[head_index].role, content: after_head_prompt_content },
+      { role: prompts[head_index].role, content: splitted_head[1] },
       ...prompts.slice(head_index + 1, deep_index),
-      { role: prompts[deep_index].role, content: before_deep_prompt_content },
+      { role: prompts[deep_index].role, content: splitted_deep[0] },
     ],
     [
-      { role: prompts[deep_index].role, content: after_deep_prompt_content },
+      { role: prompts[deep_index].role, content: splitted_deep[1] },
       ...prompts.slice(deep_index + 1, tail_index),
-      { role: prompts[tail_index].role, content: before_tail_prompt_content },
+      { role: prompts[tail_index].role, content: splitted_tail[0] },
     ],
-    [{ role: prompts[tail_index].role, content: after_tail_prompt_content }, ...prompts.slice(tail_index + 1)],
+    [{ role: prompts[tail_index].role, content: splitted_tail[1] }, ...prompts.slice(tail_index + 1)],
   ];
 }
 
