@@ -32,12 +32,12 @@ export const Settings = z.object({
       type: z.enum(['mixin', 'seperate', 'squash']).default('squash'),
 
       squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
-      user_prefix: z.string().default('{{user}}: '),
-      user_suffix: z.string().default(''),
-      assistant_prefix: z.string().default('剧情: '),
-      assistant_suffix: z.string().default(''),
-      system_prefix: z.string().default(''),
-      system_suffix: z.string().default(''),
+      user_prefix: z.string().default('[{{user}}]\n'),
+      user_suffix: z.string().default('\n[/{{user}}]'),
+      assistant_prefix: z.string().default('[剧情]\n'),
+      assistant_suffix: z.string().default('\n[/剧情]'),
+      system_prefix: z.string().default('[设定]\n'),
+      system_suffix: z.string().default('\n[/设定]'),
     })
     .prefault({}),
   stop_string: z.string().default('<|im_end|>').catch('<|im_end|>'),

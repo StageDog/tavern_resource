@@ -59,62 +59,32 @@
       <div v-if="settings.on_chat_history.type === 'squash'">
         <div class="flex-container flexFlowColumn" title="用户消息前缀">
           <label>用户前缀</label>
-          <input
-            v-model="settings.on_chat_history.user_prefix"
-            class="text_pole flex1 wide100p"
-            type="text"
-            autocomplete="off"
-          />
+          <input v-model="user_prefix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
         </div>
 
         <div class="flex-container flexFlowColumn" title="用户消息后缀">
           <label>用户后缀</label>
-          <input
-            v-model="settings.on_chat_history.user_suffix"
-            class="text_pole flex1 wide100p"
-            type="text"
-            autocomplete="off"
-          />
+          <input v-model="user_suffix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
         </div>
 
         <div class="flex-container flexFlowColumn" title="助手消息前缀">
           <label>助手前缀</label>
-          <input
-            v-model="settings.on_chat_history.assistant_prefix"
-            class="text_pole flex1 wide100p"
-            type="text"
-            autocomplete="off"
-          />
+          <input v-model="assistant_prefix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
         </div>
 
         <div class="flex-container flexFlowColumn" title="助手消息后缀">
           <label>助手后缀</label>
-          <input
-            v-model="settings.on_chat_history.assistant_suffix"
-            class="text_pole flex1 wide100p"
-            type="text"
-            autocomplete="off"
-          />
+          <input v-model="assistant_suffix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
         </div>
 
         <div class="flex-container flexFlowColumn" title="系统消息前缀">
           <label>系统前缀</label>
-          <input
-            v-model="settings.on_chat_history.system_prefix"
-            class="text_pole flex1 wide100p"
-            type="text"
-            autocomplete="off"
-          />
+          <input v-model="system_prefix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
         </div>
 
         <div class="flex-container flexFlowColumn" title="系统消息后缀">
           <label>系统后缀</label>
-          <input
-            v-model="settings.on_chat_history.system_suffix"
-            class="text_pole flex1 wide100p"
-            type="text"
-            autocomplete="off"
-          />
+          <input v-model="system_suffix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
         </div>
       </div>
 
@@ -144,9 +114,24 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
+import { computed } from 'vue';
 import { useSettingsStore } from './settings';
 
 const { settings } = storeToRefs(useSettingsStore());
+
+function useEscapedNewlineModel(ref: Ref<string>) {
+  return computed({
+    get: () => ref.value.replace(/\n/g, '\\n'),
+    set: value => (ref.value = value.replace(/\\n/g, '\n')),
+  });
+}
+
+const user_prefix_input = useEscapedNewlineModel(toRef(settings.value.on_chat_history, 'user_prefix'));
+const user_suffix_input = useEscapedNewlineModel(toRef(settings.value.on_chat_history, 'user_suffix'));
+const assistant_prefix_input = useEscapedNewlineModel(toRef(settings.value.on_chat_history, 'assistant_prefix'));
+const assistant_suffix_input = useEscapedNewlineModel(toRef(settings.value.on_chat_history, 'assistant_suffix'));
+const system_prefix_input = useEscapedNewlineModel(toRef(settings.value.on_chat_history, 'system_prefix'));
+const system_suffix_input = useEscapedNewlineModel(toRef(settings.value.on_chat_history, 'system_suffix'));
 
 function showDepthHelp() {
   SillyTavern.callGenericPopup(
