@@ -30,19 +30,17 @@ export function regexFromString(input: string): RegExp | null {
   try {
     const match = input.match(/\/(.+)\/([a-z]*)/i);
     if (!match) {
-      return new RegExp(_.escapeRegExp(input), 'gi');
+      return new RegExp(_.escapeRegExp(input), 'i');
     }
-    if (match[3] && !/^(?!.*?(.).*?\1)[gmixXsuUAJ]+$/.test(match[3])) {
-      return new RegExp(input, 'gi');
+    if (match[2] && !/^(?!.*?(.).*?\1)[gmixXsuUAJ]+$/.test(match[3])) {
+      return new RegExp(input, 'i');
     }
-    let flags = match[3];
-    if (flags.indexOf('g') === -1) {
-      flags = flags + 'g';
-    }
+    let flags = match[2] ?? '';
+    _.pull(flags, 'g');
     if (flags.indexOf('i') === -1) {
       flags = flags + 'i';
     }
-    return new RegExp(match[2], flags);
+    return new RegExp(match[1], flags);
   } catch {
     return null;
   }
