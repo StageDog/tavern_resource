@@ -192,28 +192,7 @@ const select_step: Button = {
 const import_example_chat: Button = {
   name: '导入示例聊天',
   function: () => {
-    if (SillyTavern.characterId === undefined) {
-      throw Error('导入聊天文件失败, 请先选择一张角色卡');
-    }
-
-    const form_data = new FormData();
-    form_data.append(
-      'avatar',
-      new File([example_chat_content], `${preset_name} - 示例.jsonl`, { type: 'application/json' }),
-    );
-    form_data.append('file_type', 'jsonl');
-    form_data.append('avatar_url', SillyTavern.characters[Number(SillyTavern.characterId)].avatar);
-    form_data.append('character_name', SillyTavern.characters[Number(SillyTavern.characterId)].name);
-    form_data.append('user_name', SillyTavern.name1);
-
-    const headers = SillyTavern.getRequestHeaders();
-    _.unset(headers, 'Content-Type');
-    return fetch(`/api/chats/import`, {
-      method: 'POST',
-      headers: headers,
-      body: form_data,
-      cache: 'no-cache',
-    }).then(
+    importRawChat(`${preset_name} - 示例.jsonl`, example_chat_content).then(
       () => toastr.success(`由于酒馆限制, 请自行在 '管理聊天文件' 中切换示例`, '导入示例聊天成功'),
       error => toastr.error(`${error}`, '导入示例聊天失败'),
     );
