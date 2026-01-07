@@ -1,4 +1,8 @@
-export function defineMvuDataStore(schema: z.ZodObject, variable_option: VariableOption) {
+export function defineMvuDataStore<T extends z.ZodObject>(
+  schema: T,
+  variable_option: VariableOption,
+  additional_setup?: (data: Ref<z.infer<T>>) => void,
+): ReturnType<typeof defineStore> {
   if (
     variable_option.type === 'message' &&
     (variable_option.message_id === undefined || variable_option.message_id === 'latest')
@@ -13,7 +17,10 @@ export function defineMvuDataStore(schema: z.ZodObject, variable_option: Variabl
       .map(entry => entry[1])
       .join('.')}`,
     errorCatched(() => {
-      const data = ref(schema.parse(_.get(getVariables(variable_option), 'stat_data', {})));
+      const data = ref(schema.parse(_.get(getVariables(variable_option), 'stat_data', {}))) as Ref<z.infer<T>>;
+      if (additional_setup) {
+        additional_setup(data);
+      }
 
       useIntervalFn(() => {
         const stat_data = _.get(getVariables(variable_option), 'stat_data', {});
