@@ -24,10 +24,15 @@ async function renderOneMessage(message_id: number | string) {
   apps.get(numbered_message_id)?.unmount();
 
   const $mes_text = retrieveDisplayedMessage(numbered_message_id);
-  const $to_render = $mes_text.find(`.roleplay_options, pre:contains("${TAG}")`);
+  const $to_render = $mes_text.find(`pre:contains("${TAG}")`);
   if ($to_render.length > 0) {
-    $to_render.parent('.TH-render').remove();
-    $to_render.remove();
+    const $th_render = $to_render.parent('.TH-render');
+    if ($th_render.length > 0) {
+      $th_render.addClass('hidden!');
+    } else {
+      $to_render.addClass('hidden!');
+    }
+
     const app = createApp(RoleplayOptions, {
       messageId: numbered_message_id,
       options: [...match[2].matchAll(/(.+?)[:：]\s*(.+)/gm)].map(match => ({
@@ -35,8 +40,13 @@ async function renderOneMessage(message_id: number | string) {
         content: match[2].replace(/^\$\{(.+)\}$/, '$1').replace(/^「(.+)」$/, '$1'),
       })),
     }).use(pinia);
+
     apps.set(numbered_message_id, app);
-    app.mount($mes_text[0]);
+
+    const possible_div = $mes_text.find(`div[script_id="${getScriptId()}"]`);
+    app.mount(
+      possible_div.length > 0 ? possible_div[0] : $('<div>').attr('script_id', getScriptId()).appendTo($mes_text)[0],
+    );
   }
 }
 
@@ -71,10 +81,19 @@ $(async () => {
   eventOn(tavern_events.MESSAGE_DELETED, () => setTimeout(errorCatched(renderAllMessage), 1000));
 
   $(window).on('pagehide', () => {
-    apps.forEach(app => {
-      app.unmount();
+    $(`pre:contains("${TAG}")`).each(function () {
+      const $th_render = $(this).parent('.TH-render');
+      if ($th_render.length > 0) {
+        $th_render.removeClass('hidden!');
+      } else {
+        $(this).removeClass('hidden!');
+      }
     });
-    apps.clear();
+
+    apps.forEach(app => {
+      app?.unmount();
+    });
+
     stop();
   });
 });
