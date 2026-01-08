@@ -14,7 +14,7 @@ let settings: EjsTemplate.Features;
 export function initExtensionSettings() {
   eventOn(tavern_events.SETTINGS_UPDATED, checkExtensionSettingsThrottled);
   checkExtensionSettings();
-  if (typeof EjsTemplate.getFeatures === 'function') {
+  if (EjsTemplate && typeof EjsTemplate.getFeatures === 'function') {
     settings = EjsTemplate.getFeatures();
     EjsTemplate.setFeatures({
       enabled: true,
@@ -42,7 +42,7 @@ export function initExtensionSettings() {
 export function destroyExtensionSettings() {
   eventRemoveListener(tavern_events.SETTINGS_UPDATED, checkExtensionSettingsThrottled);
   toggleExtensionSettings(true);
-  if (settings) {
+  if (EjsTemplate && settings) {
     EjsTemplate.setFeatures(settings);
   }
 }
