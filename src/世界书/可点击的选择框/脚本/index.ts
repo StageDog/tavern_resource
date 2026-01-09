@@ -1,6 +1,5 @@
 import type { App } from 'vue';
 import RoleplayOptions from './RoleplayOptions.vue';
-import { REGEX, TAG } from './constant';
 import { useConfigStore } from './store';
 import { injectStyle } from './style';
 
@@ -8,6 +7,9 @@ const apps: Map<number, App> = new Map();
 
 const pinia = createPinia();
 setActivePinia(pinia);
+
+const TAG = '<roleplay_options>' as const;
+const REGEX = /<(roleplay_options)>\s*(?:```.*\n)?((?:(?!<\1>)[\s\S])*?)(?:\n```)?\s*<\/\1>/im;
 
 async function renderOneMessage(message_id: number | string) {
   const chat_messages = getChatMessages(message_id);

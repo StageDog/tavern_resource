@@ -1,5 +1,6 @@
-import { LOREBOOK_NAME } from './constant';
 import default_css from './络络扁平化暗色紧凑列表.scss?raw';
+
+export const LOREBOOK_NAME = '【可点击的选择框】' as const;
 
 const Config = z.object({
   输入方式: z.enum(['直接发送', '覆盖输入', '尾附输入']).prefault('直接发送'),
