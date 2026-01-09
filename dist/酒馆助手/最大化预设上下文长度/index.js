@@ -1,0 +1,2 @@
+const e=_.debounce(function(){const e=2e6,n=SillyTavern.chatCompletionSettings;!0===n.max_context_unlocked&&n.openai_max_context===e||($('#oai_max_context_unlocked').prop('checked',!0).trigger('input'),$('#openai_max_context_counter').val(e),$('#openai_max_context').val(e).trigger('input'))},1e3);$(()=>{eventOn(tavern_events.SETTINGS_UPDATED,e)});
+//# sourceMappingURL=index.js.map
