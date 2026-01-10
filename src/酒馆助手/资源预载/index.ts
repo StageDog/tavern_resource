@@ -1,4 +1,4 @@
-export { };
+export {};
 
 interface Prefetch {
   title: string;
@@ -32,25 +32,18 @@ function get_prefetches(): Prefetch[] {
     .value();
 }
 
-function extract_prefetch_node(prefetch: Prefetch) {
-  return $('<div>')
-    .attr('id', `script_prefetch-${prefetch.title}`)
-    .append(prefetch.assets.map(asset => $('<link>').attr(
-      {
-        rel: 'prefetch',
-        as: 'image',
-        href: asset,
-      })));
-}
-
-function reappend_prefetches(nodes: JQuery) {
-  const head = $('head', window.parent.document);
-  head.find('#script_prefetch').remove();
-  head.append(nodes);
-}
-
-$(async () => {
-  const prefetches = get_prefetches();
-  const prefetch_nodes = prefetches.map(extract_prefetch_node);
-  reappend_prefetches($('<div>').attr('id', 'script_prefetch').append(prefetch_nodes));
+$(() => {
+  Promise.allSettled(
+    get_prefetches().flatMap(prefetch =>
+      prefetch.assets.map(
+        asset =>
+          new Promise(resolve => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = resolve;
+            img.src = asset;
+          }),
+      ),
+    ),
+  );
 });
