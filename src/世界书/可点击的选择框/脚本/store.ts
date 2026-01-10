@@ -16,7 +16,7 @@ export const useConfigStore = defineStore(
     const reloadConfig = async () => {
       const worldbook = await getWorldbook(LOREBOOK_NAME);
       const old_confg = config.value;
-      config.value = Config.parse({
+      const new_config = Config.parse({
         输入方式: _(worldbook)
           .filter(entry => entry.enabled && entry.name.startsWith('设置-'))
           .map(entry => entry.name.replace('设置-', ''))
@@ -26,7 +26,10 @@ export const useConfigStore = defineStore(
           .map(entry => entry.content.replace('<style>', '').replace('</style>', ''))
           .first(),
       });
-      return !_.isEqual(config, old_confg);
+      if (!_.isEqual(new_config, old_confg)) {
+        config.value = klona(new_config);
+        insertOrAssignVariables(klona(new_config), { type: 'chat' });
+      }
     };
     const _wait_init = reloadConfig();
     eventOn(
