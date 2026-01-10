@@ -43,7 +43,7 @@ async function handleClick(item: RoleplayOption) {
     case '尾附输入':
       $('#send_textarea')
         .val(
-          [String($('#send_textarea').val()), item.content].filter(string => string.trim() === '').join('\n') || '',
+          [String($('#send_textarea').val()), item.content].filter(string => string.trim() !== '').join('\n') || '',
         )[0]
         .dispatchEvent(new Event('input', { bubbles: true }));
       break;
