@@ -1,6 +1,6 @@
 import { prettifyErrorWithInput } from '@/util/common';
 
-export function registerMvuSchema(input: z.ZodObject | (() => z.ZodObject)) {
+export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() => z.ZodType<Record<string, any>>)) {
   const unwrapSchema = () => {
     const original_schema = typeof input === 'function' ? input() : input;
     const schema = original_schema instanceof z.ZodObject ? z.looseObject(original_schema.shape) : original_schema;
