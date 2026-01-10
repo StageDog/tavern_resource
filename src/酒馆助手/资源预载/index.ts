@@ -1,6 +1,6 @@
-export {};
+export { };
 
-interface Preload {
+interface Prefetch {
   title: string;
   assets: string[];
 }
@@ -11,7 +11,7 @@ const Settings = z.object({
 
 const variable_option = { type: 'script', script_id: getScriptId() } as const;
 
-function get_preloads(): Preload[] {
+function get_prefetches(): Prefetch[] {
   const settings = Settings.parse(getVariables(variable_option));
   insertVariables(settings, variable_option);
 
@@ -32,20 +32,25 @@ function get_preloads(): Preload[] {
     .value();
 }
 
-function extract_preload_node(preload: Preload) {
+function extract_prefetch_node(prefetch: Prefetch) {
   return $('<div>')
-    .attr('id', `script_preload-${preload.title}`)
-    .append(preload.assets.map(asset => $('<link>').attr('rel', 'preload').attr('href', asset).attr('as', 'image')));
+    .attr('id', `script_prefetch-${prefetch.title}`)
+    .append(prefetch.assets.map(asset => $('<link>').attr(
+      {
+        rel: 'prefetch',
+        as: 'image',
+        href: asset,
+      })));
 }
 
-function reappend_preloads(nodes: JQuery) {
+function reappend_prefetches(nodes: JQuery) {
   const head = $('head', window.parent.document);
-  head.find('#script_preload').remove();
+  head.find('#script_prefetch').remove();
   head.append(nodes);
 }
 
 $(async () => {
-  const preloads = get_preloads();
-  const preload_nodes = preloads.map(extract_preload_node);
-  reappend_preloads($('<div>').attr('id', 'script_preload').append(preload_nodes));
+  const prefetches = get_prefetches();
+  const prefetch_nodes = prefetches.map(extract_prefetch_node);
+  reappend_prefetches($('<div>').attr('id', 'script_prefetch').append(prefetch_nodes));
 });
