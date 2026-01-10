@@ -28,7 +28,6 @@ export const useConfigStore = defineStore(
       });
       if (!_.isEqual(new_config, old_confg)) {
         config.value = klona(new_config);
-        insertOrAssignVariables(klona(new_config), { type: 'chat' });
       }
     };
     const _wait_init = reloadConfig();
