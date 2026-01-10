@@ -328,6 +328,16 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
                 },
               ],
             },
+            {
+              test: /\.ya?ml$/,
+              loader: 'yaml-loader',
+              options: { asStream: true },
+              resourceQuery: /stream/,
+            },
+            {
+              test: /\.ya?ml$/,
+              loader: 'yaml-loader',
+            },
           ].concat(
             entry.html === undefined
               ? ([
