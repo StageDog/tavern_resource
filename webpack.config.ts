@@ -136,6 +136,7 @@ function watch_tavern_sync(compiler: webpack.Compiler) {
   compiler.hooks.watchRun.tap('watch_tavern_sync', () => {
     if (!child_process) {
       child_process = spawn('pnpm', ['sync', 'watch', 'all', '-f'], {
+        shell: true,
         stdio: ['ignore', 'pipe', 'pipe'],
         cwd: import.meta.dirname,
         env: { ...process.env, FORCE_COLOR: '1' },
