@@ -1,9 +1,9 @@
-import type { App } from 'vue';
-import RoleplayOptions from './RoleplayOptions.vue';
+import type { App as VueApp } from 'vue';
+import App from './App.vue';
 import { useConfigStore } from './store';
 import { injectStyle } from './style';
 
-const apps: Map<number, App> = new Map();
+const apps: Map<number, VueApp> = new Map();
 
 const pinia = createPinia();
 setActivePinia(pinia);
@@ -24,6 +24,7 @@ async function renderOneMessage(message_id: number | string) {
 
   const numbered_message_id = Number(message_id);
   apps.get(numbered_message_id)?.unmount();
+  apps.delete(numbered_message_id);
 
   const $mes_text = retrieveDisplayedMessage(numbered_message_id);
   const $to_render = $mes_text.find(`pre:contains("${TAG}")`);
@@ -35,7 +36,7 @@ async function renderOneMessage(message_id: number | string) {
       $to_render.addClass('hidden!');
     }
 
-    const app = createApp(RoleplayOptions, {
+    const app = createApp(App, {
       messageId: numbered_message_id,
       options: [...match[2].matchAll(/(.+?)[:：]\s*(.+)/gm)].map(match => ({
         title: match[1],
@@ -95,6 +96,7 @@ $(async () => {
     apps.forEach(app => {
       app?.unmount();
     });
+    apps.clear();
 
     stop();
   });
