@@ -4,4 +4,4 @@ alwaysApply: true
 
 # MCP
 
-你可以通过 browsermcp 自行读取酒馆网页当前的 DOM 情况、实际显示情况和 Console 情况.
+当要求你使用 browsermcp 或出现 "查看酒馆网页" 之类说法时, 你应该使用 browsermcp 自行读取或操纵连接到的酒馆网页, 如获取当前的 DOM 情况、实际显示情况、Console 情况、点击界面……**但你只能在打开的网页中操作, 禁止跳转其他网页**.
