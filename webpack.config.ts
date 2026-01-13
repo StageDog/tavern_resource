@@ -212,7 +212,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
       ),
       chunkFilename: `${script_filepath.name}.[contenthash].chunk.js`,
       asyncChunks: true,
-      clean: entry.script.includes('src/util') ? false : true,
+      clean: entry.script.includes('util') ? false : true,
       publicPath: '',
       library: {
         type: 'module',
