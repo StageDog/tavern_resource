@@ -1,7 +1,7 @@
-import { checkMinimumVersion } from '@/util/common';
-import { loadReadme } from '@/util/script';
 import { Settings } from '@/酒馆助手/压缩相邻消息/settings';
 import { initSquash } from '@/酒馆助手/压缩相邻消息/squash';
+import { checkMinimumVersion } from '@util/common';
+import { loadReadme } from '@util/script';
 
 $(() => {
   checkMinimumVersion('3.4.17', '深度条目排斥器');

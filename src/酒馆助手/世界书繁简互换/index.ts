@@ -1,4 +1,4 @@
-import { loadReadme } from '@/util/script';
+import { loadReadme } from '@util/script';
 import { toSimplified, toTraditional } from 'chinese-simple2traditional';
 
 async function chooseLorebook(): Promise<string | null> {

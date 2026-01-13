@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "世界": {
+      "type": "object",
+      "properties": {
+        "当前时间": {
+          "type": "string"
+        },
+        "当前地点": {
+          "type": "string"
+        },
+        "近期事务": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "事务名"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "description": "事务描述"
+          }
+        }
+      },
+      "required": [
+        "当前时间",
+        "当前地点",
+        "近期事务"
+      ]
+    },
+    "白娅": {
+      "type": "object",
+      "properties": {
+        "依存度": {
+          "type": "number"
+        },
+        "着装": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "enum": [
+              "上装",
+              "下装",
+              "内衣",
+              "袜子",
+              "鞋子",
+              "饰品"
+            ]
+          },
+          "additionalProperties": {
+            "type": "string",
+            "description": "服装描述"
+          },
+          "required": [
+            "上装",
+            "下装",
+            "内衣",
+            "袜子",
+            "鞋子",
+            "饰品"
+          ]
+        },
+        "称号": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "称号名"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "效果": {
+                "type": "string"
+              },
+              "自我评价": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "效果",
+              "自我评价"
+            ]
+          }
+        }
+      },
+      "required": [
+        "依存度",
+        "着装",
+        "称号"
+      ]
+    },
+    "主角": {
+      "type": "object",
+      "properties": {
+        "物品栏": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "description": "物品名"
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "描述": {
+                "type": "string"
+              },
+              "数量": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "描述",
+              "数量"
+            ]
+          }
+        }
+      },
+      "required": [
+        "物品栏"
+      ]
+    }
+  },
+  "required": [
+    "世界",
+    "白娅",
+    "主角"
+  ]
+}

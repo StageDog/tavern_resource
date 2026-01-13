@@ -1,4 +1,4 @@
-import { loadReadme } from '@/util/script';
+import { loadReadme } from '@util/script';
 
 const hljs = window.parent.hljs;
 

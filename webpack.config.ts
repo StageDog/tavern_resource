@@ -70,7 +70,8 @@ function glob_script_files() {
       }
       results.push(file);
     });
-  results.push(...fs.globSync('src/util/*.ts'));
+
+  results.push(...fs.globSync('util/*.ts'));
 
   return results;
 }
@@ -207,7 +208,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
       path: path.join(
         import.meta.dirname,
         'dist',
-        path.relative(path.join(import.meta.dirname, 'src'), script_filepath.dir),
+        path.relative(import.meta.dirname, script_filepath.dir).replace(/^(?:(?!util)[^\\/])+[\\/]/, ''),
       ),
       chunkFilename: `${script_filepath.name}.[contenthash].chunk.js`,
       asyncChunks: true,
@@ -523,6 +524,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
         request.startsWith('!') ||
         request.startsWith('http') ||
         request.startsWith('@/') ||
+        request.startsWith('@util/') ||
         path.isAbsolute(request) ||
         fs.existsSync(path.join(context, request)) ||
         fs.existsSync(request)

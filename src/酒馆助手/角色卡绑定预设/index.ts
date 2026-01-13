@@ -1,4 +1,4 @@
-import { loadReadme } from '@/util/script';
+import { loadReadme } from '@util/script';
 
 const Settings = z.object({
   要绑定的预设名称: z.string().default(() => getLoadedPresetName()),

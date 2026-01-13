@@ -1,5 +1,5 @@
-import { checkMinimumVersion } from '@/util/common';
-import { loadReadme } from '@/util/script';
+import { checkMinimumVersion } from '@util/common';
+import { loadReadme } from '@util/script';
 
 function get_prompt_id_from_tool($tool: JQuery) {
   return $tool.closest('.completion_prompt_manager_prompt').attr('data-pm-identifier')!;

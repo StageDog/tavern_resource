@@ -1,4 +1,4 @@
-import { createScriptIdDiv, destroyScriptIdDiv, deteleportStyle, teleportStyle } from '@/util/script';
+import { createScriptIdDiv, destroyScriptIdDiv, deteleportStyle, teleportStyle } from '@util/script';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import Panel from './Panel.vue';

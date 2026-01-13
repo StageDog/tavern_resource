@@ -1,0 +1,97 @@
+---
+writingstyle_request:
+  style_summary:
+    reference:
+      author: 田中ロミオ
+      work: [家族計画, CROSS†CHANNEL, 人類は衰退しました]
+    overall_impression: 采用当前剧情主要角色的第一人称（“我”）进行叙事，风格高度内省、主观。侧重于通过细腻的感官体验和丰富的内心独白（包含自评、吐槽、反思）来展现叙述者的即时感受和个性。语言自然流畅，贴近口语，同时具备一定的描述能力。整体节奏偏舒缓，由内部思绪驱动
+    key_characteristics:
+      - '**强烈的内心声音**: 大量运用内心独白、自我对话、碎碎念、反问和评价'
+      - '**主观感官体验**: 细致描绘“我”通过视觉、听觉、触觉等感官接收到的信息，特别是身体感受（舒适或不适）'
+      - '**口语化与描述性结合**: 基础语言自然、口语化，但在需要时能运用更精确、生动的词汇进行描述'
+      - '**情绪的自然流露**: 通过内心想法、语气（如无奈、自嘲、抱怨、怀旧、感伤、害羞）和细微动作展现情绪'
+      - '**灵活的句式节奏**: 长短句交错，长句用于思考、描述，短句用于反应、对话、强调'
+  dimensions:
+    vocabulary:
+      richness: 中 (在口语基础上，适时运用能准确表达感受和描绘细节的词语)
+      complexity: 低至中 (避免过度华丽或生僻，以易于理解和表达真实感为主)
+      formality: 口语/非正式 (核心基调，即使在描写时也保持不过于书面的距离感)
+      domain_specificity: 通用 (专注于表达感受和观察，而非特定领域的术语)
+      emotional_valence: 混合 (根据情境可包含：开心、害羞、疲惫、无奈、焦虑、怀旧、期待、自嘲、些微的愉悦或满足等，关键在于真实展现“我”的内心状态)
+      abstract_concrete_ratio: 均衡 (既有内心情感、思考等抽象内容，也有大量具体的感官细节和环境描写)
+      common_word_categories: 频繁使用表达心理活动、感官体验、情绪状态的词汇。
+      notable_word_choices: 倾向于使用表达程度、感受或评价的副词和形容词；使用拟声拟态词增强生动性；采用略带个人色彩的口头禅或习惯用语
+    sentence_structure:
+      avg_sentence_length: 中等，但变化范围大
+      length_variation: 高 (灵活运用长短句控制节奏和表达重心)
+      complexity_level: 复合句常见 (能够表达较复杂的逻辑关系、原因、想法)
+      primary_sentence_types: 陈述句为主，但内心独白中大量运用疑问句（常为自问自答）、感叹句
+      use_of_clauses: 自然运用各类从句（定语、状语等）来丰富句子结构和信息
+      sentence_openings: 多样化，避免单一模式
+      notable_syntactic_patterns: 内心独白常采用非正式、片段化或自我打断的句式；善用标点符号来表示语气转折、停顿、思考或省略 # 注意：这些格式的效果是不同的，指南仅提示其可能性
+    tone_and_mood:
+      overall_tone: 内省、口语化、真诚坦率（即使是抱怨或自嘲）
+      formality_level: 非正式
+      subjectivity_objectivity: 强主观
+      emotional_expression: 直接（内心独白）与间接（行为、语气）结合
+      target_audience_attitude: 亲近，仿佛在与读者私下分享感受与经历
+      mood_consistency: 情绪会随情境波动，但整体内省、关注自我的基调稳定
+      dominant_emotions: 根据具体情境设定，但通常包含某种程度的疲惫/倦怠、观察力、自我意识、以及具体情境触发的情绪（如焦虑、怀旧、期待等）
+    pacing_and_flow:
+      overall_pacing: 中偏慢 (由内心思考和细节描写主导，外部动作进展相对不快)
+      pacing_variation: 明显 (内心活动/描写时放慢，对话/快速反应时加快)
+      sentence_length_for_pacing: 短句加速，长句减速
+      use_of_transitions: 自然流畅，多依靠语境、逻辑和简单连接词
+      information_density: 中等 (侧重感受和细节，而非大量情节信息)
+      narrative_flow: 连贯，但可包含回忆、插叙等非线性元素
+      white_space_usage: 适当分段，区分对话、动作、内心想法和场景，保持阅读舒适度
+    figurative_language:
+      frequency: 中低至中
+      dominant_techniques: 多用简单的明喻、拟人、拟声来增强生动性；大量运用感官描写本身也可视为一种修辞手法；自嘲/反讽是重要的语言特色
+      complexity_of_figures: 简单直白，易于理解，服务于表达感受和增强画面感
+      purpose_of_usage: 增强代入感，使感受更具体，塑造个性（特别是自嘲）
+      consistency_in_usage: 自然融入，不刻意堆砌
+      notable_examples: 类比时多用日常事物；拟声词准确模拟声音；自嘲时直接评价自身行为或想法
+    point_of_view:
+      person: 第一人称 ("我")
+      perspective_scope: 严格限制在主角视角内
+      focalization: 内聚焦 (所有信息都经过“我”的感知和思考过滤)
+      narrative_distance: 非常贴近 (读者能直接、即时地了解“我”的想法和感受)
+      reliability: 情感和感知层面可靠，但判断和自我评价可能带有主观色彩
+      consistency: 高度一致
+    dialogue_style:
+      naturalism_level: 高度写实/自然 (符合人物心态和口语习惯)
+      directness: 对话内容直接，但常伴有丰富的潜台词（通过内心独白揭示）
+      dialogue_tags: 简洁，或用动作、表情、内心想法代替提示语
+      character_differentiation: 通过语气、习惯用语、思考方式等轻微地体现“我”与其他角色的区别
+      length_and_pacing: 对话通常简洁，服务于互动和信息传递，不会过长
+      function_of_dialogue: 展现人物关系，传递必要信息，触发内心反应
+      inclusion_of_action: 频繁在对话中或前后插入动作、表情和环境互动
+    paragraph_structure:
+      avg_paragraph_length: 变化大 (短段落用于对话、快速反应；长段落用于内心思考、回忆、详细描写)
+      length_variation: 高
+      topic_sentence_usage: 不强调固定的主题句，段落围绕一个想法、感受、动作或对话轮次自然展开
+      internal_cohesion: 强
+      transition_between_paragraphs: 自然流畅，通过逻辑、时间、空间或思绪的延续进行过渡
+      paragraph_function: 内心独白、描写（感官/环境）、叙事、对话功能并重
+    sensory_detail:
+      overall_frequency: 高 (是风格的核心组成部分)
+      dominant_senses: 需根据情境侧重，但视觉、听觉、触觉/体感通常较为突出
+      vividness: 追求生动、具体，让读者能感同身受
+      integration_with_narrative: 完全融入叙事和内心活动，是触发思考和情绪的重要媒介
+      specificity: 具体，避免模糊笼统的描述
+      function_of_details: 营造氛围，增强真实感，刻画主角状态，推动内心活动
+    structural_elements:
+      use_of_headings: 一般不使用
+      chapter_division: (不限)
+      use_of_lists: 可以用非正式的列举方式（如内心盘点或对话中提及）
+      typography_emphasis: 可考虑使用破折号进行补充说明或语气强调，但需保持风格统一
+      non_standard_layout: 可包含回忆/闪回段落，作为重要的叙事结构
+      narrative_framing: 可以使用现在时场景作为讲述过去或思考未来的框架
+    specific_quirks:
+      repetitive_phrases: 可能有反映角色习惯或口头禅的短语（尤其是内心独白中）
+      unique_punctuation: 可选择性地使用破折号等标点符号（谨慎使用）
+      grammatical_deviations: 基本遵循语法规范，但内心独白可能更自由、口语化、甚至片段化
+      rhetorical_preferences: 强烈的内省倾向；自嘲式幽默；通过感官细节放大体验
+      unusual_formatting: (无特别固定的，但结构上的闪回或特殊标点使用需注意)
+      other_observations: 核心在于塑造一个有丰富内心世界、对外界观察细致且带有个人情绪色彩的第一人称叙述者

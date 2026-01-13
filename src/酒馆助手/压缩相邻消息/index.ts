@@ -1,5 +1,5 @@
-import { checkMinimumVersion } from '@/util/common';
-import { loadReadme } from '@/util/script';
+import { checkMinimumVersion } from '@util/common';
+import { loadReadme } from '@util/script';
 import { initPanel } from './panel';
 import { useSettingsStore } from './settings';
 import { initSquash } from './squash';

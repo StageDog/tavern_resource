@@ -14,23 +14,23 @@ alwaysApply: true
 
 ## 项目结构
 
-每个前端界面或脚本, 都以 `src` 文件夹中的一个独立文件夹形式存在. 具体是前端界面还是脚本, 由文件夹中的内容直接决定:
+每个前端界面或脚本, 都以 `src` 文件夹或 `示例` 文件夹中的一个独立文件夹形式存在. 具体是前端界面还是脚本, 由文件夹中的内容直接决定:
 
-- 如果文件夹中既有 `index.ts` 文件也有 `index.html` 文件, 则是前端界面项目. 例如, `src/界面示例` 是一个前端界面项目.
-- 如果文件夹中仅有 `index.ts` 文件, 则是脚本项目. 例如, `src/脚本示例` 是一个脚本项目.
+- 如果文件夹中既有 `index.ts` 文件也有 `index.html` 文件, 则是前端界面项目. 例如, `示例/界面示例` 是一个前端界面项目.
+- 如果文件夹中仅有 `index.ts` 文件, 则是脚本项目. 例如, `示例/脚本示例` 是一个脚本项目.
 
-你可以在 `模板/*/新建为src文件夹中的文件夹` 中找到前端界面和脚本项目的初始模板.
+你可以在 `初始模板/*/新建为src文件夹中的文件夹` 中找到前端界面和脚本项目的初始模板.
 
-此外, 针对 MVU zod 所做的一张完整角色卡, 本项目提供了额外支持. 如 `src/角色卡示例` 所示:
+此外, 针对 MVU zod 所做的一张完整角色卡, 本项目提供了额外支持. 如 `示例/角色卡示例` 所示:
 
-- `src/角色卡示例/脚本/*/` 中是角色卡的所有脚本
-- `src/角色卡示例/界面/*/` 中是角色卡的所有前端界面
-- `src/角色卡示例/schema.ts` 中是用 zod 4 库书写的角色卡 MVU 变量结构定义
+- `示例/角色卡示例/脚本/*/` 中是角色卡的所有脚本
+- `示例/角色卡示例/界面/*/` 中是角色卡的所有前端界面
+- `示例/角色卡示例/schema.ts` 中是用 zod 4 库书写的角色卡 MVU 变量结构定义
   - 提供给脚本、前端界面导入使用
-  - 会在 `pnpm build` 或 `pnpm watch` 时生成对应的 json schema 文件 `src/角色卡示例/schema.json`, 便于编写变量初始值文件 initvar.yaml `# yaml-language-server: $schema=schema文件路径`
-- `src/util/mvu.ts` 中提供了 `defineMvuDataStore` 函数, 它基于 pinia 实现了本项目推荐的前端界面获取、修改 MVU 变量方式, 支持与酒馆实际变量之间的双向同步; `src/角色卡示例/界面/store.ts` 中的 `useDataStore` 就是用它获取和修改界面所在楼层变量的.
+  - 会在 `pnpm build` 或 `pnpm watch` 时生成对应的 json schema 文件 `示例/角色卡示例/schema.json`, 便于编写变量初始值文件 initvar.yaml `# yaml-language-server: $schema=schema文件路径`
+- `util/mvu.ts` 中提供了 `defineMvuDataStore` 函数, 它基于 pinia 实现了本项目推荐的前端界面获取、修改 MVU 变量方式, 支持与酒馆实际变量之间的双向同步; `示例/角色卡示例/界面/store.ts` 中的 `useDataStore` 就是用它获取和修改界面所在楼层变量的.
 
-你同样可以在 `模板/角色卡/新建为src文件夹中的文件夹` 中找到 MVU zod 角色卡的初始模板.
+你同样可以在 `初始模板/角色卡/新建为src文件夹中的文件夹` 中找到 MVU zod 角色卡的初始模板.
 
 ## 项目参考文件
 
@@ -52,10 +52,11 @@ alwaysApply: true
 
 ### 工具函数
 
-在 `src/util` 中定义了一些工具函数:
+在 `util` 中定义了一些工具函数:
 
-- `src/util/script.ts`: 脚本可能使用的函数
-- `src/util/common.ts`: 前端界面或脚本可能使用的函数
+- `util/script.ts`: 脚本可能使用的函数
+- `util/common.ts`: 前端界面或脚本可能使用的函数
+- `util/mvu.ts`: MVU 角色卡可能使用的函数
 
 ## 特殊导入方式
 
@@ -193,7 +194,7 @@ $(() => {
 
 ### 重载前端界面或脚本
 
-如果有完全重载前端界面或脚本的需求, 你应该使用 `window.location.reload()`. 如聊天文件变更时重新载入前端界面或脚本, 你可以用 `src/util/script.ts` 中定义好了的工具函数:
+如果有完全重载前端界面或脚本的需求, 你应该使用 `window.location.reload()`. 如聊天文件变更时重新载入前端界面或脚本, 你可以用 `util/script.ts` 中定义好了的工具函数:
 
 ```ts
 export function reloadOnChatChange(): EventOnReturn {

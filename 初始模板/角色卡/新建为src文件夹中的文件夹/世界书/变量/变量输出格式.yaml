@@ -1,0 +1,29 @@
+---
+变量输出格式:
+  rule:
+    - you must output the update analysis and the actual update commands at once in the end of the next reply
+    - the update commands works like the **JSON Patch (RFC 6902)** standard, must be a valid JSON array containing operation objects, but supports the following operations instead:
+      - replace: replace the value of existing paths
+      - delta: update the value of existing number paths by a delta value
+      - insert: insert new items into an object or array (using `-` as array index intends appending to the end)
+      - remove
+    - don't update field names starts with `_` as they are readonly, such as `_变量`
+  format: |-
+    <UpdateVariable>
+    <Analysis>$(IN ENGLISH, no more than 80 words)
+    - ${calculate time passed: ...}
+    - ${decide whether dramatic updates are allowed as it's in a special case or the time passed is more than usual: yes/no}
+    - ${analyze every variable based on its corresponding `check`, according only to current reply instead of previous plots: ...}
+    </Analysis>
+    <JSONPatch>
+    [
+      { "op": "replace", "path": "${/path/to/variable}", "value": "${new_value}" },
+      { "op": "delta", "path": "${/path/to/number/variable}", "value": "${positve_or_negative_delta}" },
+      { "op": "insert", "path": "${/path/to/object/new_key}", "value": "${new_value}" },
+      { "op": "insert", "path": "${/path/to/array/-}", "value": "${new_value}" },
+      { "op": "remove", "path": "${/path/to/object/key}" },
+      { "op": "remove", "path": "${/path/to/array/0}" },
+      ...
+    ]
+    </JSONPatch>
+    </UpdateVariable>

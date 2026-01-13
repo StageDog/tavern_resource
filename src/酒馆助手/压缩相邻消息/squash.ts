@@ -1,4 +1,4 @@
-import { assignInplace, chunkBy, regexFromString, uuidv4 } from '@/util/common';
+import { assignInplace, chunkBy, regexFromString, uuidv4 } from '@util/common';
 import { compare } from 'compare-versions';
 import { Settings } from './settings';
 

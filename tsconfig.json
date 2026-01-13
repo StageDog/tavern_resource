@@ -12,10 +12,13 @@
     "target": "ESNext",
     "module": "ESNext",
     "outDir": "dist",
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
+      "@util/*": [
+        "./util/*"
+      ],
       "@/*": [
-        "./*"
+        "./src/*"
       ]
     },
     "moduleDetection": "auto",
@@ -37,7 +40,9 @@
   },
   "include": [
     "@types",
+    "示例",
     "src",
+    "util",
     "*.d.ts",
   ],
   "exclude": [

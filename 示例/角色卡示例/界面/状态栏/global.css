@@ -1,0 +1,17 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* 配色方案 - 档案机打字风格 */
+  --c-granite: #3c493f; /* 深色：文字、边框 */
+  --c-grey-olive: #7e8d85; /* 辅助：未选中项、次要文字 */
+  --c-ash-grey: #b3bfb8; /* 背景：网页底色、装饰块 */
+  --c-mint-cream: #f0f7f4; /* 卡片底色 */
+  --c-celadon: #a2e3c4; /* 高亮：进度条、重点装饰 */
+
+  /* 字体 */
+  --font-archive: 'Courier New', 'Microsoft YaHei', monospace;
+}
