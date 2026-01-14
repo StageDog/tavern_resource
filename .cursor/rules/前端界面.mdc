@@ -31,20 +31,7 @@ alwaysApply: false
 
 你可以任意使用 fontawesome 的免费图标.
 
-## 样式设计
-
-### 简单内嵌样式
-
-对于简单的样式, 你可以在 `index.html` 中直接使用 tailwindcss 书写. 为此需要新建一个内容有 `@import 'tailwindcss'` 的 css 文件并 `import ./文件.css`.
-
-### 复杂外链样式
-
-如果样式复杂到需要使用 `<style>` 标签, 则你不应该直接在 html 里书写 `<style>`, 而应该
-
-- (优先) 设计 vue 组件, 并在 Typescript 文件中 `import Component from './文件.vue'` 再将其 `mount` 到界面上.
-- 或新建 scss 文件并在 Typescript 文件中以 `import './index.scss'` 的形式应用到界面上.
-
-### iframe 适配要求
+## iframe 适配要求
 
 - 当对前端界面高度进行调整时, 禁止使用 `vh` 单位等会受宿主高度影响的单位, 而是使用 `width` 和 `aspect-ratio` 来让高度根据宽度动态调整.
 - 避免使用会强制撑高父容器的元素 (如 `min-height`、`overflow: auto`).

@@ -150,6 +150,12 @@ export const useSettingsStore = defineStore('settings', () => {
 });
 ```
 
+### 优先使用 tailwindcss 和 `<style scoped>` 进行样式设计
+
+你可以直接在项目中使用 tailwindcss, 而无需导入任何 css 文件.
+
+在设计样式时, 你应该优先使用 tailwindcss 直接在 vue 组件的 `<template>` 内书写, 对于无法这样做的情况则使用 `<style scoped>` 标签.
+
 ### 尝试使用 @pixi/react 编写界面
 
 当有很多多媒体资源时, 我们的前端界面更像是一个完整的游戏, 因此你应该使用 @pixi/react 在 .tsx 中编写界面, 并使用 pixi.js 来实现资源预先加载等逻辑.
