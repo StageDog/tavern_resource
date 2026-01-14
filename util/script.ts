@@ -8,24 +8,16 @@ export async function loadReadme(url: string): Promise<boolean> {
   return true;
 }
 
-export function teleportStyle() {
-  if ($(`head > div[script_id="${getScriptId()}"]`).length > 0) {
-    return;
-  }
-  const $div = $(`<div>`).attr('script_id', getScriptId()).append($(`head > style`, document).clone());
-  $('head').append($div);
-}
+export function teleportStyle(): { destroy: () => void } {
+  const $div = $(`<div>`).attr('script_id', getScriptId()).append($(`head > style`, document).clone()).appendTo('head');
 
-export function deteleportStyle() {
-  $(`head > div[script_id="${getScriptId()}"]`).remove();
+  return {
+    destroy: () => $div.remove(),
+  };
 }
 
 export function createScriptIdDiv(): JQuery<HTMLDivElement> {
   return $('<div>').attr('script_id', getScriptId()) as JQuery<HTMLDivElement>;
-}
-
-export function destroyScriptIdDiv(): void {
-  $(`div[script_id="${getScriptId()}"]`).remove();
 }
 
 export function reloadOnChatChange(): EventOnReturn {

@@ -1,7 +1,7 @@
 import { checkMinimumVersion } from '@util/common';
 import { loadReadme } from '@util/script';
 import { watchEffect } from 'vue';
-import { destroy_panel, init_panel } from './panel';
+import { initPanel } from './panel';
 import { useSettingsStore } from './settings';
 import { Button } from './type';
 
@@ -79,14 +79,13 @@ function rebind_buttons(buttons: Button[]) {
 $(() => {
   checkMinimumVersion('3.4.19', '输入助手');
   loadReadme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/输入助手/README.md');
-  init_panel();
+  const { destroy } = initPanel();
   const settings_store = useSettingsStore();
   watchEffect(() => {
     rebind_buttons(settings_store.settings.buttons.filter(button => button.enable));
   });
-});
 
-$(window).on('pagehide', () => {
-  destroy_panel();
-  replaceScriptButtons([]);
+  $(window).on('pagehide', () => {
+    destroy();
+  });
 });

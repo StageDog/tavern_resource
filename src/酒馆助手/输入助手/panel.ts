@@ -1,23 +1,21 @@
-import { deteleportStyle, teleportStyle } from '@util/script';
+import { createScriptIdDiv, teleportStyle } from '@util/script';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
-import panel from './panel.vue';
+import Panel from './Panel.vue';
 
-const app = createApp(panel);
+export function initPanel() {
+  const app = createApp(Panel).use(createPinia());
 
-export function init_panel() {
-  teleportStyle();
+  const $app = createScriptIdDiv().appendTo('#extensions_settings2');
+  app.mount($app[0]);
 
-  const $app = $('<div>').attr('script_id', getScriptId());
-  $('#extensions_settings2').append($app);
+  const { destroy } = teleportStyle();
 
-  app.use(createPinia()).mount($app[0]);
-}
-
-export function destroy_panel() {
-  app.unmount();
-
-  $(`#extensions_settings2 > div[script_id="${getScriptId()}"]`).remove();
-
-  deteleportStyle();
+  return {
+    destroy: () => {
+      app.unmount();
+      $app.remove();
+      destroy();
+    },
+  };
 }
