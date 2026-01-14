@@ -33,7 +33,7 @@ export const Schema = z.object({
 ```yaml
 rule:
   - libraries: "`z` from zod and `_` from lodash are available by default, so you can use them directly and should prefer to use them; don't import them in the generated code"
-  - zod 4: stick to use zod 4.x, never ever use `.passthrough`!
+  - zod 4: stick to use zod 4.x, never ever use `.passthrough` or `.strict`!
   - idempotent operation: the schema is intended to parse the updates of the world status incrementally, thus, the output of `Schema.parse(input)` must be a valid input of `Schema.parse` itself; that is, you should use z.transform carefully, keeping `Schema.parse(Schema.parse(input))` equal to `Schema.parse(input)`
   - for number schema: prefer `z.coerce.number()` over `z.number()` whenever you expect a number since it will try to convert the input to a number if it's not a number; but don't use other `z.coerce.xxx()` such as `z.coerce.boolean()`, just use `z.boolean()` directly
   - prefer object schema over array schema: "the array index is hard to understand and maintain, so you should use `物品栏: z.record(z.string().describe('物品名'), z.object({ 描述: z.string(), ... }))` instead of `物品栏: z.array(z.object({ 名称: z.string(), 描述: z.string(), ... }))`"

@@ -16,22 +16,67 @@ alwaysApply: false
 
 由于脚本运行在 iframe 中, 当需要在脚本中向酒馆页面挂载 vue 组件时, 你应该使用 jquery 来创建一个要挂载的位置, 将其添加到酒馆网页上, 并使用 `app.mount($app[0])` 来挂载.
 
-## 脚本 iframe 样式与酒馆网页样式的区别
+## 向酒馆网页挂载 vue 组件时的样式问题
 
-由于脚本运行在 iframe 中, 项目中所使用的 style 仅会应用于 iframe 内而不会应用到整个酒馆网页. 因此, 当通过脚本向酒馆网页添加 DOM 时 (无论是通过 jquery 添加, 还是通过 vue 挂载), 你都需要将样式复制到酒馆网页的 `<head>` 中. 为此, 你可以用 `util/script.ts` 中定义好了的工具函数:
+由于脚本运行在 iframe 中, 脚本所设置的 style (包括 tailwindcss 产生的) 仅会在 iframe 内生效而不会应用到整个酒馆网页; 也就是说, 当我们用 jquery 创建了挂载位置, 并想将 vue 组件挂载到酒馆网页上时, 组件所需要的样式、所填写的 tailwindcss class 都无法生效.
 
-```typescript
-export function teleportStyle() {
-  $(`<div>`)
-    .attr('script_id', getScriptId())
-    .append($(`head > style`, document).clone())
-    .appendTo('head');
-}
+基于 vue 组件用途, 这有两个解决方案.
 
-export function deteleportStyle() {
-  $(`head > div[script_id="${getScriptId()}"]`).remove();
-}
+### 组件是对酒馆网页的补充，需要使用酒馆网页的样式
+
+组件可能是用来增强酒馆网页的界面使用体验，或需要与酒馆网页目前的样式保持一致的, 则应该挂载在非 iframe DOM 上. 例如:
+
+```ts
+$(() => {
+  const app = createApp(App).use(createPinia());
+
+  const $app = createScriptIdDiv().appendTo('想要放置的位置');
+  app.mount($app[0]);
+
+  // 关闭脚本时卸载组件
+  $(window).on('pagehide', () => {
+    app.unmount();
+    $app.remove();
+  });
+})
 ```
+
+为了让脚本里为组件设置的样式生效, 我们需要使用 `util/script.ts` 中的 `teleportStyle` 函数来将样式复制到酒馆网页的 `<head>` 中.
+
+```ts
+const { destroy } = teleportStyle();
+```
+
+在关闭脚本时, 我们需要调用 `destroy` 函数来卸载样式.
+
+```ts
+$(window).on('pagehide', () => {
+  destroy();
+});
+```
+
+**但为了不与酒馆网页中已经有的类名冲突, 针对这种情况, 我们禁止使用 tailwindcss.**
+
+### 组件是独立的，不需要使用酒馆网页的样式
+
+组件可能是单独的悬浮窗、手机样式的对话界面或对酒馆网页的大幅调整, 需要与酒馆网页现有样式隔离, 则应该挂载在 iframe DOM 上. 为此我们使用 `util/script.ts` 中的 `createScriptIdIframe` 函数来创建 iframe DOM, 并将 vue 组件挂载到 iframe 内部的 body 上 (`iframe_element.contentDocument!.body`):
+
+```ts
+$(() => {
+  const app = createApp(App).use(createPinia());
+
+  const $app = createScriptIdIframe().appendTo('想要放置的位置');
+  app.mount($app[0].contentDocument!.body);
+
+  // 关闭脚本时卸载组件
+  $(window).on('pagehide', () => {
+    app.unmount();
+    $app.remove();
+  });
+})
+```
+
+这种情况应该**优先使用无须自行复制样式的 tailwindcss class**; 否则, 如果有需要复制的样式, 则需要使用 `teleportStyle($app[0].contentDocument!.head)` 函数来复制样式.
 
 ## 脚本设置
 
