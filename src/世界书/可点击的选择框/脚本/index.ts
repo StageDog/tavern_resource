@@ -12,6 +12,11 @@ const TAG = '<roleplay_options>' as const;
 const REGEX = /<(roleplay_options)>\s*(?:```.*\n)?((?:(?!<\1>)[\s\S])*?)(?:\n```)?\s*<\/\1>/im;
 
 async function renderOneMessage(message_id: number | string) {
+  const numbered_message_id = Number(message_id);
+  if (isNaN(numbered_message_id)) {
+    return;
+  }
+
   const chat_messages = getChatMessages(message_id);
   if (chat_messages.length === 0) {
     return;
@@ -22,7 +27,6 @@ async function renderOneMessage(message_id: number | string) {
     return;
   }
 
-  const numbered_message_id = Number(message_id);
   apps.get(numbered_message_id)?.unmount();
   apps.delete(numbered_message_id);
 
@@ -62,14 +66,7 @@ async function renderAllMessage() {
   $('#chat')
     .children(".mes[is_user='false'][is_system='false']")
     .each((_index, node) => {
-      const message_id = $(node).attr('mesid');
-      try {
-        if (message_id) {
-          renderOneMessage(parseInt(message_id));
-        }
-      } catch (error) {
-        /** empty */
-      }
+      renderOneMessage($(node).attr('mesid') ?? 'NaN');
     });
 }
 
