@@ -1,0 +1,2 @@
+$(()=>{appendInexistentScriptButtons([{name:'删除区间消息',visible:!0}]),eventOn(getButtonEvent('删除区间消息'),async()=>{const e=SillyTavern.chat.length-1,t=await SillyTavern.callGenericPopup(`请输入显示区间 (格式: 0-10, 范围: 0-${e})`,SillyTavern.POPUP_TYPE.INPUT);if(!t)return void toastr.error('未填入有效区间');const[n,a]=String(t).split('-').map(Number);n<0||n>a||a>e?toastr.error('未填入有效区间'):await deleteChatMessages(_.range(n,a+1))})});
+//# sourceMappingURL=index.js.map

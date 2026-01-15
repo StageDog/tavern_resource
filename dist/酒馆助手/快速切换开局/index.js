@@ -1,0 +1,2 @@
+$(()=>{appendInexistentScriptButtons([{name:'快速切换开局',visible:!0}]),eventOn(getButtonEvent('快速切换开局'),async()=>{const e=getChatMessages(0,{include_swipes:!0})?.[0]?.swipes?.length??0;if(0===e)return void toastr.error('未找到任何开局');const t=await SillyTavern.callGenericPopup(`请输入要选择的开局号 (从 1 开始, 总共有 ${e} 个开局)`,SillyTavern.POPUP_TYPE.INPUT),s=parseInt(String(t));_.inRange(s,1,e+1)?await setChatMessages([{message_id:0,swipe_id:s-1}]):toastr.error('未填入有效开局号')})});
+//# sourceMappingURL=index.js.map
