@@ -40,6 +40,7 @@
   },
   "include": [
     "@types",
+    "初始模板",
     "示例",
     "src",
     "util",
