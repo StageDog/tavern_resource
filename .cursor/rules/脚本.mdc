@@ -41,7 +41,7 @@ $(() => {
 })
 ```
 
-为了让脚本里为组件设置的样式生效, 我们需要使用 `util/script.ts` 中的 `teleportStyle` 函数来将样式复制到酒馆网页的 `<head>` 中.
+这种组件应该尽量参考酒馆网页原有样式; 为了让脚本里为组件设置的额外样式生效, 我们需要使用 `util/script.ts` 中的 `teleportStyle` 函数来将样式复制到酒馆网页的 `<head>` 中.
 
 ```ts
 const { destroy } = teleportStyle();

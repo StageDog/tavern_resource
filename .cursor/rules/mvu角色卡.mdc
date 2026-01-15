@@ -48,7 +48,7 @@ rule:
   - for restrictions: when accepting a update that breaks the schema, users are tend to expect the update takes some effect instead of being discarded completely; therefore, you should try your best to use `z.transform` to convert the broken input to a valid input. For example, if Explorer requests a value to be between 0 and 100, prefer `z.number().transform(value => _.clamp(value, 0, 100))` over `z.number().min(0).max(100)`; if an object could only contain 10 keys, when a new key comes, discard the oldest key instead. **but only impose these restrictions when Explorer requests**
   - on default value:
       - prefer `z.prefault` over `z.default`
-      - if a `z.object` is complicated enough, set `.prefault('${suitable default value}')` or `.or(z.literal('待初始化')).prefault('待初始化')` for every field of it
+      - if a `z.object` or the whole Schema is complicated enough, set `.prefault('${suitable default value}')` or `.or(z.literal('待初始化')).prefault('待初始化')` for every field of it
       - don't set `z.prefault` for other situatioins unless Explorer requests it
   - when to describe: use `z.describe` only when there's no field name to explain the usage of the schema such as the key type of `z.record`; in contrast, you should never use `z.describe` if the field name has already explained the usage well
   - determine the order of keys: 'if Explorer requests you to do something with the insertion time of keys, prefer to use `_(data).entries()` which almost always lists keys in insertion order, e.g. you can remove old keys with a simple `_(data).entries().takeRight(10)`; when keys are already additionally sorted inside `z.transform`, you should use `$time: z.coerce.number().prefault(() => Date.now())` to automatically assign a timestamp'
@@ -57,7 +57,7 @@ rule:
       - '`registerMvuSchema = (schema: z.ZodObject | (() => z.ZodObject)) => void`, the function input `() => z.ZodObject` could be used when the schema is not ready at the time of registering, or the schema depends on runtime data/function'
       - '`z.transform(value => value)`'
       - '`z.prefault/z.catch(value | () => value)`'
-  - REPEAT: DON'T mark any variable as optional, set `z.prefault` for simple types or impose any restriction to the schema unless Explorer requests them
+  - REPEAT: DON'T mark any variable as optional or impose any restriction to the schema unless Explorer requests them
 ```
 
 如果用户提供了 `export const Schema`, 你应该区分用户提供的是直接的 `schema.ts` 还是变量结构脚本. 具体地,

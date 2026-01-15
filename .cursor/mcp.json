@@ -1,9 +1,10 @@
 {
   "mcpServers": {
-    "browsermcp": {
+    "chrome-devtools": {
       "command": "pnpx",
       "args": [
-        "@browsermcp/mcp"
+        "chrome-devtools-mcp@latest",
+        "--autoConnect"
       ]
     }
   }
