@@ -37,9 +37,7 @@ type GetChatMessagesOption = {
  *   - `hide_state:'all'|'hidden'|'unhidden'`: 按是否被隐藏筛选消息; 默认为 `'all'`
  *   - `include_swipes:false`: 不包含未被 AI 使用的消息页信息
  *
- * @returns 一个 `ChatMessage` 数组, 依据 message_id 从低到高排序
- *
- * @throws 如果提供的范围 `range` 无效, 将会抛出错误
+ * @returns 一个 `ChatMessage` 数组, 包含指定楼层范围内实际存在的所有楼层, 依据 message_id 从低到高排序; 如果范围内完全不存在楼层 (如目前只有 3 楼, 但范围为 `4-5`), 则返回空数组
  *
  * @example
  * // 仅获取第 10 楼被 AI 使用的消息页
@@ -69,7 +67,7 @@ declare function getChatMessages(
  *   - `hide_state:'all'|'hidden'|'unhidden'`: 按是否被隐藏筛选消息; 默认为 `'all'`
  *   - `include_swipes:true`: 包含未被 AI 使用的消息页信息
  *
- * @returns 一个 `ChatMessageSwiped` 数组, 依据 message_id 从低到高排序
+ * @returns 一个 `ChatMessage` 数组, 包含指定楼层范围内实际存在的所有楼层, 依据 message_id 从低到高排序; 如果范围内完全不存在楼层 (如目前只有 3 楼, 但范围为 `4-5`), 则返回空数组
  *
  * @example
  * // 获取第 10 楼所有的消息页
@@ -163,17 +161,12 @@ type ChatMessageCreating = {
   extra?: Record<string, any>;
 };
 
-type CreateChatMessagesOption = {
-  /** 插入到指定楼层前或末尾; 默认为末尾 */
+type CreateChatMessagesOption = SetChatMessagesOption & {
+  /** @deprecated 请使用 `insert_before` */
   insert_at?: number | 'end';
 
-  /**
-   * 是否更新楼层在页面上的显示, 只会更新已经被加载在网页上的楼层, 并触发被更新楼层的 "仅格式显示" 正则; 默认为 `'affected'`
-   * - `'none'`: 不更新页面的显示
-   * - `'affected'`: 仅更新被影响楼层的显示
-   * - `'all'`: 重新载入整个聊天消息, 将会触发 `tavern_events.CHAT_CHANGED` 事件
-   */
-  refresh?: 'none' | 'affected' | 'all';
+  /** 插入到指定楼层前或末尾; 默认为末尾 */
+  insert_before?: number | 'end';
 };
 
 /**
@@ -197,21 +190,12 @@ declare function createChatMessages(
   { insert_at, refresh }?: CreateChatMessagesOption,
 ): Promise<void>;
 
-type DeleteChatMessagesOption = {
-  /**
-   * 是否更新楼层在页面上的显示, 只会更新已经被加载在网页上的楼层, 并触发被更新楼层的 "仅格式显示" 正则; 默认为 `'all'`
-   * - `'none'`: 不更新页面的显示
-   * - `'all'`: 重新载入整个聊天消息, 将会触发 `tavern_events.CHAT_CHANGED` 事件
-   */
-  refresh?: 'none' | 'all';
-};
-
 /**
  * 删除聊天消息
  *
  * @param message_ids 要删除的消息楼层号数组
  * @param option 可选选项
- *   - `refresh:'none'|'all'`: 是否更新楼层在页面上的显示, 只会更新已经被加载在网页上的楼层, 并触发被更新楼层的 "仅格式显示" 正则; 默认为 `'all'`
+ *   - `refresh:'none'|'affected'|'all'`: 是否更新楼层在页面上的显示, 只会更新已经被加载在网页上的楼层, 并触发被更新楼层的 "仅格式显示" 正则; 默认为 `'affected'`
  *
  * @example
  * // 删除第 10 楼、第 15 楼、倒数第二楼和最后一楼
@@ -221,16 +205,7 @@ type DeleteChatMessagesOption = {
  * // 删除所有楼层
  * await deleteChatMessages(_.range(getLastMessageId() + 1));
  */
-declare function deleteChatMessages(message_ids: number[], { refresh }?: DeleteChatMessagesOption): Promise<void>;
-
-type RotateChatMessagesOption = {
-  /**
-   * 是否更新楼层在页面上的显示, 只会更新已经被加载在网页上的楼层, 并触发被更新楼层的 "仅格式显示" 正则; 默认为 `'all'`
-   * - `'none'`: 不更新页面的显示
-   * - `'all'`: 重新载入整个聊天消息, 将会触发 `tavern_events.CHAT_CHANGED` 事件
-   */
-  refresh?: 'none' | 'all';
-};
+declare function deleteChatMessages(message_ids: number[], { refresh }?: SetChatMessagesOption): Promise<void>;
 
 /**
  * 将原本顺序是 `[begin, middle) [middle, end)` 的楼层旋转为 `[middle, end) [begin, middle)`
@@ -239,7 +214,7 @@ type RotateChatMessagesOption = {
  * @param middle 旋转后将会被放到最开头的楼层号
  * @param end 旋转前结尾楼层的楼层号 + 1
  * @param option 可选选项
- *   - `refresh:'none'|'all'`: 是否更新楼层在页面上的显示, 只会更新已经被加载在网页上的楼层, 并触发被更新楼层的 "仅格式显示" 正则; 默认为 `'all'`
+ *   - `refresh:'none'|'affected'|'all'`: 是否更新楼层在页面上的显示, 只会更新已经被加载在网页上的楼层, 并触发被更新楼层的 "仅格式显示" 正则; 默认为 `'affected'`
  *
  * @example
  * // 将最后一楼放到第 5 楼之前
@@ -255,5 +230,5 @@ declare function rotateChatMessages(
   begin: number,
   middle: number,
   end: number,
-  { refresh }?: RotateChatMessagesOption,
+  { refresh }?: SetChatMessagesOption,
 ): Promise<void>;

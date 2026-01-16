@@ -196,8 +196,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(postcss@8.5.6)
       prettier:
-        specifier: ^3.7.4
-        version: 3.7.4
+        specifier: ^3.8.0
+        version: 3.8.0
       remark:
         specifier: ^15.0.1
         version: 15.0.1
@@ -230,7 +230,7 @@ importers:
         version: 9.5.4(typescript@6.0.0-dev.20250807)(webpack@5.104.1)
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@types/node@25.0.7)(typescript@6.0.0-dev.20250807)
+        version: 10.9.2(@types/node@25.0.9)(typescript@6.0.0-dev.20250807)
       tsconfig-paths-webpack-plugin:
         specifier: ^4.2.0
         version: 4.2.0
@@ -706,8 +706,8 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@25.0.7':
-    resolution: {integrity: sha512-C/er7DlIZgRJO7WtTdYovjIFzGsz0I95UlMyR9anTb4aCpBSRWe5Jc1/RvLKUfzmOxHPGjSE5+63HgLtndxU4w==}
+  '@types/node@25.0.9':
+    resolution: {integrity: sha512-/rpCXHlCWeqClNBwUhDcusJxXYDjZTyE8v5oTO7WbL8eij2nKhUeU89/6xgjU7N4/Vh3He0BtyhJdQbDyhiXAw==}
 
   '@types/q@1.5.8':
     resolution: {integrity: sha512-hroOstUScF6zhIi+5+x0dzqrHA1EJi+Irri6b1fxolMTqqHIV/Cg77EtnQcZqZCu8hR3mX2BzIxN4/GzI68Kfw==}
@@ -1080,8 +1080,8 @@ packages:
   '@webassemblyjs/wast-printer@1.14.1':
     resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
 
-  '@webgpu/types@0.1.68':
-    resolution: {integrity: sha512-3ab1B59Ojb6RwjOspYLsTpCzbNB3ZaamIAxBMmvnNkiDoLTZUOBXZ9p5nAYVEkQlDdf6qAZWi1pqj9+ypiqznA==}
+  '@webgpu/types@0.1.69':
+    resolution: {integrity: sha512-RPmm6kgRbI8e98zSD3RVACvnuktIja5+yLgDAkTmxLr90BEwdTXRQWNLF3ETTTyH/8mKhznZuN5AveXYFEsMGQ==}
 
   '@webpack-cli/configtest@3.0.1':
     resolution: {integrity: sha512-u8d0pJ5YFgneF/GuvEiDA61Tf1VDomHHYMjv/wc9XzYj7nopltpG96nXN5dJRstxZhcNpV1g+nT6CydO7pHbjA==}
@@ -3181,8 +3181,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  prettier@3.7.4:
-    resolution: {integrity: sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==}
+  prettier@3.8.0:
+    resolution: {integrity: sha512-yEPsovQfpxYfgWNhCfECjG5AQaO+K3dp6XERmOepyPDVqcJm+bjyCVO3pmU+nAPe0N5dDvekfGezt/EIiRe1TA==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -3585,8 +3585,8 @@ packages:
     deprecated: This SVGO version is no longer supported. Upgrade to v2.x.x.
     hasBin: true
 
-  synckit@0.11.11:
-    resolution: {integrity: sha512-MeQTA1r0litLUf0Rp/iisCaL8761lKAZHaimlbGK4j0HysC4PLfqygQj9srcs0m2RdtDYnF8UuYyKpbjHYp7Jw==}
+  synckit@0.11.12:
+    resolution: {integrity: sha512-Bh7QjT8/SuKUIfObSXNHNSK6WHo6J1tHCqJsuaFDP7gP0fkzSfTxI8y85JrppZ0h8l0maIgc2tfuZQ6/t3GtnQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
 
   tabbable@6.4.0:
@@ -3623,16 +3623,16 @@ packages:
       uglify-js:
         optional: true
 
-  terser@5.44.1:
-    resolution: {integrity: sha512-t/R3R/n0MSwnnazuPpPNVO60LX0SKL45pyl9YlvxIdkH0Of7D5qM2EVe+yASRIlY5pZ73nclYJfNANGWPwFDZw==}
+  terser@5.46.0:
+    resolution: {integrity: sha512-jTwoImyr/QbOWFFso3YoU3ik0jBBDJ6JTOQiy/J2YxVJdZCc+5u7skhNwiOR3FQIygFqVUPHl7qbbxtjW2K3Qg==}
     engines: {node: '>=10'}
     hasBin: true
 
   thenby@1.3.4:
     resolution: {integrity: sha512-89Gi5raiWA3QZ4b2ePcEwswC3me9JIg+ToSgtE0JWeCynLnLxNr/f9G+xfo9K+Oj4AFdom8YNJjibIARTJmapQ==}
 
-  tiny-lru@11.4.5:
-    resolution: {integrity: sha512-hkcz3FjNJfKXjV4mjQ1OrXSLAehg8Hw+cEZclOVT+5c/cWQWImQ9wolzTjth+dmmDe++p3bme3fTxz6Q4Etsqw==}
+  tiny-lru@11.4.7:
+    resolution: {integrity: sha512-w/Te7uMUVeH0CR8vZIjr+XiN41V+30lkDdK+NRIDCUYKKuL9VcmaUEmaPISuwGhLlrTGh5yu18lENtR9axSxYw==}
     engines: {node: '>=12'}
 
   tinyglobby@0.2.15:
@@ -3702,8 +3702,8 @@ packages:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
-  type-fest@5.4.0:
-    resolution: {integrity: sha512-wfkA6r0tBpVfGiyO+zbf9e10QkRQSlK9F2UvyfnjoCmrvH2bjHyhPzhugSBOuq1dog3P0+FKckqe+Xf6WKVjwg==}
+  type-fest@5.4.1:
+    resolution: {integrity: sha512-xygQcmneDyzsEuKZrFbRMne5HDqMs++aFzefrJTgEIKjQ3rekM+RPfFCVq2Gp1VIDqddoYeppCj4Pcb+RZW0GQ==}
     engines: {node: '>=20'}
 
   typed-array-buffer@1.0.3:
@@ -3734,8 +3734,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  ufo@1.6.2:
-    resolution: {integrity: sha512-heMioaxBcG9+Znsda5Q8sQbWnLJSl98AFDXTO80wELWEzX3hordXsTdxrIfMQoO9IY1MEnoGoPjpoKpMj+Yx0Q==}
+  ufo@1.6.3:
+    resolution: {integrity: sha512-yDJTmhydvl5lJzBmy/hyOAA0d+aqCBuwl818haVdYCRrWV84o7YyeVm4QlVHStqNrrJSTb6jKuFAVqAFsr+K3Q==}
 
   uint8array-extras@1.5.0:
     resolution: {integrity: sha512-rvKSBiC5zqCCiDZ9kAOszZcDvdAHwwIKJG33Ykj43OKcWsnmcBRL09YTU4nOeHZ8Y2a7l1MgTd08SBe9A8Qj6A==}
@@ -3911,8 +3911,8 @@ packages:
       typescript:
         optional: true
 
-  watchpack@2.5.0:
-    resolution: {integrity: sha512-e6vZvY6xboSwLz2GD36c16+O/2Z6fKvIf4pOXptw2rY9MVwE/TXc6RGqxD3I3x0a28lwBY7DE+76uTPSsBrrCA==}
+  watchpack@2.5.1:
+    resolution: {integrity: sha512-Zn5uXdcFNIA1+1Ei5McRd+iRzfhENPCe7LeABkJtNulSxjma+l7ltNx55BWZkRlwRnpOgHqxnjyaDgJnNXnqzg==}
     engines: {node: '>=10.13.0'}
 
   webpack-cli@6.0.1:
@@ -3980,8 +3980,8 @@ packages:
     resolution: {integrity: sha512-K4jVyjnBdgvc86Y6BkaLZEN933SwYOuBFkdmBu9ZfkcAbdVbpITnDmjvZ/aQjRXQrv5EPkTnD1s39GiiqbngCw==}
     engines: {node: '>= 0.4'}
 
-  which-typed-array@1.1.19:
-    resolution: {integrity: sha512-rEvr90Bck4WZt9HHFC4DJMsjvu7x+r6bImz0/BrbWb7A2djJ8hnZMrWnHo9F8ssv0OMErasDhftrfROTyqSDrw==}
+  which-typed-array@1.1.20:
+    resolution: {integrity: sha512-LYfpUkmqwl0h9A2HL09Mms427Q1RZWuOHsukfVcKRq9q95iQxdw0ix1JQrqbcDR9PH1QDwf5Qo8OZb5lksZ8Xg==}
     engines: {node: '>= 0.4'}
 
   which@2.0.2:
@@ -4199,7 +4199,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 25.0.7
+      '@types/node': 25.0.9
       '@types/yargs': 17.0.35
       chalk: 4.1.2
 
@@ -4403,7 +4403,7 @@ snapshots:
 
   '@types/cors@2.8.19':
     dependencies:
-      '@types/node': 25.0.7
+      '@types/node': 25.0.9
 
   '@types/css-font-loading-module@0.0.12': {}
 
@@ -4463,7 +4463,7 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@25.0.7':
+  '@types/node@25.0.9':
     dependencies:
       undici-types: 7.16.0
 
@@ -4499,7 +4499,7 @@ snapshots:
 
   '@types/webpack@5.28.5(webpack-cli@6.0.1)':
     dependencies:
-      '@types/node': 25.0.7
+      '@types/node': 25.0.9
       tapable: 2.3.0
       webpack: 5.104.1(webpack-cli@6.0.1)
     transitivePeerDependencies:
@@ -4876,7 +4876,7 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
-  '@webgpu/types@0.1.68': {}
+  '@webgpu/types@0.1.69': {}
 
   '@webpack-cli/configtest@3.0.1(webpack-cli@6.0.1)(webpack@5.104.1)':
     dependencies:
@@ -5526,7 +5526,7 @@ snapshots:
 
   dot-prop@10.1.0:
     dependencies:
-      type-fest: 5.4.0
+      type-fest: 5.4.1
 
   dunder-proto@1.0.1:
     dependencies:
@@ -5552,7 +5552,7 @@ snapshots:
   engine.io@6.6.5:
     dependencies:
       '@types/cors': 2.8.19
-      '@types/node': 25.0.7
+      '@types/node': 25.0.9
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.7.2
@@ -5645,7 +5645,7 @@ snapshots:
       typed-array-byte-offset: 1.0.4
       typed-array-length: 1.0.7
       unbox-primitive: 1.1.0
-      which-typed-array: 1.1.19
+      which-typed-array: 1.1.20
 
   es-array-method-boxes-properly@1.0.0: {}
 
@@ -5714,7 +5714,7 @@ snapshots:
       jiti: 2.6.1
       postcss: 8.5.6
       postcss-import: 16.1.1(postcss@8.5.6)
-      synckit: 0.11.11
+      synckit: 0.11.12
       tailwind-csstree: 0.1.4
       tailwindcss: 4.1.18
       tsconfig-paths-webpack-plugin: 4.2.0
@@ -6117,7 +6117,7 @@ snapshots:
       he: 1.2.0
       param-case: 3.0.4
       relateurl: 0.2.7
-      terser: 5.44.1
+      terser: 5.46.0
 
   html-minifier-terser@7.2.0:
     dependencies:
@@ -6127,7 +6127,7 @@ snapshots:
       entities: 4.5.0
       param-case: 3.0.4
       relateurl: 0.2.7
-      terser: 5.44.1
+      terser: 5.46.0
 
   html-void-elements@3.0.0: {}
 
@@ -6355,7 +6355,7 @@ snapshots:
 
   is-typed-array@1.1.15:
     dependencies:
-      which-typed-array: 1.1.19
+      which-typed-array: 1.1.20
 
   is-weakmap@2.0.2: {}
 
@@ -6416,7 +6416,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 25.0.7
+      '@types/node': 25.0.9
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -6424,13 +6424,13 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 25.0.7
+      '@types/node': 25.0.9
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 25.0.7
+      '@types/node': 25.0.9
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
@@ -6871,7 +6871,7 @@ snapshots:
       acorn: 8.15.0
       pathe: 2.0.3
       pkg-types: 1.3.1
-      ufo: 1.6.2
+      ufo: 1.6.3
 
   ms@2.0.0: {}
 
@@ -7077,14 +7077,14 @@ snapshots:
       '@pixi/colord': 2.9.6
       '@types/css-font-loading-module': 0.0.12
       '@types/earcut': 3.0.0
-      '@webgpu/types': 0.1.68
+      '@webgpu/types': 0.1.69
       '@xmldom/xmldom': 0.8.11
       earcut: 3.0.2
       eventemitter3: 5.0.1
       gifuct-js: 2.1.2
       ismobilejs: 1.1.1
       parse-svg-path: 0.1.2
-      tiny-lru: 11.4.5
+      tiny-lru: 11.4.7
 
   pkg-dir@4.2.0:
     dependencies:
@@ -7206,7 +7206,7 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier@3.7.4: {}
+  prettier@3.8.0: {}
 
   pretty-error@4.0.0:
     dependencies:
@@ -7659,7 +7659,7 @@ snapshots:
       unquote: 1.1.1
       util.promisify: 1.0.1
 
-  synckit@0.11.11:
+  synckit@0.11.12:
     dependencies:
       '@pkgr/core': 0.2.9
 
@@ -7679,10 +7679,10 @@ snapshots:
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
-      terser: 5.44.1
+      terser: 5.46.0
       webpack: 5.104.1(webpack-cli@6.0.1)
 
-  terser@5.44.1:
+  terser@5.46.0:
     dependencies:
       '@jridgewell/source-map': 0.3.11
       acorn: 8.15.0
@@ -7691,7 +7691,7 @@ snapshots:
 
   thenby@1.3.4: {}
 
-  tiny-lru@11.4.5: {}
+  tiny-lru@11.4.7: {}
 
   tinyglobby@0.2.15:
     dependencies:
@@ -7724,14 +7724,14 @@ snapshots:
       typescript: 6.0.0-dev.20250807
       webpack: 5.104.1(webpack-cli@6.0.1)
 
-  ts-node@10.9.2(@types/node@25.0.7)(typescript@6.0.0-dev.20250807):
+  ts-node@10.9.2(@types/node@25.0.9)(typescript@6.0.0-dev.20250807):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.12
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 25.0.7
+      '@types/node': 25.0.9
       acorn: 8.15.0
       acorn-walk: 8.3.4
       arg: 4.1.3
@@ -7767,7 +7767,7 @@ snapshots:
 
   type-fest@4.41.0: {}
 
-  type-fest@5.4.0:
+  type-fest@5.4.1:
     dependencies:
       tagged-tag: 1.0.0
 
@@ -7817,7 +7817,7 @@ snapshots:
 
   typescript@6.0.0-dev.20250807: {}
 
-  ufo@1.6.2: {}
+  ufo@1.6.3: {}
 
   uint8array-extras@1.5.0: {}
 
@@ -7974,7 +7974,7 @@ snapshots:
       is-arguments: 1.2.0
       is-generator-function: 1.1.2
       is-typed-array: 1.1.15
-      which-typed-array: 1.1.19
+      which-typed-array: 1.1.20
 
   utila@0.4.0: {}
 
@@ -8021,7 +8021,7 @@ snapshots:
     dependencies:
       chalk: 4.1.2
       hash-sum: 2.0.0
-      watchpack: 2.5.0
+      watchpack: 2.5.1
       webpack: 5.104.1(webpack-cli@6.0.1)
     optionalDependencies:
       vue: 3.5.26(typescript@6.0.0-dev.20250807)
@@ -8058,7 +8058,7 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.0-dev.20250807
 
-  watchpack@2.5.0:
+  watchpack@2.5.1:
     dependencies:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
@@ -8122,7 +8122,7 @@ snapshots:
       schema-utils: 4.3.3
       tapable: 2.3.0
       terser-webpack-plugin: 5.3.16(webpack@5.104.1)
-      watchpack: 2.5.0
+      watchpack: 2.5.1
       webpack-sources: 3.3.3
     optionalDependencies:
       webpack-cli: 6.0.1(webpack@5.104.1)
@@ -8161,7 +8161,7 @@ snapshots:
       isarray: 2.0.5
       which-boxed-primitive: 1.1.1
       which-collection: 1.0.2
-      which-typed-array: 1.1.19
+      which-typed-array: 1.1.20
 
   which-collection@1.0.2:
     dependencies:
@@ -8170,7 +8170,7 @@ snapshots:
       is-weakmap: 2.0.2
       is-weakset: 2.0.4
 
-  which-typed-array@1.1.19:
+  which-typed-array@1.1.20:
     dependencies:
       available-typed-arrays: 1.0.7
       call-bind: 1.0.8
