@@ -1,0 +1,2 @@
+$(()=>{eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED,t=>{const e=$('#chat > .mes.last_mes');Number(e.attr('mesid'))===t&&e[0]?.scrollIntoView({behavior:'smooth',block:'start'})})});
+//# sourceMappingURL=index.js.map
