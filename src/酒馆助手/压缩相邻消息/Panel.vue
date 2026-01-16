@@ -21,6 +21,24 @@
         <input v-model="settings.seperator.value" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
       </div>
 
+      <div class="flex-container flexFlowColumn">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span>遇到分割符时停止合并</span>
+          <input v-model="settings.split_seperator.enabled" type="checkbox" style="margin: 0 4px 0 0" />
+        </div>
+      </div>
+
+      <div v-if="settings.split_seperator.enabled" class="flex-container flexFlowColumn">
+        <label>分割符 (支持正则)</label>
+        <input
+          v-model="settings.split_seperator.pattern"
+          class="text_pole flex1 wide100p"
+          type="text"
+          placeholder="[---] 或 /分割符正则/"
+          autocomplete="off"
+        />
+      </div>
+
       <hr />
 
       <div class="flex-container flexFlowColumn">
@@ -30,10 +48,22 @@
           <i
             class="fa-solid fa-circle-question fa-sm note-link-span"
             style="cursor: pointer"
-            title="将注入到聊天深度的系统消息按照原有顺序移动到聊天记录的末尾，而不是保持在原来的深度位置。这可以确保系统消息不会干扰聊天记录的连续性。"
+            title="将注入到聊天深度的系统消息按照原有顺序移动到聊天记录的末尾，而不是保持在原来的深度位置。"
             @click="showDepthHelp"
           />
         </div>
+      </div>
+
+      <div v-if="settings.put_system_injection_after_chat_history" class="flex-container flexFlowColumn">
+        <label>深度阈值</label>
+        <input
+          v-model.number="settings.system_depth"
+          class="text_pole"
+          type="number"
+          min="1"
+          max="9998"
+          style="width: 80px"
+        />
       </div>
 
       <hr />
@@ -134,10 +164,11 @@ const system_prefix_input = useEscapedNewlineModel(toRef(settings.value.on_chat_
 const system_suffix_input = useEscapedNewlineModel(toRef(settings.value.on_chat_history, 'system_suffix'));
 
 function showDepthHelp() {
+  const depth = settings.value.system_depth;
   SillyTavern.callGenericPopup(
     `<p>按照<a href="https://discord.com/channels/1134557553011998840/1413538722078785576">一些预设作者和角色卡作者的说法</a>, Gemini 和 Claude 不同, 不必将条目插入聊天记录中, 插入其中反而会干扰聊天记录的连续性, 重要条目应该都插入到 D0.</p>
      <p>但玩家依旧可能使用 Claude、GPT 等游玩, 而对它们还是需要用 D4 等深度的.</p>
-     <p>因此本脚本提供了这个选项: 勾选这个选项, D10 以下的条目将会被移动到 D0 位置, 而 D10 及以上条目将会被移动到 D9999 位置; 而关闭这个选项系统消息将会保持原有深度.</p>
+     <p>因此本脚本提供了这个选项: 勾选这个选项, D${depth} 以下的条目将会被移动到 D0 位置, 而 D${depth} 及以上条目将会被移动到 D9999 位置; 而关闭这个选项系统消息将会保持原有深度.</p>
      <p>这个选项虽然已经不用角色卡作者自行将条目全设置为 D0, 但仍很需要角色卡适配; 如果角色详情等会随剧情发展的设定放在了深度条目, 则勾选这个选项容易使角色固化</p>`,
     SillyTavern.POPUP_TYPE.TEXT,
     '',

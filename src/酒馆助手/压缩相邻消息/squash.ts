@@ -26,7 +26,7 @@ function injectSeperators(settings: Settings) {
     deep: {
       id: `\xff${settings.name}深度分割`,
       position: 'in_chat',
-      depth: 10,
+      depth: settings.system_depth,
       role: 'system',
       content: uuidv4(),
     },
@@ -104,7 +104,15 @@ function rejectEmptyPrompts(prompts: Prompt[]): Prompt[] {
 }
 
 function squashMessageByRole(prompts: Prompt[], settings: Settings): Prompt[] {
-  return chunkBy(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
+  const splitPattern = settings.split_seperator.enabled
+    ? regexFromString(settings.split_seperator.pattern)
+    : null;
+
+  return chunkBy(prompts, (lhs, rhs) => {
+    if (lhs.role !== rhs.role) return false;
+    if (splitPattern && splitPattern.test(rhs.content)) return false;
+    return true;
+  }).map(chunk => ({
     role: chunk[0].role,
     content: chunk.map(({ content }) => content.trim()).join(settings.seperator.value),
   }));
