@@ -17,15 +17,13 @@ $(() => {
   const checkStatusAndSetButtons = _.throttle(
     () => {
       const buttons = getScriptButtons();
-      let button: ScriptButton;
-      const possible_button = buttons.find(
+      const button = buttons.find(
         button => button.name === '启用酒馆助手宏和提示词模板' || button.name === '禁用酒馆助手宏和提示词模板',
       );
-      if (!possible_button) {
-        button = { name: '启用酒馆助手宏和提示词模板', visible: true };
-        buttons.push(button);
-      } else {
-        button = possible_button;
+
+      if (!button) {
+        appendInexistentScriptButtons([{ name: '启用酒馆助手宏和提示词模板', visible: true }]);
+        return;
       }
 
       const is_disabled = $('#macro-replace-disable-toggle, #TH-macro-enabled, #TH-macro-disabled').prop('checked');
