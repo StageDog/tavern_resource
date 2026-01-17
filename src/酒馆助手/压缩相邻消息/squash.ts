@@ -114,7 +114,12 @@ function squashMessageByRole(prompts: Prompt[], settings: Settings): Prompt[] {
     return true;
   }).map(chunk => ({
     role: chunk[0].role,
-    content: chunk.map(({ content }) => content.trim()).join(settings.seperator.value),
+    content: chunk
+      .map(({ content }) => {
+        const cleaned = splitPattern ? content.replace(splitPattern, '') : content;
+        return cleaned.trim();
+      })
+      .join(settings.seperator.value),
   }));
 }
 
@@ -143,6 +148,18 @@ function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
   };
 }
 
+function replacePlaceholder(prompts: Prompt[], placeholder: string, replacement: string): boolean {
+  if (!placeholder) return false;
+  let found = false;
+  for (const prompt of prompts) {
+    if (prompt.content.includes(placeholder)) {
+      prompt.content = prompt.content.replaceAll(placeholder, replacement);
+      found = true;
+    }
+  }
+  return found;
+}
+
 function listenEvent(settings: Settings, seperators: Seperators) {
   const handlePrompts = ({ prompt }: { prompt: SillyTavern.SendingMessage[] }, dry_run: boolean) => {
     if (dry_run) {
@@ -159,15 +176,26 @@ function listenEvent(settings: Settings, seperators: Seperators) {
     if (chunks === null) {
       return;
     }
-    if (settings.put_system_injection_after_chat_history) {
-      chunks[0] = _.concat(
-        chunks[0],
-        _.remove(chunks[1], ({ role }) => role === 'system'),
-      );
-      chunks[3] = _.concat(
-        _.remove(chunks[2], ({ role }) => role === 'system'),
-        chunks[3],
-      );
+    if (settings.on_chat_history.type === 'squash') {
+      if (settings.move_above_dx_to_front) {
+        const aboveSystems = _.remove(chunks[1], ({ role }) => role === 'system');
+        const joined = aboveSystems.map(p => p.content).join(settings.seperator.value);
+        if (!replacePlaceholder(prompt as Prompt[], settings.above_dx_placeholder, joined) && aboveSystems.length > 0) {
+          chunks[0] = _.concat(chunks[0], aboveSystems);
+        }
+      } else {
+        replacePlaceholder(prompt as Prompt[], settings.above_dx_placeholder, '');
+      }
+
+      if (settings.move_below_dx_to_back) {
+        const belowSystems = _.remove(chunks[2], ({ role }) => role === 'system');
+        const joined = belowSystems.map(p => p.content).join(settings.seperator.value);
+        if (!replacePlaceholder(prompt as Prompt[], settings.below_dx_placeholder, joined) && belowSystems.length > 0) {
+          chunks[3] = _.concat(belowSystems, chunks[3]);
+        }
+      } else {
+        replacePlaceholder(prompt as Prompt[], settings.below_dx_placeholder, '');
+      }
     }
     const [head, before_chat_history, after_chat_history, tail] = _(chunks)
       .map(prompts => rejectEmptyPrompts(prompts))
@@ -192,6 +220,23 @@ function listenEvent(settings: Settings, seperators: Seperators) {
           _.concat(head, squashChatHistory(_.concat(before_chat_history, after_chat_history), settings), tail),
         );
         break;
+    }
+
+    const splitPattern = settings.split_seperator.enabled
+      ? regexFromString(settings.split_seperator.pattern)
+      : null;
+
+    for (const p of prompt) {
+      if (typeof p.content === 'string') {
+        p.content = p.content
+          .replaceAll(seperators.head.content, '')
+          .replaceAll(seperators.deep.content, '')
+          .replaceAll(seperators.tail.content, '');
+
+        if (splitPattern) {
+          p.content = p.content.replace(splitPattern, '');
+        }
+      }
     }
   };
   const handlePrompts2 = ({ messages }: { messages: SillyTavern.SendingMessage[] }) => {
