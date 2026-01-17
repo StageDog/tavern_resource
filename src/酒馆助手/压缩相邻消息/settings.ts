@@ -26,7 +26,14 @@ export const Settings = z.object({
       }
       return data;
     }),
+  split_seperator: z
+    .object({
+      enabled: z.boolean().default(false),
+      pattern: z.string().default('[---]'),
+    })
+    .prefault({}),
   put_system_injection_after_chat_history: z.boolean().default(false),
+  system_depth: z.number().int().min(1).max(9998).default(10),
   on_chat_history: z
     .object({
       type: z.enum(['mixin', 'seperate', 'squash']).default('squash'),
