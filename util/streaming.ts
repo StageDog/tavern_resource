@@ -72,24 +72,36 @@ export function mountStreamingMessages(
     const $mes_text = $message_element.find('.mes_text').addClass('hidden!');
     $message_element.find('.TH-streaming').addClass('hidden!');
 
-    let $mes_streaming = $message_element.find(`#${prefix}-${message_id}`);
-    if ($mes_streaming.length > 0) {
+    let $host = $message_element.find(`#${prefix}-${message_id}`);
+    if ($host.length > 0) {
       const state = states.get(message_id);
       if (state) {
         state.data.message = message;
         state.data.during_streaming = Boolean(stream_message);
-        $mes_streaming.removeClass('hidden!');
+        $host.removeClass('hidden!');
         return;
       }
     }
 
     states.get(message_id)?.destroy();
+    $host.remove();
 
-    $mes_streaming.remove();
-    $mes_streaming = (host === 'iframe' ? createScriptIdIframe() : createScriptIdDiv())
-      .addClass(`mes_streaming w-full`)
+    let $mes_streaming = $message_element.find('.mes_streaming');
+    if ($mes_streaming.length === 0) {
+      $mes_streaming = $('<div class="mes_streaming">')
+        .css({
+          'font-weight': '500',
+          'line-height': 'calc(var(--mainFontSize) + .5rem)',
+          'max-width': '100%',
+          'overflow-wrap': 'anywhere',
+          padding: 'calc(var(--mainFontSize) * 0.8) 0 0 0',
+        })
+        .insertAfter($mes_text);
+    }
+
+    $host = (host === 'iframe' ? createScriptIdIframe().addClass('w-full') : createScriptIdDiv())
       .attr('id', `${prefix}-${message_id}`)
-      .insertBefore($message_element.find('.mes_media_wrapper'));
+      .appendTo($mes_streaming);
 
     const data = reactive<StreamingMessageContext>({
       prefix,
@@ -100,19 +112,19 @@ export function mountStreamingMessages(
     });
     const app = creator().provide('streaming_message_context', data);
     if (host === 'iframe') {
-      $mes_streaming.on('load', function (this: HTMLIFrameElement) {
+      $host.on('load', function (this: HTMLIFrameElement) {
         teleportStyle(this.contentDocument!.head);
         app.mount(this.contentDocument!.body);
       });
     } else {
-      app.mount($mes_streaming[0]);
+      app.mount($host[0]);
     }
 
     const observer = new MutationObserver(() => {
       const $edit_textarea = $('#curEditTextarea');
       if ($edit_textarea.parent().is($mes_text)) {
         $mes_text.removeClass('hidden!');
-        $mes_streaming.addClass('hidden!');
+        $host.addClass('hidden!');
       }
     });
     observer.observe($mes_text[0] as HTMLElement, { childList: true, subtree: true, characterData: true });
@@ -129,7 +141,10 @@ export function mountStreamingMessages(
         }
 
         app.unmount();
-        $mes_streaming.remove();
+        $host.remove();
+        if ($mes_streaming.children().length === 0) {
+          $mes_streaming.remove();
+        }
         observer.disconnect();
         states.delete(message_id);
       },
@@ -159,6 +174,10 @@ export function mountStreamingMessages(
   };
   scopedEventOn(tavern_events.CHAT_CHANGED, () => renderAllMessage());
   scopedEventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, message_id => renderOneMessage(message_id));
+  scopedEventOn(tavern_events.MESSAGE_EDITED, message_id => {
+    states.get(message_id)?.destroy();
+    renderOneMessage(message_id);
+  });
   scopedEventOn(tavern_events.MESSAGE_UPDATED, message_id => renderOneMessage(message_id));
   scopedEventOn(tavern_events.MESSAGE_SWIPED, message_id => {
     states.get(message_id)?.destroy();
