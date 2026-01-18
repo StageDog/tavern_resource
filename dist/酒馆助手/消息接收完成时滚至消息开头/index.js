@@ -1,2 +1,2 @@
-$(()=>{eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED,t=>{const e=$('#chat > .mes.last_mes');Number(e.attr('mesid'))===t&&e[0]?.scrollIntoView({behavior:'smooth',block:'start'})})});
+$(()=>{eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED,t=>{const e=$('#chat > .mes.last_mes');Number(e.attr('mesid'))===t&&('scrollBehavior'in window.parent.document.documentElement.style?e[0]?.scrollIntoView({block:'start',behavior:'smooth'}):e[0]?.scrollIntoView({block:'start'}))})});
 //# sourceMappingURL=index.js.map
