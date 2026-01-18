@@ -107,7 +107,7 @@ function rejectEmptyPrompts(prompts: Prompt[]): Prompt[] {
 function squashMessageByRole(prompts: Prompt[], settings: Settings): Prompt[] {
   return chunkBy(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
     role: chunk[0].role,
-    content: chunk.map(({ content }) => content.trim()).join(settings.seperator.value),
+    content: chunk.map(({ content }) => content).join(settings.seperator.value),
   }));
 }
 
@@ -125,11 +125,11 @@ function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
       .map(({ role, content }) => {
         switch (role) {
           case 'system':
-            return system_prefix + content.trim() + system_suffix;
+            return system_prefix + content + system_suffix;
           case 'assistant':
-            return assistant_prefix + content.trim() + assistant_suffix;
+            return assistant_prefix + content + assistant_suffix;
           case 'user':
-            return user_prefix + content.trim() + user_suffix;
+            return user_prefix + content + user_suffix;
         }
       })
       .join(settings.seperator.value),
@@ -163,7 +163,7 @@ function listenEvent(settings: Settings, seperators: Seperators) {
       !(below_placeholder && p.content.includes(below_placeholder));
 
     const extractSystemContent = (chunk: Prompt[]): string =>
-      chunk.filter(isSystemWithoutPlaceholder).map(p => p.content.trim()).filter(Boolean).join(seperator.value);
+      chunk.filter(isSystemWithoutPlaceholder).filter(p => p.content.trim()).map(p => p.content).join(seperator.value);
 
     // 先提取内容，再移除/移动消息
     const aboveContent = move_system_to_front ? extractSystemContent(chunks[1]) : '';
