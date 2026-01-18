@@ -41,7 +41,6 @@
           <i
             class="fa-solid fa-circle-question fa-sm note-link-span"
             style="cursor: pointer"
-            title="点击查看详细说明"
             @click="showPlaceholderHelp"
           />
         </label>
@@ -61,7 +60,6 @@
           <i
             class="fa-solid fa-circle-question fa-sm note-link-span"
             style="cursor: pointer"
-            title="点击查看详细说明"
             @click="showDepthHelp"
           />
         </div>
@@ -73,7 +71,6 @@
           <i
             class="fa-solid fa-circle-question fa-sm note-link-span"
             style="cursor: pointer"
-            title="点击查看详细说明"
             @click="showPlaceholderHelp"
           />
         </label>
