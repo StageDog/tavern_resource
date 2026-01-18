@@ -2,50 +2,48 @@
   <div class="roleplay_options">
     <div class="roleplay_options_back">
       <div
-        v-for="item in items"
-        :key="item.title"
+        v-for="option in options"
+        :key="option.title"
         class="roleplay_options_item"
         tabindex="1"
-        @click="handleItemClick(item)"
+        @click="handleClick(option)"
       >
         <span class="roleplay_options_title">
-          <strong>{{ item.title }}</strong>
+          <strong>{{ option.title }}</strong>
         </span>
         <hr class="roleplay_options_hr" />
-        <span class="roleplay_options_content">{{ item.content }}</span>
+        <span class="roleplay_options_content">{{ option.content }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+const props = defineProps<{ message: string }>();
+
 interface RoleplayOption {
   title: string;
   content: string;
 }
 
-const items = ref<RoleplayOption[]>([]);
+const options = ref<RoleplayOption[]>(
+  (() => {
+    const text = props.message.match(/<roleplay_options>(.*?)<\/roleplay_options>/s)?.[1] ?? '';
 
-function extractItems(): RoleplayOption[] {
-  const chat_message = getChatMessages(getCurrentMessageId())[0];
-  const text = chat_message.message.match(/<roleplay_options>(.*?)<\/roleplay_options>/s)?.[1] ?? '';
+    const item_matches = [...text.matchAll(/(.+?)[:：]\s*(.+)/gm)];
+    return item_matches.map(match => ({
+      title: match[1],
+      content: match[2].replace(/^\$\{(.+)\}$/, '$1').replace(/^「(.+)」$/, '$1'),
+    }));
+  })(),
+);
 
-  const item_matches = [...text.matchAll(/(.+?)[:：]\s*(.+)/gm)];
-  return item_matches.map(match => ({
-    title: match[1],
-    content: match[2].replace(/^\$\{(.+)\}$/, '$1').replace(/^「(.+)」$/, '$1'),
-  }));
-}
-
-onMounted(() => {
-  items.value = extractItems();
-});
-
-async function handleItemClick(item: RoleplayOption) {
+async function handleClick(item: RoleplayOption) {
   await createChatMessages([{ role: 'user', message: item.content }]);
   triggerSlash('/trigger');
 }
 </script>
+
 
 <style lang="scss" scoped>
 .roleplay_options {

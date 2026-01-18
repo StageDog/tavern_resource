@@ -1,6 +1,8 @@
 import { createApp } from 'vue';
-import app from './app.vue';
+import App from './App.vue';
 
 $(() => {
-  createApp(app).mount('#app');
+  const app = createApp(App).use(createPinia());
+  app.mount('#app');
+  $(window).on('pagehide', () => app.unmount());
 });

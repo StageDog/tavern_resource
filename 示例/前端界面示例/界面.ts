@@ -7,7 +7,11 @@ const router = createRouter({
   history: createMemoryHistory(),
   routes: [
     { path: '/日记', component: Diary },
-    { path: '/选择框', component: RoleplayOptions },
+    {
+      path: '/选择框',
+      component: RoleplayOptions,
+      props: { message: getChatMessages(getCurrentMessageId())[0].message },
+    },
   ],
 });
 router.replace('/日记');
