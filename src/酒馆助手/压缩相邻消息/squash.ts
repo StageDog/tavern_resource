@@ -26,7 +26,8 @@ function injectSeperators(settings: Settings) {
     deep: {
       id: `\xff${settings.name}深度分割`,
       position: 'in_chat',
-      depth: 10,
+      // 减1以兼容之前的行为：分隔符位于D阈值下方，确保同深度的系统条目排在分隔符之前
+      depth: settings.depth_threshold - 1,
       role: 'system',
       content: uuidv4(),
     },
@@ -151,40 +152,66 @@ function listenEvent(settings: Settings, seperators: Seperators) {
     if (chunks === null) {
       return;
     }
-    if (settings.put_system_injection_after_chat_history) {
-      chunks[0] = _.concat(
-        chunks[0],
-        _.remove(chunks[1], ({ role }) => role === 'system'),
-      );
-      chunks[3] = _.concat(
-        _.remove(chunks[2], ({ role }) => role === 'system'),
-        chunks[3],
-      );
+
+    const { above_placeholder, below_placeholder, move_system_to_front, move_system_to_back, seperator } = settings;
+    const allPrompts = chunks.flat();
+
+    // 含占位符的系统消息需保留原位，占位符会被替换为提取的内容
+    const isSystemWithoutPlaceholder = (p: Prompt): boolean =>
+      p.role === 'system' &&
+      !(above_placeholder && p.content.includes(above_placeholder)) &&
+      !(below_placeholder && p.content.includes(below_placeholder));
+
+    const extractSystemContent = (chunk: Prompt[]): string =>
+      chunk.filter(isSystemWithoutPlaceholder).map(p => p.content.trim()).filter(Boolean).join(seperator.value);
+
+    // 先提取内容，再移除/移动消息
+    const aboveContent = move_system_to_front ? extractSystemContent(chunks[1]) : '';
+    const belowContent = move_system_to_back ? extractSystemContent(chunks[2]) : '';
+
+    if (move_system_to_front) {
+      if (above_placeholder && allPrompts.some(p => p.content.includes(above_placeholder))) {
+        // 有占位符：仅移除，内容通过占位符替换注入
+        _.remove(chunks[1], isSystemWithoutPlaceholder);
+      } else {
+        // 无占位符：直接移动到 head 末尾
+        chunks[0] = _.concat(chunks[0], _.remove(chunks[1], p => p.role === 'system'));
+      }
     }
+
+    if (move_system_to_back) {
+      if (below_placeholder && allPrompts.some(p => p.content.includes(below_placeholder))) {
+        _.remove(chunks[2], isSystemWithoutPlaceholder);
+      } else {
+        // 无占位符：直接移动到 tail 开头
+        chunks[3] = _.concat(_.remove(chunks[2], p => p.role === 'system'), chunks[3]);
+      }
+    }
+
     const [head, before_chat_history, after_chat_history, tail] = _(chunks)
       .map(prompts => rejectEmptyPrompts(prompts))
       .map(prompts => squashMessageByRole(prompts, settings))
       .value();
+
+    let result: Prompt[];
     switch (settings.on_chat_history.type) {
       case 'mixin':
-        assignInplace(
-          prompt,
-          squashMessageByRole(_.concat(head, before_chat_history, after_chat_history, tail), settings),
-        );
+        result = squashMessageByRole(_.concat(head, before_chat_history, after_chat_history, tail), settings);
         break;
       case 'seperate':
-        assignInplace(
-          prompt,
-          _.concat(head, squashMessageByRole(_.concat(before_chat_history, after_chat_history), settings), tail),
-        );
+        result = _.concat(head, squashMessageByRole(_.concat(before_chat_history, after_chat_history), settings), tail);
         break;
       case 'squash':
-        assignInplace(
-          prompt,
-          _.concat(head, squashChatHistory(_.concat(before_chat_history, after_chat_history), settings), tail),
-        );
+        result = _.concat(head, squashChatHistory(_.concat(before_chat_history, after_chat_history), settings), tail);
         break;
     }
+
+    for (const p of result) {
+      if (above_placeholder) p.content = p.content.replaceAll(above_placeholder, aboveContent);
+      if (below_placeholder) p.content = p.content.replaceAll(below_placeholder, belowContent);
+    }
+
+    assignInplace(prompt, result);
   };
   const handlePrompts2 = ({ messages }: { messages: SillyTavern.SendingMessage[] }) => {
     handlePrompts({ prompt: messages }, false);
