@@ -100,6 +100,15 @@ function seperatePrompts(prompts: Prompt[], seperators: Seperators): Prompt[][] 
   ];
 }
 
+function trimEmptyLines(str: string): string {
+  const lines = str.split('\n');
+  let start = 0;
+  let end = lines.length;
+  while (start < end && !lines[start].trim()) start++;
+  while (end > start && !lines[end - 1].trim()) end--;
+  return lines.slice(start, end).join('\n');
+}
+
 function rejectEmptyPrompts(prompts: Prompt[]): Prompt[] {
   return prompts.filter(({ content }) => content.trim() !== '');
 }
@@ -107,7 +116,7 @@ function rejectEmptyPrompts(prompts: Prompt[]): Prompt[] {
 function squashMessageByRole(prompts: Prompt[], settings: Settings): Prompt[] {
   return chunkBy(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
     role: chunk[0].role,
-    content: chunk.map(({ content }) => content).join(settings.seperator.value),
+    content: chunk.map(({ content }) => trimEmptyLines(content)).join(settings.seperator.value),
   }));
 }
 
@@ -123,13 +132,14 @@ function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
     role: settings.on_chat_history.squash_role,
     content: prompts
       .map(({ role, content }) => {
+        const trimmed = trimEmptyLines(content);
         switch (role) {
           case 'system':
-            return system_prefix + content + system_suffix;
+            return system_prefix + trimmed + system_suffix;
           case 'assistant':
-            return assistant_prefix + content + assistant_suffix;
+            return assistant_prefix + trimmed + assistant_suffix;
           case 'user':
-            return user_prefix + content + user_suffix;
+            return user_prefix + trimmed + user_suffix;
         }
       })
       .join(settings.seperator.value),
@@ -163,7 +173,7 @@ function listenEvent(settings: Settings, seperators: Seperators) {
       !(below_placeholder && p.content.includes(below_placeholder));
 
     const extractSystemContent = (chunk: Prompt[]): string =>
-      chunk.filter(isSystemWithoutPlaceholder).filter(p => p.content.trim()).map(p => p.content).join(seperator.value);
+      chunk.filter(isSystemWithoutPlaceholder).filter(p => p.content.trim()).map(p => trimEmptyLines(p.content)).join(seperator.value);
 
     // 先提取内容，再移除/移动消息
     const aboveContent = move_system_to_front ? extractSystemContent(chunks[1]) : '';
