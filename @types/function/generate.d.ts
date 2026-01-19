@@ -1,5 +1,11 @@
-
 type GenerateConfig = {
+  /**
+   * 请求生成的唯一标识符, 不设置则默认生成一个随机标识符.
+   *
+   * 当有多个 generate/generateRaw 同时请求生成时, 可以为每个请求指定唯一标识符, 从而能用 `stopGenerationById` 停止特定生成请求, 或正确监听对应的生成事件.
+   */
+  generation_id?: string;
+
   /** 用户输入 */
   user_input?: string;
 
@@ -37,13 +43,6 @@ type GenerateConfig = {
 
   /** 自定义API配置 */
   custom_api?: CustomApiConfig;
-
-  /**
-   * 唯一id
-   *
-   * 可以并发生成，并可以通过stopGenerateById停止特定生成，不设置默认生成uuid，在发送的事件中也会返回该id
-   */
-  generation_id?: string;
 };
 
 type GenerateRawConfig = GenerateConfig & {
@@ -110,7 +109,7 @@ type CustomApiConfig = {
   key?: string;
   /** 模型名称 */
   model: string;
-  /** API源，默认为 'openai' */
+  /** API源, 默认为 'openai'. 目前支持的源请查看酒馆官方代码[`SillyTavern/src/constants.js`](https://github.com/SillyTavern/SillyTavern/blob/2e3dff73a127679f643e971801cd51173c2c34e7/src/constants.js#L164) */
   source?: string;
 
   /** 最大回复 tokens 度 */
@@ -248,16 +247,16 @@ declare function generate(config: GenerateConfig): Promise<string>;
 declare function generateRaw(config: GenerateRawConfig): Promise<string>;
 
 /**
- * 根据生成ID停止特定的生成过程
+ * 根据生成请求唯一标识符停止特定的生成请求
  *
- * @param generationId 生成ID，用于标识要停止的生成过程
- * @returns Promise<boolean> 返回是否成功停止生成
+ * @param generation_id 生成请求唯一标识符, 用于标识要停止的生成请求
+ * @returns Promise<boolean> 是否成功停止生成
  */
-declare function stopGenerationById(generationId: string): Promise<boolean>;
+declare function stopGenerationById(generation_id: string): Promise<boolean>;
 
 /**
- * 停止所有正在进行的生成过程
+ * 停止所有正在进行的生成请求
  *
- * @returns Promise<boolean> 返回是否成功停止所有生成
+ * @returns Promise<boolean> 是否成功停止所有生成
  */
 declare function stopAllGeneration(): Promise<boolean>;
