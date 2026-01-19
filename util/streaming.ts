@@ -161,11 +161,15 @@ export function mountStreamingMessages(
     });
   };
 
-  const renderAllMessage = async (trigger_event?: true) => {
+  const renderAllMessage = async (options: { destroy_all?: boolean; trigger_event?: boolean } = {}) => {
     if (has_stoped) {
       return;
     }
-    destroyAllInvalid();
+    if (options.destroy_all) {
+      states.forEach(({ destroy }) => destroy());
+    } else {
+      destroyAllInvalid();
+    }
     await Promise.all(
       $('#chat')
         .children(".mes[is_user='false'][is_system='false']")
@@ -173,7 +177,7 @@ export function mountStreamingMessages(
           const message_id = Number($(node).attr('mesid') ?? 'NaN');
           if (!isNaN(message_id)) {
             await renderOneMessage(message_id);
-            if (trigger_event) {
+            if (options.trigger_event) {
               eventEmit(tavern_events.CHARACTER_MESSAGE_RENDERED, message_id, 'rerender');
             }
           }
@@ -187,7 +191,9 @@ export function mountStreamingMessages(
       first ? eventMakeFirst(event, errorCatched(listener)).stop : eventOn(event, errorCatched(listener)).stop,
     );
   };
-  scopedEventOn('chatLoaded', () => renderAllMessage());
+  scopedEventOn('chatLoaded', () => {
+    renderAllMessage({ destroy_all: true });
+  });
   scopedEventOn(
     tavern_events.CHARACTER_MESSAGE_RENDERED,
     message_id => {
@@ -211,7 +217,7 @@ export function mountStreamingMessages(
   if (host === 'div') {
     stop_list.push(teleportStyle().destroy);
   }
-  renderAllMessage(true);
+  renderAllMessage({ trigger_event: true });
 
   return {
     unmount: () => {
