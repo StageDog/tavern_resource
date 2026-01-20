@@ -1,8 +1,8 @@
 import { checkMinimumVersion } from '@util/common';
 import { loadReadme } from '@util/script';
 import { initPanel } from './panel';
-import { useSettingsStore } from './settings';
 import { initSquash } from './squash';
+import { useSettingsStore } from './store';
 
 $(() => {
   checkMinimumVersion('3.4.17', '压缩相邻消息');

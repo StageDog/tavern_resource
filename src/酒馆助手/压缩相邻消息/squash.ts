@@ -1,6 +1,6 @@
 import { assignInplace, chunkBy, regexFromString, uuidv4 } from '@util/common';
 import { compare } from 'compare-versions';
-import { Settings } from './settings';
+import { Settings } from './store';
 
 type Prompt = {
   role: 'user' | 'assistant' | 'system';
@@ -8,14 +8,14 @@ type Prompt = {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-type Seperators = {
+type Separators = {
   head: InjectionPrompt;
   deep: InjectionPrompt;
   tail: InjectionPrompt;
 };
 
-function injectSeperators(settings: Settings) {
-  const seperators = Object.freeze({
+function injectSeparators(settings: Settings) {
+  const separators = Object.freeze({
     head: {
       id: `\0${settings.name}`,
       position: 'in_chat',
@@ -26,8 +26,7 @@ function injectSeperators(settings: Settings) {
     deep: {
       id: `\xff${settings.name}深度分割`,
       position: 'in_chat',
-      // 减1以兼容之前的行为：分隔符位于D阈值下方，确保同深度的系统条目排在分隔符之前
-      depth: settings.depth_threshold - 1,
+      depth: settings.depth_injection.threshold,
       role: 'system',
       content: uuidv4(),
     },
@@ -44,24 +43,24 @@ function injectSeperators(settings: Settings) {
     if (dry_run) {
       return;
     }
-    injectPrompts(Object.values(seperators));
+    injectPrompts(Object.values(separators));
   };
   eventOn(tavern_events.GENERATION_AFTER_COMMANDS, inject);
 
   return {
-    seperators,
+    separators,
     uninject: () => {
       eventRemoveListener(tavern_events.GENERATION_AFTER_COMMANDS, inject);
-      uninjectPrompts(Object.values(seperators).map(({ id }) => id));
+      uninjectPrompts(Object.values(separators).map(({ id }) => id));
     },
   };
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-function seperatePrompts(prompts: Prompt[], seperators: Seperators): Prompt[][] | null {
-  const head_index = prompts.findIndex(({ content }) => content.includes(seperators.head.content));
-  const deep_index = prompts.findIndex(({ content }) => content.includes(seperators.deep.content));
-  const tail_index = prompts.findIndex(({ content }) => content.includes(seperators.tail.content));
+function seperatePrompts(prompts: Prompt[], separators: Separators): Prompt[][] | null {
+  const head_index = prompts.findIndex(({ content }) => content.includes(separators.head.content));
+  const deep_index = prompts.findIndex(({ content }) => content.includes(separators.deep.content));
+  const tail_index = prompts.findIndex(({ content }) => content.includes(separators.tail.content));
   if (head_index === -1 || deep_index === -1 || tail_index === -1) {
     return null;
   }
@@ -80,9 +79,9 @@ function seperatePrompts(prompts: Prompt[], seperators: Seperators): Prompt[][] 
     return splitted;
   };
 
-  const splitted_head = split_with_context(['', ''], -1, head_index, seperators.head.content);
-  const splitted_deep = split_with_context(splitted_head, head_index, deep_index, seperators.deep.content);
-  const splitted_tail = split_with_context(splitted_deep, deep_index, tail_index, seperators.tail.content);
+  const splitted_head = split_with_context(['', ''], -1, head_index, separators.head.content);
+  const splitted_deep = split_with_context(splitted_head, head_index, deep_index, separators.deep.content);
+  const splitted_tail = split_with_context(splitted_deep, deep_index, tail_index, separators.tail.content);
 
   return [
     [...prompts.slice(0, head_index), { role: prompts[head_index].role, content: splitted_head[0] }],
@@ -100,8 +99,8 @@ function seperatePrompts(prompts: Prompt[], seperators: Seperators): Prompt[][] 
   ];
 }
 
-function trimEmptyLines(str: string): string {
-  const lines = str.split('\n');
+function trimEmptyLines(string: string): string {
+  const lines = string.split('\n');
   let start = 0;
   let end = lines.length;
   while (start < end && !lines[start].trim()) start++;
@@ -116,20 +115,20 @@ function rejectEmptyPrompts(prompts: Prompt[]): Prompt[] {
 function squashMessageByRole(prompts: Prompt[], settings: Settings): Prompt[] {
   return chunkBy(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
     role: chunk[0].role,
-    content: chunk.map(({ content }) => trimEmptyLines(content)).join(settings.seperator.value),
+    content: chunk.map(({ content }) => trimEmptyLines(content)).join(settings.delimiter.value),
   }));
 }
 
 function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
   // TODO: zod encode
-  const system_prefix = substitudeMacros(settings.on_chat_history.system_prefix);
-  const system_suffix = substitudeMacros(settings.on_chat_history.system_suffix);
-  const assistant_prefix = substitudeMacros(settings.on_chat_history.assistant_prefix);
-  const assistant_suffix = substitudeMacros(settings.on_chat_history.assistant_suffix);
-  const user_prefix = substitudeMacros(settings.on_chat_history.user_prefix);
-  const user_suffix = substitudeMacros(settings.on_chat_history.user_suffix);
+  const system_prefix = substitudeMacros(settings.chat_history.system_prefix);
+  const system_suffix = substitudeMacros(settings.chat_history.system_suffix);
+  const assistant_prefix = substitudeMacros(settings.chat_history.assistant_prefix);
+  const assistant_suffix = substitudeMacros(settings.chat_history.assistant_suffix);
+  const user_prefix = substitudeMacros(settings.chat_history.user_prefix);
+  const user_suffix = substitudeMacros(settings.chat_history.user_suffix);
   return {
-    role: settings.on_chat_history.squash_role,
+    role: settings.chat_history.squash_role,
     content: prompts
       .map(({ role, content }) => {
         const trimmed = trimEmptyLines(content);
@@ -142,11 +141,11 @@ function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
             return user_prefix + trimmed + user_suffix;
         }
       })
-      .join(settings.seperator.value),
+      .join(settings.delimiter.value),
   };
 }
 
-function listenEvent(settings: Settings, seperators: Seperators) {
+function listenEvent(settings: Settings, separators: Separators) {
   const handlePrompts = ({ prompt }: { prompt: SillyTavern.SendingMessage[] }, dry_run: boolean) => {
     if (dry_run) {
       return;
@@ -158,43 +157,53 @@ function listenEvent(settings: Settings, seperators: Seperators) {
     }
 
     // @ts-expect-error 类型正确
-    const chunks = seperatePrompts(prompt, seperators);
+    const chunks = seperatePrompts(prompt, separators);
     if (chunks === null) {
       return;
     }
 
-    const { above_placeholder, below_placeholder, move_system_to_front, move_system_to_back, seperator } = settings;
+    const { above, below } = settings.depth_injection;
     const allPrompts = chunks.flat();
 
     // 含占位符的系统消息需保留原位，占位符会被替换为提取的内容
     const isSystemWithoutPlaceholder = (p: Prompt): boolean =>
       p.role === 'system' &&
-      !(above_placeholder && p.content.includes(above_placeholder)) &&
-      !(below_placeholder && p.content.includes(below_placeholder));
+      !(above.enabled && above.type === 'placeholder' && above.placeholder && p.content.includes(above.placeholder)) &&
+      !(below.enabled && below.type === 'placeholder' && below.placeholder && p.content.includes(below.placeholder));
 
     const extractSystemContent = (chunk: Prompt[]): string =>
-      chunk.filter(isSystemWithoutPlaceholder).filter(p => p.content.trim()).map(p => trimEmptyLines(p.content)).join(seperator.value);
+      chunk
+        .filter(isSystemWithoutPlaceholder)
+        .filter(p => p.content.trim())
+        .map(p => trimEmptyLines(p.content))
+        .join(settings.delimiter.value);
 
     // 先提取内容，再移除/移动消息
-    const aboveContent = move_system_to_front ? extractSystemContent(chunks[1]) : '';
-    const belowContent = move_system_to_back ? extractSystemContent(chunks[2]) : '';
+    const aboveContent = above.enabled ? extractSystemContent(chunks[1]) : '';
+    const belowContent = below.enabled ? extractSystemContent(chunks[2]) : '';
 
-    if (move_system_to_front) {
-      if (above_placeholder && allPrompts.some(p => p.content.includes(above_placeholder))) {
+    if (above.enabled) {
+      if (above.placeholder && allPrompts.some(p => p.content.includes(above.placeholder))) {
         // 有占位符：仅移除，内容通过占位符替换注入
         _.remove(chunks[1], isSystemWithoutPlaceholder);
       } else {
         // 无占位符：直接移动到 head 末尾
-        chunks[0] = _.concat(chunks[0], _.remove(chunks[1], p => p.role === 'system'));
+        chunks[0] = _.concat(
+          chunks[0],
+          _.remove(chunks[1], p => p.role === 'system'),
+        );
       }
     }
 
-    if (move_system_to_back) {
-      if (below_placeholder && allPrompts.some(p => p.content.includes(below_placeholder))) {
+    if (below.enabled) {
+      if (below.placeholder && allPrompts.some(p => p.content.includes(below.placeholder))) {
         _.remove(chunks[2], isSystemWithoutPlaceholder);
       } else {
         // 无占位符：直接移动到 tail 开头
-        chunks[3] = _.concat(_.remove(chunks[2], p => p.role === 'system'), chunks[3]);
+        chunks[3] = _.concat(
+          _.remove(chunks[2], p => p.role === 'system'),
+          chunks[3],
+        );
       }
     }
 
@@ -204,7 +213,7 @@ function listenEvent(settings: Settings, seperators: Seperators) {
       .value();
 
     let result: Prompt[];
-    switch (settings.on_chat_history.type) {
+    switch (settings.chat_history.type) {
       case 'mixin':
         result = squashMessageByRole(_.concat(head, before_chat_history, after_chat_history, tail), settings);
         break;
@@ -217,8 +226,8 @@ function listenEvent(settings: Settings, seperators: Seperators) {
     }
 
     for (const p of result) {
-      if (above_placeholder) p.content = p.content.replaceAll(above_placeholder, aboveContent);
-      if (below_placeholder) p.content = p.content.replaceAll(below_placeholder, belowContent);
+      if (above.placeholder) p.content = p.content.replaceAll(above.placeholder, aboveContent);
+      if (below.placeholder) p.content = p.content.replaceAll(below.placeholder, belowContent);
     }
 
     assignInplace(prompt, result);
@@ -228,9 +237,9 @@ function listenEvent(settings: Settings, seperators: Seperators) {
   };
 
   if (compare(getTavernVersion(), '1.13.4', '>')) {
-    eventMakeFirst(tavern_events.GENERATE_AFTER_DATA, handlePrompts);
+    eventOn(tavern_events.GENERATE_AFTER_DATA, handlePrompts);
   } else {
-    eventMakeFirst(tavern_events.CHAT_COMPLETION_SETTINGS_READY, handlePrompts2);
+    eventOn(tavern_events.CHAT_COMPLETION_SETTINGS_READY, handlePrompts2);
   }
 
   const handleStopStringOnStream = (text: string) => {
@@ -245,7 +254,7 @@ function listenEvent(settings: Settings, seperators: Seperators) {
       SillyTavern.stopGeneration();
     }
   };
-  eventMakeFirst(tavern_events.STREAM_TOKEN_RECEIVED, handleStopStringOnStream);
+  eventOn(tavern_events.STREAM_TOKEN_RECEIVED, handleStopStringOnStream);
 
   const handleStopStringOnReceived = async (message_id: number | string) => {
     if (!settings.stop_string) {
@@ -269,7 +278,7 @@ function listenEvent(settings: Settings, seperators: Seperators) {
       await SillyTavern.saveChat();
     }
   };
-  eventMakeFirst(tavern_events.MESSAGE_RECEIVED, handleStopStringOnReceived);
+  eventOn(tavern_events.MESSAGE_RECEIVED, handleStopStringOnReceived);
 
   return {
     unlisten: () => {
@@ -283,8 +292,8 @@ function listenEvent(settings: Settings, seperators: Seperators) {
 
 //----------------------------------------------------------------------------------------------------------------------
 export function initSquash(settings: Settings) {
-  const { seperators, uninject } = injectSeperators(settings);
-  const { unlisten } = listenEvent(settings, seperators);
+  const { separators, uninject } = injectSeparators(settings);
+  const { unlisten } = listenEvent(settings, separators);
   return {
     destroy: () => {
       uninject();
