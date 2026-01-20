@@ -243,7 +243,7 @@ function listenEvent(settings: Settings, separators: Separators) {
     if (!settings.stop_string) {
       return;
     }
-    const regex = regexFromString(settings.stop_string);
+    const regex = regexFromString(settings.stop_string, true);
     if (!regex) {
       return;
     }
@@ -260,7 +260,7 @@ function listenEvent(settings: Settings, separators: Separators) {
 
     const chat_message = SillyTavern.chat[Number(message_id)];
 
-    const regex = regexFromString(settings.stop_string);
+    const regex = regexFromString(settings.stop_string, true);
     if (!regex) {
       return;
     }
