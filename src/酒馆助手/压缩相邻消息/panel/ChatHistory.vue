@@ -14,9 +14,9 @@
         <Select
           v-model="store.settings.chat_history.squash_role"
           :options="[
-            { label: '⚙系统', value: 'system' },
-            { label: '👤用户', value: 'user' },
-            { label: '🤖助手', value: 'assistant' },
+            { label: '用户', value: 'user' },
+            { label: '助手', value: 'assistant' },
+            { label: '系统', value: 'system' },
           ]"
         />
       </Field>
