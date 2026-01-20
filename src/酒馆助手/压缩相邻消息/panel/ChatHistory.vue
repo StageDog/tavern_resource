@@ -1,16 +1,19 @@
 <template>
-  <Section label="合并聊天历史">
+  <Section label="处理聊天历史">
+    <template #label-suffix>
+      <HelpIcon :help="chat_history_help" />
+    </template>
+
     <Select
       v-model="store.settings.chat_history.type"
       :options="[
-        { label: '与其他提示词混合', value: 'mixin' },
-        { label: '与其他提示词隔离', value: 'seperate' },
-        { label: '单独压缩为一条消息', value: 'squash' },
+        { label: '仅合并相邻同身份提示词', value: 'squash_nearby' },
+        { label: '压缩为单条提示词', value: 'squash_into_one' },
       ]"
     />
 
-    <template v-if="store.settings.chat_history.type === 'squash'">
-      <Field label="压缩角色">
+    <template v-if="store.settings.chat_history.type === 'squash_into_one'">
+      <Field label="压缩后的提示词身份">
         <Select
           v-model="store.settings.chat_history.squash_role"
           :options="[
@@ -48,9 +51,11 @@
 <script setup lang="ts">
 import { useSettingsStore } from '../store';
 import Field from './component/Field.vue';
+import HelpIcon from './component/HelpIcon.vue';
 import Item from './component/Item.vue';
 import Section from './component/Section.vue';
 import Select from './component/Select.vue';
+import chat_history_help from './help/chat_history.md';
 
 const store = useSettingsStore();
 

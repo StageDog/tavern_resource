@@ -57,7 +57,10 @@ const OldSettings = z
           placeholder: `{{${data.name}::below_dx}}`,
         },
       },
-      chat_history: data.on_chat_history,
+      chat_history: {
+        ...data.on_chat_history,
+        type: data.on_chat_history.type === 'squash' ? 'squash_into_one' : 'squash_nearby',
+      },
     } satisfies z.infer<typeof NewSettings>);
   });
 
@@ -110,7 +113,7 @@ const NewSettings = z
 
     chat_history: z
       .object({
-        type: z.enum(['mixin', 'seperate', 'squash']).default('squash'),
+        type: z.enum(['squash_nearby', 'squash_into_one']).default('squash_into_one'),
 
         squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
         user_prefix: z.string().default('{{user}}:\n'),

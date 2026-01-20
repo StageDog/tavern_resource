@@ -214,13 +214,10 @@ function listenEvent(settings: Settings, separators: Separators) {
 
     let result: Prompt[];
     switch (settings.chat_history.type) {
-      case 'mixin':
-        result = squashMessageByRole(_.concat(head, before_chat_history, after_chat_history, tail), settings);
-        break;
-      case 'seperate':
+      case 'squash_nearby':
         result = _.concat(head, squashMessageByRole(_.concat(before_chat_history, after_chat_history), settings), tail);
         break;
-      case 'squash':
+      case 'squash_into_one':
         result = _.concat(head, squashChatHistory(_.concat(before_chat_history, after_chat_history), settings), tail);
         break;
     }

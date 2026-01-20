@@ -1,5 +1,9 @@
 <template>
-  <Section label="处理深度条目">
+  <Section label="处理 D⚙ 条目">
+    <template #label-suffix>
+      <HelpIcon :help="depth_injection_help" />
+    </template>
+
     <input
       v-model.number="store.settings.depth_injection.threshold"
       type="number"
@@ -16,8 +20,8 @@
         v-model="store.settings.depth_injection.above.type"
         style="width: 90%; align-self: flex-end"
         :options="[
-          { label: '按顺序插入到 D9999', value: 'exclude' },
-          { label: `替换到 ${store.settings.depth_injection.above.placeholder} 宏位置`, value: 'placeholder' },
+          { label: '按顺序插入到聊天记录之前', value: 'exclude' },
+          { label: `合并后替换到 ${store.settings.depth_injection.above.placeholder} 宏位置`, value: 'placeholder' },
         ]"
       />
     </template>
@@ -31,8 +35,8 @@
         v-model="store.settings.depth_injection.below.type"
         style="width: 90%; align-self: flex-end"
         :options="[
-          { label: '按顺序插入到 D0', value: 'exclude' },
-          { label: `替换到 ${store.settings.depth_injection.below.placeholder} 宏位置`, value: 'placeholder' },
+          { label: '按顺序插入到聊天记录之后', value: 'exclude' },
+          { label: `合并后替换到 ${store.settings.depth_injection.below.placeholder} 宏位置`, value: 'placeholder' },
         ]"
       />
     </template>
@@ -42,8 +46,10 @@
 <script setup lang="ts">
 import { useSettingsStore } from '../store';
 import Checkbox from './component/Checkbox.vue';
+import HelpIcon from './component/HelpIcon.vue';
 import Section from './component/Section.vue';
 import Select from './component/Select.vue';
+import depth_injection_help from './help/depth_injection.md';
 
 const store = useSettingsStore();
 </script>
