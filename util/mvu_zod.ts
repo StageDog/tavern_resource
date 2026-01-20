@@ -35,54 +35,43 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
     const schema = unwrapSchema();
     const notification_enabled = Boolean($('#mvu_notification_error').prop('checked'));
 
-    const check_and_apply = (data: any, command: Mvu.CommandInfo, should_toastr: boolean) => {
+    const checkSchema = (data: any, command: Mvu.CommandInfo, should_toastr: boolean) => {
+      let error_message = '';
       try {
         const result = schema.safeParse(data, { reportInput: true });
         if (result.success) {
-          variables.stat_data = { ...variables.stat_data, ...result.data };
-          return true;
+          return result.data;
         }
-        if (notification_enabled && should_toastr) {
-          reportError(
-            'warn',
-            prettifyErrorWithInput(result.error),
-            `发生变量更新错误，可能需要重Roll: ${command.full_match}`,
-          );
-        }
+        error_message = prettifyErrorWithInput(result.error);
       } catch (e) {
         const error = e as Error;
-        reportError(
-          'error',
-          error.stack ? error.stack : error.name + ': ' + error.message,
-          `发生变量更新错误，可能需要重Roll: ${command.full_match}`,
-        );
+        error_message = error.stack ? error.stack : error.name + ': ' + error.message;
       }
-      return false;
+
+      if (notification_enabled && should_toastr) {
+        reportError('warn', error_message, `发生变量更新错误，可能需要重Roll: ${command.full_match}`);
+      }
+      return null;
     };
 
-    const old_data = klona(variables.stat_data);
-
-    for (const command of commands) {
-      let data = klona(variables.stat_data);
-      const path = trimQuotesAndBackslashes(command.args[0])
-        // 一些错误提示词写法会导致 AI 在更新变量时带上 `stat_data.` 前缀, 这里将它去掉
-        .replace(/^stat_data\./, '');
+    const applyCommand = (data: any, command: Mvu.CommandInfo): any | null => {
       switch (command.type) {
         case 'set': {
           if (command.args.length === 3) {
             command.args.splice(1, 1);
           }
+          const path = parsePath(command.args[0]);
           if (path) {
             _.set(data, path, parseCommandValue(command.args[1]));
           } else {
             data = parseCommandValue(command.args[1]);
           }
-          check_and_apply(data, command, true);
-          break;
+          return checkSchema(data, command, true);
         }
         case 'add': {
+          const path = parsePath(command.args[0]);
           if (!path) {
-            break;
+            return null;
           }
           const old_value = _.get(data, path);
           const delta_value = parseCommandValue(command.args[1]);
@@ -91,11 +80,12 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
             (typeof old_value === 'number' || typeof old_value === 'string')
           ) {
             _.update(data, path, value => value + delta_value);
-            check_and_apply(data, command, true);
+            return checkSchema(data, command, true);
           }
-          break;
+          return null;
         }
         case 'insert': {
+          const path = parsePath(command.args[0]);
           const key_or_index = parseCommandValue(command.args[1]);
           const value = parseCommandValue(command.args.at(-1)!);
 
@@ -113,30 +103,26 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
             } else {
               collection[String(key_or_index)] = value;
             }
-            return check_and_apply(data, command, should_toastr);
+            return checkSchema(data, command, should_toastr);
           };
 
           const collection = path === '' ? data : _.get(data, path);
           const is_nil = _.isNil(collection);
           if (!is_nil && !_.isArray(collection) && !_.isPlainObject(collection)) {
-            continue;
+            return null;
           }
           if (!is_nil) {
-            insert(data, true);
-            continue;
+            return insert(data, true);
           }
           const filled = _(klona(data));
-          if (!insert(filled.set(path, {}).value(), false)) {
-            insert(filled.set(path, []).value(), true);
+          const result_as_object = insert(filled.set(path, {}).value(), false);
+          if (result_as_object) {
+            return result_as_object;
           }
-          break;
+          return insert(filled.set(path, []).value(), true);
         }
         case 'delete': {
-          const path = (command.args satisfies string[])
-            .map(trimQuotesAndBackslashes)
-            .join('.')
-            // 一些错误提示词写法会导致 AI 在更新变量时带上 `stat_data.` 前缀, 这里将它去掉
-            .replace(/^stat_data\./, '');
+          const path = command.args.map(parsePath).join('.');
           const path_array = _(path).toPath().value();
           const parent_path = _(path_array).dropRight().join('.');
           if (_.isArray(_.get(data, parent_path))) {
@@ -144,9 +130,37 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
           } else {
             _.unset(data, path);
           }
-          check_and_apply(data, command, true);
-          break;
+          return checkSchema(data, command, true);
         }
+      }
+    };
+
+    const old_data = klona(variables.stat_data);
+
+    for (const command of commands) {
+      let data = klona(variables.stat_data);
+      if (command.type === 'move') {
+        const from_path = parsePath(command.args[0]);
+        if (!_.has(data, from_path)) {
+          if (notification_enabled) {
+            reportError(
+              'warn',
+              `移动源路径不存在: ${from_path}`,
+              `发生变量更新错误，可能需要重Roll: ${command.full_match}`,
+            );
+          }
+          continue;
+        }
+        const value = _.get(data, from_path);
+        const to_path = parsePath(command.args[1]);
+
+        data = applyCommand(data, { ...command, type: 'delete', args: [from_path] });
+        data = applyCommand(data, { ...command, type: 'set', args: [to_path, value] });
+      } else {
+        data = applyCommand(data, command);
+      }
+      if (data !== null) {
+        variables.stat_data = { ...variables.stat_data, ...data };
       }
     }
 
@@ -193,6 +207,14 @@ function reportError(level: 'error' | 'warn', content: string, title: string) {
 
 function trimQuotesAndBackslashes(string: string): string {
   return string.replace(/^[\\"'` ]*(.*?)[\\"'` ]*$/, '$1');
+}
+
+function parsePath(string: string): string {
+  return (
+    trimQuotesAndBackslashes(string)
+      // 一些错误提示词写法会导致 AI 在更新变量时带上 `stat_data.` 前缀, 这里将它去掉
+      .replace(/^stat_data\./, '')
+  );
 }
 
 function parseCommandValue(string: string): any {
