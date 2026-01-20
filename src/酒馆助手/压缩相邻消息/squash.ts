@@ -100,12 +100,11 @@ function seperatePrompts(prompts: Prompt[], separators: Separators): Prompt[][] 
 }
 
 function trimEmptyLines(string: string): string {
-  const lines = string.split('\n');
-  let start = 0;
-  let end = lines.length;
-  while (start < end && !lines[start].trim()) start++;
-  while (end > start && !lines[end - 1].trim()) end--;
-  return lines.slice(start, end).join('\n');
+  return _(string)
+    .split('\n')
+    .takeWhile(line => !line.trim())
+    .takeRightWhile(line => !line.trim())
+    .join('\n');
 }
 
 function rejectEmptyPrompts(prompts: Prompt[]): Prompt[] {
