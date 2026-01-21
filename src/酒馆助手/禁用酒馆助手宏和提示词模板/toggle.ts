@@ -11,8 +11,7 @@ export function toggleExtensionSettings(enable: boolean) {
     $TH_macro_disabled.trigger('click');
   }
 
-  const $pt_enabled = $('#pt_enabled');
-  if ($pt_enabled.length > 0 && $pt_enabled.prop('checked') !== enable) {
-    $pt_enabled.prop('checked', enable)[0].dispatchEvent(new Event('click'));
+  if (EjsTemplate) {
+    EjsTemplate.setFeatures({ enabled: enable });
   }
 }

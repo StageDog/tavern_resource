@@ -12,13 +12,9 @@ const checkExtensionSettingsThrottled = _.throttle(checkExtensionSettings, 1000,
 let settings: EjsTemplate.Features;
 
 export function initExtensionSettings() {
-  eventOn(tavern_events.SETTINGS_UPDATED, checkExtensionSettingsThrottled);
-  checkExtensionSettings();
   if (EjsTemplate && typeof EjsTemplate.getFeatures === 'function') {
     settings = EjsTemplate.getFeatures();
     EjsTemplate.setFeatures({
-      enabled: true,
-
       generate_enabled: true,
       generate_loader_enabled: true,
       inject_loader_enabled: true,
@@ -37,12 +33,17 @@ export function initExtensionSettings() {
       invert_enabled: true,
     });
   }
-}
 
-export function destroyExtensionSettings() {
-  eventRemoveListener(tavern_events.SETTINGS_UPDATED, checkExtensionSettingsThrottled);
-  toggleExtensionSettings(true);
-  if (EjsTemplate && settings) {
-    EjsTemplate.setFeatures(settings);
-  }
+  checkExtensionSettings();
+  eventOn(tavern_events.SETTINGS_UPDATED, checkExtensionSettingsThrottled);
+
+  return {
+    destroy: () => {
+      eventRemoveListener(tavern_events.SETTINGS_UPDATED, checkExtensionSettingsThrottled);
+
+      if (EjsTemplate && settings) {
+        EjsTemplate.setFeatures(settings);
+      }
+    },
+  };
 }

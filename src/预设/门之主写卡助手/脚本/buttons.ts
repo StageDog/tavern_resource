@@ -263,11 +263,14 @@ async function changeButtons() {
 }
 const changeButtonsThrottled = _.throttle(changeButtons, 1000, { trailing: false });
 
-export async function initButtons() {
+export async function initButtons(): Promise<{ destroy: () => void }> {
   registerButtons(await checkButtonStatus());
   eventOn(tavern_events.SETTINGS_UPDATED, changeButtonsThrottled);
-}
 
-export function destroy_buttons() {
-  replaceScriptButtons([]);
+  return {
+    destroy: () => {
+      replaceScriptButtons([]);
+      eventRemoveListener(tavern_events.SETTINGS_UPDATED, changeButtonsThrottled);
+    },
+  };
 }

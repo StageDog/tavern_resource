@@ -8,7 +8,6 @@ $(() => {
   loadReadme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/深度条目排斥器/README.md');
   const { destroy } = initSquash(
     Settings.decode({
-      name: '深度排斥器',
       depth_injection: {
         above: {
           enabled: true,
@@ -20,7 +19,7 @@ $(() => {
         },
       },
       chat_history: {
-        type: 'mixin',
+        type: 'squash_nearby',
       },
     }),
   );
