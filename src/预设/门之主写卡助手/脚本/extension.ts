@@ -1,9 +1,9 @@
-import { toggleExtensionSettings } from '@/酒馆助手/禁用酒馆助手宏和提示词模板/toggle';
-import { preset_name } from './imports';
+import { toggleEjsAndMacro } from '@/酒馆助手/禁用酒馆助手宏和提示词模板/toggle';
+import { PRESET_NAME } from './imports';
 
 function checkExtensionSettings() {
-  toggleExtensionSettings(
-    getLoadedPresetName() !== preset_name ||
+  toggleEjsAndMacro(
+    getLoadedPresetName() !== PRESET_NAME ||
       getPreset('in_use')?.prompts.some(prompt => prompt.name.includes('<游玩模块>') && prompt.enabled === true),
   );
 }
@@ -11,7 +11,7 @@ const checkExtensionSettingsThrottled = _.throttle(checkExtensionSettings, 1000,
 
 let settings: EjsTemplate.Features;
 
-export function initExtensionSettings() {
+export function initEjsAndMacro() {
   if (EjsTemplate && typeof EjsTemplate.getFeatures === 'function') {
     settings = EjsTemplate.getFeatures();
     EjsTemplate.setFeatures({

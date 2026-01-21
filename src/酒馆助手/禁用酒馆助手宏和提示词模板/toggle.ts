@@ -1,4 +1,8 @@
-export function toggleExtensionSettings(enable: boolean) {
+export function isEjsAndMacroEnabled(): boolean {
+  return !$('#macro-replace-disable-toggle, #TH-macro-enabled, #TH-macro-disabled').prop('checked');
+}
+
+export function toggleEjsAndMacro(enable: boolean) {
   // 酒馆助手 3.0
   const $macro_replace_disable_toggle = $('#macro-replace-disable-toggle');
   if ($macro_replace_disable_toggle.length > 0 && $macro_replace_disable_toggle.prop('checked') !== !enable) {

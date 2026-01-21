@@ -1,5 +1,5 @@
 import { marked } from 'marked';
-import { changelog_content, example_chat_content, preset_content, preset_name } from './imports';
+import { CHANGELOG_CONTENT, EXAMPLE_CHAT_CONTENT, PRESET_CONTENT, PRESET_NAME } from './imports';
 
 interface Button {
   name: string;
@@ -9,23 +9,23 @@ interface Button {
 const import_preset: Button = {
   name: '导入预设',
   function: async () => {
-    if (getPresetNames().includes(preset_name)) {
+    if (getPresetNames().includes(PRESET_NAME)) {
       return;
     }
-    const success = await importRawPreset(preset_name, preset_content);
+    const success = await importRawPreset(PRESET_NAME, PRESET_CONTENT);
     if (!success) {
       toastr.error('导入预设失败, 请刷新重试', '写卡助手');
       return;
     }
-    loadPreset(preset_name);
-    toastr.success(`导入预设 '${preset_name}' 成功`, '写卡助手');
+    loadPreset(PRESET_NAME);
+    toastr.success(`导入预设 '${PRESET_NAME}' 成功`, '写卡助手');
   },
 };
 
 const show_changelog: Button = {
   name: '更新日志',
   function: () => {
-    marked.parse(changelog_content, { async: true, breaks: true }).then(html => {
+    marked.parse(CHANGELOG_CONTENT, { async: true, breaks: true }).then(html => {
       SillyTavern.callGenericPopup(html, SillyTavern.POPUP_TYPE.TEXT, '', { leftAlign: true });
     });
   },
@@ -192,7 +192,7 @@ const select_step: Button = {
 const import_example_chat: Button = {
   name: '导入示例聊天',
   function: () => {
-    importRawChat(`${preset_name} - 示例.jsonl`, example_chat_content).then(
+    importRawChat(`${PRESET_NAME} - 示例.jsonl`, EXAMPLE_CHAT_CONTENT).then(
       () => toastr.success(`由于酒馆限制, 请自行在 '管理聊天文件' 中切换示例`, '导入示例聊天成功'),
       error => toastr.error(`${error}`, '导入示例聊天失败'),
     );
@@ -216,11 +216,11 @@ function registerButtons(buttons: Button[]) {
 }
 
 async function checkButtonStatus(): Promise<Button[]> {
-  if (!getPresetNames().includes(preset_name)) {
+  if (!getPresetNames().includes(PRESET_NAME)) {
     return [import_preset, show_changelog];
   }
-  if (!getLoadedPresetName().includes(preset_name)) {
-    return [{ name: '点击切换预设', function: () => loadPreset(preset_name) }];
+  if (getLoadedPresetName() !== PRESET_NAME) {
+    return [{ name: '点击切换预设', function: () => loadPreset(PRESET_NAME) }];
   }
   const result: Button[] = [];
 

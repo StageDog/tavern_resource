@@ -1,17 +1,17 @@
 import { loadReadme } from '@util/script';
-import { toggleExtensionSettings } from './toggle';
+import { isEjsAndMacroEnabled, toggleEjsAndMacro } from './toggle';
 
 $(() => {
   loadReadme(
     'https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/禁用酒馆助手宏和提示词模板/README.md',
   );
-  toggleExtensionSettings(false);
+  toggleEjsAndMacro(false);
 
   eventOn(getButtonEvent('禁用酒馆助手宏和提示词模板'), () => {
-    toggleExtensionSettings(false);
+    toggleEjsAndMacro(false);
   });
   eventOn(getButtonEvent('启用酒馆助手宏和提示词模板'), () => {
-    toggleExtensionSettings(true);
+    toggleEjsAndMacro(true);
   });
 
   const checkStatusAndSetButtons = _.throttle(
@@ -26,7 +26,7 @@ $(() => {
         return;
       }
 
-      const is_disabled = $('#macro-replace-disable-toggle, #TH-macro-enabled, #TH-macro-disabled').prop('checked');
+      const is_disabled = !isEjsAndMacroEnabled();
       const should_enable = button.name === '启用酒馆助手宏和提示词模板';
       if (is_disabled === should_enable) {
         return;
@@ -44,4 +44,4 @@ $(() => {
   eventOn(tavern_events.SETTINGS_UPDATED, checkStatusAndSetButtons);
   checkStatusAndSetButtons();
 });
-$(window).on('pagehide', () => toggleExtensionSettings(true));
+$(window).on('pagehide', () => toggleEjsAndMacro(true));
