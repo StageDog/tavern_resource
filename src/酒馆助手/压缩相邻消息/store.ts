@@ -43,7 +43,6 @@ const OldSettings = z
   })
   .transform(data => {
     return Settings.parse({
-      name: data.name,
       delimiter: data.seperator,
       stop_string: data.stop_string,
       depth_injection: {
@@ -51,12 +50,12 @@ const OldSettings = z
         above: {
           enabled: data.put_system_injection_after_chat_history,
           type: 'exclude',
-          placeholder: `{{${data.name}::above_dx}}`,
+          placeholder: `{{压缩相邻消息::above_dx}}`,
         },
         below: {
           enabled: data.put_system_injection_after_chat_history,
           type: 'exclude',
-          placeholder: `{{${data.name}::below_dx}}`,
+          placeholder: `{{压缩相邻消息::below_dx}}`,
         },
       },
       chat_history: {
@@ -69,8 +68,6 @@ const OldSettings = z
 export type Settings = z.infer<typeof Settings>;
 export const Settings = z
   .object({
-    name: z.string().default('压缩相邻消息'),
-
     delimiter: z
       .object({
         type: z.enum(['space', 'newline', 'double newline', 'custom']).default('double newline'),
@@ -103,12 +100,14 @@ export const Settings = z
           .object({
             enabled: z.boolean().default(false),
             type: z.enum(['exclude', 'placeholder']).default('exclude'),
+            placeholder: z.string().default('{{压缩相邻消息::above_dx}}'),
           })
           .prefault({}),
         below: z
           .object({
             enabled: z.boolean().default(false),
             type: z.enum(['exclude', 'placeholder']).default('exclude'),
+            placeholder: z.string().default('{{压缩相邻消息::below_dx}}'),
           })
           .prefault({}),
       })
@@ -128,20 +127,7 @@ export const Settings = z
       })
       .prefault({}),
   })
-  .transform(data => ({
-    ...data,
-    depth_injection: {
-      ...data.depth_injection,
-      above: {
-        ...data.depth_injection.above,
-        placeholder: `{{${data.name}::above_dx}}`,
-      },
-      below: {
-        ...data.depth_injection.below,
-        placeholder: `{{${data.name}::below_dx}}`,
-      },
-    },
-  }));
+  .prefault({});
 
 export const useSettingsStore = defineStore('settings', () => {
   const variables = getVariables({ type: 'script', script_id: getScriptId() });
