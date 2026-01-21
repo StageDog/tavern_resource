@@ -1,4 +1,5 @@
-import { assignInplace, chunkBy, regexFromString, uuidv4 } from '@util/common';
+import { assignInplace, chunkBy, regexFromString } from '@util/common';
+import { registerAsUniqueScript } from '@util/script';
 import { compare } from 'compare-versions';
 import { Settings } from './store';
 
@@ -8,34 +9,34 @@ type Prompt = {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-type Separators = {
+export type Separators = {
   head: InjectionPrompt;
   deep: InjectionPrompt;
   tail: InjectionPrompt;
 };
 
-function injectSeparators(settings: Settings) {
-  const separators = Object.freeze({
+export function injectSeparators(settings: Settings) {
+  const separators: Readonly<Separators> = Object.freeze({
     head: {
-      id: `\0${settings.name}`,
+      id: `\0压缩相邻消息-聊天记录开头`,
       position: 'in_chat',
       depth: 9999,
       role: 'assistant',
-      content: uuidv4(),
+      content: `【【压缩相邻消息-聊天记录开头】】`,
     },
     deep: {
-      id: `\xff${settings.name}深度分割`,
+      id: `\xff压缩相邻消息-Dx`,
       position: 'in_chat',
       depth: settings.depth_injection.threshold,
       role: 'system',
-      content: uuidv4(),
+      content: `【【压缩相邻消息-Dx】】`,
     },
     tail: {
-      id: `\xff${settings.name}`,
+      id: `\xff压缩相邻消息-聊天记录结尾`,
       position: 'in_chat',
       depth: 0,
       role: 'system',
-      content: uuidv4(),
+      content: `【【压缩相邻消息-聊天记录结尾】】`,
     },
   } as const);
 
@@ -102,8 +103,8 @@ function seperatePrompts(prompts: Prompt[], separators: Separators): Prompt[][] 
 function trimEmptyLines(string: string): string {
   return _(string)
     .split('\n')
-    .takeWhile(line => !line.trim())
-    .takeRightWhile(line => !line.trim())
+    .dropWhile(line => !line.trim())
+    .dropRightWhile(line => !line.trim())
     .join('\n');
 }
 
@@ -144,14 +145,13 @@ function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
   };
 }
 
-function listenEvent(settings: Settings, separators: Separators) {
+function listenEvent(settings: Settings, separators: Separators, shouldEnable: () => boolean) {
   const handlePrompts = ({ prompt }: { prompt: SillyTavern.SendingMessage[] }, dry_run: boolean) => {
-    if (dry_run) {
+    if (dry_run || !shouldEnable()) {
       return;
     }
 
     if (prompt.some(({ content }) => typeof content !== 'string')) {
-      toastr.error('将不进行任何操作', '[压缩相邻消息]目前不支持带图片、多媒体的提示词');
       // TODO: 支持带图片、多媒体的情况
       return;
     }
@@ -176,8 +176,7 @@ function listenEvent(settings: Settings, separators: Separators) {
 
       const placeholder_content =
         injection_settings.type === 'placeholder'
-          ? chunks[from]
-              .filter(p => p.content.trim())
+          ? rejectEmptyPrompts(chunks[from])
               .filter(isSystemWithoutPlaceholder)
               .map(p => trimEmptyLines(p.content))
               .join(settings.delimiter.value)
@@ -194,13 +193,12 @@ function listenEvent(settings: Settings, separators: Separators) {
         const exclude_chunk = _.remove(chunks[from], p => p.role === 'system');
         chunks[to] = to < from ? _.concat(chunks[to], exclude_chunk) : _.concat(exclude_chunk, chunks[to]);
       }
-      chunks.forEach(chunk =>
-        chunk
-          .filter(p => p.content.includes(injection_settings.placeholder))
-          .forEach(p => {
-            p.content = p.content.replaceAll(injection_settings.placeholder, placeholder_content);
-          }),
-      );
+      _(chunks)
+        .flatten()
+        .filter(p => p.content.includes(injection_settings.placeholder))
+        .forEach(p => {
+          p.content = p.content.replaceAll(injection_settings.placeholder, placeholder_content);
+        });
     };
     applyInjection(above, 1, 0);
     applyInjection(below, 2, 3);
@@ -213,7 +211,7 @@ function listenEvent(settings: Settings, separators: Separators) {
     let result: Prompt[];
     switch (settings.chat_history.type) {
       case 'squash_nearby':
-        result = _.concat(head, squashMessageByRole(_.concat(above_chat_history, below_chat_history), settings), tail);
+        result = squashMessageByRole(_.concat(head, above_chat_history, below_chat_history, tail), settings);
         break;
       case 'squash_into_one':
         result = _.concat(head, squashChatHistory(_.concat(above_chat_history, below_chat_history), settings), tail);
@@ -233,7 +231,7 @@ function listenEvent(settings: Settings, separators: Separators) {
   }
 
   const handleStopStringOnStream = (text: string) => {
-    if (!settings.stop_string) {
+    if (!settings.stop_string || !shouldEnable()) {
       return;
     }
     const regex = regexFromString(settings.stop_string, true);
@@ -247,7 +245,7 @@ function listenEvent(settings: Settings, separators: Separators) {
   eventOn(tavern_events.STREAM_TOKEN_RECEIVED, handleStopStringOnStream);
 
   const handleStopStringOnReceived = async (message_id: number | string) => {
-    if (!settings.stop_string) {
+    if (!settings.stop_string || !shouldEnable()) {
       return;
     }
 
@@ -280,14 +278,15 @@ function listenEvent(settings: Settings, separators: Separators) {
   };
 }
 
-//----------------------------------------------------------------------------------------------------------------------
 export function initSquash(settings: Settings) {
+  const { unregister, getPreferredScriptId } = registerAsUniqueScript('压缩相邻消息');
   const { separators, uninject } = injectSeparators(settings);
-  const { unlisten } = listenEvent(settings, separators);
+  const { unlisten } = listenEvent(settings, separators, () => getPreferredScriptId() === getScriptId());
   return {
     destroy: () => {
-      uninject();
+      unregister();
       unlisten();
+      uninject();
     },
   };
 }

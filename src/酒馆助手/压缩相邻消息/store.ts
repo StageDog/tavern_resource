@@ -1,3 +1,5 @@
+import { registerAsUniqueScript } from '@util/script';
+
 const OldSettings = z
   .object({
     name: z.string().default('压缩相邻消息'),
@@ -40,7 +42,7 @@ const OldSettings = z
     stop_string: z.string().default('<|im_end|>').catch('<|im_end|>'),
   })
   .transform(data => {
-    return NewSettings.parse({
+    return Settings.parse({
       name: data.name,
       delimiter: data.seperator,
       stop_string: data.stop_string,
@@ -61,10 +63,11 @@ const OldSettings = z
         ...data.on_chat_history,
         type: data.on_chat_history.type === 'squash' ? 'squash_into_one' : 'squash_nearby',
       },
-    } satisfies z.infer<typeof NewSettings>);
+    } satisfies z.infer<typeof Settings>);
   });
 
-const NewSettings = z
+export type Settings = z.infer<typeof Settings>;
+export const Settings = z
   .object({
     name: z.string().default('压缩相邻消息'),
 
@@ -116,12 +119,12 @@ const NewSettings = z
         type: z.enum(['squash_nearby', 'squash_into_one']).default('squash_into_one'),
 
         squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
-        user_prefix: z.string().default('{{user}}:\n'),
-        user_suffix: z.string().default(''),
-        assistant_prefix: z.string().default('剧情:\n'),
-        assistant_suffix: z.string().default(''),
-        system_prefix: z.string().default('设定:\n'),
-        system_suffix: z.string().default(''),
+        user_prefix: z.string().default('[{{user}}]\n'),
+        user_suffix: z.string().default('\n[/{{user}}]'),
+        assistant_prefix: z.string().default('[剧情]\n'),
+        assistant_suffix: z.string().default('\n[/剧情]'),
+        system_prefix: z.string().default('[设定]\n'),
+        system_suffix: z.string().default('\n[/设定]'),
       })
       .prefault({}),
   })
@@ -140,11 +143,14 @@ const NewSettings = z
     },
   }));
 
-export type Settings = z.infer<typeof Settings>;
-export const Settings = z.union([OldSettings, NewSettings]);
-
 export const useSettingsStore = defineStore('settings', () => {
-  const settings = ref(Settings.parse(getVariables({ type: 'script', script_id: getScriptId() })));
+  const variables = getVariables({ type: 'script', script_id: getScriptId() });
+  const settings = ref((_.has(variables, 'seperator') ? OldSettings : Settings).parse(variables));
+
+  const should_enable = ref<boolean>(false);
+  registerAsUniqueScript('压缩相邻消息').listenPreferenceState(preferred_script_id => {
+    should_enable.value = preferred_script_id === getScriptId();
+  });
 
   watchEffect(() => {
     insertOrAssignVariables(klona(settings.value), { type: 'script', script_id: getScriptId() });
@@ -157,5 +163,5 @@ export const useSettingsStore = defineStore('settings', () => {
     });
   };
 
-  return { settings, useEscapedNewline };
+  return { settings, should_enable, useEscapedNewline };
 });

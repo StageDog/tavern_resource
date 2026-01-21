@@ -44,3 +44,43 @@ export function reloadOnChatChange(): EventOnReturn {
     }
   });
 }
+
+export function registerAsUniqueScript(id: string): {
+  unregister: () => void;
+  getPreferredScriptId: () => string | undefined;
+  listenPreferenceState: (callback: (perferred_script_id: string) => void) => EventOnReturn;
+} {
+  const script_id = getScriptId();
+  const path = `th_unique_check.${id}`;
+
+  const getPreferredScriptId = () => {
+    const registered_scripts = _.get(window.parent, path, new Set<string>());
+    return _($('#tavern_helper').find('div[data-script-id]').toArray())
+      .map(element => String($(element).attr('data-script-id')))
+      .filter(element => registered_scripts.has(element))
+      .last();
+  };
+
+  _.update(window.parent, path, (value: Set<string> | undefined) => {
+    if (value === undefined) {
+      return new Set([script_id]);
+    }
+    value.add(script_id);
+    return value;
+  });
+  eventEmit(path, getPreferredScriptId());
+
+  return {
+    unregister: () => {
+      _.update(window.parent, path, (value: Set<string> | undefined) => {
+        if (value !== undefined) {
+          value.delete(script_id);
+        }
+        return value;
+      });
+      eventEmit(path, getPreferredScriptId());
+    },
+    getPreferredScriptId,
+    listenPreferenceState: (callback: (enabled_script_id: string) => void) => eventOn(path, callback),
+  };
+}
