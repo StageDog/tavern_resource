@@ -139,7 +139,7 @@ export const useSettingsStore = defineStore('settings', () => {
   });
 
   watchEffect(() => {
-    insertOrAssignVariables(klona(settings.value), { type: 'script', script_id: getScriptId() });
+    replaceVariables(klona(settings.value), { type: 'script', script_id: getScriptId() });
   });
 
   const useEscapedNewline = (path: string) => {
