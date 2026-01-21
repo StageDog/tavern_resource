@@ -151,7 +151,8 @@ function listenEvent(settings: Settings, separators: Separators) {
     }
 
     if (prompt.some(({ content }) => typeof content !== 'string')) {
-      // TODO: 支持带图片、多媒体的脚本
+      toastr.error('将不进行任何操作', '[压缩相邻消息]目前不支持带图片、多媒体的提示词');
+      // TODO: 支持带图片、多媒体的情况
       return;
     }
 
@@ -162,51 +163,49 @@ function listenEvent(settings: Settings, separators: Separators) {
     }
 
     const { above, below } = settings.depth_injection;
-    const allPrompts = chunks.flat();
 
-    // 含占位符的系统消息需保留原位，占位符会被替换为提取的内容
-    const isSystemWithoutPlaceholder = (p: Prompt): boolean =>
-      p.role === 'system' &&
-      !(above.enabled && above.type === 'placeholder' && above.placeholder && p.content.includes(above.placeholder)) &&
-      !(below.enabled && below.type === 'placeholder' && below.placeholder && p.content.includes(below.placeholder));
-
-    const extractSystemContent = (chunk: Prompt[]): string =>
-      chunk
-        .filter(isSystemWithoutPlaceholder)
-        .filter(p => p.content.trim())
-        .map(p => trimEmptyLines(p.content))
-        .join(settings.delimiter.value);
-
-    // 先提取内容，再移除/移动消息
-    const aboveContent = above.enabled ? extractSystemContent(chunks[1]) : '';
-    const belowContent = below.enabled ? extractSystemContent(chunks[2]) : '';
-
-    if (above.enabled) {
-      if (above.placeholder && allPrompts.some(p => p.content.includes(above.placeholder))) {
-        // 有占位符：仅移除，内容通过占位符替换注入
-        _.remove(chunks[1], isSystemWithoutPlaceholder);
-      } else {
-        // 无占位符：直接移动到 head 末尾
-        chunks[0] = _.concat(
-          chunks[0],
-          _.remove(chunks[1], p => p.role === 'system'),
-        );
+    const applyInjection = (injection_settings: typeof above, from: number, to: number) => {
+      if (!injection_settings.enabled) {
+        return;
       }
-    }
 
-    if (below.enabled) {
-      if (below.placeholder && allPrompts.some(p => p.content.includes(below.placeholder))) {
-        _.remove(chunks[2], isSystemWithoutPlaceholder);
+      const isSystemWithoutPlaceholder = (p: Prompt): boolean =>
+        p.role === 'system' &&
+        !(above.enabled && above.type === 'placeholder' && p.content.includes(above.placeholder)) &&
+        !(below.enabled && below.type === 'placeholder' && p.content.includes(below.placeholder));
+
+      const placeholder_content =
+        injection_settings.type === 'placeholder'
+          ? chunks[from]
+              .filter(p => p.content.trim())
+              .filter(isSystemWithoutPlaceholder)
+              .map(p => trimEmptyLines(p.content))
+              .join(settings.delimiter.value)
+          : '';
+
+      if (
+        injection_settings.type === 'placeholder' &&
+        _(chunks)
+          .flatten()
+          .some(p => p.content.includes(injection_settings.placeholder))
+      ) {
+        _.remove(chunks[from], isSystemWithoutPlaceholder);
       } else {
-        // 无占位符：直接移动到 tail 开头
-        chunks[3] = _.concat(
-          _.remove(chunks[2], p => p.role === 'system'),
-          chunks[3],
-        );
+        const exclude_chunk = _.remove(chunks[from], p => p.role === 'system');
+        chunks[to] = to < from ? _.concat(chunks[to], exclude_chunk) : _.concat(exclude_chunk, chunks[to]);
       }
-    }
+      chunks.forEach(chunk =>
+        chunk
+          .filter(p => p.content.includes(injection_settings.placeholder))
+          .forEach(p => {
+            p.content = p.content.replaceAll(injection_settings.placeholder, placeholder_content);
+          }),
+      );
+    };
+    applyInjection(above, 1, 0);
+    applyInjection(below, 2, 3);
 
-    const [head, before_chat_history, after_chat_history, tail] = _(chunks)
+    const [head, above_chat_history, below_chat_history, tail] = _(chunks)
       .map(prompts => rejectEmptyPrompts(prompts))
       .map(prompts => squashMessageByRole(prompts, settings))
       .value();
@@ -214,16 +213,11 @@ function listenEvent(settings: Settings, separators: Separators) {
     let result: Prompt[];
     switch (settings.chat_history.type) {
       case 'squash_nearby':
-        result = _.concat(head, squashMessageByRole(_.concat(before_chat_history, after_chat_history), settings), tail);
+        result = _.concat(head, squashMessageByRole(_.concat(above_chat_history, below_chat_history), settings), tail);
         break;
       case 'squash_into_one':
-        result = _.concat(head, squashChatHistory(_.concat(before_chat_history, after_chat_history), settings), tail);
+        result = _.concat(head, squashChatHistory(_.concat(above_chat_history, below_chat_history), settings), tail);
         break;
-    }
-
-    for (const p of result) {
-      if (above.placeholder) p.content = p.content.replaceAll(above.placeholder, aboveContent);
-      if (below.placeholder) p.content = p.content.replaceAll(below.placeholder, belowContent);
     }
 
     assignInplace(prompt, result);
