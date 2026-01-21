@@ -7,7 +7,7 @@
     <input
       v-model.number="store.settings.depth_injection.threshold"
       type="number"
-      min="1"
+      min="0"
       class="text_pole flex1 wide100p"
     />
 
