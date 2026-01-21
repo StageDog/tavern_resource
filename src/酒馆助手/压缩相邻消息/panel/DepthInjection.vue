@@ -20,7 +20,7 @@
         v-model="store.settings.depth_injection.above.type"
         style="width: 90%; align-self: flex-end"
         :options="[
-          { label: '按顺序插入到聊天记录之前', value: 'exclude' },
+          { label: '按顺序插入到 D9999', value: 'exclude' },
           { label: `合并后替换到 ${store.settings.depth_injection.above.placeholder} 宏位置`, value: 'placeholder' },
         ]"
       />
@@ -35,7 +35,7 @@
         v-model="store.settings.depth_injection.below.type"
         style="width: 90%; align-self: flex-end"
         :options="[
-          { label: '按顺序插入到聊天记录之后', value: 'exclude' },
+          { label: '按顺序插入到 D0', value: 'exclude' },
           { label: `合并后替换到 ${store.settings.depth_injection.below.placeholder} 宏位置`, value: 'placeholder' },
         ]"
       />
