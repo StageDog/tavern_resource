@@ -1,5 +1,5 @@
-import { Settings } from '@/酒馆助手/压缩相邻消息/settings';
 import { initSquash } from '@/酒馆助手/压缩相邻消息/squash';
+import { Settings } from '@/酒馆助手/压缩相邻消息/store';
 import { checkMinimumVersion } from '@util/common';
 import { loadReadme } from '@util/script';
 
@@ -9,8 +9,17 @@ $(() => {
   const { destroy } = initSquash(
     Settings.decode({
       name: '深度排斥器',
-      put_system_injection_after_chat_history: true,
-      on_chat_history: {
+      depth_injection: {
+        above: {
+          enabled: true,
+          type: 'exclude',
+        },
+        below: {
+          enabled: true,
+          type: 'exclude',
+        },
+      },
+      chat_history: {
         type: 'mixin',
       },
     }),

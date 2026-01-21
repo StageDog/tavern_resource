@@ -1,6 +1,7 @@
-import { assignInplace, chunkBy, regexFromString, uuidv4 } from '@util/common';
+import { assignInplace, chunkBy, regexFromString } from '@util/common';
+import { registerAsUniqueScript } from '@util/script';
 import { compare } from 'compare-versions';
-import { Settings } from './settings';
+import { Settings } from './store';
 
 type Prompt = {
   role: 'user' | 'assistant' | 'system';
@@ -8,34 +9,34 @@ type Prompt = {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-type Seperators = {
+export type Separators = {
   head: InjectionPrompt;
   deep: InjectionPrompt;
   tail: InjectionPrompt;
 };
 
-function injectSeperators(settings: Settings) {
-  const seperators = Object.freeze({
+export function injectSeparators(settings: Settings) {
+  const separators: Readonly<Separators> = Object.freeze({
     head: {
-      id: `\0${settings.name}`,
+      id: `\0压缩相邻消息-聊天记录开头`,
       position: 'in_chat',
       depth: 9999,
       role: 'assistant',
-      content: uuidv4(),
+      content: `【【压缩相邻消息-聊天记录开头】】`,
     },
     deep: {
-      id: `\xff${settings.name}深度分割`,
+      id: `\xff压缩相邻消息-Dx`,
       position: 'in_chat',
-      depth: 10,
+      depth: settings.depth_injection.threshold,
       role: 'system',
-      content: uuidv4(),
+      content: `【【压缩相邻消息-Dx】】`,
     },
     tail: {
-      id: `\xff${settings.name}`,
+      id: `\xff压缩相邻消息-聊天记录结尾`,
       position: 'in_chat',
       depth: 0,
       role: 'system',
-      content: uuidv4(),
+      content: `【【压缩相邻消息-聊天记录结尾】】`,
     },
   } as const);
 
@@ -43,24 +44,24 @@ function injectSeperators(settings: Settings) {
     if (dry_run) {
       return;
     }
-    injectPrompts(Object.values(seperators));
+    injectPrompts(Object.values(separators));
   };
   eventOn(tavern_events.GENERATION_AFTER_COMMANDS, inject);
 
   return {
-    seperators,
+    separators,
     uninject: () => {
       eventRemoveListener(tavern_events.GENERATION_AFTER_COMMANDS, inject);
-      uninjectPrompts(Object.values(seperators).map(({ id }) => id));
+      uninjectPrompts(Object.values(separators).map(({ id }) => id));
     },
   };
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-function seperatePrompts(prompts: Prompt[], seperators: Seperators): Prompt[][] | null {
-  const head_index = prompts.findIndex(({ content }) => content.includes(seperators.head.content));
-  const deep_index = prompts.findIndex(({ content }) => content.includes(seperators.deep.content));
-  const tail_index = prompts.findIndex(({ content }) => content.includes(seperators.tail.content));
+function seperatePrompts(prompts: Prompt[], separators: Separators): Prompt[][] | null {
+  const head_index = prompts.findIndex(({ content }) => content.includes(separators.head.content));
+  const deep_index = prompts.findIndex(({ content }) => content.includes(separators.deep.content));
+  const tail_index = prompts.findIndex(({ content }) => content.includes(separators.tail.content));
   if (head_index === -1 || deep_index === -1 || tail_index === -1) {
     return null;
   }
@@ -79,9 +80,9 @@ function seperatePrompts(prompts: Prompt[], seperators: Seperators): Prompt[][] 
     return splitted;
   };
 
-  const splitted_head = split_with_context(['', ''], -1, head_index, seperators.head.content);
-  const splitted_deep = split_with_context(splitted_head, head_index, deep_index, seperators.deep.content);
-  const splitted_tail = split_with_context(splitted_deep, deep_index, tail_index, seperators.tail.content);
+  const splitted_head = split_with_context(['', ''], -1, head_index, separators.head.content);
+  const splitted_deep = split_with_context(splitted_head, head_index, deep_index, separators.deep.content);
+  const splitted_tail = split_with_context(splitted_deep, deep_index, tail_index, separators.tail.content);
 
   return [
     [...prompts.slice(0, head_index), { role: prompts[head_index].role, content: splitted_head[0] }],
@@ -99,6 +100,14 @@ function seperatePrompts(prompts: Prompt[], seperators: Seperators): Prompt[][] 
   ];
 }
 
+function trimEmptyLines(string: string): string {
+  return _(string)
+    .split('\n')
+    .dropWhile(line => !line.trim())
+    .dropRightWhile(line => !line.trim())
+    .join('\n');
+}
+
 function rejectEmptyPrompts(prompts: Prompt[]): Prompt[] {
   return prompts.filter(({ content }) => content.trim() !== '');
 }
@@ -106,101 +115,126 @@ function rejectEmptyPrompts(prompts: Prompt[]): Prompt[] {
 function squashMessageByRole(prompts: Prompt[], settings: Settings): Prompt[] {
   return chunkBy(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
     role: chunk[0].role,
-    content: chunk.map(({ content }) => content.trim()).join(settings.seperator.value),
+    content: chunk.map(({ content }) => trimEmptyLines(content)).join(settings.delimiter.value),
   }));
 }
 
 function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
   // TODO: zod encode
-  const system_prefix = substitudeMacros(settings.on_chat_history.system_prefix);
-  const system_suffix = substitudeMacros(settings.on_chat_history.system_suffix);
-  const assistant_prefix = substitudeMacros(settings.on_chat_history.assistant_prefix);
-  const assistant_suffix = substitudeMacros(settings.on_chat_history.assistant_suffix);
-  const user_prefix = substitudeMacros(settings.on_chat_history.user_prefix);
-  const user_suffix = substitudeMacros(settings.on_chat_history.user_suffix);
+  const system_prefix = substitudeMacros(settings.chat_history.system_prefix);
+  const system_suffix = substitudeMacros(settings.chat_history.system_suffix);
+  const assistant_prefix = substitudeMacros(settings.chat_history.assistant_prefix);
+  const assistant_suffix = substitudeMacros(settings.chat_history.assistant_suffix);
+  const user_prefix = substitudeMacros(settings.chat_history.user_prefix);
+  const user_suffix = substitudeMacros(settings.chat_history.user_suffix);
   return {
-    role: settings.on_chat_history.squash_role,
+    role: settings.chat_history.squash_role,
     content: prompts
       .map(({ role, content }) => {
+        const trimmed = trimEmptyLines(content);
         switch (role) {
           case 'system':
-            return system_prefix + content.trim() + system_suffix;
+            return system_prefix + trimmed + system_suffix;
           case 'assistant':
-            return assistant_prefix + content.trim() + assistant_suffix;
+            return assistant_prefix + trimmed + assistant_suffix;
           case 'user':
-            return user_prefix + content.trim() + user_suffix;
+            return user_prefix + trimmed + user_suffix;
         }
       })
-      .join(settings.seperator.value),
+      .join(settings.delimiter.value),
   };
 }
 
-function listenEvent(settings: Settings, seperators: Seperators) {
+function listenEvent(settings: Settings, separators: Separators, shouldEnable: () => boolean) {
   const handlePrompts = ({ prompt }: { prompt: SillyTavern.SendingMessage[] }, dry_run: boolean) => {
-    if (dry_run) {
+    if (dry_run || !shouldEnable()) {
       return;
     }
 
     if (prompt.some(({ content }) => typeof content !== 'string')) {
-      // TODO: 支持带图片、多媒体的脚本
+      // TODO: 支持带图片、多媒体的情况
       return;
     }
 
     // @ts-expect-error 类型正确
-    const chunks = seperatePrompts(prompt, seperators);
+    const chunks = seperatePrompts(prompt, separators);
     if (chunks === null) {
       return;
     }
-    if (settings.put_system_injection_after_chat_history) {
-      chunks[0] = _.concat(
-        chunks[0],
-        _.remove(chunks[1], ({ role }) => role === 'system'),
-      );
-      chunks[3] = _.concat(
-        _.remove(chunks[2], ({ role }) => role === 'system'),
-        chunks[3],
-      );
-    }
-    const [head, before_chat_history, after_chat_history, tail] = _(chunks)
+
+    const { above, below } = settings.depth_injection;
+
+    const applyInjection = (injection_settings: typeof above, from: number, to: number) => {
+      if (!injection_settings.enabled) {
+        return;
+      }
+
+      const isSystemWithoutPlaceholder = (p: Prompt): boolean =>
+        p.role === 'system' &&
+        !(above.enabled && above.type === 'placeholder' && p.content.includes(above.placeholder)) &&
+        !(below.enabled && below.type === 'placeholder' && p.content.includes(below.placeholder));
+
+      const placeholder_content =
+        injection_settings.type === 'placeholder'
+          ? rejectEmptyPrompts(chunks[from])
+              .filter(isSystemWithoutPlaceholder)
+              .map(p => trimEmptyLines(p.content))
+              .join(settings.delimiter.value)
+          : '';
+
+      if (
+        injection_settings.type === 'placeholder' &&
+        _(chunks)
+          .flatten()
+          .some(p => p.content.includes(injection_settings.placeholder))
+      ) {
+        _.remove(chunks[from], isSystemWithoutPlaceholder);
+      } else {
+        const exclude_chunk = _.remove(chunks[from], p => p.role === 'system');
+        chunks[to] = to < from ? _.concat(chunks[to], exclude_chunk) : _.concat(exclude_chunk, chunks[to]);
+      }
+      _(chunks)
+        .flatten()
+        .filter(p => p.content.includes(injection_settings.placeholder))
+        .forEach(p => {
+          p.content = p.content.replaceAll(injection_settings.placeholder, placeholder_content);
+        });
+    };
+    applyInjection(above, 1, 0);
+    applyInjection(below, 2, 3);
+
+    const [head, above_chat_history, below_chat_history, tail] = _(chunks)
       .map(prompts => rejectEmptyPrompts(prompts))
       .map(prompts => squashMessageByRole(prompts, settings))
       .value();
-    switch (settings.on_chat_history.type) {
-      case 'mixin':
-        assignInplace(
-          prompt,
-          squashMessageByRole(_.concat(head, before_chat_history, after_chat_history, tail), settings),
-        );
+
+    let result: Prompt[];
+    switch (settings.chat_history.type) {
+      case 'squash_nearby':
+        result = squashMessageByRole(_.concat(head, above_chat_history, below_chat_history, tail), settings);
         break;
-      case 'seperate':
-        assignInplace(
-          prompt,
-          _.concat(head, squashMessageByRole(_.concat(before_chat_history, after_chat_history), settings), tail),
-        );
-        break;
-      case 'squash':
-        assignInplace(
-          prompt,
-          _.concat(head, squashChatHistory(_.concat(before_chat_history, after_chat_history), settings), tail),
-        );
+      case 'squash_into_one':
+        result = _.concat(head, squashChatHistory(_.concat(above_chat_history, below_chat_history), settings), tail);
         break;
     }
+
+    assignInplace(prompt, result);
   };
   const handlePrompts2 = ({ messages }: { messages: SillyTavern.SendingMessage[] }) => {
     handlePrompts({ prompt: messages }, false);
   };
 
   if (compare(getTavernVersion(), '1.13.4', '>')) {
-    eventMakeFirst(tavern_events.GENERATE_AFTER_DATA, handlePrompts);
+    eventOn(tavern_events.GENERATE_AFTER_DATA, handlePrompts);
   } else {
-    eventMakeFirst(tavern_events.CHAT_COMPLETION_SETTINGS_READY, handlePrompts2);
+    eventOn(tavern_events.CHAT_COMPLETION_SETTINGS_READY, handlePrompts2);
   }
 
   const handleStopStringOnStream = (text: string) => {
-    if (!settings.stop_string) {
+    if (!settings.stop_string || !shouldEnable()) {
       return;
     }
-    const regex = regexFromString(settings.stop_string);
+    const regex = regexFromString(settings.stop_string, true);
     if (!regex) {
       return;
     }
@@ -208,16 +242,16 @@ function listenEvent(settings: Settings, seperators: Seperators) {
       SillyTavern.stopGeneration();
     }
   };
-  eventMakeFirst(tavern_events.STREAM_TOKEN_RECEIVED, handleStopStringOnStream);
+  eventOn(tavern_events.STREAM_TOKEN_RECEIVED, handleStopStringOnStream);
 
   const handleStopStringOnReceived = async (message_id: number | string) => {
-    if (!settings.stop_string) {
+    if (!settings.stop_string || !shouldEnable()) {
       return;
     }
 
     const chat_message = SillyTavern.chat[Number(message_id)];
 
-    const regex = regexFromString(settings.stop_string);
+    const regex = regexFromString(settings.stop_string, true);
     if (!regex) {
       return;
     }
@@ -232,7 +266,7 @@ function listenEvent(settings: Settings, seperators: Seperators) {
       await SillyTavern.saveChat();
     }
   };
-  eventMakeFirst(tavern_events.MESSAGE_RECEIVED, handleStopStringOnReceived);
+  eventOn(tavern_events.MESSAGE_RECEIVED, handleStopStringOnReceived);
 
   return {
     unlisten: () => {
@@ -244,14 +278,15 @@ function listenEvent(settings: Settings, seperators: Seperators) {
   };
 }
 
-//----------------------------------------------------------------------------------------------------------------------
 export function initSquash(settings: Settings) {
-  const { seperators, uninject } = injectSeperators(settings);
-  const { unlisten } = listenEvent(settings, seperators);
+  const { unregister, getPreferredScriptId } = registerAsUniqueScript('压缩相邻消息');
+  const { separators, uninject } = injectSeparators(settings);
+  const { unlisten } = listenEvent(settings, separators, () => getPreferredScriptId() === getScriptId());
   return {
     destroy: () => {
-      uninject();
+      unregister();
       unlisten();
+      uninject();
     },
   };
 }

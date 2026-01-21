@@ -1,6 +1,6 @@
 // @obfuscate
-import { Settings } from '@/酒馆助手/压缩相邻消息/settings';
 import { initSquash } from '@/酒馆助手/压缩相邻消息/squash';
+import { Settings } from '@/酒馆助手/压缩相邻消息/store';
 import { check_and_install_extensions } from '@/酒馆助手/自动安装插件/check_and_install_extensions';
 import { destroy_buttons, initButtons } from './buttons';
 import { destroyExtensionSettings, initExtensionSettings } from './extension';
