@@ -36,6 +36,12 @@ declare namespace Mvu {
     args: [path: string, delta_or_toggle_literal: string];
     reason: string;
   };
+  type MoveCommandInfo = {
+    type: 'move';
+    full_match: string;
+    args: [from: string, to: string];
+    reason: string;
+  };
 }
 
 /**
@@ -170,6 +176,11 @@ declare const Mvu: {
    * @returns 是否加载成功
    */
   reloadInitVar: (mvu_data: Mvu.MvuData) => Promise<boolean>;
+
+  /**
+   * 酒馆是否正在进行额外模型解析
+   */
+  isDuringExtraAnalysis: () => boolean;
 };
 
 interface ListenerType {
