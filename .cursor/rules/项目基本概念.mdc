@@ -59,7 +59,7 @@ alwaysApply: true
 
 ### 与酒馆交互的方式
 
-前端界面或脚本主要使用酒馆助手所提供的接口与酒馆进行交互. 这些接口定义在 `@types` 文件夹中, 如 `@types/function/variables.d.ts` 中描述了该如何操控酒馆变量.
+前端界面或脚本主要使用酒馆助手所提供的接口与酒馆进行交互. 这些接口定义在 `@types` 文件夹中, 如 `@types/function/worldbook.d.ts` 中描述了该如何操控世界书, `@types/function/variables.d.ts` 中描述了该如何操控酒馆变量.
 
 此外, `@types` 文件夹也为酒馆本身、其他插件、MVU 变量框架所提供的接口变量、函数进行了类型定义, 如 `@types/iframe/exported.mvu.d.ts` 中描述了 MVU 变量框架所提供的接口 `Mvu`.
 
@@ -133,10 +133,12 @@ typescript 更容易写对, 你应该使用 typescript 而非 javascript
 
 ### 优先使用酒馆助手提供的接口
 
-相比于 `@types/iframe/exported.sillytavern.d.ts` 中定义的酒馆内置接口或 STScript 命令, 酒馆助手所提供的接口抽象层次更高, 且更符合 Typescript 的类型系统. 例如:
+**酒馆助手所提供的接口抽象层次更高, 你应该优先使用 `@types` 文件夹中其他文件定义的酒馆助手接口**, 而不是 `@types/iframe/exported.sillytavern.d.ts` 中定义的酒馆内置接口或 STScript 命令.
 
-- 使用 `getChatMessages()` 而不是 `SillyTavern.chat`
-- 使用 `replaceWorldbook()` 而不是 `triggerSlash('/setentryfield')`
+- 使用 `@types/function/chat_message.d.ts` 中定义的 `getChatMessages()`、`setChatMessages()` 等来获取、修改消息楼层
+- 使用 `@types/function/worldbook.d.ts` 中定义的 `getWorldbook()`、`replaceWorldbook()` 等来获取、修改世界书条目
+- 使用 `@types/function/variables.d.ts` 中定义的 `getVariables()`、`replaceVariables()` 等来获取、修改酒馆变量
+- ……
 
 ### 优先使用 vue 编写界面
 
