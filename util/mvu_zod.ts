@@ -212,8 +212,8 @@ function trimQuotesAndBackslashes(string: string): string {
 function parsePath(string: string): string {
   return (
     trimQuotesAndBackslashes(string)
-      // 一些错误提示词写法会导致 AI 在更新变量时带上 `stat_data.` 前缀, 这里将它去掉
-      .replace(/^stat_data\./, '')
+      // 一些错误提示词写法会导致 AI 在更新变量时带上 `stat_data.` 或 `status_current_variables.` 前缀, 这里将它去掉
+      .replace(/^(?:stat_data|status_current_variables)\./, '')
   );
 }
 
