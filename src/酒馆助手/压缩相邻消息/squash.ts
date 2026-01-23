@@ -1,4 +1,4 @@
-import { assignInplace, chunkBy, regexFromString } from '@util/common';
+import { assignInplace, chunkBy, getComplementString, regexFromString } from '@util/common';
 import { registerAsUniqueScript } from '@util/script';
 import { compare } from 'compare-versions';
 import { Settings } from './store';
@@ -18,7 +18,7 @@ export type Separators = {
 export function injectSeparators(settings: Settings) {
   const separators: Readonly<Separators> = Object.freeze({
     head: {
-      id: `\0压缩相邻消息-聊天记录开头`,
+      id: `\0${getComplementString('压缩相邻消息-聊天记录开头')}`,
       position: 'in_chat',
       depth: 9999,
       role: 'assistant',
