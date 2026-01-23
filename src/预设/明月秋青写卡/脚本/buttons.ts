@@ -2,44 +2,49 @@ import { isEjsAndMacroEnabled, toggleEjsAndMacro } from '@/酒馆助手/禁用�
 import { marked } from 'marked';
 import { changelog_content, preset_content, preset_name } from './imports';
 
-const DESIGN_STEPS: string[] = [
-  '📋 世界观协作设计',
-  '📋 世界观正式输出',
-  '📋 角色基础模板',
-  '📋 语料设计模板',
-  '📋 角色缺点模板',
-  '📋 独立人格模板',
-  '📋 兴趣爱好模板',
-  '📋 衣柜模板',
-  '📋 NSFW档案模板',
-  '📋 NSFW语料模板',
-  '📋 演绎指导模板',
-  '📋 NPC设计模板',
-  '📋 角色速览',
-  '📋 自由创作助手',
-  '📋 开场白创作',
-  '📌 世界书配置指南',
-  '📋 MVU变量结构脚本',
-  '📋 MVU初始变量',
-  '📋 MVU变量更新规则',
-  '📋 MVU变量列表',
-  '📋 MVU变量输出格式',
-  '📋 前端美化状态栏',
-  '📋 EJS代码',
-  '📋 多阶段人设',
-  '📋 多阶段控制器',
-];
+type Step = {
+  category: '一般条目' | 'MVU变量';
+  design: string;
+  check?: string;
+};
 
-const SELF_CHECK_STEPS: string[] = [
-  '🔍 工作流程',
-  '🔍 MVU变量结构脚本',
-  '🔍 MVU初始变量',
-  '🔍 MVU变量更新规则',
-  '🔍 MVU变量列表',
-  '🔍 MVU变量输出格式',
-  '🔍 前端美化状态栏',
-  '🔍 EJS代码',
-];
+const STEPS: Step[] = [
+  { category: '一般条目', design: '📋 世界观协作设计', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 世界观正式输出', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 角色基础', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 语料设计', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 角色缺点', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 独立人格', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 兴趣爱好', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 衣柜', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 NSFW档案', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 NSFW语料', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 演绎指导', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 NPC设计', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 角色速览', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 自由创作助手', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📋 开场白', check: '🔍 一般条目泛用自查' },
+  { category: '一般条目', design: '📌 世界书配置指南' },
+  { category: 'MVU变量', design: '📋 MVU变量结构脚本', check: '🔍 MVU变量结构脚本' },
+  { category: 'MVU变量', design: '📋 MVU初始变量', check: '🔍 MVU初始变量' },
+  { category: 'MVU变量', design: '📋 MVU变量更新规则', check: '🔍 MVU变量更新规则' },
+  { category: 'MVU变量', design: '📋 MVU变量列表', check: '🔍 MVU变量列表' },
+  { category: 'MVU变量', design: '📋 MVU变量输出格式', check: '🔍 MVU变量输出格式' },
+  { category: 'MVU变量', design: '📋 前端美化状态栏', check: '🔍 前端美化状态栏' },
+  { category: 'MVU变量', design: '📋 EJS代码' },
+  { category: 'MVU变量', design: '📋 多阶段人设' },
+  { category: 'MVU变量', design: '📋 多阶段控制器' },
+] as const;
+
+const ALL_STEPS = STEPS.flatMap(step => [step.design, step.check].filter(_.isString));
+
+function mappedStepName(step: number): string {
+  let step_name = ALL_STEPS[step];
+  if (step_name === '🔍 一般条目泛用自查') {
+    step_name = ALL_STEPS[step - 1].replace('📋 ', '🔍 ');
+  }
+  return step_name;
+}
 
 interface Button {
   name: string;
@@ -87,33 +92,35 @@ function makeEjsAndMacroToggle(): Button {
 async function switchToStep(step: number) {
   await updatePresetWith('in_use', preset => {
     preset.prompts
-      .filter(prompt => DESIGN_STEPS.some(step => prompt.name.includes(step)))
+      .filter(prompt => ALL_STEPS.some(step => prompt.name === step))
       .forEach(prompt => (prompt.enabled = false));
-    preset.prompts.find(prompt => prompt.name.includes(DESIGN_STEPS[step]))!.enabled = true;
+    const prompt = preset.prompts.find(prompt => prompt.name.includes(ALL_STEPS[step]));
+    if (prompt) {
+      prompt.enabled = true;
+      if (prompt.name === '🔍 一般条目泛用自查') {
+        _.set(prompt, 'extra.current_step', step);
+      }
+    }
     return preset;
   }).then(
-    () => {
-      const possible_self_check_name = DESIGN_STEPS[step].replace('📋 ', '🔍 ');
-      toastr.success(
-        `已切换为 '${DESIGN_STEPS[step]}'${SELF_CHECK_STEPS.some(step => possible_self_check_name === step) ? '<br>完成后点击"自查条目"检查' : ''}`,
-        '切换功能成功',
-        {
-          timeOut: 3000,
-          escapeHtml: false,
-        },
-      );
-    },
+    () =>
+      toastr.success(`已切换为 '${mappedStepName(step)}'`, '切换功能成功', {
+        timeOut: 3000,
+        escapeHtml: false,
+      }),
     error => toastr.error(`${error}`, '切换功能失败'),
   );
 }
 
 async function getCurrentStep(prompts: PresetPrompt[]): Promise<number> {
-  const step = prompts.find(prompt => DESIGN_STEPS.some(item => prompt.name.includes(item) && prompt.enabled));
+  const step = prompts.find(prompt => ALL_STEPS.some(item => prompt.name === item && prompt.enabled));
   if (!step) {
-    await switchToStep(0);
     return 0;
   }
-  return DESIGN_STEPS.findIndex(item => step.name.includes(item));
+  if (step.name === '🔍 一般条目泛用自查') {
+    return _.get(step, 'extra.current_step', 1);
+  }
+  return ALL_STEPS.findIndex(item => step.name.includes(item));
 }
 
 function makeStepPrev(step: number): Button {
@@ -121,57 +128,44 @@ function makeStepPrev(step: number): Button {
 }
 
 function makeStepInfo(step: number): Button {
-  // TODO: 说明功能内容
-  return {
-    name: `当前：${DESIGN_STEPS[step]}`,
-    function: () => {},
-  };
+  return { name: `当前：${mappedStepName(step)}`, function: () => {} };
 }
 
 function makeStepNext(step: number): Button {
   return {
     name: '⇒',
-    function: step < DESIGN_STEPS.length - 1 ? () => switchToStep(step + 1) : () => {},
+    function: step < ALL_STEPS.length - 1 ? () => switchToStep(step + 1) : () => {},
   };
 }
 
-const all_steps: Button = {
-  name: '所有条目',
-  function: async () => {
-    console.info(JSON.stringify(DESIGN_STEPS));
-    const result = await triggerSlash(`/buttons labels=${JSON.stringify(DESIGN_STEPS)} 选择要开启的条目`);
-    if (!result) {
-      return;
-    }
-    await switchToStep(DESIGN_STEPS.findIndex(item => item === result));
-  },
-};
-
-const self_check_steps: Button = {
-  name: '自查条目',
-  function: async () => {
-    const preset = getPreset('in_use');
-
-    const labels = SELF_CHECK_STEPS.map(name => {
-      const p = preset.prompts.find(t => t.name === name);
-      return `${p?.enabled ? '✅' : '❌'} ${name}`;
-    });
-
-    const selection = await triggerSlash(`/buttons labels=${JSON.stringify(labels)} 选择要切换的自查条目`);
-    if (!selection) {
-      return;
-    }
-
-    const clean_name = selection.replace(/^[✅❌]\s*/, '');
-    updatePresetWith('in_use', preset => {
-      const prompt = preset.prompts.find(t => t.name === clean_name);
-      if (prompt) {
-        prompt.enabled = !prompt.enabled;
+function makeCategorySteps(category: '一般条目' | 'MVU变量'): Button {
+  return {
+    name: category,
+    function: async () => {
+      const DESIGN_STEPS = STEPS.filter(step => step.category === category).map(step => step.design);
+      const step_to_choose = await triggerSlash(`/buttons labels=${JSON.stringify(DESIGN_STEPS)} 选择要开启的条目`);
+      const step = STEPS.find(item => item.design === step_to_choose);
+      if (!step) {
+        return;
       }
-      return preset;
-    });
-  },
-};
+
+      let mode_to_choose: '创作' | '自查' | '' = '创作';
+      if (step.check) {
+        mode_to_choose = (await triggerSlash(
+          `/buttons labels=${JSON.stringify(['创作', '自查'])} 你是要创作这个条目, 还是自查这个条目的生成结果?`,
+        )) as '创作' | '自查' | '';
+      }
+      if (!mode_to_choose) {
+        return;
+      }
+      if (mode_to_choose === '创作') {
+        await switchToStep(ALL_STEPS.findIndex(item => item === step.design));
+      } else {
+        await switchToStep(ALL_STEPS.findIndex(item => item === step.check));
+      }
+    },
+  };
+}
 
 function makeEjsLoreToggle(has_enabled: boolean): Button {
   return {
@@ -212,8 +206,8 @@ async function checkButtonStatus(): Promise<Button[]> {
     makeStepPrev(current_step),
     makeStepInfo(current_step),
     makeStepNext(current_step),
-    all_steps,
-    self_check_steps,
+    makeCategorySteps('一般条目'),
+    makeCategorySteps('MVU变量'),
     makeEjsLoreToggle(preset.prompts.find(prompt => prompt.name === '📋 EJS模板库')?.enabled ?? false),
   ];
 }
