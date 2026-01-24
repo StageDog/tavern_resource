@@ -3,12 +3,32 @@ import { registerAsUniqueScript } from '@util/script';
 import { compare } from 'compare-versions';
 import { Settings } from './store';
 
-type Prompt = {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-};
+function getPromptContent(prompt: SillyTavern.SendingMessage, settings: Settings): string {
+  if (typeof prompt.content === 'string') {
+    return prompt.content;
+  }
+  return prompt.content
+    .filter(({ type }) => type === 'text')
+    .map(({ text }: any) => text)
+    .join(settings.delimiter.value);
+}
+function updatePromptContentWith(
+  prompt: SillyTavern.SendingMessage,
+  updater: (prompt: { role: 'system' | 'assistant' | 'user'; content: string }) => string,
+  settings: Settings,
+): SillyTavern.SendingMessage {
+  const content = updater({ role: prompt.role, content: getPromptContent(prompt, settings) });
+  if (typeof prompt.content === 'string') {
+    prompt.content = content;
+  } else {
+    _.remove(prompt.content, item => item.type === 'text');
+    if (content) {
+      prompt.content.splice(0, 0, { type: 'text', text: content });
+    }
+  }
+  return prompt;
+}
 
-//----------------------------------------------------------------------------------------------------------------------
 export type Separators = {
   head: InjectionPrompt;
   deep: InjectionPrompt;
@@ -58,12 +78,21 @@ export function injectSeparators(settings: Settings) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-function seperatePrompts(prompts: Prompt[], separators: Separators): Prompt[][] | null {
-  const head_index = prompts.findIndex(({ content }) => content.includes(separators.head.content));
-  const deep_index = prompts.findIndex(({ content }) => content.includes(separators.deep.content));
-  const tail_index = prompts.findIndex(({ content }) => content.includes(separators.tail.content));
+function seperatePrompts(
+  prompts: SillyTavern.SendingMessage[],
+  separators: Separators,
+): SillyTavern.SendingMessage[][] | undefined {
+  const head_index = prompts.findIndex(
+    ({ content }) => typeof content === 'string' && content.includes(separators.head.content),
+  );
+  const deep_index = prompts.findIndex(
+    ({ content }) => typeof content === 'string' && content.includes(separators.deep.content),
+  );
+  const tail_index = prompts.findIndex(
+    ({ content }) => typeof content === 'string' && content.includes(separators.tail.content),
+  );
   if (head_index === -1 || deep_index === -1 || tail_index === -1) {
-    return null;
+    return undefined;
   }
 
   const split_with_context = (
@@ -73,7 +102,7 @@ function seperatePrompts(prompts: Prompt[], separators: Separators): Prompt[][] 
     splitter: string,
   ): [string, string] => {
     if (before_index !== current_index) {
-      return prompts[current_index].content.split(splitter) as [string, string];
+      return (prompts[current_index].content as string).split(splitter) as [string, string];
     }
     const splitted = splitted_before[1].split(splitter) as [string, string];
     splitted_before[1] = '';
@@ -108,18 +137,25 @@ function trimEmptyLines(string: string): string {
     .join('\n');
 }
 
-function rejectEmptyPrompts(prompts: Prompt[]): Prompt[] {
-  return prompts.filter(({ content }) => content.trim() !== '');
+function rejectEmptyPrompts(prompts: SillyTavern.SendingMessage[]): SillyTavern.SendingMessage[] {
+  return _.reject(prompts, ({ content }) => typeof content === 'string' && content.trim() === '');
 }
 
-function squashMessageByRole(prompts: Prompt[], settings: Settings): Prompt[] {
-  return chunkBy(prompts, (lhs, rhs) => lhs.role === rhs.role).map(chunk => ({
+function squashAdjacentMessage(
+  prompts: SillyTavern.SendingMessage[],
+  settings: Settings,
+): SillyTavern.SendingMessage[] {
+  return chunkBy(
+    prompts,
+    (lhs, rhs) => lhs.role === rhs.role && typeof lhs.content === 'string' && typeof rhs.content === 'string',
+  ).map(chunk => ({
     role: chunk[0].role,
-    content: chunk.map(({ content }) => trimEmptyLines(content)).join(settings.delimiter.value),
+    // 长度大于 1, 必然 content 为 string
+    content: chunk.length === 1 ? chunk[0].content : chunk.map(({ content }) => content).join(settings.delimiter.value),
   }));
 }
 
-function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
+function squashChatHistory(prompts: SillyTavern.SendingMessage[], settings: Settings): SillyTavern.SendingMessage[] {
   // TODO: zod encode
   const system_prefix = substitudeMacros(settings.chat_history.system_prefix);
   const system_suffix = substitudeMacros(settings.chat_history.system_suffix);
@@ -127,22 +163,34 @@ function squashChatHistory(prompts: Prompt[], settings: Settings): Prompt {
   const assistant_suffix = substitudeMacros(settings.chat_history.assistant_suffix);
   const user_prefix = substitudeMacros(settings.chat_history.user_prefix);
   const user_suffix = substitudeMacros(settings.chat_history.user_suffix);
-  return {
-    role: settings.chat_history.squash_role,
-    content: prompts
-      .map(({ role, content }) => {
-        const trimmed = trimEmptyLines(content);
+
+  const tagContent = (prompt: SillyTavern.SendingMessage) =>
+    updatePromptContentWith(
+      prompt,
+      ({ role, content }) => {
         switch (role) {
           case 'system':
-            return system_prefix + trimmed + system_suffix;
+            return system_prefix + content + system_suffix;
           case 'assistant':
-            return assistant_prefix + trimmed + assistant_suffix;
+            return assistant_prefix + content + assistant_suffix;
           case 'user':
-            return user_prefix + trimmed + user_suffix;
+            return user_prefix + content + user_suffix;
         }
-      })
-      .join(settings.delimiter.value),
-  };
+      },
+      settings,
+    );
+
+  return chunkBy(prompts, (lhs, rhs) => typeof lhs.content === 'string' && typeof rhs.content === 'string').map(
+    chunk => {
+      chunk.forEach(tagContent);
+
+      return {
+        role: settings.chat_history.squash_role,
+        content:
+          chunk.length === 1 ? chunk[0].content : chunk.map(({ content }) => content).join(settings.delimiter.value),
+      };
+    },
+  );
 }
 
 function listenEvent(settings: Settings, separators: Separators, shouldEnable: () => boolean) {
@@ -151,14 +199,12 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
       return;
     }
 
-    if (prompt.some(({ content }) => typeof content !== 'string')) {
-      // TODO: 支持带图片、多媒体的情况
-      return;
-    }
-
-    // @ts-expect-error 类型正确
-    const chunks = seperatePrompts(prompt, separators);
-    if (chunks === null) {
+    const chunks = seperatePrompts(prompt, separators)?.map(chunk =>
+      rejectEmptyPrompts(chunk).map(prompt =>
+        updatePromptContentWith(prompt, ({ content }) => trimEmptyLines(content), settings),
+      ),
+    );
+    if (!chunks) {
       return;
     }
 
@@ -169,16 +215,17 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
         return;
       }
 
-      const isSystemWithoutPlaceholder = (p: Prompt): boolean =>
+      const isSystemWithoutPlaceholder = (p: SillyTavern.SendingMessage): boolean =>
         p.role === 'system' &&
-        !(above.enabled && above.type === 'placeholder' && p.content.includes(above.placeholder)) &&
-        !(below.enabled && below.type === 'placeholder' && p.content.includes(below.placeholder));
+        !(above.enabled && above.type === 'placeholder' && getPromptContent(p, settings).includes(above.placeholder)) &&
+        !(below.enabled && below.type === 'placeholder' && getPromptContent(p, settings).includes(below.placeholder));
 
       const placeholder_content =
         injection_settings.type === 'placeholder'
-          ? rejectEmptyPrompts(chunks[from])
+          ? chunks[from]
               .filter(isSystemWithoutPlaceholder)
-              .map(p => trimEmptyLines(p.content))
+              // 没有把图片、多媒体也作为内容, 但无所谓, 世界书里不能设置图片或多媒体
+              .map(p => getPromptContent(p, settings))
               .join(settings.delimiter.value)
           : '';
 
@@ -186,7 +233,7 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
         injection_settings.type === 'placeholder' &&
         _(chunks)
           .flatten()
-          .some(p => p.content.includes(injection_settings.placeholder))
+          .some(p => getPromptContent(p, settings).includes(injection_settings.placeholder))
       ) {
         _.remove(chunks[from], isSystemWithoutPlaceholder);
       } else {
@@ -195,26 +242,31 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
       }
       _(chunks)
         .flatten()
-        .filter(p => p.content.includes(injection_settings.placeholder))
+        .filter(p => getPromptContent(p, settings).includes(injection_settings.placeholder))
         .forEach(p => {
-          p.content = p.content.replaceAll(injection_settings.placeholder, placeholder_content);
+          updatePromptContentWith(
+            p,
+            ({ content }) => content.replaceAll(injection_settings.placeholder, placeholder_content),
+            settings,
+          );
         });
     };
     applyInjection(above, 1, 0);
     applyInjection(below, 2, 3);
 
-    const [head, above_chat_history, below_chat_history, tail] = _(chunks)
-      .map(prompts => rejectEmptyPrompts(prompts))
-      .map(prompts => squashMessageByRole(prompts, settings))
-      .value();
+    const [head, above_chat_history, below_chat_history, tail] = chunks;
 
-    let result: Prompt[];
+    let result: SillyTavern.SendingMessage[];
     switch (settings.chat_history.type) {
       case 'squash_nearby':
-        result = squashMessageByRole(_.concat(head, above_chat_history, below_chat_history, tail), settings);
+        result = squashAdjacentMessage(_.concat(head, above_chat_history, below_chat_history, tail), settings);
         break;
       case 'squash_into_one':
-        result = _.concat(head, squashChatHistory(_.concat(above_chat_history, below_chat_history), settings), tail);
+        result = _.concat(
+          squashAdjacentMessage(head, settings),
+          squashChatHistory(_.concat(above_chat_history, below_chat_history), settings),
+          squashAdjacentMessage(tail, settings),
+        );
         break;
     }
 
