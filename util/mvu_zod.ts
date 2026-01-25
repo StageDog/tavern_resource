@@ -49,7 +49,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
       }
 
       if (notification_enabled && should_toastr) {
-        reportError('warn', error_message, `发生变量更新错误: ${command.full_match}`);
+        reportError('warn', error_message, `发生变量更新错误，可能需要重Roll: ${command.full_match}`);
       }
       return null;
     };
