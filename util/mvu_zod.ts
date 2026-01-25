@@ -75,10 +75,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
           }
           const old_value = _.get(data, path);
           const delta_value = parseCommandValue(command.args[1]);
-          if (
-            typeof old_value === typeof delta_value &&
-            (typeof old_value === 'number' || typeof old_value === 'string')
-          ) {
+          if (typeof old_value === 'number' || typeof old_value === 'string') {
             _.update(data, path, value => value + delta_value);
             return checkSchema(data, command, true);
           }
