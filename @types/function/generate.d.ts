@@ -10,6 +10,7 @@
  * @param config 提示词和生成方式设置
  *   - `user_input?:string`: 用户输入
  *   - `should_stream?:boolean`: 是否启用流式传输; 默认为 'false'
+ *   - `should_silence?:boolean`: 是否静默生成; 默认为 'false'
  *   - `image?:File|string`: 图片输入
  *   - `overrides?:Overrides`: 覆盖选项. 若设置, 则 `overrides` 中给出的字段将会覆盖对应的提示词. 如 `overrides.char_description = '覆盖的角色描述';` 将会覆盖角色描述
  *   - `injects?:Omit<InjectionPrompt, 'id'>[]`: 要额外注入的提示词
@@ -80,6 +81,7 @@ declare function generate(config: GenerateConfig): Promise<string>;
  * @param config 提示词和生成方式设置
  *   - `user_input?:string`: 用户输入
  *   - `should_stream?:boolean`: 是否启用流式传输; 默认为 'false'
+ *   - `should_silence?:boolean`: 是否静默生成; 默认为 'false'
  *   - `image?:File|string`: 图片输入
  *   - `overrides?:Overrides`: 覆盖选项. 若设置, 则 `overrides` 中给出的字段将会覆盖对应的提示词. 如 `overrides.char_description = '覆盖的角色描述';` 将会覆盖角色描述
  *   - `injects?:Omit<InjectionPrompt, 'id'>[]`: 要额外注入的提示词
@@ -133,16 +135,16 @@ declare function getModelList(custom_api: { apiurl: string; key?: string }): Pro
  * 根据生成请求唯一标识符停止特定的生成请求
  *
  * @param generation_id 生成请求唯一标识符, 用于标识要停止的生成请求
- * @returns Promise<boolean> 是否成功停止生成
+ * @returns boolean 是否成功停止生成
  */
-declare function stopGenerationById(generation_id: string): Promise<boolean>;
+declare function stopGenerationById(generation_id: string): boolean;
 
 /**
  * 停止所有正在进行的生成请求
  *
- * @returns Promise<boolean> 是否成功停止所有生成
+ * @returns boolean 是否成功停止所有生成
  */
-declare function stopAllGeneration(): Promise<boolean>;
+declare function stopAllGeneration(): boolean;
 
 type GenerateConfig = {
   /**
@@ -174,6 +176,17 @@ type GenerateConfig = {
    * eventOn(iframe_events.STREAM_TOKEN_RECEIVED_FULLY, text => console.info(text));
    */
   should_stream?: boolean;
+
+  /**
+   * 是否静默生成; 默认为 `false`.
+   * - `false`: 酒馆页面的发送按钮将会变为停止按钮, 点击停止按钮会中断所有非静默生成请求
+   * - `true`: 不影响酒馆停止按钮状态, 点击停止按钮不会中断该生成
+   *
+   * 虽然静默生成不能通过停止按钮中断, 但可以在代码中使用以下方式停止生成:
+   * - 使用该生成请求的 `generation_id` 调用 `stopGenerationById`
+   * - 调用 `stopAllGeneration`
+   */
+  should_silence?: boolean;
 
   /**
    * 覆盖选项. 若设置, 则 `overrides` 中给出的字段将会覆盖对应的提示词.
