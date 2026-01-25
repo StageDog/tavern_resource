@@ -20,7 +20,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
         variables.stat_data = { ...variables.stat_data, ...result.data };
         return;
       }
-      reportError('warn', z.prettifyError(result.error), `开局 '${swipe_id + 1}' 变量初始化失败`);
+      reportError('error', z.prettifyError(result.error), `开局 '${swipe_id + 1}' 变量初始化失败`);
     } catch (e) {
       const error = e as Error;
       reportError(
