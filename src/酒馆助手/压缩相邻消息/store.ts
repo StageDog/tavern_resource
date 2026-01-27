@@ -31,8 +31,8 @@ const OldSettings = z
         type: z.enum(['mixin', 'seperate', 'squash']).default('squash'),
 
         squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
-        user_prefix: z.string().default('[{{user}}]\n'),
-        user_suffix: z.string().default('\n[/{{user}}]'),
+        user_prefix: z.string().default('[推进]\n'),
+        user_suffix: z.string().default('\n[/推进]'),
         assistant_prefix: z.string().default('[剧情]\n'),
         assistant_suffix: z.string().default('\n[/剧情]'),
         system_prefix: z.string().default('[设定]\n'),

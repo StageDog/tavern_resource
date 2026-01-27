@@ -26,22 +26,58 @@
 
       <Field label="提示词前后缀">
         <Item label="用户前缀">
-          <input v-model="user_prefix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
+          <input
+            v-model="user_prefix_input"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+            placeholder="[{{user}}:]\n"
+          />
         </Item>
         <Item label="用户后缀">
-          <input v-model="user_suffix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
+          <input
+            v-model="user_suffix_input"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+            placeholder="\n[/{{user}}:]"
+          />
         </Item>
         <Item label="助手前缀">
-          <input v-model="assistant_prefix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
+          <input
+            v-model="assistant_prefix_input"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+            placeholder="[剧情:]\n"
+          />
         </Item>
         <Item label="助手后缀">
-          <input v-model="assistant_suffix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
+          <input
+            v-model="assistant_suffix_input"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+            placeholder="\n[/剧情:]"
+          />
         </Item>
         <Item label="系统前缀">
-          <input v-model="system_prefix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
+          <input
+            v-model="system_prefix_input"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+            placeholder="[设定:]\n"
+          />
         </Item>
         <Item label="系统后缀">
-          <input v-model="system_suffix_input" class="text_pole flex1 wide100p" type="text" autocomplete="off" />
+          <input
+            v-model="system_suffix_input"
+            class="text_pole flex1 wide100p"
+            type="text"
+            autocomplete="off"
+            placeholder="\n[/设定:]"
+          />
         </Item>
       </Field>
     </template>
