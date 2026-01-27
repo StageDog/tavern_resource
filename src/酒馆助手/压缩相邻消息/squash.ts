@@ -262,10 +262,9 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
         result = squashAdjacentMessage(_.concat(head, above_chat_history, below_chat_history, tail), settings);
         break;
       case 'squash_into_one':
-        result = _.concat(
-          squashAdjacentMessage(head, settings),
-          squashChatHistory(_.concat(above_chat_history, below_chat_history), settings),
-          squashAdjacentMessage(tail, settings),
+        result = squashAdjacentMessage(
+          _.concat(head, squashChatHistory(_.concat(above_chat_history, below_chat_history), settings), tail),
+          settings,
         );
         break;
     }
