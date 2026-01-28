@@ -16,6 +16,6 @@ export function toggleEjsAndMacro(enable: boolean) {
   }
 
   if (EjsTemplate) {
-    EjsTemplate.setFeatures({ enabled: enable });
+    EjsTemplate.setFeatures({ enabled: enable, sandbox: false });
   }
 }

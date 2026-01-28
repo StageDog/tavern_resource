@@ -1,3 +1,4 @@
+import { isEjsAndMacroEnabled, toggleEjsAndMacro } from '@/酒馆助手/禁用酒馆助手宏和提示词模板/toggle';
 import { marked } from 'marked';
 import { CHANGELOG_CONTENT, EXAMPLE_CHAT_CONTENT, PRESET_CONTENT, PRESET_NAME } from './imports';
 
@@ -62,6 +63,7 @@ const switch_to_claude_gpt: Button = {
 };
 
 async function toggleDesignMode(enable: boolean) {
+  toggleEjsAndMacro(!enable);
   await updatePresetWith('in_use', preset => {
     const design_start = preset.prompts.findIndex(prompt => prompt.name.includes('<设计模块>'));
     const design_end = preset.prompts.findIndex(prompt => prompt.name.includes('</设计模块>'));
@@ -156,6 +158,17 @@ async function switchToStep(step: number) {
   );
 }
 
+function makeEjsAndMacroToggle(): Button {
+  const has_enabled = isEjsAndMacroEnabled();
+  return {
+    name: has_enabled ? '禁用提示词模板和酒馆助手宏' : '启用提示词模板和酒馆助手宏',
+    function: async () => {
+      toggleEjsAndMacro(!has_enabled);
+      toastr.success(has_enabled ? '已禁用提示词模板和酒馆助手宏' : '已启用提示词模板和酒馆助手宏');
+    },
+  };
+}
+
 async function getCurrentStep(prompts: PresetPrompt[]): Promise<number> {
   const step = prompts.find(prompt => design_steps.some(item => prompt.name.includes(item) && prompt.enabled));
   if (!step) {
@@ -235,6 +248,7 @@ async function checkButtonStatus(): Promise<Button[]> {
     const current_step = await getCurrentStep(preset.prompts);
     result.push(
       switch_to_game_mode,
+      makeEjsAndMacroToggle(),
       makeStepPrev(current_step),
       makeStepInfo(current_step),
       makeStepNext(current_step),
