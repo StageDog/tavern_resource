@@ -2,13 +2,11 @@ import { registerAsUniqueScript } from '@util/script';
 
 const OldSettings = z
   .object({
-    name: z.string().default('压缩相邻消息'),
     seperator: z
       .object({
-        type: z.enum(['space', 'newline', 'double newline', 'custom']).default('double newline'),
-        value: z.string().default('\n\n'),
+        type: z.enum(['space', 'newline', 'double newline', 'custom']),
+        value: z.string(),
       })
-      .prefault({})
       .transform(data => {
         switch (data.type) {
           case 'space':
@@ -25,21 +23,19 @@ const OldSettings = z
         }
         return data;
       }),
-    put_system_injection_after_chat_history: z.boolean().default(false),
-    on_chat_history: z
-      .object({
-        type: z.enum(['mixin', 'seperate', 'squash']).default('squash'),
+    put_system_injection_after_chat_history: z.boolean(),
+    on_chat_history: z.object({
+      type: z.enum(['mixin', 'seperate', 'squash']),
 
-        squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
-        user_prefix: z.string().default('<|im_start|> 下段剧情指令\n'),
-        user_suffix: z.string().default('\n<|im_end|>'),
-        assistant_prefix: z.string().default('<|im_start|> 剧情\n'),
-        assistant_suffix: z.string().default('\n<|im_end|>'),
-        system_prefix: z.string().default('<|im_start|> 设定\n'),
-        system_suffix: z.string().default('\n<|im_end|>'),
-      })
-      .prefault({}),
-    stop_string: z.string().default('<|im_end|>').catch('<|im_end|>'),
+      squash_role: z.enum(['user', 'assistant', 'system']),
+      user_prefix: z.string(),
+      user_suffix: z.string(),
+      assistant_prefix: z.string(),
+      assistant_suffix: z.string(),
+      system_prefix: z.string(),
+      system_suffix: z.string(),
+    }),
+    stop_string: z.string(),
   })
   .transform(data => {
     return Settings.parse({
@@ -91,7 +87,7 @@ export const Settings = z
         return data;
       }),
 
-    stop_string: z.string().default('<|im_end|>').catch('<|im_end|>'),
+    stop_string: z.string().default('</observed_piece>').catch('</observed_piece>'),
 
     depth_injection: z
       .object({
@@ -118,12 +114,12 @@ export const Settings = z
         type: z.enum(['squash_nearby', 'squash_into_one']).default('squash_into_one'),
 
         squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
-        user_prefix: z.string().default('<|im_start|> 下段剧情指令\n'),
-        user_suffix: z.string().default('\n<|im_end|>'),
-        assistant_prefix: z.string().default('<|im_start|> 剧情\n'),
-        assistant_suffix: z.string().default('\n<|im_end|>'),
-        system_prefix: z.string().default('<|im_start|> 设定\n'),
-        system_suffix: z.string().default('\n<|im_end|>'),
+        user_prefix: z.string().default('<observed_piece class="下段剧情指令">\n'),
+        user_suffix: z.string().default('\n</observed_piece>'),
+        assistant_prefix: z.string().default('<observed_piece class="剧情">\n'),
+        assistant_suffix: z.string().default('\n</observed_piece>'),
+        system_prefix: z.string().default('<observed_piece class="设定">\n'),
+        system_suffix: z.string().default('\n</observed_piece>'),
       })
       .prefault({}),
   })
