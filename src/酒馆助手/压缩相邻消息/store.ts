@@ -31,12 +31,12 @@ const OldSettings = z
         type: z.enum(['mixin', 'seperate', 'squash']).default('squash'),
 
         squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
-        user_prefix: z.string().default('[下段剧情指令]\n'),
-        user_suffix: z.string().default('\n[/下段剧情指令]'),
-        assistant_prefix: z.string().default('[剧情]\n'),
-        assistant_suffix: z.string().default('\n[/剧情]'),
-        system_prefix: z.string().default('[设定]\n'),
-        system_suffix: z.string().default('\n[/设定]'),
+        user_prefix: z.string().default('<|im_start|> 下段剧情指令\n'),
+        user_suffix: z.string().default('\n<|im_end|>'),
+        assistant_prefix: z.string().default('<|im_start|> 剧情\n'),
+        assistant_suffix: z.string().default('\n<|im_end|>'),
+        system_prefix: z.string().default('<|im_start|> 设定\n'),
+        system_suffix: z.string().default('\n<|im_end|>'),
       })
       .prefault({}),
     stop_string: z.string().default('<|im_end|>').catch('<|im_end|>'),
@@ -118,12 +118,12 @@ export const Settings = z
         type: z.enum(['squash_nearby', 'squash_into_one']).default('squash_into_one'),
 
         squash_role: z.enum(['user', 'assistant', 'system']).default('assistant'),
-        user_prefix: z.string().default('[{{user}}]\n'),
-        user_suffix: z.string().default('\n[/{{user}}]'),
-        assistant_prefix: z.string().default('[剧情]\n'),
-        assistant_suffix: z.string().default('\n[/剧情]'),
-        system_prefix: z.string().default('[设定]\n'),
-        system_suffix: z.string().default('\n[/设定]'),
+        user_prefix: z.string().default('<|im_start|> 下段剧情指令\n'),
+        user_suffix: z.string().default('\n<|im_end|>'),
+        assistant_prefix: z.string().default('<|im_start|> 剧情\n'),
+        assistant_suffix: z.string().default('\n<|im_end|>'),
+        system_prefix: z.string().default('<|im_start|> 设定\n'),
+        system_suffix: z.string().default('\n<|im_end|>'),
       })
       .prefault({}),
   })

@@ -157,25 +157,24 @@ function squashAdjacentMessage(
 
 function squashChatHistory(prompts: SillyTavern.SendingMessage[], settings: Settings): SillyTavern.SendingMessage[] {
   // TODO: zod encode
-  const system_prefix = substitudeMacros(settings.chat_history.system_prefix);
-  const system_suffix = substitudeMacros(settings.chat_history.system_suffix);
-  const assistant_prefix = substitudeMacros(settings.chat_history.assistant_prefix);
-  const assistant_suffix = substitudeMacros(settings.chat_history.assistant_suffix);
-  const user_prefix = substitudeMacros(settings.chat_history.user_prefix);
-  const user_suffix = substitudeMacros(settings.chat_history.user_suffix);
+  const prefix = {
+    system: substitudeMacros(settings.chat_history.system_prefix),
+    assistant: substitudeMacros(settings.chat_history.assistant_prefix),
+    user: substitudeMacros(settings.chat_history.user_prefix),
+  };
+  const suffix = {
+    system: substitudeMacros(settings.chat_history.system_suffix),
+    assistant: substitudeMacros(settings.chat_history.assistant_suffix),
+    user: substitudeMacros(settings.chat_history.user_suffix),
+  };
 
   const tagContent = (prompt: SillyTavern.SendingMessage) =>
     updatePromptContentWith(
       prompt,
       ({ role, content }) => {
-        switch (role) {
-          case 'system':
-            return system_prefix + content + system_suffix;
-          case 'assistant':
-            return assistant_prefix + content + assistant_suffix;
-          case 'user':
-            return user_prefix + content + user_suffix;
-        }
+        content = content.includes(prefix[role]) ? content : prefix[role] + content;
+        content = content.includes(suffix[role]) ? content : content + suffix[role];
+        return content;
       },
       settings,
     );
