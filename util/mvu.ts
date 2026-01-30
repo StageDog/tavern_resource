@@ -1,8 +1,10 @@
+import { StoreDefinition } from 'pinia';
+
 export function defineMvuDataStore<T extends z.ZodObject>(
   schema: T,
   variable_option: VariableOption,
   additional_setup?: (data: Ref<z.infer<T>>) => void,
-): ReturnType<typeof defineStore> {
+): StoreDefinition<`mvu_data.${string}`, { data: Ref<z.infer<T>> }> {
   if (
     variable_option.type === 'message' &&
     (variable_option.message_id === undefined || variable_option.message_id === 'latest')
@@ -17,7 +19,9 @@ export function defineMvuDataStore<T extends z.ZodObject>(
       .map(entry => entry[1])
       .join('.')}`,
     errorCatched(() => {
-      const data = ref(schema.parse(_.get(getVariables(variable_option), 'stat_data', {}))) as Ref<z.infer<T>>;
+      const data = ref(
+        schema.parse(_.get(getVariables(variable_option), 'stat_data', {}), { reportInput: true }),
+      ) as Ref<z.infer<T>>;
       if (additional_setup) {
         additional_setup(data);
       }

@@ -1,0 +1,170 @@
+# yaml-language-server: $schema=https://testingcf.jsdelivr.net/gh/StageDog/tavern_sync/dist/schema/character.zh.json
+# 这个配置文件仅作为使用同步脚本的提示. 同步脚本并不是必须使用, 但可以让你的角色卡完全做到自动更新, 具体请参考: https://stagedog.github.io/青空莉/工具经验/实时编写角色卡、世界书或预设/
+头像: null
+版本: ''
+作者: ''
+备注: ''
+
+第一条消息:
+  - 文件: 第一条消息/0
+
+角色描述: ''
+
+锚点:
+  - &分隔符
+    启用: false
+    激活策略:
+      类型: 向量化
+    插入位置:
+      类型: 角色定义之前
+      顺序: 14720
+    激活概率: 100
+    内容: ''
+
+世界书名称: 与角色卡名称相同
+条目:
+  - 文件夹: 变量
+    条目:
+      - 名称: ===变量开始===
+        <<: *分隔符
+
+      - 名称: '[initvar]变量初始化勿开'
+        启用: false
+        激活策略:
+          类型: 蓝灯
+        插入位置:
+          类型: 角色定义之前
+          顺序: 14720
+        递归:
+          不可被其他条目激活: true
+          不可激活其他条目: true
+        文件: 世界书/变量/initvar
+
+      - 名称: 变量列表
+        启用: true
+        激活策略:
+          类型: 蓝灯
+        插入位置:
+          类型: 指定深度
+          角色: 系统
+          深度: 0
+          顺序: 14720
+        递归:
+          不可被其他条目激活: true
+          不可激活其他条目: true
+        文件: 世界书/变量/变量列表
+
+      - 名称: '[mvu_update]变量更新规则'
+        启用: true
+        激活策略:
+          类型: 蓝灯
+        插入位置:
+          类型: 指定深度
+          角色: 系统
+          深度: 0
+          顺序: 14720
+        递归:
+          不可被其他条目激活: true
+          不可激活其他条目: true
+        文件: 世界书/变量/变量更新规则
+
+      - 名称: '[mvu_update]变量输出格式'
+        启用: true
+        激活策略:
+          类型: 蓝灯
+        插入位置:
+          类型: 指定深度
+          角色: 系统
+          深度: 0
+          顺序: 14720
+        递归:
+          不可被其他条目激活: true
+          不可激活其他条目: true
+        文件: 世界书/变量/变量输出格式
+
+      - 名称: ===变量结束===
+        <<: *分隔符
+
+扩展字段:
+  正则:
+    - 正则名称: '[不发送]去除变量更新'
+      id: 2d2018ae-c085-4916-af05-6830110a8293
+      启用: true
+      查找表达式: /<update(?:variable)?>(?:(?!.*<\/update(?:variable)?>).*$|.*<\/update(?:variable)?>)/gsi
+      替换为: ''
+      来源:
+        用户输入: true
+        AI输出: true
+      作用于:
+        仅格式显示: false
+        仅格式提示词: true
+      最大深度: 3
+
+    - 正则名称: '[折叠]变量更新中'
+      id: ea96523f-a1cc-4634-b9d2-f28531adca6c
+      启用: true
+      查找表达式: /<update(?:variable)?>(?!.*<\/update(?:variable)?>)\s*(.*)\s*$/gsi
+      替换为: |-
+
+        <details>
+        <summary>变量更新中{{random::.::..::...}}</summary>
+        $1
+        </details>
+      来源:
+        用户输入: true
+        AI输出: true
+      作用于:
+        仅格式显示: true
+        仅格式提示词: false
+
+    - 正则名称: '[折叠]完整变量更新'
+      id: 06dec31f-c0a9-456c-8b88-1f9176a73039
+      启用: true
+      查找表达式: /<update(?:variable)?>\s*(.*)\s*<\/update(?:variable)?>/gsi
+      替换为: |-
+
+        <details>
+        <summary>变量更新情况</summary>
+        $1
+        </details>
+      来源:
+        用户输入: true
+        AI输出: true
+      作用于:
+        仅格式显示: true
+        仅格式提示词: false
+
+    - 正则名称: '[界面]状态栏'
+      id: b50d0bed-ff40-4a25-9ada-14feb4283324
+      启用: true
+      查找表达式: <StatusPlaceHolderImpl/>
+      替换为: |-
+        ```
+        <body>
+        <script>
+        $('body').load('https://testingcf.jsdelivr.net/gh/StageDog/tavern_helper_template/dist/角色卡名称/界面/状态栏/index.html')
+        </script>
+        </body>
+        ```
+      来源:
+        用户输入: false
+        AI输出: true
+      作用于:
+        仅格式显示: true
+        仅格式提示词: false
+
+  酒馆助手:
+    脚本库:
+      - 名称: mvu
+        id: 22d70d1f-d0be-4061-911e-d0c57ab55053
+        启用: true
+        类型: 脚本
+        内容: |-
+          import 'https://testingcf.jsdelivr.net/gh/MagicalAstrogy/MagVarUpdate/artifact/bundle.js';
+
+      - 名称: 变量结构
+        id: f65ab164-4268-4366-8228-16af904c2251
+        启用: true
+        类型: 脚本
+        内容: |-
+          import 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_helper_template/dist/角色卡名称/脚本/变量结构/index.js';

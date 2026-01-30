@@ -109,28 +109,36 @@ function watch_tavern_helper(compiler: webpack.Compiler) {
 }
 
 let watcher: FSWatcher;
-const execute = () => {
+const dump = () => {
   exec('pnpm dump', { cwd: import.meta.dirname });
   console.info('\x1b[36m[schema_dump]\x1b[0m 已将所有 schema.ts 转换为 schema.json');
 };
-const execute_debounced = _.debounce(execute, 500, { leading: true, trailing: false });
-function dump_schema(compiler: webpack.Compiler) {
+const dump_debounced = _.debounce(dump, 500, { leading: true, trailing: false });
+function schema_dump(compiler: webpack.Compiler) {
   if (!compiler.options.watch) {
-    execute_debounced();
-  } else if (!watcher) {
+    dump_debounced();
+    return;
+  }
+  if (!watcher) {
     watcher = watch('src', {
       awaitWriteFinish: true,
     }).on('all', (_event, path) => {
       if (path.endsWith('schema.ts')) {
-        execute_debounced();
+        dump_debounced();
       }
     });
   }
 }
 
 let child_process: ChildProcess;
-function watch_tavern_sync(compiler: webpack.Compiler) {
+const bundle = () => {
+  exec('pnpm sync bundle all', { cwd: import.meta.dirname });
+  console.info('\x1b[36m[tavern_sync]\x1b[0m 已打包所有配置了的角色卡/世界书/预设');
+};
+const bundle_debounced = _.debounce(bundle, 500, { leading: true, trailing: false });
+function tavern_sync(compiler: webpack.Compiler) {
   if (!compiler.options.watch) {
+    bundle_debounced();
     return;
   }
   compiler.hooks.watchRun.tap('watch_tavern_sync', () => {
@@ -432,8 +440,8 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
     )
       .concat(
         { apply: watch_tavern_helper },
-        { apply: dump_schema },
-        { apply: watch_tavern_sync },
+        { apply: schema_dump },
+        { apply: tavern_sync },
         new VueLoaderPlugin(),
         unpluginAutoImport({
           dts: true,

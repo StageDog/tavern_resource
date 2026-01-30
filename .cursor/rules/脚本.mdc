@@ -38,7 +38,7 @@ $(() => {
     app.unmount();
     $app.remove();
   });
-})
+});
 ```
 
 这种组件应该尽量参考酒馆网页原有样式; 为了让脚本里为组件设置的额外样式生效, 我们需要使用 `util/script.ts` 中的 `teleportStyle` 函数来将样式复制到酒馆网页的 `<head>` 中.
@@ -59,21 +59,25 @@ $(window).on('pagehide', () => {
 
 ### 组件是独立的，不需要使用酒馆网页的样式
 
-组件可能是单独的悬浮窗、手机样式的对话界面或对酒馆网页的大幅调整, 需要与酒馆网页现有样式隔离, 则应该挂载在 iframe DOM 上. 为此我们使用 `util/script.ts` 中的 `createScriptIdIframe` 函数来创建 iframe DOM, 并将 vue 组件挂载到 iframe 内部的 body 上 (`iframe_element.contentDocument!.body`):
+组件可能是单独的悬浮窗、手机样式的对话界面或对酒馆网页的大幅调整, 需要与酒馆网页现有样式隔离, 则应该挂载在 iframe DOM 上. 为此我们使用 `util/script.ts` 中的 `createScriptIdIframe` 函数来创建 iframe DOM, 并将 vue 组件在 iframe load 完成后挂载到 iframe 内部的 body 上 (`iframe_element.contentDocument!.body`):
 
 ```ts
 $(() => {
   const app = createApp(App).use(createPinia());
 
-  const $app = createScriptIdIframe().appendTo('想要放置的位置');
-  app.mount($app[0].contentDocument!.body);
+  const $app = createScriptIdIframe()
+    .appendTo('想要放置的位置')
+    .on('load', () => {
+      teleportStyle($app[0].contentDocument!.head);
+      app.mount($app[0].contentDocument!.body);
+    });
 
   // 关闭脚本时卸载组件
   $(window).on('pagehide', () => {
     app.unmount();
     $app.remove();
   });
-})
+});
 ```
 
 这种情况应该**优先使用无须自行复制样式的 tailwindcss class**; 否则, 如果有需要复制的样式, 则需要使用 `teleportStyle($app[0].contentDocument!.head)` 函数来复制样式.

@@ -3935,6 +3935,128 @@ exports.getTags = getTags;
 
 /***/ },
 
+/***/ 327
+(module, __unused_webpack_exports, __webpack_require__) {
+
+
+
+(function(){
+
+  var
+    buf,
+    bufIdx = 0,
+    hexBytes = [],
+    i
+  ;
+
+  // Pre-calculate toString(16) for speed
+  for (i = 0; i < 256; i++) {
+    hexBytes[i] = (i + 0x100).toString(16).substr(1);
+  }
+
+  // Buffer random numbers for speed
+  // Reduce memory usage by decreasing this number (min 16)
+  // or improve speed by increasing this number (try 16384)
+  uuid.BUFFER_SIZE = 4096;
+
+  // Binary uuids
+  uuid.bin = uuidBin;
+
+  // Clear buffer
+  uuid.clearBuffer = function() {
+    buf = null;
+    bufIdx = 0;
+  };
+
+  // Test for uuid
+  uuid.test = function(uuid) {
+    if (typeof uuid === 'string') {
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid);
+    }
+    return false;
+  };
+
+  // Node & Browser support
+  var crypt0;
+  if (typeof crypto !== 'undefined') {
+    crypt0 = crypto;
+  } else if( (typeof window !== 'undefined') && (typeof window.msCrypto !== 'undefined')) {
+    crypt0 = window.msCrypto; // IE11
+  }
+
+  if (true) {
+    crypt0 = crypt0 || __webpack_require__(6982);
+    module.exports = uuid;
+  } else // removed by dead control flow
+{}
+
+  // Use best available PRNG
+  // Also expose this so you can override it.
+  uuid.randomBytes = (function(){
+    if (crypt0) {
+      if (crypt0.randomBytes) {
+        return crypt0.randomBytes;
+      }
+      if (crypt0.getRandomValues) {
+        if (typeof Uint8Array.prototype.slice !== 'function') {
+          return function(n) {
+            var bytes = new Uint8Array(n);
+            crypt0.getRandomValues(bytes);
+            return Array.from(bytes);
+          };
+        }
+        return function(n) {
+          var bytes = new Uint8Array(n);
+          crypt0.getRandomValues(bytes);
+          return bytes;
+        };
+      }
+    }
+    return function(n) {
+      var i, r = [];
+      for (i = 0; i < n; i++) {
+        r.push(Math.floor(Math.random() * 256));
+      }
+      return r;
+    };
+  })();
+
+  // Buffer some random bytes for speed
+  function randomBytesBuffered(n) {
+    if (!buf || ((bufIdx + n) > uuid.BUFFER_SIZE)) {
+      bufIdx = 0;
+      buf = uuid.randomBytes(uuid.BUFFER_SIZE);
+    }
+    return buf.slice(bufIdx, bufIdx += n);
+  }
+
+  // uuid.bin
+  function uuidBin() {
+    var b = randomBytesBuffered(16);
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    return b;
+  }
+
+  // String UUIDv4 (Random)
+  function uuid() {
+    var b = uuidBin();
+    return hexBytes[b[0]] + hexBytes[b[1]] +
+      hexBytes[b[2]] + hexBytes[b[3]] + '-' +
+      hexBytes[b[4]] + hexBytes[b[5]] + '-' +
+      hexBytes[b[6]] + hexBytes[b[7]] + '-' +
+      hexBytes[b[8]] + hexBytes[b[9]] + '-' +
+      hexBytes[b[10]] + hexBytes[b[11]] +
+      hexBytes[b[12]] + hexBytes[b[13]] +
+      hexBytes[b[14]] + hexBytes[b[15]]
+    ;
+  }
+
+})();
+
+
+/***/ },
+
 /***/ 431
 (module, __unused_webpack_exports, __webpack_require__) {
 
@@ -9741,6 +9863,116 @@ function isQuality(spec) {
 
 /***/ },
 
+/***/ 2355
+(__unused_webpack_module, exports) {
+
+/* crc32.js (C) 2014-2015 SheetJS -- http://sheetjs.com */
+/* vim: set ts=2: */
+var CRC32;
+(function (factory) {
+	if(typeof DO_NOT_EXPORT_CRC === 'undefined') {
+		if(true) {
+			factory(exports);
+		} else // removed by dead control flow
+{}
+	} else {
+		factory(CRC32 = {});
+	}
+}(function(CRC32) {
+CRC32.version = '0.3.0';
+/* see perf/crc32table.js */
+function signed_crc_table() {
+	var c = 0, table = new Array(256);
+
+	for(var n =0; n != 256; ++n){
+		c = n;
+		c = ((c&1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1));
+		c = ((c&1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1));
+		c = ((c&1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1));
+		c = ((c&1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1));
+		c = ((c&1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1));
+		c = ((c&1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1));
+		c = ((c&1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1));
+		c = ((c&1) ? (-306674912 ^ (c >>> 1)) : (c >>> 1));
+		table[n] = c;
+	}
+
+	return typeof Int32Array !== 'undefined' ? new Int32Array(table) : table;
+}
+
+var table = signed_crc_table();
+/* charCodeAt is the best approach for binary strings */
+var use_buffer = typeof Buffer !== 'undefined';
+function crc32_bstr(bstr) {
+	if(bstr.length > 32768) if(use_buffer) return crc32_buf_8(new Buffer(bstr));
+	var crc = -1, L = bstr.length - 1;
+	for(var i = 0; i < L;) {
+		crc =  table[(crc ^ bstr.charCodeAt(i++)) & 0xFF] ^ (crc >>> 8);
+		crc =  table[(crc ^ bstr.charCodeAt(i++)) & 0xFF] ^ (crc >>> 8);
+	}
+	if(i === L) crc = (crc >>> 8) ^ table[(crc ^ bstr.charCodeAt(i)) & 0xFF];
+	return crc ^ -1;
+}
+
+function crc32_buf(buf) {
+	if(buf.length > 10000) return crc32_buf_8(buf);
+	for(var crc = -1, i = 0, L=buf.length-3; i < L;) {
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+	}
+	while(i < L+3) crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+	return crc ^ -1;
+}
+
+function crc32_buf_8(buf) {
+	for(var crc = -1, i = 0, L=buf.length-7; i < L;) {
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+		crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+	}
+	while(i < L+7) crc = (crc >>> 8) ^ table[(crc^buf[i++])&0xFF];
+	return crc ^ -1;
+}
+
+/* much much faster to intertwine utf8 and crc */
+function crc32_str(str) {
+	for(var crc = -1, i = 0, L=str.length, c, d; i < L;) {
+		c = str.charCodeAt(i++);
+		if(c < 0x80) {
+			crc = (crc >>> 8) ^ table[(crc ^ c) & 0xFF];
+		} else if(c < 0x800) {
+			crc = (crc >>> 8) ^ table[(crc ^ (192|((c>>6)&31))) & 0xFF];
+			crc = (crc >>> 8) ^ table[(crc ^ (128|(c&63))) & 0xFF];
+		} else if(c >= 0xD800 && c < 0xE000) {
+			c = (c&1023)+64; d = str.charCodeAt(i++) & 1023;
+			crc = (crc >>> 8) ^ table[(crc ^ (240|((c>>8)&7))) & 0xFF];
+			crc = (crc >>> 8) ^ table[(crc ^ (128|((c>>2)&63))) & 0xFF];
+			crc = (crc >>> 8) ^ table[(crc ^ (128|((d>>6)&15)|(c&3))) & 0xFF];
+			crc = (crc >>> 8) ^ table[(crc ^ (128|(d&63))) & 0xFF];
+		} else {
+			crc = (crc >>> 8) ^ table[(crc ^ (224|((c>>12)&15))) & 0xFF];
+			crc = (crc >>> 8) ^ table[(crc ^ (128|((c>>6)&63))) & 0xFF];
+			crc = (crc >>> 8) ^ table[(crc ^ (128|(c&63))) & 0xFF];
+		}
+	}
+	return crc ^ -1;
+}
+CRC32.table = table;
+CRC32.bstr = crc32_bstr;
+CRC32.buf = crc32_buf;
+CRC32.str = crc32_str;
+}));
+
+
+/***/ },
+
 /***/ 2464
 (__unused_webpack_module, exports, __webpack_require__) {
 
@@ -13024,6 +13256,115 @@ exports.stringifyCollection = stringifyCollection;
 
 /***/ },
 
+/***/ 3074
+(module, __unused_webpack_exports, __webpack_require__) {
+
+var crc32 = __webpack_require__(2355)
+
+module.exports = extractChunks
+
+// Used for fast-ish conversion between uint8s and uint32s/int32s.
+// Also required in order to remain agnostic for both Node Buffers and
+// Uint8Arrays.
+var uint8 = new Uint8Array(4)
+var int32 = new Int32Array(uint8.buffer)
+var uint32 = new Uint32Array(uint8.buffer)
+
+function extractChunks (data) {
+  if (data[0] !== 0x89) throw new Error('Invalid .png file header')
+  if (data[1] !== 0x50) throw new Error('Invalid .png file header')
+  if (data[2] !== 0x4E) throw new Error('Invalid .png file header')
+  if (data[3] !== 0x47) throw new Error('Invalid .png file header')
+  if (data[4] !== 0x0D) throw new Error('Invalid .png file header: possibly caused by DOS-Unix line ending conversion?')
+  if (data[5] !== 0x0A) throw new Error('Invalid .png file header: possibly caused by DOS-Unix line ending conversion?')
+  if (data[6] !== 0x1A) throw new Error('Invalid .png file header')
+  if (data[7] !== 0x0A) throw new Error('Invalid .png file header: possibly caused by DOS-Unix line ending conversion?')
+
+  var ended = false
+  var chunks = []
+  var idx = 8
+
+  while (idx < data.length) {
+    // Read the length of the current chunk,
+    // which is stored as a Uint32.
+    uint8[3] = data[idx++]
+    uint8[2] = data[idx++]
+    uint8[1] = data[idx++]
+    uint8[0] = data[idx++]
+
+    // Chunk includes name/type for CRC check (see below).
+    var length = uint32[0] + 4
+    var chunk = new Uint8Array(length)
+    chunk[0] = data[idx++]
+    chunk[1] = data[idx++]
+    chunk[2] = data[idx++]
+    chunk[3] = data[idx++]
+
+    // Get the name in ASCII for identification.
+    var name = (
+      String.fromCharCode(chunk[0]) +
+      String.fromCharCode(chunk[1]) +
+      String.fromCharCode(chunk[2]) +
+      String.fromCharCode(chunk[3])
+    )
+
+    // The IHDR header MUST come first.
+    if (!chunks.length && name !== 'IHDR') {
+      throw new Error('IHDR header missing')
+    }
+
+    // The IEND header marks the end of the file,
+    // so on discovering it break out of the loop.
+    if (name === 'IEND') {
+      ended = true
+      chunks.push({
+        name: name,
+        data: new Uint8Array(0)
+      })
+
+      break
+    }
+
+    // Read the contents of the chunk out of the main buffer.
+    for (var i = 4; i < length; i++) {
+      chunk[i] = data[idx++]
+    }
+
+    // Read out the CRC value for comparison.
+    // It's stored as an Int32.
+    uint8[3] = data[idx++]
+    uint8[2] = data[idx++]
+    uint8[1] = data[idx++]
+    uint8[0] = data[idx++]
+
+    var crcActual = int32[0]
+    var crcExpect = crc32.buf(chunk)
+    if (crcExpect !== crcActual) {
+      throw new Error(
+        'CRC values for ' + name + ' header do not match, PNG file is likely corrupted'
+      )
+    }
+
+    // The chunk data is now copied to remove the 4 preceding
+    // bytes used for the chunk name/type.
+    var chunkData = new Uint8Array(chunk.buffer.slice(4))
+
+    chunks.push({
+      name: name,
+      data: chunkData
+    })
+  }
+
+  if (!ended) {
+    throw new Error('.png file ended prematurely: no IEND header was found')
+  }
+
+  return chunks
+}
+
+
+/***/ },
+
 /***/ 3106
 (module) {
 
@@ -14955,6 +15296,55 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 /***/ },
 
+/***/ 4162
+(module) {
+
+module.exports = encode
+
+function encode (keyword, content) {
+  keyword = String(keyword)
+  content = String(content)
+
+  if (!/^[\x00-\xFF]+$/.test(keyword) || !/^[\x00-\xFF]+$/.test(content)) {
+    throw new Error('Only Latin-1 characters are permitted in PNG tEXt chunks. You might want to consider base64 encoding and/or zEXt compression')
+  }
+
+  if (keyword.length >= 80) {
+    throw new Error('Keyword "' + keyword + '" is longer than the 79-character limit imposed by the PNG specification')
+  }
+
+  var totalSize = keyword.length + content.length + 1
+  var output = new Uint8Array(totalSize)
+  var idx = 0
+  var code
+
+  for (var i = 0; i < keyword.length; i++) {
+    if (!(code = keyword.charCodeAt(i))) {
+      throw new Error('0x00 character is not permitted in tEXt keywords')
+    }
+
+    output[idx++] = code
+  }
+
+  output[idx++] = 0
+
+  for (var j = 0; j < content.length; j++) {
+    if (!(code = content.charCodeAt(j))) {
+      throw new Error('0x00 character is not permitted in tEXt content')
+    }
+
+    output[idx++] = code
+  }
+
+  return {
+    name: 'tEXt',
+    data: output
+  }
+}
+
+
+/***/ },
+
 /***/ 4321
 (module, __unused_webpack_exports, __webpack_require__) {
 
@@ -16615,6 +17005,251 @@ exports.Parser = Parser;
 
 /***/ },
 
+/***/ 4941
+(module, __unused_webpack_exports, __webpack_require__) {
+
+(function () {
+
+  'use strict';
+
+  var assign = __webpack_require__(4059);
+  var vary = __webpack_require__(4795);
+
+  var defaults = {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  };
+
+  function isString(s) {
+    return typeof s === 'string' || s instanceof String;
+  }
+
+  function isOriginAllowed(origin, allowedOrigin) {
+    if (Array.isArray(allowedOrigin)) {
+      for (var i = 0; i < allowedOrigin.length; ++i) {
+        if (isOriginAllowed(origin, allowedOrigin[i])) {
+          return true;
+        }
+      }
+      return false;
+    } else if (isString(allowedOrigin)) {
+      return origin === allowedOrigin;
+    } else if (allowedOrigin instanceof RegExp) {
+      return allowedOrigin.test(origin);
+    } else {
+      return !!allowedOrigin;
+    }
+  }
+
+  function configureOrigin(options, req) {
+    var requestOrigin = req.headers.origin,
+      headers = [],
+      isAllowed;
+
+    if (!options.origin || options.origin === '*') {
+      // allow any origin
+      headers.push([{
+        key: 'Access-Control-Allow-Origin',
+        value: '*'
+      }]);
+    } else if (isString(options.origin)) {
+      // fixed origin
+      headers.push([{
+        key: 'Access-Control-Allow-Origin',
+        value: options.origin
+      }]);
+      headers.push([{
+        key: 'Vary',
+        value: 'Origin'
+      }]);
+    } else {
+      isAllowed = isOriginAllowed(requestOrigin, options.origin);
+      // reflect origin
+      headers.push([{
+        key: 'Access-Control-Allow-Origin',
+        value: isAllowed ? requestOrigin : false
+      }]);
+      headers.push([{
+        key: 'Vary',
+        value: 'Origin'
+      }]);
+    }
+
+    return headers;
+  }
+
+  function configureMethods(options) {
+    var methods = options.methods;
+    if (methods.join) {
+      methods = options.methods.join(','); // .methods is an array, so turn it into a string
+    }
+    return {
+      key: 'Access-Control-Allow-Methods',
+      value: methods
+    };
+  }
+
+  function configureCredentials(options) {
+    if (options.credentials === true) {
+      return {
+        key: 'Access-Control-Allow-Credentials',
+        value: 'true'
+      };
+    }
+    return null;
+  }
+
+  function configureAllowedHeaders(options, req) {
+    var allowedHeaders = options.allowedHeaders || options.headers;
+    var headers = [];
+
+    if (!allowedHeaders) {
+      allowedHeaders = req.headers['access-control-request-headers']; // .headers wasn't specified, so reflect the request headers
+      headers.push([{
+        key: 'Vary',
+        value: 'Access-Control-Request-Headers'
+      }]);
+    } else if (allowedHeaders.join) {
+      allowedHeaders = allowedHeaders.join(','); // .headers is an array, so turn it into a string
+    }
+    if (allowedHeaders && allowedHeaders.length) {
+      headers.push([{
+        key: 'Access-Control-Allow-Headers',
+        value: allowedHeaders
+      }]);
+    }
+
+    return headers;
+  }
+
+  function configureExposedHeaders(options) {
+    var headers = options.exposedHeaders;
+    if (!headers) {
+      return null;
+    } else if (headers.join) {
+      headers = headers.join(','); // .headers is an array, so turn it into a string
+    }
+    if (headers && headers.length) {
+      return {
+        key: 'Access-Control-Expose-Headers',
+        value: headers
+      };
+    }
+    return null;
+  }
+
+  function configureMaxAge(options) {
+    var maxAge = (typeof options.maxAge === 'number' || options.maxAge) && options.maxAge.toString()
+    if (maxAge && maxAge.length) {
+      return {
+        key: 'Access-Control-Max-Age',
+        value: maxAge
+      };
+    }
+    return null;
+  }
+
+  function applyHeaders(headers, res) {
+    for (var i = 0, n = headers.length; i < n; i++) {
+      var header = headers[i];
+      if (header) {
+        if (Array.isArray(header)) {
+          applyHeaders(header, res);
+        } else if (header.key === 'Vary' && header.value) {
+          vary(res, header.value);
+        } else if (header.value) {
+          res.setHeader(header.key, header.value);
+        }
+      }
+    }
+  }
+
+  function cors(options, req, res, next) {
+    var headers = [],
+      method = req.method && req.method.toUpperCase && req.method.toUpperCase();
+
+    if (method === 'OPTIONS') {
+      // preflight
+      headers.push(configureOrigin(options, req));
+      headers.push(configureCredentials(options))
+      headers.push(configureMethods(options))
+      headers.push(configureAllowedHeaders(options, req));
+      headers.push(configureMaxAge(options))
+      headers.push(configureExposedHeaders(options))
+      applyHeaders(headers, res);
+
+      if (options.preflightContinue) {
+        next();
+      } else {
+        // Safari (and potentially other browsers) need content-length 0,
+        //   for 204 or they just hang waiting for a body
+        res.statusCode = options.optionsSuccessStatus;
+        res.setHeader('Content-Length', '0');
+        res.end();
+      }
+    } else {
+      // actual response
+      headers.push(configureOrigin(options, req));
+      headers.push(configureCredentials(options))
+      headers.push(configureExposedHeaders(options))
+      applyHeaders(headers, res);
+      next();
+    }
+  }
+
+  function middlewareWrapper(o) {
+    // if options are static (either via defaults or custom options passed in), wrap in a function
+    var optionsCallback = null;
+    if (typeof o === 'function') {
+      optionsCallback = o;
+    } else {
+      optionsCallback = function (req, cb) {
+        cb(null, o);
+      };
+    }
+
+    return function corsMiddleware(req, res, next) {
+      optionsCallback(req, function (err, options) {
+        if (err) {
+          next(err);
+        } else {
+          var corsOptions = assign({}, defaults, options);
+          var originCallback = null;
+          if (corsOptions.origin && typeof corsOptions.origin === 'function') {
+            originCallback = corsOptions.origin;
+          } else if (corsOptions.origin) {
+            originCallback = function (origin, cb) {
+              cb(null, corsOptions.origin);
+            };
+          }
+
+          if (originCallback) {
+            originCallback(req.headers.origin, function (err2, origin) {
+              if (err2 || !origin) {
+                next(err2);
+              } else {
+                corsOptions.origin = origin;
+                cors(corsOptions, req, res, next);
+              }
+            });
+          } else {
+            next();
+          }
+        }
+      });
+    };
+  }
+
+  // can pass either an options hash, an options delegate, or nothing
+  module.exports = middlewareWrapper;
+
+}());
+
+
+/***/ },
+
 /***/ 5009
 (__unused_webpack_module, exports, __webpack_require__) {
 
@@ -16886,6 +17521,47 @@ const jsonError = {
 const schema = [map.map, seq.seq].concat(jsonScalars, jsonError);
 
 exports.schema = schema;
+
+
+/***/ },
+
+/***/ 5118
+(module) {
+
+module.exports = decode
+
+function decode (data) {
+  if (data.data && data.name) {
+    data = data.data
+  }
+
+  var naming = true
+  var text = ''
+  var name = ''
+
+  for (var i = 0; i < data.length; i++) {
+    var code = data[i]
+
+    if (naming) {
+      if (code) {
+        name += String.fromCharCode(code)
+      } else {
+        naming = false
+      }
+    } else {
+      if (code) {
+        text += String.fromCharCode(code)
+      } else {
+        throw new Error('Invalid NULL character found. 0x00 character is not permitted in tEXt content')
+      }
+    }
+  }
+
+  return {
+    keyword: name,
+    text: text
+  }
+}
 
 
 /***/ },
@@ -21246,7 +21922,7 @@ class Document {
             replacer = undefined;
         }
         const { aliasDuplicateObjects, anchorPrefix, flow, keepUndefined, onTagObj, tag } = options ?? {};
-        const { onAnchor, setAnchors, sourceObjects } = anchors.createNodeAnchors(this, 
+        const { onAnchor, setAnchors, sourceObjects } = anchors.createNodeAnchors(this,
         // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         anchorPrefix || 'a');
         const ctx = {
@@ -22139,251 +22815,6 @@ function _reconstructPacket(data, buffers) {
     }
     return data;
 }
-
-
-/***/ },
-
-/***/ 6388
-(module, __unused_webpack_exports, __webpack_require__) {
-
-(function () {
-
-  'use strict';
-
-  var assign = __webpack_require__(4059);
-  var vary = __webpack_require__(4795);
-
-  var defaults = {
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  };
-
-  function isString(s) {
-    return typeof s === 'string' || s instanceof String;
-  }
-
-  function isOriginAllowed(origin, allowedOrigin) {
-    if (Array.isArray(allowedOrigin)) {
-      for (var i = 0; i < allowedOrigin.length; ++i) {
-        if (isOriginAllowed(origin, allowedOrigin[i])) {
-          return true;
-        }
-      }
-      return false;
-    } else if (isString(allowedOrigin)) {
-      return origin === allowedOrigin;
-    } else if (allowedOrigin instanceof RegExp) {
-      return allowedOrigin.test(origin);
-    } else {
-      return !!allowedOrigin;
-    }
-  }
-
-  function configureOrigin(options, req) {
-    var requestOrigin = req.headers.origin,
-      headers = [],
-      isAllowed;
-
-    if (!options.origin || options.origin === '*') {
-      // allow any origin
-      headers.push([{
-        key: 'Access-Control-Allow-Origin',
-        value: '*'
-      }]);
-    } else if (isString(options.origin)) {
-      // fixed origin
-      headers.push([{
-        key: 'Access-Control-Allow-Origin',
-        value: options.origin
-      }]);
-      headers.push([{
-        key: 'Vary',
-        value: 'Origin'
-      }]);
-    } else {
-      isAllowed = isOriginAllowed(requestOrigin, options.origin);
-      // reflect origin
-      headers.push([{
-        key: 'Access-Control-Allow-Origin',
-        value: isAllowed ? requestOrigin : false
-      }]);
-      headers.push([{
-        key: 'Vary',
-        value: 'Origin'
-      }]);
-    }
-
-    return headers;
-  }
-
-  function configureMethods(options) {
-    var methods = options.methods;
-    if (methods.join) {
-      methods = options.methods.join(','); // .methods is an array, so turn it into a string
-    }
-    return {
-      key: 'Access-Control-Allow-Methods',
-      value: methods
-    };
-  }
-
-  function configureCredentials(options) {
-    if (options.credentials === true) {
-      return {
-        key: 'Access-Control-Allow-Credentials',
-        value: 'true'
-      };
-    }
-    return null;
-  }
-
-  function configureAllowedHeaders(options, req) {
-    var allowedHeaders = options.allowedHeaders || options.headers;
-    var headers = [];
-
-    if (!allowedHeaders) {
-      allowedHeaders = req.headers['access-control-request-headers']; // .headers wasn't specified, so reflect the request headers
-      headers.push([{
-        key: 'Vary',
-        value: 'Access-Control-Request-Headers'
-      }]);
-    } else if (allowedHeaders.join) {
-      allowedHeaders = allowedHeaders.join(','); // .headers is an array, so turn it into a string
-    }
-    if (allowedHeaders && allowedHeaders.length) {
-      headers.push([{
-        key: 'Access-Control-Allow-Headers',
-        value: allowedHeaders
-      }]);
-    }
-
-    return headers;
-  }
-
-  function configureExposedHeaders(options) {
-    var headers = options.exposedHeaders;
-    if (!headers) {
-      return null;
-    } else if (headers.join) {
-      headers = headers.join(','); // .headers is an array, so turn it into a string
-    }
-    if (headers && headers.length) {
-      return {
-        key: 'Access-Control-Expose-Headers',
-        value: headers
-      };
-    }
-    return null;
-  }
-
-  function configureMaxAge(options) {
-    var maxAge = (typeof options.maxAge === 'number' || options.maxAge) && options.maxAge.toString()
-    if (maxAge && maxAge.length) {
-      return {
-        key: 'Access-Control-Max-Age',
-        value: maxAge
-      };
-    }
-    return null;
-  }
-
-  function applyHeaders(headers, res) {
-    for (var i = 0, n = headers.length; i < n; i++) {
-      var header = headers[i];
-      if (header) {
-        if (Array.isArray(header)) {
-          applyHeaders(header, res);
-        } else if (header.key === 'Vary' && header.value) {
-          vary(res, header.value);
-        } else if (header.value) {
-          res.setHeader(header.key, header.value);
-        }
-      }
-    }
-  }
-
-  function cors(options, req, res, next) {
-    var headers = [],
-      method = req.method && req.method.toUpperCase && req.method.toUpperCase();
-
-    if (method === 'OPTIONS') {
-      // preflight
-      headers.push(configureOrigin(options, req));
-      headers.push(configureCredentials(options, req));
-      headers.push(configureMethods(options, req));
-      headers.push(configureAllowedHeaders(options, req));
-      headers.push(configureMaxAge(options, req));
-      headers.push(configureExposedHeaders(options, req));
-      applyHeaders(headers, res);
-
-      if (options.preflightContinue) {
-        next();
-      } else {
-        // Safari (and potentially other browsers) need content-length 0,
-        //   for 204 or they just hang waiting for a body
-        res.statusCode = options.optionsSuccessStatus;
-        res.setHeader('Content-Length', '0');
-        res.end();
-      }
-    } else {
-      // actual response
-      headers.push(configureOrigin(options, req));
-      headers.push(configureCredentials(options, req));
-      headers.push(configureExposedHeaders(options, req));
-      applyHeaders(headers, res);
-      next();
-    }
-  }
-
-  function middlewareWrapper(o) {
-    // if options are static (either via defaults or custom options passed in), wrap in a function
-    var optionsCallback = null;
-    if (typeof o === 'function') {
-      optionsCallback = o;
-    } else {
-      optionsCallback = function (req, cb) {
-        cb(null, o);
-      };
-    }
-
-    return function corsMiddleware(req, res, next) {
-      optionsCallback(req, function (err, options) {
-        if (err) {
-          next(err);
-        } else {
-          var corsOptions = assign({}, defaults, options);
-          var originCallback = null;
-          if (corsOptions.origin && typeof corsOptions.origin === 'function') {
-            originCallback = corsOptions.origin;
-          } else if (corsOptions.origin) {
-            originCallback = function (origin, cb) {
-              cb(null, corsOptions.origin);
-            };
-          }
-
-          if (originCallback) {
-            originCallback(req.headers.origin, function (err2, origin) {
-              if (err2 || !origin) {
-                next(err2);
-              } else {
-                corsOptions.origin = origin;
-                cors(corsOptions, req, res, next);
-              }
-            });
-          } else {
-            next();
-          }
-        }
-      });
-    };
-  }
-
-  // can pass either an options hash, an options delegate, or nothing
-  module.exports = middlewareWrapper;
-
-}());
 
 
 /***/ },
@@ -23479,14 +23910,14 @@ var Base64Id = function() { };
 Base64Id.prototype.getRandomBytes = function(bytes) {
 
   var BUFFER_SIZE = 4096
-  var self = this;  
-  
+  var self = this;
+
   bytes = bytes || 12;
 
   if (bytes > BUFFER_SIZE) {
     return crypto.randomBytes(bytes);
   }
-  
+
   var bytesInBuffer = parseInt(BUFFER_SIZE/bytes);
   var threshold = parseInt(bytesInBuffer*0.85);
 
@@ -23505,25 +23936,25 @@ Base64Id.prototype.getRandomBytes = function(bytes) {
 
   // No buffered bytes available or index above threshold
   if (this.bytesBufferIndex == -1 || this.bytesBufferIndex > threshold) {
-     
+
     if (!this.isGeneratingBytes) {
       this.isGeneratingBytes = true;
       crypto.randomBytes(BUFFER_SIZE, function(err, bytes) {
         self.bytesBuffer = bytes;
         self.bytesBufferIndex = 0;
         self.isGeneratingBytes = false;
-      }); 
+      });
     }
-    
+
     // Fall back to sync call when no buffered bytes are available
     if (this.bytesBufferIndex == -1) {
       return crypto.randomBytes(bytes);
     }
   }
-  
-  var result = this.bytesBuffer.slice(bytes*this.bytesBufferIndex, bytes*(this.bytesBufferIndex+1)); 
-  this.bytesBufferIndex++; 
-  
+
+  var result = this.bytesBuffer.slice(bytes*this.bytesBufferIndex, bytes*(this.bytesBufferIndex+1));
+  this.bytesBufferIndex++;
+
   return result;
 }
 
@@ -26063,7 +26494,7 @@ class BaseServer extends events_1.EventEmitter {
             }, opts.cookie);
         }
         if (this.opts.cors) {
-            this.use(__webpack_require__(6388)(this.opts.cors));
+            this.use(__webpack_require__(4941)(this.opts.cors));
         }
         if (opts.perMessageDeflate) {
             this.opts.perMessageDeflate = Object.assign({
@@ -27869,7 +28300,7 @@ const socket_1 = __webpack_require__(1751);
 Object.defineProperty(exports, "Socket", ({ enumerable: true, get: function () { return socket_1.Socket; } }));
 const typed_events_1 = __webpack_require__(8984);
 const uws_1 = __webpack_require__(7433);
-const cors_1 = __importDefault(__webpack_require__(6388));
+const cors_1 = __importDefault(__webpack_require__(4941));
 const debug = (0, debug_1.default)("socket.io:server");
 const clientVersion = (__webpack_require__(4343)/* .version */ .rE);
 const dotMapRegex = /\.map/;
@@ -47970,6 +48401,15 @@ exports.LineCounter = LineCounter;
 
 /***/ },
 
+/***/ 9890
+(__unused_webpack_module, exports, __webpack_require__) {
+
+exports.encode = __webpack_require__(4162)
+exports.decode = __webpack_require__(5118)
+
+
+/***/ },
+
 /***/ 9896
 (module) {
 
@@ -47981,7 +48421,7 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /************************************************************************/
 /******/ // The module cache
 /******/ var __webpack_module_cache__ = {};
-/******/ 
+/******/
 /******/ // The require function
 /******/ function __webpack_require__(moduleId) {
 /******/ 	// Check if module is in cache
@@ -47995,17 +48435,17 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /******/ 		loaded: false,
 /******/ 		exports: {}
 /******/ 	};
-/******/ 
+/******/
 /******/ 	// Execute the module function
 /******/ 	__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/ 
+/******/
 /******/ 	// Flag the module as loaded
 /******/ 	module.loaded = true;
-/******/ 
+/******/
 /******/ 	// Return the exports of the module
 /******/ 	return module.exports;
 /******/ }
-/******/ 
+/******/
 /************************************************************************/
 /******/ /* webpack/runtime/compat get default export */
 /******/ (() => {
@@ -48018,7 +48458,7 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /******/ 		return getter;
 /******/ 	};
 /******/ })();
-/******/ 
+/******/
 /******/ /* webpack/runtime/define property getters */
 /******/ (() => {
 /******/ 	// define getter functions for harmony exports
@@ -48030,12 +48470,12 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /******/ 		}
 /******/ 	};
 /******/ })();
-/******/ 
+/******/
 /******/ /* webpack/runtime/hasOwnProperty shorthand */
 /******/ (() => {
 /******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ })();
-/******/ 
+/******/
 /******/ /* webpack/runtime/make namespace object */
 /******/ (() => {
 /******/ 	// define __esModule on exports
@@ -48046,7 +48486,7 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 	};
 /******/ })();
-/******/ 
+/******/
 /******/ /* webpack/runtime/node module decorator */
 /******/ (() => {
 /******/ 	__webpack_require__.nmd = (module) => {
@@ -48055,11 +48495,11 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /******/ 		return module;
 /******/ 	};
 /******/ })();
-/******/ 
+/******/
 /************************************************************************/
 var __webpack_exports__ = {};
 
-// NAMESPACE OBJECT: ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/regexes.js
+// NAMESPACE OBJECT: ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/regexes.js
 var regexes_namespaceObject = {};
 __webpack_require__.r(regexes_namespaceObject);
 __webpack_require__.d(regexes_namespaceObject, {
@@ -48123,7 +48563,7 @@ __webpack_require__.d(regexes_namespaceObject, {
   xid: () => (xid)
 });
 
-// NAMESPACE OBJECT: ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/checks.js
+// NAMESPACE OBJECT: ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/checks.js
 var classic_checks_namespaceObject = {};
 __webpack_require__.r(classic_checks_namespaceObject);
 __webpack_require__.d(classic_checks_namespaceObject, {
@@ -48158,7 +48598,7 @@ __webpack_require__.d(classic_checks_namespaceObject, {
   uppercase: () => (_uppercase)
 });
 
-// NAMESPACE OBJECT: ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/iso.js
+// NAMESPACE OBJECT: ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/iso.js
 var iso_namespaceObject = {};
 __webpack_require__.r(iso_namespaceObject);
 __webpack_require__.d(iso_namespaceObject, {
@@ -48172,7 +48612,7 @@ __webpack_require__.d(iso_namespaceObject, {
   time: () => (iso_time)
 });
 
-// NAMESPACE OBJECT: ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/schemas.js
+// NAMESPACE OBJECT: ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/schemas.js
 var classic_schemas_namespaceObject = {};
 __webpack_require__.r(classic_schemas_namespaceObject);
 __webpack_require__.d(classic_schemas_namespaceObject, {
@@ -48343,7 +48783,7 @@ __webpack_require__.d(classic_schemas_namespaceObject, {
 });
 
 ;// ./src/server/settings_default.yaml?raw
-const settings_defaultraw_namespaceObject = "# yaml-language-server: $schema=https://testingcf.jsdelivr.net/gh/StageDog/tavern_sync/dist/schema/settings.zh.json\n\n# 在此填入 user 名称, 提示词中如果有这个名字则会被替换成 <user> 宏\nuser名称: 青空黎\n\n# 在此填入新的\"世界书\"或\"预设\"配置\n配置:\n  # 配置名称, 可以和酒馆中的不同. 你使用脚本时需要填写配置名称来指出用哪个配置, 因此尽量配置名称尽量简单点方便填写\n  角色卡示例:\n    # 类型可以是\"世界书\"或\"预设\"\n    类型: 世界书\n\n    # 在酒馆中这个\"世界书\"或\"预设\"叫什么\n    酒馆中的名称: 呕吐内心的少女\n\n    # 这个世界书或预设的等效配置文件要提取到本地哪个文件中, 可以是绝对路径或相对于本文件的相对路径\n    # 如果不满足路径格式将会报错\n    # - 绝对路径: 如 Windows 中, 想将世界书提取到 C 盘\"角色卡示例\"文件夹中, 则填入 `C:/角色卡示例`\n    # - 相对路径:\n    #   - 想将世界书配置文件提取到本文件相同的文件夹中, 则填入 `./角色卡示例` 或 `角色卡示例`\n    #   - 想将世界书配置文件提取到本文件所在文件夹的子文件夹\"世界书\"中, 则填入 `./世界书/角色卡示例` 或 `世界书/角色卡示例`\n    #   - 想将世界书配置文件提取到本文件所在文件夹的父文件夹中, 则填入 `../角色卡示例`\n    本地文件路径: src/角色卡示例/世界书/index\n\n    # 当使用打包功能 `node tavern_sync.mjs bundle 配置名称` 直接生成世界书/预设文件时, 要将它存放在哪个文件中\n    # 你也可以直接删去下面一行不填, 则默认会导出到本地文件路径的同目录下\n    导出文件路径: src/角色卡示例/角色卡示例\n";
+const settings_defaultraw_namespaceObject = "# yaml-language-server: $schema=https://testingcf.jsdelivr.net/gh/StageDog/tavern_sync/dist/schema/settings.zh.json\n\n# 在此填入 user 名称, 提示词中如果有这个名字则会被替换成 <user> 宏\nuser名称: 青空黎\n\n# 在此填入新的\"角色卡\"、\"世界书\"或\"预设\"配置\n配置:\n  # 配置名称, 可以和酒馆中的不同. 你使用脚本时需要填写配置名称来指出用哪个配置, 因此尽量配置名称尽量简单点方便填写\n  角色卡示例:\n    # 类型可以是\"角色卡\"、\"世界书\"或\"预设\"\n    类型: 角色卡\n\n    # 在酒馆中这个\"角色卡\"、\"世界书\"或\"预设\"叫什么\n    酒馆中的名称: 呕吐内心的少女\n\n    # 这个\"角色卡\"、\"世界书\"或\"预设\"的等效配置文件要提取到本地哪个文件中, 可以是绝对路径或相对于本文件的相对路径\n    # 如果不满足路径格式将会报错\n    # - 绝对路径: 如 Windows 中, 想将世界书提取到 C 盘\"角色卡示例\"文件夹中, 则填入 `C:/角色卡示例`\n    # - 相对路径:\n    #   - 想将配置文件提取到本文件相同的文件夹中, 则填入 `./角色卡示例` 或 `角色卡示例`\n    #   - 想将配置文件提取到本文件所在文件夹的子文件夹\"世界书\"中, 则填入 `./世界书/角色卡示例` 或 `世界书/角色卡示例`\n    #   - 想将配置文件提取到本文件所在文件夹的父文件夹中, 则填入 `../角色卡示例`\n    本地文件路径: 角色卡示例/index\n\n    # 当使用打包功能 `node tavern_sync.mjs bundle 配置名称` 直接生成\"角色卡\"、\"世界书\"或\"预设\"文件时, 要将它存放在哪个文件中\n    # 你也可以直接删去下面一行不填, 则默认会导出到本地文件路径的同目录下\n    导出文件路径: 角色卡示例/角色卡示例\n";
 ;// ./src/server/util/prettified_parse.ts
 function detailed_parse(schema, data) {
     const result = schema.safeParse(data, { reportInput: true });
@@ -48425,7 +48865,9 @@ function write_file_recursively(base, file, content) {
     }
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/core.js
+// EXTERNAL MODULE: external "path"
+var external_path_ = __webpack_require__(6928);
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/core.js
 /** A special constant with type `never` */
 const NEVER = Object.freeze({
     status: "aborted",
@@ -48503,7 +48945,7 @@ function config(newConfig) {
     return globalConfig;
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/util.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/util.js
 // functions
 function assertEqual(val) {
     return val;
@@ -49156,7 +49598,7 @@ class Class {
     constructor(..._args) { }
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/errors.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/errors.js
 
 
 const initializer = (inst, def) => {
@@ -49340,7 +49782,7 @@ function prettifyError(error) {
     return lines.join("\n");
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/parse.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/parse.js
 
 
 
@@ -49435,7 +49877,7 @@ const _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
 };
 const safeDecodeAsync = /* @__PURE__*/ _safeDecodeAsync($ZodRealError);
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/regexes.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/regexes.js
 
 const cuid = /^[cC][^\s-]{8,}$/;
 const cuid2 = /^[0-9a-z]+$/;
@@ -49570,7 +50012,7 @@ const sha512_hex = /^[0-9a-fA-F]{128}$/;
 const sha512_base64 = /*@__PURE__*/ fixedBase64(86, "==");
 const sha512_base64url = /*@__PURE__*/ fixedBase64url(86);
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/checks.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/checks.js
 // import { $ZodType } from "./schemas.js";
 
 
@@ -49642,7 +50084,7 @@ const $ZodCheckGreaterThan = /*@__PURE__*/ $constructor("$ZodCheckGreaterThan", 
         });
     };
 });
-const $ZodCheckMultipleOf = 
+const $ZodCheckMultipleOf =
 /*@__PURE__*/ $constructor("$ZodCheckMultipleOf", (inst, def) => {
     $ZodCheck.init(inst, def);
     inst._zod.onattach.push((inst) => {
@@ -50147,7 +50589,7 @@ const $ZodCheckOverwrite = /*@__PURE__*/ $constructor("$ZodCheckOverwrite", (ins
     };
 });
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/doc.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/doc.js
 class Doc {
     constructor(args = []) {
         this.content = [];
@@ -50184,14 +50626,14 @@ class Doc {
     }
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/versions.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/versions.js
 const version = {
     major: 4,
     minor: 3,
-    patch: 5,
+    patch: 6,
 };
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/schemas.js
 
 
 
@@ -51054,7 +51496,7 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
             })));
           }
         }
-        
+
         if (${id}.value === undefined) {
           if (${k} in input) {
             newResult[${k}] = undefined;
@@ -51062,7 +51504,7 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
         } else {
           newResult[${k}] = ${id}.value;
         }
-        
+
       `);
             }
             else {
@@ -51073,7 +51515,7 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
             path: iss.path ? [${k}, ...iss.path] : [${k}]
           })));
         }
-        
+
         if (${id}.value === undefined) {
           if (${k} in input) {
             newResult[${k}] = undefined;
@@ -51081,7 +51523,7 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
         } else {
           newResult[${k}] = ${id}.value;
         }
-        
+
       `);
             }
         }
@@ -51246,7 +51688,7 @@ const $ZodXor = /*@__PURE__*/ $constructor("$ZodXor", (inst, def) => {
         });
     };
 });
-const $ZodDiscriminatedUnion = 
+const $ZodDiscriminatedUnion =
 /*@__PURE__*/
 $constructor("$ZodDiscriminatedUnion", (inst, def) => {
     def.inclusive = false;
@@ -51559,11 +52001,9 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
                 if (keyResult instanceof Promise) {
                     throw new Error("Async schemas not supported in object keys currently");
                 }
-                // Numeric string fallback: if key failed with "expected number", retry with Number(key)
-                const checkNumericKey = typeof key === "string" &&
-                    number.test(key) &&
-                    keyResult.issues.length &&
-                    keyResult.issues.some((iss) => iss.code === "invalid_type" && iss.expected === "number");
+                // Numeric string fallback: if key is a numeric string and failed, retry with Number(key)
+                // This handles z.number(), z.literal([1, 2, 3]), and unions containing numeric literals
+                const checkNumericKey = typeof key === "string" && number.test(key) && keyResult.issues.length;
                 if (checkNumericKey) {
                     const retryResult = def.keyType._zod.run({ value: Number(key), issues: [] }, ctx);
                     if (retryResult instanceof Promise) {
@@ -52288,7 +52728,7 @@ function handleRefineResult(result, payload, input, inst) {
     }
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ar.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ar.js
 
 const error = () => {
     const Sizable = {
@@ -52396,7 +52836,7 @@ const error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/az.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/az.js
 
 const az_error = () => {
     const Sizable = {
@@ -52503,7 +52943,7 @@ const az_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/be.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/be.js
 
 function getBelarusianPlural(count, one, few, many) {
     const absCount = Math.abs(count);
@@ -52661,7 +53101,7 @@ const be_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/bg.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/bg.js
 
 const bg_error = () => {
     const Sizable = {
@@ -52783,7 +53223,7 @@ const bg_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ca.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ca.js
 
 const ca_error = () => {
     const Sizable = {
@@ -52892,7 +53332,7 @@ const ca_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/cs.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/cs.js
 
 const cs_error = () => {
     const Sizable = {
@@ -53005,7 +53445,7 @@ const cs_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/da.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/da.js
 
 const da_error = () => {
     const Sizable = {
@@ -53122,7 +53562,7 @@ const da_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/de.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/de.js
 
 const de_error = () => {
     const Sizable = {
@@ -53232,7 +53672,7 @@ const de_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/en.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/en.js
 
 const en_error = () => {
     const Sizable = {
@@ -53343,7 +53783,7 @@ const en_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/eo.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/eo.js
 
 const eo_error = () => {
     const Sizable = {
@@ -53454,7 +53894,7 @@ const eo_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/es.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/es.js
 
 const es_error = () => {
     const Sizable = {
@@ -53588,7 +54028,7 @@ const es_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/fa.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/fa.js
 
 const fa_error = () => {
     const Sizable = {
@@ -53704,7 +54144,7 @@ const fa_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/fi.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/fi.js
 
 const fi_error = () => {
     const Sizable = {
@@ -53818,7 +54258,7 @@ const fi_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/fr.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/fr.js
 
 const fr_error = () => {
     const Sizable = {
@@ -53928,7 +54368,7 @@ const fr_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/fr-CA.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/fr-CA.js
 
 const fr_CA_error = () => {
     const Sizable = {
@@ -54037,7 +54477,7 @@ const fr_CA_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/he.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/he.js
 
 const he_error = () => {
     // Hebrew labels + grammatical gender
@@ -54253,7 +54693,7 @@ const he_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/hu.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/hu.js
 
 const hu_error = () => {
     const Sizable = {
@@ -54363,7 +54803,7 @@ const hu_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/hy.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/hy.js
 
 function getArmenianPlural(count, one, many) {
     return Math.abs(count) === 1 ? one : many;
@@ -54512,7 +54952,7 @@ const hy_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/id.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/id.js
 
 const id_error = () => {
     const Sizable = {
@@ -54620,7 +55060,7 @@ const id_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/is.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/is.js
 
 const is_error = () => {
     const Sizable = {
@@ -54731,7 +55171,7 @@ const is_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/it.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/it.js
 
 const it_error = () => {
     const Sizable = {
@@ -54841,7 +55281,7 @@ const it_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ja.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ja.js
 
 const ja_error = () => {
     const Sizable = {
@@ -54950,7 +55390,7 @@ const ja_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ka.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ka.js
 
 const ka_error = () => {
     const Sizable = {
@@ -55064,7 +55504,7 @@ const ka_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/km.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/km.js
 
 const km_error = () => {
     const Sizable = {
@@ -55176,14 +55616,14 @@ const km_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/kh.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/kh.js
 
 /** @deprecated Use `km` instead. */
 /* harmony default export */ function kh() {
     return km();
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ko.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ko.js
 
 const ko_error = () => {
     const Sizable = {
@@ -55296,7 +55736,7 @@ const ko_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/lt.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/lt.js
 
 const capitalizeFirstCharacter = (text) => {
     return text.charAt(0).toUpperCase() + text.slice(1);
@@ -55501,7 +55941,7 @@ const lt_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/mk.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/mk.js
 
 const mk_error = () => {
     const Sizable = {
@@ -55612,7 +56052,7 @@ const mk_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ms.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ms.js
 
 const ms_error = () => {
     const Sizable = {
@@ -55721,7 +56161,7 @@ const ms_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/nl.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/nl.js
 
 const nl_error = () => {
     const Sizable = {
@@ -55833,7 +56273,7 @@ const nl_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/no.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/no.js
 
 const no_error = () => {
     const Sizable = {
@@ -55943,7 +56383,7 @@ const no_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ota.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ota.js
 
 const ota_error = () => {
     const Sizable = {
@@ -56054,7 +56494,7 @@ const ota_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ps.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ps.js
 
 const ps_error = () => {
     const Sizable = {
@@ -56170,7 +56610,7 @@ const ps_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/pl.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/pl.js
 
 const pl_error = () => {
     const Sizable = {
@@ -56281,7 +56721,7 @@ const pl_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/pt.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/pt.js
 
 const pt_error = () => {
     const Sizable = {
@@ -56391,7 +56831,7 @@ const pt_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ru.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ru.js
 
 function getRussianPlural(count, one, few, many) {
     const absCount = Math.abs(count);
@@ -56549,7 +56989,7 @@ const ru_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/sl.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/sl.js
 
 const sl_error = () => {
     const Sizable = {
@@ -56660,7 +57100,7 @@ const sl_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/sv.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/sv.js
 
 const sv_error = () => {
     const Sizable = {
@@ -56772,7 +57212,7 @@ const sv_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ta.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ta.js
 
 const ta_error = () => {
     const Sizable = {
@@ -56884,7 +57324,7 @@ const ta_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/th.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/th.js
 
 const th_error = () => {
     const Sizable = {
@@ -56996,7 +57436,7 @@ const th_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/tr.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/tr.js
 
 const tr_error = () => {
     const Sizable = {
@@ -57103,7 +57543,7 @@ const tr_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/uk.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/uk.js
 
 const uk_error = () => {
     const Sizable = {
@@ -57213,14 +57653,14 @@ const uk_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ua.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ua.js
 
 /** @deprecated Use `uk` instead. */
 /* harmony default export */ function ua() {
     return uk();
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/ur.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/ur.js
 
 const ur_error = () => {
     const Sizable = {
@@ -57332,7 +57772,7 @@ const ur_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/uz.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/uz.js
 
 const uz_error = () => {
     const Sizable = {
@@ -57443,7 +57883,7 @@ const uz_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/vi.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/vi.js
 
 const vi_error = () => {
     const Sizable = {
@@ -57553,7 +57993,7 @@ const vi_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/zh-CN.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/zh-CN.js
 
 const zh_CN_error = () => {
     const Sizable = {
@@ -57664,7 +58104,7 @@ const zh_CN_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/zh-TW.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/zh-TW.js
 
 const zh_TW_error = () => {
     const Sizable = {
@@ -57773,7 +58213,7 @@ const zh_TW_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/yo.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/yo.js
 
 const yo_error = () => {
     const Sizable = {
@@ -57882,7 +58322,7 @@ const yo_error = () => {
     };
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/locales/index.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/locales/index.js
 
 
 
@@ -57933,7 +58373,7 @@ const yo_error = () => {
 
 
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/registries.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/registries.js
 var _a;
 const $output = Symbol("ZodOutput");
 const $input = Symbol("ZodInput");
@@ -57986,7 +58426,7 @@ function registry() {
 (_a = globalThis).__zod_globalRegistry ?? (_a.__zod_globalRegistry = registry());
 const registries_globalRegistry = globalThis.__zod_globalRegistry;
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/api.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/api.js
 
 
 
@@ -59066,7 +59506,7 @@ function _stringFormat(Class, format, fnOrRegex, _params = {}) {
     return inst;
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/to-json-schema.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/to-json-schema.js
 
 // function initializeContext<T extends schemas.$ZodType>(inputs: JSONSchemaGeneratorParams<T>): ToJSONSchemaContext<T> {
 //   return {
@@ -59322,7 +59762,7 @@ function to_json_schema_finalize(ctx, schema) {
                 }
             }
             // When ref was extracted to $defs, remove properties that match the definition
-            if (refSchema.$ref) {
+            if (refSchema.$ref && refSeen.def) {
                 for (const key in schema) {
                     if (key === "$ref" || key === "allOf")
                         continue;
@@ -59505,7 +59945,7 @@ const createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params)
     return to_json_schema_finalize(ctx, schema);
 };
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/json-schema-processors.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/json-schema-processors.js
 
 
 const formatMap = {
@@ -60112,7 +60552,7 @@ function toJSONSchema(input, params) {
     return finalize(ctx, input);
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/json-schema-generator.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/json-schema-generator.js
 
 
 /**
@@ -60209,7 +60649,7 @@ class JSONSchemaGenerator {
     }
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/index.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/index.js
 
 
 
@@ -60227,10 +60667,10 @@ class JSONSchemaGenerator {
 
 
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/checks.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/checks.js
 
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/iso.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/iso.js
 
 
 const ZodISODateTime = /*@__PURE__*/ $constructor("ZodISODateTime", (inst, def) => {
@@ -60262,7 +60702,7 @@ function iso_duration(params) {
     return _isoDuration(ZodISODuration, params);
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/errors.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/errors.js
 
 
 
@@ -60312,7 +60752,7 @@ const ZodRealError = $constructor("ZodError", errors_initializer, {
 // /** @deprecated Use `z.core.$ZodErrorMapCtx` instead. */
 // export type ErrorMapCtx = core.$ZodErrorMapCtx;
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/parse.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/parse.js
 
 
 const parse_parse = /* @__PURE__ */ _parse(ZodRealError);
@@ -60329,7 +60769,7 @@ const parse_safeDecode = /* @__PURE__ */ _safeDecode(ZodRealError);
 const parse_safeEncodeAsync = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 const parse_safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/schemas.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/schemas.js
 
 
 
@@ -61488,7 +61928,7 @@ function preprocess(fn, schema) {
     return pipe(transform(fn), schema);
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/compat.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/compat.js
 // Zod 3 compat layer
 
 /** @deprecated Use the raw string literal codes instead, e.g. "invalid_type". */
@@ -61521,7 +61961,7 @@ var ZodFirstPartyTypeKind;
 (function (ZodFirstPartyTypeKind) {
 })(ZodFirstPartyTypeKind || (ZodFirstPartyTypeKind = {}));
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/from-json-schema.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/from-json-schema.js
 
 
 
@@ -62107,7 +62547,7 @@ function fromJSONSchema(schema, params) {
     return convertSchema(schema, ctx);
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/coerce.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/coerce.js
 
 
 function coerce_string(params) {
@@ -62126,7 +62566,7 @@ function coerce_date(params) {
     return _coercedDate(ZodDate, params);
 }
 
-;// ./node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/classic/external.js
+;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/external.js
 
 
 
@@ -62150,53 +62590,109 @@ config(en());
 
 ;// ./src/type/settings.en.ts
 
-const Config_type = schemas_enum(['worldbook', 'preset']);
+
+
+const Config_type = schemas_enum(['character', 'worldbook', 'preset']);
 const Config = strictObject({
     type: Config_type,
-    name: schemas_string().describe('世界书/预设在酒馆中的名称'),
+    name: coerce_string().describe('角色卡/世界书/预设在酒馆中的名称'),
     file: schemas_string()
         .transform(string => (string.endsWith('.yaml') ? string : string + '.yaml'))
-        .describe('世界书/预设的配置文件要提取到本地哪个文件中, 可以是绝对路径或相对于本文件的相对路径'),
-    export_file: schemas_string()
+        .describe('角色卡/世界书/预设的配置文件要提取到本地哪个文件中, 可以是绝对路径或相对于本文件的相对路径'),
+    bundle_file: schemas_string()
         .optional()
-        .transform(string => (string !== undefined && !string.endsWith('.json') ? string + '.json' : string))
-        .describe('当使用 `node tavern_sync.mjs push 配置名称 -e` 导出能直接由酒馆界面导入的世界书/预设文件时, 要将它存放在哪个文件中; 不填则默认导出到世界书/预设配置文件的同目录下'),
+        .describe('当使用 `node tavern_sync.mjs bundle 配置名称` 打包角色卡/世界书/预设文件时, 要将它存放在哪个文件中; 不填则默认打包到角色卡/世界书/预设配置文件的同目录下'),
 });
 const Settings = strictObject({
-    user_name: schemas_string().regex(/^\S+$/).optional(),
-    configs: record(schemas_string(), Config),
+    user_name: coerce_string().regex(/^\S+$/).optional(),
+    configs: record(schemas_string(), Config).transform(data => {
+        return lodash_default().mapValues(data, (value, key) => {
+            if (value.bundle_file !== undefined) {
+                switch (value.type) {
+                    case 'character':
+                        value.bundle_file = value.bundle_file.endsWith('.png') ? value.bundle_file : value.bundle_file + '.png';
+                        break;
+                    case 'worldbook':
+                    case 'preset':
+                        value.bundle_file = value.bundle_file.endsWith('.json') ? value.bundle_file : value.bundle_file + '.json';
+                        break;
+                }
+            }
+            else {
+                switch (value.type) {
+                    case 'character':
+                        value.bundle_file = (0,external_path_.resolve)((0,external_path_.dirname)((0,external_path_.resolve)(__webpack_dirname__, value.file)), `${key}.png`);
+                        break;
+                    case 'worldbook':
+                    case 'preset':
+                        value.bundle_file = (0,external_path_.resolve)((0,external_path_.dirname)((0,external_path_.resolve)(__webpack_dirname__, value.file)), `${key}.json`);
+                        break;
+                }
+            }
+            return value;
+        });
+    }),
 });
 
 ;// ./src/type/settings.zh.ts
+
+
 
 const zh_to_en_map = {
     user名称: 'user_name',
     配置: 'configs',
     类型: 'type',
+    角色卡: 'character',
     世界书: 'worldbook',
     预设: 'preset',
     酒馆中的名称: 'name',
     本地文件路径: 'file',
+    导出文件路径: 'bundle_file',
 };
 function is_zh(data) {
-    return _.has(data, '配置');
+    return lodash_default().has(data, '配置');
 }
-const settings_zh_Config_type = schemas_enum(['世界书', '预设']);
+const settings_zh_Config_type = schemas_enum(['角色卡', '世界书', '预设']);
 const settings_zh_Config = strictObject({
     类型: settings_zh_Config_type,
     酒馆中的名称: schemas_string()
-        .describe('世界书/预设的配置文件要提取到本地哪个文件中, 可以是绝对路径或相对于本文件的相对路径'),
+        .describe('角色卡/世界书/预设的配置文件要提取到本地哪个文件中, 可以是绝对路径或相对于本文件的相对路径'),
     本地文件路径: schemas_string()
         .transform(string => (string.endsWith('.yaml') ? string : string + '.yaml'))
-        .describe('世界书/预设的配置文件要提取到本地哪个文件中, 可以是绝对路径或相对于本文件的相对路径'),
+        .describe('角色卡/世界书/预设的配置文件要提取到本地哪个文件中, 可以是绝对路径或相对于本文件的相对路径'),
     导出文件路径: schemas_string()
         .optional()
-        .transform(string => (string !== undefined && !string.endsWith('.json') ? string + '.json' : string))
-        .describe('当使用 `node tavern_sync.mjs push 配置名称 -e` 导出能直接由酒馆界面导入的世界书/预设文件时, 要将它存放在哪个文件中; 不填则默认导出到世界书/预设配置文的同目录下'),
+        .describe('当使用 `node tavern_sync.mjs bundle 配置名称` 打包角色卡/世界书/预设文件时, 要将它存放在哪个文件中; 不填则默认打包到角色卡/世界书/预设配置文件的同目录下'),
 });
 const settings_zh_Settings = strictObject({
-    user名称: schemas_string().regex(/^\S+$/).optional(),
-    配置: record(schemas_string(), settings_zh_Config),
+    user名称: coerce_string().regex(/^\S+$/).optional(),
+    配置: record(schemas_string(), settings_zh_Config).transform(data => {
+        return lodash_default().mapValues(data, (value, key) => {
+            if (value.导出文件路径 !== undefined) {
+                switch (value.类型) {
+                    case '角色卡':
+                        value.导出文件路径 = (0,external_path_.resolve)(__webpack_dirname__, value.导出文件路径.endsWith('.png') ? value.导出文件路径 : value.导出文件路径 + '.png');
+                        break;
+                    case '世界书':
+                    case '预设':
+                        value.导出文件路径 = (0,external_path_.resolve)(__webpack_dirname__, value.导出文件路径.endsWith('.json') ? value.导出文件路径 : value.导出文件路径 + '.json');
+                        break;
+                }
+            }
+            else {
+                switch (value.类型) {
+                    case '角色卡':
+                        value.导出文件路径 = (0,external_path_.resolve)((0,external_path_.dirname)((0,external_path_.resolve)(__webpack_dirname__, value.本地文件路径)), `${key}.png`);
+                        break;
+                    case '世界书':
+                    case '预设':
+                        value.导出文件路径 = (0,external_path_.resolve)((0,external_path_.dirname)((0,external_path_.resolve)(__webpack_dirname__, value.本地文件路径)), `${key}.json`);
+                        break;
+                }
+            }
+            return value;
+        });
+    }),
 });
 
 // EXTERNAL MODULE: external "node:process"
@@ -62241,30 +62737,7 @@ ${Object.entries(get_settings().configs)
         .join('\n')}`;
 }
 
-;// ./src/server/bundle/preset.ts
-
-function fromPresetPrompt(prompt) {
-    const is_system_prompt = prompt.id === 'main';
-    const is_placeholder_prompt = !is_system_prompt && Number.isNaN(parseInt(prompt.id));
-    const is_normal_prompt = !is_system_prompt && !is_placeholder_prompt;
-    let result = lodash_default()({}).set('identifier', prompt.id).set('name', prompt.name).set('enabled', prompt.enabled);
-    if ((is_normal_prompt || is_placeholder_prompt) && !['dialogueExamples', 'chatHistory'].includes(prompt.id)) {
-        result = result
-            .set('injection_position', (prompt.position?.type ?? 'relative') === 'relative' ? 0 : 1)
-            .set('injection_depth', prompt.position?.depth ?? 4)
-            .set('injection_order', prompt.position?.order ?? 100);
-    }
-    result = result.set('role', prompt.role);
-    if (is_normal_prompt || is_system_prompt) {
-        result = result.set('content', prompt.content);
-    }
-    result = result.set('system_prompt', is_system_prompt || is_placeholder_prompt).set('marker', is_placeholder_prompt);
-    if (prompt.extra) {
-        result = result.set('extra', prompt.extra);
-    }
-    result = result.set('forbid_overrides', false);
-    return result.value();
-}
+;// ./src/server/bundle/tavern_regex.ts
 function from_tavern_regex(tavern_regex) {
     return {
         id: tavern_regex.id,
@@ -62287,53 +62760,870 @@ function from_tavern_regex(tavern_regex) {
         promptOnly: tavern_regex.destination.prompt,
     };
 }
-function bundle_preset(preset) {
-    const prompt_used = preset.prompts.map(prompt => fromPresetPrompt(prompt));
-    const prompt_unused = preset.prompts_unused.map(prompt => fromPresetPrompt(prompt));
-    const extensions = lodash_default().cloneDeep(preset.extensions);
-    if (lodash_default().has(extensions, 'regex_scripts[0].source')) {
-        extensions.regex_scripts = extensions.regex_scripts.map(from_tavern_regex);
+
+;// ./src/server/bundle/worldbook.ts
+
+const _default_implicit_keys = {
+    addMemo: true,
+    matchPersonaDescription: false,
+    matchCharacterDescription: false,
+    matchCharacterPersonality: false,
+    matchCharacterDepthPrompt: false,
+    matchScenario: false,
+    matchCreatorNotes: false,
+    group: '',
+    groupOverride: false,
+    groupWeight: 100,
+    caseSensitive: null,
+    matchWholeWords: null,
+    useGroupScoring: null,
+    automationId: '',
+};
+function to_original_worldbook_entry(entry, index) {
+    let result = lodash_default()({})
+        .set('uid', index)
+        .set('displayIndex', index)
+        .set('comment', entry.name)
+        .set('disable', !entry.enabled)
+        .set('constant', entry.strategy.type === 'constant')
+        .set('selective', entry.strategy.type === 'selective')
+        .set('key', entry.strategy.keys ?? [])
+        .set('selectiveLogic', {
+        and_any: 0,
+        not_all: 1,
+        not_any: 2,
+        and_all: 3,
+    }[entry.strategy.keys_secondary?.logic ?? 'and_any'])
+        .set('keysecondary', entry.strategy.keys_secondary?.keys ?? [])
+        .set('scanDepth', entry.strategy.scan_depth === 'same_as_global' ? null : (entry.strategy.scan_depth ?? null))
+        .set('vectorized', entry.strategy.type === 'vectorized')
+        .set('position', {
+        before_character_definition: 0,
+        after_character_definition: 1,
+        before_example_messages: 5,
+        after_example_messages: 6,
+        before_author_note: 2,
+        after_author_note: 3,
+        at_depth: 4,
+    }[entry.position.type])
+        .set('role', { system: 0, user: 1, assistant: 2 }[entry.position?.role ?? 'system'])
+        .set('depth', entry.position?.depth ?? 4)
+        .set('order', entry.position.order)
+        .set('content', entry.content)
+        .set('useProbability', true)
+        .set('probability', entry.probability ?? 100)
+        .set('excludeRecursion', entry.recursion?.prevent_incoming ?? false)
+        .set('preventRecursion', entry.recursion?.prevent_outgoing ?? false)
+        .set('delayUntilRecursion', entry.recursion?.delay_until ?? false)
+        .set('sticky', entry.effect?.sticky ?? null)
+        .set('cooldown', entry.effect?.cooldown ?? null)
+        .set('delay', entry.effect?.delay ?? null);
+    if (entry.extra) {
+        result = result.set('extra', entry.extra);
     }
+    result = result.merge(_default_implicit_keys).merge(lodash_default().pick(entry, Object.keys(_default_implicit_keys)));
+    return result.value();
+}
+function bundle_worldbook(worldbook) {
     return {
-        max_context_unlocked: true,
-        openai_max_context: preset.settings.max_context,
-        openai_max_tokens: preset.settings.max_completion_tokens,
-        n: preset.settings.reply_count,
-        stream_openai: preset.settings.should_stream,
-        temperature: preset.settings.temperature,
-        frequency_penalty: preset.settings.frequency_penalty,
-        presence_penalty: preset.settings.presence_penalty,
-        top_p: preset.settings.top_p,
-        repetition_penalty: preset.settings.repetition_penalty,
-        min_p: preset.settings.min_p,
-        top_k: preset.settings.top_k,
-        top_a: preset.settings.top_a,
-        seed: preset.settings.seed,
-        squash_system_messages: preset.settings.squash_system_messages,
-        reasoning_effort: preset.settings.reasoning_effort,
-        show_thoughts: preset.settings.request_thoughts,
-        request_images: preset.settings.request_images,
-        function_calling: preset.settings.enable_function_calling,
-        enable_web_search: preset.settings.enable_web_search,
-        image_inlining: preset.settings.allow_sending_images !== 'disabled',
-        inline_image_quality: preset.settings.allow_sending_images === 'disabled' ? 'auto' : preset.settings.allow_sending_images,
-        video_inlining: preset.settings.allow_sending_videos,
-        names_behavior: {
-            none: -1,
-            default: 0,
-            content: 2,
-            completion: 1,
-        }[preset.settings.character_name_prefix],
-        wrap_in_quotes: preset.settings.wrap_user_messages_in_quotes,
-        prompts: [...prompt_used, ...prompt_unused],
-        prompt_order: [
-            {
-                character_id: 100001,
-                order: prompt_used.map(prompt => ({ identifier: prompt.identifier, enabled: prompt.enabled ?? true })),
-            },
-        ],
-        extensions: preset.extensions ?? {},
+        entries: Object.fromEntries(worldbook.entries.map((entry, index) => [index, to_original_worldbook_entry(entry, index)])),
     };
+}
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc1.js
+const crc1 = (current, previous = 0) => {
+    let crc = ~~previous;
+    let accum = 0;
+    for (let index = 0; index < current.length; index++) {
+        accum += current[index];
+    }
+    crc += accum % 256;
+    return crc % 256;
+};
+/* harmony default export */ const calculators_crc1 = (crc1);
+
+// EXTERNAL MODULE: external "buffer"
+var external_buffer_ = __webpack_require__(181);
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/create_buffer.js
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-prototype-builtins */
+
+const createBuffer = (value, encoding) => external_buffer_.Buffer.from(value, encoding);
+/* harmony default export */ const create_buffer = (createBuffer);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/define_crc.js
+
+function defineCrc(model, calculator) {
+    const result = (value, previous) => calculator(create_buffer(value), previous) >>> 0;
+    result.signed = (value, previous) => calculator(create_buffer(value), previous);
+    result.unsigned = result;
+    result.model = model;
+    return result;
+}
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc1.js
+
+
+/* harmony default export */ const mjs_crc1 = (defineCrc('crc1', calculators_crc1));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc8.js
+// Generated by `./pycrc.py --algorithm=table-driven --model=crc-8 --generate=c`
+let TABLE = [
+    0x00, 0x07, 0x0e, 0x09, 0x1c, 0x1b, 0x12, 0x15, 0x38, 0x3f, 0x36, 0x31, 0x24, 0x23, 0x2a, 0x2d,
+    0x70, 0x77, 0x7e, 0x79, 0x6c, 0x6b, 0x62, 0x65, 0x48, 0x4f, 0x46, 0x41, 0x54, 0x53, 0x5a, 0x5d,
+    0xe0, 0xe7, 0xee, 0xe9, 0xfc, 0xfb, 0xf2, 0xf5, 0xd8, 0xdf, 0xd6, 0xd1, 0xc4, 0xc3, 0xca, 0xcd,
+    0x90, 0x97, 0x9e, 0x99, 0x8c, 0x8b, 0x82, 0x85, 0xa8, 0xaf, 0xa6, 0xa1, 0xb4, 0xb3, 0xba, 0xbd,
+    0xc7, 0xc0, 0xc9, 0xce, 0xdb, 0xdc, 0xd5, 0xd2, 0xff, 0xf8, 0xf1, 0xf6, 0xe3, 0xe4, 0xed, 0xea,
+    0xb7, 0xb0, 0xb9, 0xbe, 0xab, 0xac, 0xa5, 0xa2, 0x8f, 0x88, 0x81, 0x86, 0x93, 0x94, 0x9d, 0x9a,
+    0x27, 0x20, 0x29, 0x2e, 0x3b, 0x3c, 0x35, 0x32, 0x1f, 0x18, 0x11, 0x16, 0x03, 0x04, 0x0d, 0x0a,
+    0x57, 0x50, 0x59, 0x5e, 0x4b, 0x4c, 0x45, 0x42, 0x6f, 0x68, 0x61, 0x66, 0x73, 0x74, 0x7d, 0x7a,
+    0x89, 0x8e, 0x87, 0x80, 0x95, 0x92, 0x9b, 0x9c, 0xb1, 0xb6, 0xbf, 0xb8, 0xad, 0xaa, 0xa3, 0xa4,
+    0xf9, 0xfe, 0xf7, 0xf0, 0xe5, 0xe2, 0xeb, 0xec, 0xc1, 0xc6, 0xcf, 0xc8, 0xdd, 0xda, 0xd3, 0xd4,
+    0x69, 0x6e, 0x67, 0x60, 0x75, 0x72, 0x7b, 0x7c, 0x51, 0x56, 0x5f, 0x58, 0x4d, 0x4a, 0x43, 0x44,
+    0x19, 0x1e, 0x17, 0x10, 0x05, 0x02, 0x0b, 0x0c, 0x21, 0x26, 0x2f, 0x28, 0x3d, 0x3a, 0x33, 0x34,
+    0x4e, 0x49, 0x40, 0x47, 0x52, 0x55, 0x5c, 0x5b, 0x76, 0x71, 0x78, 0x7f, 0x6a, 0x6d, 0x64, 0x63,
+    0x3e, 0x39, 0x30, 0x37, 0x22, 0x25, 0x2c, 0x2b, 0x06, 0x01, 0x08, 0x0f, 0x1a, 0x1d, 0x14, 0x13,
+    0xae, 0xa9, 0xa0, 0xa7, 0xb2, 0xb5, 0xbc, 0xbb, 0x96, 0x91, 0x98, 0x9f, 0x8a, 0x8d, 0x84, 0x83,
+    0xde, 0xd9, 0xd0, 0xd7, 0xc2, 0xc5, 0xcc, 0xcb, 0xe6, 0xe1, 0xe8, 0xef, 0xfa, 0xfd, 0xf4, 0xf3,
+];
+if (typeof Int32Array !== 'undefined') {
+    TABLE = new Int32Array(TABLE);
+}
+const crc8 = (current, previous = 0) => {
+    let crc = ~~previous;
+    for (let index = 0; index < current.length; index++) {
+        crc = TABLE[(crc ^ current[index]) & 0xff] & 0xff;
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crc8 = (crc8);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc8.js
+
+
+/* harmony default export */ const mjs_crc8 = (defineCrc('crc-8', calculators_crc8));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc81wire.js
+// Generated by `./pycrc.py --algorithm=table-driven --model=dallas-1-wire --generate=c`
+let crc81wire_TABLE = [
+    0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83, 0xc2, 0x9c, 0x7e, 0x20, 0xa3, 0xfd, 0x1f, 0x41,
+    0x9d, 0xc3, 0x21, 0x7f, 0xfc, 0xa2, 0x40, 0x1e, 0x5f, 0x01, 0xe3, 0xbd, 0x3e, 0x60, 0x82, 0xdc,
+    0x23, 0x7d, 0x9f, 0xc1, 0x42, 0x1c, 0xfe, 0xa0, 0xe1, 0xbf, 0x5d, 0x03, 0x80, 0xde, 0x3c, 0x62,
+    0xbe, 0xe0, 0x02, 0x5c, 0xdf, 0x81, 0x63, 0x3d, 0x7c, 0x22, 0xc0, 0x9e, 0x1d, 0x43, 0xa1, 0xff,
+    0x46, 0x18, 0xfa, 0xa4, 0x27, 0x79, 0x9b, 0xc5, 0x84, 0xda, 0x38, 0x66, 0xe5, 0xbb, 0x59, 0x07,
+    0xdb, 0x85, 0x67, 0x39, 0xba, 0xe4, 0x06, 0x58, 0x19, 0x47, 0xa5, 0xfb, 0x78, 0x26, 0xc4, 0x9a,
+    0x65, 0x3b, 0xd9, 0x87, 0x04, 0x5a, 0xb8, 0xe6, 0xa7, 0xf9, 0x1b, 0x45, 0xc6, 0x98, 0x7a, 0x24,
+    0xf8, 0xa6, 0x44, 0x1a, 0x99, 0xc7, 0x25, 0x7b, 0x3a, 0x64, 0x86, 0xd8, 0x5b, 0x05, 0xe7, 0xb9,
+    0x8c, 0xd2, 0x30, 0x6e, 0xed, 0xb3, 0x51, 0x0f, 0x4e, 0x10, 0xf2, 0xac, 0x2f, 0x71, 0x93, 0xcd,
+    0x11, 0x4f, 0xad, 0xf3, 0x70, 0x2e, 0xcc, 0x92, 0xd3, 0x8d, 0x6f, 0x31, 0xb2, 0xec, 0x0e, 0x50,
+    0xaf, 0xf1, 0x13, 0x4d, 0xce, 0x90, 0x72, 0x2c, 0x6d, 0x33, 0xd1, 0x8f, 0x0c, 0x52, 0xb0, 0xee,
+    0x32, 0x6c, 0x8e, 0xd0, 0x53, 0x0d, 0xef, 0xb1, 0xf0, 0xae, 0x4c, 0x12, 0x91, 0xcf, 0x2d, 0x73,
+    0xca, 0x94, 0x76, 0x28, 0xab, 0xf5, 0x17, 0x49, 0x08, 0x56, 0xb4, 0xea, 0x69, 0x37, 0xd5, 0x8b,
+    0x57, 0x09, 0xeb, 0xb5, 0x36, 0x68, 0x8a, 0xd4, 0x95, 0xcb, 0x29, 0x77, 0xf4, 0xaa, 0x48, 0x16,
+    0xe9, 0xb7, 0x55, 0x0b, 0x88, 0xd6, 0x34, 0x6a, 0x2b, 0x75, 0x97, 0xc9, 0x4a, 0x14, 0xf6, 0xa8,
+    0x74, 0x2a, 0xc8, 0x96, 0x15, 0x4b, 0xa9, 0xf7, 0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35,
+];
+if (typeof Int32Array !== 'undefined') {
+    crc81wire_TABLE = new Int32Array(crc81wire_TABLE);
+}
+const crc81wire = (current, previous = 0) => {
+    let crc = ~~previous;
+    for (let index = 0; index < current.length; index++) {
+        crc = crc81wire_TABLE[(crc ^ current[index]) & 0xff] & 0xff;
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crc81wire = (crc81wire);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc81wire.js
+
+
+/* harmony default export */ const mjs_crc81wire = (defineCrc('dallas-1-wire', calculators_crc81wire));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc8dvbs2.js
+// Generated by `./pycrc.py --algorithm=table-driven --generate=c --width=8 --poly=0xd5 --reflect-in=false --reflect-out=false --xor-in=0xff --xor-out=0x00`
+let crc8dvbs2_TABLE = [
+    0x00, 0xd5, 0x7f, 0xaa, 0xfe, 0x2b, 0x81, 0x54, 0x29, 0xfc, 0x56, 0x83, 0xd7, 0x02, 0xa8, 0x7d,
+    0x52, 0x87, 0x2d, 0xf8, 0xac, 0x79, 0xd3, 0x06, 0x7b, 0xae, 0x04, 0xd1, 0x85, 0x50, 0xfa, 0x2f,
+    0xa4, 0x71, 0xdb, 0x0e, 0x5a, 0x8f, 0x25, 0xf0, 0x8d, 0x58, 0xf2, 0x27, 0x73, 0xa6, 0x0c, 0xd9,
+    0xf6, 0x23, 0x89, 0x5c, 0x08, 0xdd, 0x77, 0xa2, 0xdf, 0x0a, 0xa0, 0x75, 0x21, 0xf4, 0x5e, 0x8b,
+    0x9d, 0x48, 0xe2, 0x37, 0x63, 0xb6, 0x1c, 0xc9, 0xb4, 0x61, 0xcb, 0x1e, 0x4a, 0x9f, 0x35, 0xe0,
+    0xcf, 0x1a, 0xb0, 0x65, 0x31, 0xe4, 0x4e, 0x9b, 0xe6, 0x33, 0x99, 0x4c, 0x18, 0xcd, 0x67, 0xb2,
+    0x39, 0xec, 0x46, 0x93, 0xc7, 0x12, 0xb8, 0x6d, 0x10, 0xc5, 0x6f, 0xba, 0xee, 0x3b, 0x91, 0x44,
+    0x6b, 0xbe, 0x14, 0xc1, 0x95, 0x40, 0xea, 0x3f, 0x42, 0x97, 0x3d, 0xe8, 0xbc, 0x69, 0xc3, 0x16,
+    0xef, 0x3a, 0x90, 0x45, 0x11, 0xc4, 0x6e, 0xbb, 0xc6, 0x13, 0xb9, 0x6c, 0x38, 0xed, 0x47, 0x92,
+    0xbd, 0x68, 0xc2, 0x17, 0x43, 0x96, 0x3c, 0xe9, 0x94, 0x41, 0xeb, 0x3e, 0x6a, 0xbf, 0x15, 0xc0,
+    0x4b, 0x9e, 0x34, 0xe1, 0xb5, 0x60, 0xca, 0x1f, 0x62, 0xb7, 0x1d, 0xc8, 0x9c, 0x49, 0xe3, 0x36,
+    0x19, 0xcc, 0x66, 0xb3, 0xe7, 0x32, 0x98, 0x4d, 0x30, 0xe5, 0x4f, 0x9a, 0xce, 0x1b, 0xb1, 0x64,
+    0x72, 0xa7, 0x0d, 0xd8, 0x8c, 0x59, 0xf3, 0x26, 0x5b, 0x8e, 0x24, 0xf1, 0xa5, 0x70, 0xda, 0x0f,
+    0x20, 0xf5, 0x5f, 0x8a, 0xde, 0x0b, 0xa1, 0x74, 0x09, 0xdc, 0x76, 0xa3, 0xf7, 0x22, 0x88, 0x5d,
+    0xd6, 0x03, 0xa9, 0x7c, 0x28, 0xfd, 0x57, 0x82, 0xff, 0x2a, 0x80, 0x55, 0x01, 0xd4, 0x7e, 0xab,
+    0x84, 0x51, 0xfb, 0x2e, 0x7a, 0xaf, 0x05, 0xd0, 0xad, 0x78, 0xd2, 0x07, 0x53, 0x86, 0x2c, 0xf9,
+];
+if (typeof Int32Array !== 'undefined') {
+    crc8dvbs2_TABLE = new Int32Array(crc8dvbs2_TABLE);
+}
+const crc8dvbs2 = (current, previous = 0) => {
+    let crc = ~~previous;
+    for (let index = 0; index < current.length; index++) {
+        crc = crc8dvbs2_TABLE[(crc ^ current[index]) & 0xff] & 0xff;
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crc8dvbs2 = (crc8dvbs2);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc8dvbs2.js
+
+
+/* harmony default export */ const mjs_crc8dvbs2 = (defineCrc('crc-8-dvbs2', calculators_crc8dvbs2));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc16.js
+// Generated by `./pycrc.py --algorithm=table-driven --model=crc-16 --generate=c`
+let crc16_TABLE = [
+    0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241, 0xc601, 0x06c0, 0x0780, 0xc741,
+    0x0500, 0xc5c1, 0xc481, 0x0440, 0xcc01, 0x0cc0, 0x0d80, 0xcd41, 0x0f00, 0xcfc1, 0xce81, 0x0e40,
+    0x0a00, 0xcac1, 0xcb81, 0x0b40, 0xc901, 0x09c0, 0x0880, 0xc841, 0xd801, 0x18c0, 0x1980, 0xd941,
+    0x1b00, 0xdbc1, 0xda81, 0x1a40, 0x1e00, 0xdec1, 0xdf81, 0x1f40, 0xdd01, 0x1dc0, 0x1c80, 0xdc41,
+    0x1400, 0xd4c1, 0xd581, 0x1540, 0xd701, 0x17c0, 0x1680, 0xd641, 0xd201, 0x12c0, 0x1380, 0xd341,
+    0x1100, 0xd1c1, 0xd081, 0x1040, 0xf001, 0x30c0, 0x3180, 0xf141, 0x3300, 0xf3c1, 0xf281, 0x3240,
+    0x3600, 0xf6c1, 0xf781, 0x3740, 0xf501, 0x35c0, 0x3480, 0xf441, 0x3c00, 0xfcc1, 0xfd81, 0x3d40,
+    0xff01, 0x3fc0, 0x3e80, 0xfe41, 0xfa01, 0x3ac0, 0x3b80, 0xfb41, 0x3900, 0xf9c1, 0xf881, 0x3840,
+    0x2800, 0xe8c1, 0xe981, 0x2940, 0xeb01, 0x2bc0, 0x2a80, 0xea41, 0xee01, 0x2ec0, 0x2f80, 0xef41,
+    0x2d00, 0xedc1, 0xec81, 0x2c40, 0xe401, 0x24c0, 0x2580, 0xe541, 0x2700, 0xe7c1, 0xe681, 0x2640,
+    0x2200, 0xe2c1, 0xe381, 0x2340, 0xe101, 0x21c0, 0x2080, 0xe041, 0xa001, 0x60c0, 0x6180, 0xa141,
+    0x6300, 0xa3c1, 0xa281, 0x6240, 0x6600, 0xa6c1, 0xa781, 0x6740, 0xa501, 0x65c0, 0x6480, 0xa441,
+    0x6c00, 0xacc1, 0xad81, 0x6d40, 0xaf01, 0x6fc0, 0x6e80, 0xae41, 0xaa01, 0x6ac0, 0x6b80, 0xab41,
+    0x6900, 0xa9c1, 0xa881, 0x6840, 0x7800, 0xb8c1, 0xb981, 0x7940, 0xbb01, 0x7bc0, 0x7a80, 0xba41,
+    0xbe01, 0x7ec0, 0x7f80, 0xbf41, 0x7d00, 0xbdc1, 0xbc81, 0x7c40, 0xb401, 0x74c0, 0x7580, 0xb541,
+    0x7700, 0xb7c1, 0xb681, 0x7640, 0x7200, 0xb2c1, 0xb381, 0x7340, 0xb101, 0x71c0, 0x7080, 0xb041,
+    0x5000, 0x90c1, 0x9181, 0x5140, 0x9301, 0x53c0, 0x5280, 0x9241, 0x9601, 0x56c0, 0x5780, 0x9741,
+    0x5500, 0x95c1, 0x9481, 0x5440, 0x9c01, 0x5cc0, 0x5d80, 0x9d41, 0x5f00, 0x9fc1, 0x9e81, 0x5e40,
+    0x5a00, 0x9ac1, 0x9b81, 0x5b40, 0x9901, 0x59c0, 0x5880, 0x9841, 0x8801, 0x48c0, 0x4980, 0x8941,
+    0x4b00, 0x8bc1, 0x8a81, 0x4a40, 0x4e00, 0x8ec1, 0x8f81, 0x4f40, 0x8d01, 0x4dc0, 0x4c80, 0x8c41,
+    0x4400, 0x84c1, 0x8581, 0x4540, 0x8701, 0x47c0, 0x4680, 0x8641, 0x8201, 0x42c0, 0x4380, 0x8341,
+    0x4100, 0x81c1, 0x8081, 0x4040,
+];
+if (typeof Int32Array !== 'undefined') {
+    crc16_TABLE = new Int32Array(crc16_TABLE);
+}
+const crc16 = (current, previous = 0) => {
+    let crc = ~~previous;
+    for (let index = 0; index < current.length; index++) {
+        crc = (crc16_TABLE[(crc ^ current[index]) & 0xff] ^ (crc >> 8)) & 0xffff;
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crc16 = (crc16);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc16.js
+
+
+/* harmony default export */ const mjs_crc16 = (defineCrc('crc-16', calculators_crc16));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc16ccitt.js
+// Generated by `./pycrc.py --algorithm=table-driven --model=ccitt --generate=c`
+let crc16ccitt_TABLE = [
+    0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7, 0x8108, 0x9129, 0xa14a, 0xb16b,
+    0xc18c, 0xd1ad, 0xe1ce, 0xf1ef, 0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
+    0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de, 0x2462, 0x3443, 0x0420, 0x1401,
+    0x64e6, 0x74c7, 0x44a4, 0x5485, 0xa56a, 0xb54b, 0x8528, 0x9509, 0xe5ee, 0xf5cf, 0xc5ac, 0xd58d,
+    0x3653, 0x2672, 0x1611, 0x0630, 0x76d7, 0x66f6, 0x5695, 0x46b4, 0xb75b, 0xa77a, 0x9719, 0x8738,
+    0xf7df, 0xe7fe, 0xd79d, 0xc7bc, 0x48c4, 0x58e5, 0x6886, 0x78a7, 0x0840, 0x1861, 0x2802, 0x3823,
+    0xc9cc, 0xd9ed, 0xe98e, 0xf9af, 0x8948, 0x9969, 0xa90a, 0xb92b, 0x5af5, 0x4ad4, 0x7ab7, 0x6a96,
+    0x1a71, 0x0a50, 0x3a33, 0x2a12, 0xdbfd, 0xcbdc, 0xfbbf, 0xeb9e, 0x9b79, 0x8b58, 0xbb3b, 0xab1a,
+    0x6ca6, 0x7c87, 0x4ce4, 0x5cc5, 0x2c22, 0x3c03, 0x0c60, 0x1c41, 0xedae, 0xfd8f, 0xcdec, 0xddcd,
+    0xad2a, 0xbd0b, 0x8d68, 0x9d49, 0x7e97, 0x6eb6, 0x5ed5, 0x4ef4, 0x3e13, 0x2e32, 0x1e51, 0x0e70,
+    0xff9f, 0xefbe, 0xdfdd, 0xcffc, 0xbf1b, 0xaf3a, 0x9f59, 0x8f78, 0x9188, 0x81a9, 0xb1ca, 0xa1eb,
+    0xd10c, 0xc12d, 0xf14e, 0xe16f, 0x1080, 0x00a1, 0x30c2, 0x20e3, 0x5004, 0x4025, 0x7046, 0x6067,
+    0x83b9, 0x9398, 0xa3fb, 0xb3da, 0xc33d, 0xd31c, 0xe37f, 0xf35e, 0x02b1, 0x1290, 0x22f3, 0x32d2,
+    0x4235, 0x5214, 0x6277, 0x7256, 0xb5ea, 0xa5cb, 0x95a8, 0x8589, 0xf56e, 0xe54f, 0xd52c, 0xc50d,
+    0x34e2, 0x24c3, 0x14a0, 0x0481, 0x7466, 0x6447, 0x5424, 0x4405, 0xa7db, 0xb7fa, 0x8799, 0x97b8,
+    0xe75f, 0xf77e, 0xc71d, 0xd73c, 0x26d3, 0x36f2, 0x0691, 0x16b0, 0x6657, 0x7676, 0x4615, 0x5634,
+    0xd94c, 0xc96d, 0xf90e, 0xe92f, 0x99c8, 0x89e9, 0xb98a, 0xa9ab, 0x5844, 0x4865, 0x7806, 0x6827,
+    0x18c0, 0x08e1, 0x3882, 0x28a3, 0xcb7d, 0xdb5c, 0xeb3f, 0xfb1e, 0x8bf9, 0x9bd8, 0xabbb, 0xbb9a,
+    0x4a75, 0x5a54, 0x6a37, 0x7a16, 0x0af1, 0x1ad0, 0x2ab3, 0x3a92, 0xfd2e, 0xed0f, 0xdd6c, 0xcd4d,
+    0xbdaa, 0xad8b, 0x9de8, 0x8dc9, 0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
+    0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8, 0x6e17, 0x7e36, 0x4e55, 0x5e74,
+    0x2e93, 0x3eb2, 0x0ed1, 0x1ef0,
+];
+if (typeof Int32Array !== 'undefined') {
+    crc16ccitt_TABLE = new Int32Array(crc16ccitt_TABLE);
+}
+const crc16ccitt = (current, previous) => {
+    let crc = typeof previous !== 'undefined' ? ~~previous : 0xffff;
+    for (let index = 0; index < current.length; index++) {
+        crc = (crc16ccitt_TABLE[((crc >> 8) ^ current[index]) & 0xff] ^ (crc << 8)) & 0xffff;
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crc16ccitt = (crc16ccitt);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc16ccitt.js
+
+
+/* harmony default export */ const mjs_crc16ccitt = (defineCrc('ccitt', calculators_crc16ccitt));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc16modbus.js
+// Generated by `./pycrc.py --algorithm=table-driven --model=crc-16-modbus --generate=c`
+let crc16modbus_TABLE = [
+    0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241, 0xc601, 0x06c0, 0x0780, 0xc741,
+    0x0500, 0xc5c1, 0xc481, 0x0440, 0xcc01, 0x0cc0, 0x0d80, 0xcd41, 0x0f00, 0xcfc1, 0xce81, 0x0e40,
+    0x0a00, 0xcac1, 0xcb81, 0x0b40, 0xc901, 0x09c0, 0x0880, 0xc841, 0xd801, 0x18c0, 0x1980, 0xd941,
+    0x1b00, 0xdbc1, 0xda81, 0x1a40, 0x1e00, 0xdec1, 0xdf81, 0x1f40, 0xdd01, 0x1dc0, 0x1c80, 0xdc41,
+    0x1400, 0xd4c1, 0xd581, 0x1540, 0xd701, 0x17c0, 0x1680, 0xd641, 0xd201, 0x12c0, 0x1380, 0xd341,
+    0x1100, 0xd1c1, 0xd081, 0x1040, 0xf001, 0x30c0, 0x3180, 0xf141, 0x3300, 0xf3c1, 0xf281, 0x3240,
+    0x3600, 0xf6c1, 0xf781, 0x3740, 0xf501, 0x35c0, 0x3480, 0xf441, 0x3c00, 0xfcc1, 0xfd81, 0x3d40,
+    0xff01, 0x3fc0, 0x3e80, 0xfe41, 0xfa01, 0x3ac0, 0x3b80, 0xfb41, 0x3900, 0xf9c1, 0xf881, 0x3840,
+    0x2800, 0xe8c1, 0xe981, 0x2940, 0xeb01, 0x2bc0, 0x2a80, 0xea41, 0xee01, 0x2ec0, 0x2f80, 0xef41,
+    0x2d00, 0xedc1, 0xec81, 0x2c40, 0xe401, 0x24c0, 0x2580, 0xe541, 0x2700, 0xe7c1, 0xe681, 0x2640,
+    0x2200, 0xe2c1, 0xe381, 0x2340, 0xe101, 0x21c0, 0x2080, 0xe041, 0xa001, 0x60c0, 0x6180, 0xa141,
+    0x6300, 0xa3c1, 0xa281, 0x6240, 0x6600, 0xa6c1, 0xa781, 0x6740, 0xa501, 0x65c0, 0x6480, 0xa441,
+    0x6c00, 0xacc1, 0xad81, 0x6d40, 0xaf01, 0x6fc0, 0x6e80, 0xae41, 0xaa01, 0x6ac0, 0x6b80, 0xab41,
+    0x6900, 0xa9c1, 0xa881, 0x6840, 0x7800, 0xb8c1, 0xb981, 0x7940, 0xbb01, 0x7bc0, 0x7a80, 0xba41,
+    0xbe01, 0x7ec0, 0x7f80, 0xbf41, 0x7d00, 0xbdc1, 0xbc81, 0x7c40, 0xb401, 0x74c0, 0x7580, 0xb541,
+    0x7700, 0xb7c1, 0xb681, 0x7640, 0x7200, 0xb2c1, 0xb381, 0x7340, 0xb101, 0x71c0, 0x7080, 0xb041,
+    0x5000, 0x90c1, 0x9181, 0x5140, 0x9301, 0x53c0, 0x5280, 0x9241, 0x9601, 0x56c0, 0x5780, 0x9741,
+    0x5500, 0x95c1, 0x9481, 0x5440, 0x9c01, 0x5cc0, 0x5d80, 0x9d41, 0x5f00, 0x9fc1, 0x9e81, 0x5e40,
+    0x5a00, 0x9ac1, 0x9b81, 0x5b40, 0x9901, 0x59c0, 0x5880, 0x9841, 0x8801, 0x48c0, 0x4980, 0x8941,
+    0x4b00, 0x8bc1, 0x8a81, 0x4a40, 0x4e00, 0x8ec1, 0x8f81, 0x4f40, 0x8d01, 0x4dc0, 0x4c80, 0x8c41,
+    0x4400, 0x84c1, 0x8581, 0x4540, 0x8701, 0x47c0, 0x4680, 0x8641, 0x8201, 0x42c0, 0x4380, 0x8341,
+    0x4100, 0x81c1, 0x8081, 0x4040,
+];
+if (typeof Int32Array !== 'undefined') {
+    crc16modbus_TABLE = new Int32Array(crc16modbus_TABLE);
+}
+const crc16modbus = (current, previous) => {
+    let crc = typeof previous !== 'undefined' ? ~~previous : 0xffff;
+    for (let index = 0; index < current.length; index++) {
+        crc = (crc16modbus_TABLE[(crc ^ current[index]) & 0xff] ^ (crc >> 8)) & 0xffff;
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crc16modbus = (crc16modbus);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc16modbus.js
+
+
+/* harmony default export */ const mjs_crc16modbus = (defineCrc('crc-16-modbus', calculators_crc16modbus));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc16xmodem.js
+const crc16xmodem = (current, previous) => {
+    let crc = typeof previous !== 'undefined' ? ~~previous : 0x0;
+    for (let index = 0; index < current.length; index++) {
+        let code = (crc >>> 8) & 0xff;
+        code ^= current[index] & 0xff;
+        code ^= code >>> 4;
+        crc = (crc << 8) & 0xffff;
+        crc ^= code;
+        code = (code << 5) & 0xffff;
+        crc ^= code;
+        code = (code << 7) & 0xffff;
+        crc ^= code;
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crc16xmodem = (crc16xmodem);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc16xmodem.js
+
+
+/* harmony default export */ const mjs_crc16xmodem = (defineCrc('xmodem', calculators_crc16xmodem));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc16kermit.js
+// Generated by `./pycrc.py --algorithm=table-driven --model=kermit --generate=c`
+let crc16kermit_TABLE = [
+    0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf, 0x8c48, 0x9dc1, 0xaf5a, 0xbed3,
+    0xca6c, 0xdbe5, 0xe97e, 0xf8f7, 0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
+    0x9cc9, 0x8d40, 0xbfdb, 0xae52, 0xdaed, 0xcb64, 0xf9ff, 0xe876, 0x2102, 0x308b, 0x0210, 0x1399,
+    0x6726, 0x76af, 0x4434, 0x55bd, 0xad4a, 0xbcc3, 0x8e58, 0x9fd1, 0xeb6e, 0xfae7, 0xc87c, 0xd9f5,
+    0x3183, 0x200a, 0x1291, 0x0318, 0x77a7, 0x662e, 0x54b5, 0x453c, 0xbdcb, 0xac42, 0x9ed9, 0x8f50,
+    0xfbef, 0xea66, 0xd8fd, 0xc974, 0x4204, 0x538d, 0x6116, 0x709f, 0x0420, 0x15a9, 0x2732, 0x36bb,
+    0xce4c, 0xdfc5, 0xed5e, 0xfcd7, 0x8868, 0x99e1, 0xab7a, 0xbaf3, 0x5285, 0x430c, 0x7197, 0x601e,
+    0x14a1, 0x0528, 0x37b3, 0x263a, 0xdecd, 0xcf44, 0xfddf, 0xec56, 0x98e9, 0x8960, 0xbbfb, 0xaa72,
+    0x6306, 0x728f, 0x4014, 0x519d, 0x2522, 0x34ab, 0x0630, 0x17b9, 0xef4e, 0xfec7, 0xcc5c, 0xddd5,
+    0xa96a, 0xb8e3, 0x8a78, 0x9bf1, 0x7387, 0x620e, 0x5095, 0x411c, 0x35a3, 0x242a, 0x16b1, 0x0738,
+    0xffcf, 0xee46, 0xdcdd, 0xcd54, 0xb9eb, 0xa862, 0x9af9, 0x8b70, 0x8408, 0x9581, 0xa71a, 0xb693,
+    0xc22c, 0xd3a5, 0xe13e, 0xf0b7, 0x0840, 0x19c9, 0x2b52, 0x3adb, 0x4e64, 0x5fed, 0x6d76, 0x7cff,
+    0x9489, 0x8500, 0xb79b, 0xa612, 0xd2ad, 0xc324, 0xf1bf, 0xe036, 0x18c1, 0x0948, 0x3bd3, 0x2a5a,
+    0x5ee5, 0x4f6c, 0x7df7, 0x6c7e, 0xa50a, 0xb483, 0x8618, 0x9791, 0xe32e, 0xf2a7, 0xc03c, 0xd1b5,
+    0x2942, 0x38cb, 0x0a50, 0x1bd9, 0x6f66, 0x7eef, 0x4c74, 0x5dfd, 0xb58b, 0xa402, 0x9699, 0x8710,
+    0xf3af, 0xe226, 0xd0bd, 0xc134, 0x39c3, 0x284a, 0x1ad1, 0x0b58, 0x7fe7, 0x6e6e, 0x5cf5, 0x4d7c,
+    0xc60c, 0xd785, 0xe51e, 0xf497, 0x8028, 0x91a1, 0xa33a, 0xb2b3, 0x4a44, 0x5bcd, 0x6956, 0x78df,
+    0x0c60, 0x1de9, 0x2f72, 0x3efb, 0xd68d, 0xc704, 0xf59f, 0xe416, 0x90a9, 0x8120, 0xb3bb, 0xa232,
+    0x5ac5, 0x4b4c, 0x79d7, 0x685e, 0x1ce1, 0x0d68, 0x3ff3, 0x2e7a, 0xe70e, 0xf687, 0xc41c, 0xd595,
+    0xa12a, 0xb0a3, 0x8238, 0x93b1, 0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
+    0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330, 0x7bc7, 0x6a4e, 0x58d5, 0x495c,
+    0x3de3, 0x2c6a, 0x1ef1, 0x0f78,
+];
+if (typeof Int32Array !== 'undefined') {
+    crc16kermit_TABLE = new Int32Array(crc16kermit_TABLE);
+}
+const crc16kermit = (current, previous) => {
+    let crc = typeof previous !== 'undefined' ? ~~previous : 0x0000;
+    for (let index = 0; index < current.length; index++) {
+        crc = (crc16kermit_TABLE[(crc ^ current[index]) & 0xff] ^ (crc >> 8)) & 0xffff;
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crc16kermit = (crc16kermit);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc16kermit.js
+
+
+/* harmony default export */ const mjs_crc16kermit = (defineCrc('kermit', calculators_crc16kermit));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc24.js
+// Generated by `./pycrc.py --algorithm=table-drive --model=crc-24 --generate=c`
+let crc24_TABLE = [
+    0x000000, 0x864cfb, 0x8ad50d, 0x0c99f6, 0x93e6e1, 0x15aa1a, 0x1933ec, 0x9f7f17, 0xa18139,
+    0x27cdc2, 0x2b5434, 0xad18cf, 0x3267d8, 0xb42b23, 0xb8b2d5, 0x3efe2e, 0xc54e89, 0x430272,
+    0x4f9b84, 0xc9d77f, 0x56a868, 0xd0e493, 0xdc7d65, 0x5a319e, 0x64cfb0, 0xe2834b, 0xee1abd,
+    0x685646, 0xf72951, 0x7165aa, 0x7dfc5c, 0xfbb0a7, 0x0cd1e9, 0x8a9d12, 0x8604e4, 0x00481f,
+    0x9f3708, 0x197bf3, 0x15e205, 0x93aefe, 0xad50d0, 0x2b1c2b, 0x2785dd, 0xa1c926, 0x3eb631,
+    0xb8faca, 0xb4633c, 0x322fc7, 0xc99f60, 0x4fd39b, 0x434a6d, 0xc50696, 0x5a7981, 0xdc357a,
+    0xd0ac8c, 0x56e077, 0x681e59, 0xee52a2, 0xe2cb54, 0x6487af, 0xfbf8b8, 0x7db443, 0x712db5,
+    0xf7614e, 0x19a3d2, 0x9fef29, 0x9376df, 0x153a24, 0x8a4533, 0x0c09c8, 0x00903e, 0x86dcc5,
+    0xb822eb, 0x3e6e10, 0x32f7e6, 0xb4bb1d, 0x2bc40a, 0xad88f1, 0xa11107, 0x275dfc, 0xdced5b,
+    0x5aa1a0, 0x563856, 0xd074ad, 0x4f0bba, 0xc94741, 0xc5deb7, 0x43924c, 0x7d6c62, 0xfb2099,
+    0xf7b96f, 0x71f594, 0xee8a83, 0x68c678, 0x645f8e, 0xe21375, 0x15723b, 0x933ec0, 0x9fa736,
+    0x19ebcd, 0x8694da, 0x00d821, 0x0c41d7, 0x8a0d2c, 0xb4f302, 0x32bff9, 0x3e260f, 0xb86af4,
+    0x2715e3, 0xa15918, 0xadc0ee, 0x2b8c15, 0xd03cb2, 0x567049, 0x5ae9bf, 0xdca544, 0x43da53,
+    0xc596a8, 0xc90f5e, 0x4f43a5, 0x71bd8b, 0xf7f170, 0xfb6886, 0x7d247d, 0xe25b6a, 0x641791,
+    0x688e67, 0xeec29c, 0x3347a4, 0xb50b5f, 0xb992a9, 0x3fde52, 0xa0a145, 0x26edbe, 0x2a7448,
+    0xac38b3, 0x92c69d, 0x148a66, 0x181390, 0x9e5f6b, 0x01207c, 0x876c87, 0x8bf571, 0x0db98a,
+    0xf6092d, 0x7045d6, 0x7cdc20, 0xfa90db, 0x65efcc, 0xe3a337, 0xef3ac1, 0x69763a, 0x578814,
+    0xd1c4ef, 0xdd5d19, 0x5b11e2, 0xc46ef5, 0x42220e, 0x4ebbf8, 0xc8f703, 0x3f964d, 0xb9dab6,
+    0xb54340, 0x330fbb, 0xac70ac, 0x2a3c57, 0x26a5a1, 0xa0e95a, 0x9e1774, 0x185b8f, 0x14c279,
+    0x928e82, 0x0df195, 0x8bbd6e, 0x872498, 0x016863, 0xfad8c4, 0x7c943f, 0x700dc9, 0xf64132,
+    0x693e25, 0xef72de, 0xe3eb28, 0x65a7d3, 0x5b59fd, 0xdd1506, 0xd18cf0, 0x57c00b, 0xc8bf1c,
+    0x4ef3e7, 0x426a11, 0xc426ea, 0x2ae476, 0xaca88d, 0xa0317b, 0x267d80, 0xb90297, 0x3f4e6c,
+    0x33d79a, 0xb59b61, 0x8b654f, 0x0d29b4, 0x01b042, 0x87fcb9, 0x1883ae, 0x9ecf55, 0x9256a3,
+    0x141a58, 0xefaaff, 0x69e604, 0x657ff2, 0xe33309, 0x7c4c1e, 0xfa00e5, 0xf69913, 0x70d5e8,
+    0x4e2bc6, 0xc8673d, 0xc4fecb, 0x42b230, 0xddcd27, 0x5b81dc, 0x57182a, 0xd154d1, 0x26359f,
+    0xa07964, 0xace092, 0x2aac69, 0xb5d37e, 0x339f85, 0x3f0673, 0xb94a88, 0x87b4a6, 0x01f85d,
+    0x0d61ab, 0x8b2d50, 0x145247, 0x921ebc, 0x9e874a, 0x18cbb1, 0xe37b16, 0x6537ed, 0x69ae1b,
+    0xefe2e0, 0x709df7, 0xf6d10c, 0xfa48fa, 0x7c0401, 0x42fa2f, 0xc4b6d4, 0xc82f22, 0x4e63d9,
+    0xd11cce, 0x575035, 0x5bc9c3, 0xdd8538,
+];
+if (typeof Int32Array !== 'undefined') {
+    crc24_TABLE = new Int32Array(crc24_TABLE);
+}
+const crc24 = (current, previous) => {
+    let crc = typeof previous !== 'undefined' ? ~~previous : 0xb704ce;
+    for (let index = 0; index < current.length; index++) {
+        crc = (crc24_TABLE[((crc >> 16) ^ current[index]) & 0xff] ^ (crc << 8)) & 0xffffff;
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crc24 = (crc24);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc24.js
+
+
+/* harmony default export */ const mjs_crc24 = (defineCrc('crc-24', calculators_crc24));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc32.js
+// Generated by `./pycrc.py --algorithm=table-driven --model=crc-32 --generate=c`
+let crc32_TABLE = [
+    0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
+    0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91,
+    0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de, 0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
+    0x136c9856, 0x646ba8c0, 0xfd62f97a, 0x8a65c9ec, 0x14015c4f, 0x63066cd9, 0xfa0f3d63, 0x8d080df5,
+    0x3b6e20c8, 0x4c69105e, 0xd56041e4, 0xa2677172, 0x3c03e4d1, 0x4b04d447, 0xd20d85fd, 0xa50ab56b,
+    0x35b5a8fa, 0x42b2986c, 0xdbbbc9d6, 0xacbcf940, 0x32d86ce3, 0x45df5c75, 0xdcd60dcf, 0xabd13d59,
+    0x26d930ac, 0x51de003a, 0xc8d75180, 0xbfd06116, 0x21b4f4b5, 0x56b3c423, 0xcfba9599, 0xb8bda50f,
+    0x2802b89e, 0x5f058808, 0xc60cd9b2, 0xb10be924, 0x2f6f7c87, 0x58684c11, 0xc1611dab, 0xb6662d3d,
+    0x76dc4190, 0x01db7106, 0x98d220bc, 0xefd5102a, 0x71b18589, 0x06b6b51f, 0x9fbfe4a5, 0xe8b8d433,
+    0x7807c9a2, 0x0f00f934, 0x9609a88e, 0xe10e9818, 0x7f6a0dbb, 0x086d3d2d, 0x91646c97, 0xe6635c01,
+    0x6b6b51f4, 0x1c6c6162, 0x856530d8, 0xf262004e, 0x6c0695ed, 0x1b01a57b, 0x8208f4c1, 0xf50fc457,
+    0x65b0d9c6, 0x12b7e950, 0x8bbeb8ea, 0xfcb9887c, 0x62dd1ddf, 0x15da2d49, 0x8cd37cf3, 0xfbd44c65,
+    0x4db26158, 0x3ab551ce, 0xa3bc0074, 0xd4bb30e2, 0x4adfa541, 0x3dd895d7, 0xa4d1c46d, 0xd3d6f4fb,
+    0x4369e96a, 0x346ed9fc, 0xad678846, 0xda60b8d0, 0x44042d73, 0x33031de5, 0xaa0a4c5f, 0xdd0d7cc9,
+    0x5005713c, 0x270241aa, 0xbe0b1010, 0xc90c2086, 0x5768b525, 0x206f85b3, 0xb966d409, 0xce61e49f,
+    0x5edef90e, 0x29d9c998, 0xb0d09822, 0xc7d7a8b4, 0x59b33d17, 0x2eb40d81, 0xb7bd5c3b, 0xc0ba6cad,
+    0xedb88320, 0x9abfb3b6, 0x03b6e20c, 0x74b1d29a, 0xead54739, 0x9dd277af, 0x04db2615, 0x73dc1683,
+    0xe3630b12, 0x94643b84, 0x0d6d6a3e, 0x7a6a5aa8, 0xe40ecf0b, 0x9309ff9d, 0x0a00ae27, 0x7d079eb1,
+    0xf00f9344, 0x8708a3d2, 0x1e01f268, 0x6906c2fe, 0xf762575d, 0x806567cb, 0x196c3671, 0x6e6b06e7,
+    0xfed41b76, 0x89d32be0, 0x10da7a5a, 0x67dd4acc, 0xf9b9df6f, 0x8ebeeff9, 0x17b7be43, 0x60b08ed5,
+    0xd6d6a3e8, 0xa1d1937e, 0x38d8c2c4, 0x4fdff252, 0xd1bb67f1, 0xa6bc5767, 0x3fb506dd, 0x48b2364b,
+    0xd80d2bda, 0xaf0a1b4c, 0x36034af6, 0x41047a60, 0xdf60efc3, 0xa867df55, 0x316e8eef, 0x4669be79,
+    0xcb61b38c, 0xbc66831a, 0x256fd2a0, 0x5268e236, 0xcc0c7795, 0xbb0b4703, 0x220216b9, 0x5505262f,
+    0xc5ba3bbe, 0xb2bd0b28, 0x2bb45a92, 0x5cb36a04, 0xc2d7ffa7, 0xb5d0cf31, 0x2cd99e8b, 0x5bdeae1d,
+    0x9b64c2b0, 0xec63f226, 0x756aa39c, 0x026d930a, 0x9c0906a9, 0xeb0e363f, 0x72076785, 0x05005713,
+    0x95bf4a82, 0xe2b87a14, 0x7bb12bae, 0x0cb61b38, 0x92d28e9b, 0xe5d5be0d, 0x7cdcefb7, 0x0bdbdf21,
+    0x86d3d2d4, 0xf1d4e242, 0x68ddb3f8, 0x1fda836e, 0x81be16cd, 0xf6b9265b, 0x6fb077e1, 0x18b74777,
+    0x88085ae6, 0xff0f6a70, 0x66063bca, 0x11010b5c, 0x8f659eff, 0xf862ae69, 0x616bffd3, 0x166ccf45,
+    0xa00ae278, 0xd70dd2ee, 0x4e048354, 0x3903b3c2, 0xa7672661, 0xd06016f7, 0x4969474d, 0x3e6e77db,
+    0xaed16a4a, 0xd9d65adc, 0x40df0b66, 0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
+    0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693, 0x54de5729, 0x23d967bf,
+    0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
+];
+if (typeof Int32Array !== 'undefined') {
+    crc32_TABLE = new Int32Array(crc32_TABLE);
+}
+const crc32 = (current, previous) => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    let crc = previous === 0 ? 0 : ~~previous ^ -1;
+    for (let index = 0; index < current.length; index++) {
+        crc = crc32_TABLE[(crc ^ current[index]) & 0xff] ^ (crc >>> 8);
+    }
+    return crc ^ -1;
+};
+/* harmony default export */ const calculators_crc32 = (crc32);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc32.js
+
+
+/* harmony default export */ const mjs_crc32 = (defineCrc('crc-32', calculators_crc32));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc32mpeg2.js
+// Generated by `./pycrc.py --algorithm=table-driven --model=crc-32-mpeg --generate=c`
+let crc32mpeg2_TABLE = [
+    0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b, 0x1a864db2, 0x1e475005,
+    0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61, 0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd,
+    0x4c11db70, 0x48d0c6c7, 0x4593e01e, 0x4152fda9, 0x5f15adac, 0x5bd4b01b, 0x569796c2, 0x52568b75,
+    0x6a1936c8, 0x6ed82b7f, 0x639b0da6, 0x675a1011, 0x791d4014, 0x7ddc5da3, 0x709f7b7a, 0x745e66cd,
+    0x9823b6e0, 0x9ce2ab57, 0x91a18d8e, 0x95609039, 0x8b27c03c, 0x8fe6dd8b, 0x82a5fb52, 0x8664e6e5,
+    0xbe2b5b58, 0xbaea46ef, 0xb7a96036, 0xb3687d81, 0xad2f2d84, 0xa9ee3033, 0xa4ad16ea, 0xa06c0b5d,
+    0xd4326d90, 0xd0f37027, 0xddb056fe, 0xd9714b49, 0xc7361b4c, 0xc3f706fb, 0xceb42022, 0xca753d95,
+    0xf23a8028, 0xf6fb9d9f, 0xfbb8bb46, 0xff79a6f1, 0xe13ef6f4, 0xe5ffeb43, 0xe8bccd9a, 0xec7dd02d,
+    0x34867077, 0x30476dc0, 0x3d044b19, 0x39c556ae, 0x278206ab, 0x23431b1c, 0x2e003dc5, 0x2ac12072,
+    0x128e9dcf, 0x164f8078, 0x1b0ca6a1, 0x1fcdbb16, 0x018aeb13, 0x054bf6a4, 0x0808d07d, 0x0cc9cdca,
+    0x7897ab07, 0x7c56b6b0, 0x71159069, 0x75d48dde, 0x6b93dddb, 0x6f52c06c, 0x6211e6b5, 0x66d0fb02,
+    0x5e9f46bf, 0x5a5e5b08, 0x571d7dd1, 0x53dc6066, 0x4d9b3063, 0x495a2dd4, 0x44190b0d, 0x40d816ba,
+    0xaca5c697, 0xa864db20, 0xa527fdf9, 0xa1e6e04e, 0xbfa1b04b, 0xbb60adfc, 0xb6238b25, 0xb2e29692,
+    0x8aad2b2f, 0x8e6c3698, 0x832f1041, 0x87ee0df6, 0x99a95df3, 0x9d684044, 0x902b669d, 0x94ea7b2a,
+    0xe0b41de7, 0xe4750050, 0xe9362689, 0xedf73b3e, 0xf3b06b3b, 0xf771768c, 0xfa325055, 0xfef34de2,
+    0xc6bcf05f, 0xc27dede8, 0xcf3ecb31, 0xcbffd686, 0xd5b88683, 0xd1799b34, 0xdc3abded, 0xd8fba05a,
+    0x690ce0ee, 0x6dcdfd59, 0x608edb80, 0x644fc637, 0x7a089632, 0x7ec98b85, 0x738aad5c, 0x774bb0eb,
+    0x4f040d56, 0x4bc510e1, 0x46863638, 0x42472b8f, 0x5c007b8a, 0x58c1663d, 0x558240e4, 0x51435d53,
+    0x251d3b9e, 0x21dc2629, 0x2c9f00f0, 0x285e1d47, 0x36194d42, 0x32d850f5, 0x3f9b762c, 0x3b5a6b9b,
+    0x0315d626, 0x07d4cb91, 0x0a97ed48, 0x0e56f0ff, 0x1011a0fa, 0x14d0bd4d, 0x19939b94, 0x1d528623,
+    0xf12f560e, 0xf5ee4bb9, 0xf8ad6d60, 0xfc6c70d7, 0xe22b20d2, 0xe6ea3d65, 0xeba91bbc, 0xef68060b,
+    0xd727bbb6, 0xd3e6a601, 0xdea580d8, 0xda649d6f, 0xc423cd6a, 0xc0e2d0dd, 0xcda1f604, 0xc960ebb3,
+    0xbd3e8d7e, 0xb9ff90c9, 0xb4bcb610, 0xb07daba7, 0xae3afba2, 0xaafbe615, 0xa7b8c0cc, 0xa379dd7b,
+    0x9b3660c6, 0x9ff77d71, 0x92b45ba8, 0x9675461f, 0x8832161a, 0x8cf30bad, 0x81b02d74, 0x857130c3,
+    0x5d8a9099, 0x594b8d2e, 0x5408abf7, 0x50c9b640, 0x4e8ee645, 0x4a4ffbf2, 0x470cdd2b, 0x43cdc09c,
+    0x7b827d21, 0x7f436096, 0x7200464f, 0x76c15bf8, 0x68860bfd, 0x6c47164a, 0x61043093, 0x65c52d24,
+    0x119b4be9, 0x155a565e, 0x18197087, 0x1cd86d30, 0x029f3d35, 0x065e2082, 0x0b1d065b, 0x0fdc1bec,
+    0x3793a651, 0x3352bbe6, 0x3e119d3f, 0x3ad08088, 0x2497d08d, 0x2056cd3a, 0x2d15ebe3, 0x29d4f654,
+    0xc5a92679, 0xc1683bce, 0xcc2b1d17, 0xc8ea00a0, 0xd6ad50a5, 0xd26c4d12, 0xdf2f6bcb, 0xdbee767c,
+    0xe3a1cbc1, 0xe760d676, 0xea23f0af, 0xeee2ed18, 0xf0a5bd1d, 0xf464a0aa, 0xf9278673, 0xfde69bc4,
+    0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662, 0x933eb0bb, 0x97ffad0c,
+    0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4,
+];
+if (typeof Int32Array !== 'undefined') {
+    crc32mpeg2_TABLE = new Int32Array(crc32mpeg2_TABLE);
+}
+const crc32mpeg2 = (current, previous) => {
+    let crc = typeof previous !== 'undefined' ? ~~previous : 0xffffffff;
+    for (let index = 0; index < current.length; index++) {
+        crc = crc32mpeg2_TABLE[((crc >> 24) ^ current[index]) & 0xff] ^ (crc << 8);
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crc32mpeg2 = (crc32mpeg2);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc32mpeg2.js
+
+
+/* harmony default export */ const mjs_crc32mpeg2 = (defineCrc('crc-32-mpeg', calculators_crc32mpeg2));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crcjam.js
+// Generated by `./pycrc.py --algorithm=table-driven --model=jam --generate=c`
+let crcjam_TABLE = [
+    0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
+    0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91,
+    0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de, 0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
+    0x136c9856, 0x646ba8c0, 0xfd62f97a, 0x8a65c9ec, 0x14015c4f, 0x63066cd9, 0xfa0f3d63, 0x8d080df5,
+    0x3b6e20c8, 0x4c69105e, 0xd56041e4, 0xa2677172, 0x3c03e4d1, 0x4b04d447, 0xd20d85fd, 0xa50ab56b,
+    0x35b5a8fa, 0x42b2986c, 0xdbbbc9d6, 0xacbcf940, 0x32d86ce3, 0x45df5c75, 0xdcd60dcf, 0xabd13d59,
+    0x26d930ac, 0x51de003a, 0xc8d75180, 0xbfd06116, 0x21b4f4b5, 0x56b3c423, 0xcfba9599, 0xb8bda50f,
+    0x2802b89e, 0x5f058808, 0xc60cd9b2, 0xb10be924, 0x2f6f7c87, 0x58684c11, 0xc1611dab, 0xb6662d3d,
+    0x76dc4190, 0x01db7106, 0x98d220bc, 0xefd5102a, 0x71b18589, 0x06b6b51f, 0x9fbfe4a5, 0xe8b8d433,
+    0x7807c9a2, 0x0f00f934, 0x9609a88e, 0xe10e9818, 0x7f6a0dbb, 0x086d3d2d, 0x91646c97, 0xe6635c01,
+    0x6b6b51f4, 0x1c6c6162, 0x856530d8, 0xf262004e, 0x6c0695ed, 0x1b01a57b, 0x8208f4c1, 0xf50fc457,
+    0x65b0d9c6, 0x12b7e950, 0x8bbeb8ea, 0xfcb9887c, 0x62dd1ddf, 0x15da2d49, 0x8cd37cf3, 0xfbd44c65,
+    0x4db26158, 0x3ab551ce, 0xa3bc0074, 0xd4bb30e2, 0x4adfa541, 0x3dd895d7, 0xa4d1c46d, 0xd3d6f4fb,
+    0x4369e96a, 0x346ed9fc, 0xad678846, 0xda60b8d0, 0x44042d73, 0x33031de5, 0xaa0a4c5f, 0xdd0d7cc9,
+    0x5005713c, 0x270241aa, 0xbe0b1010, 0xc90c2086, 0x5768b525, 0x206f85b3, 0xb966d409, 0xce61e49f,
+    0x5edef90e, 0x29d9c998, 0xb0d09822, 0xc7d7a8b4, 0x59b33d17, 0x2eb40d81, 0xb7bd5c3b, 0xc0ba6cad,
+    0xedb88320, 0x9abfb3b6, 0x03b6e20c, 0x74b1d29a, 0xead54739, 0x9dd277af, 0x04db2615, 0x73dc1683,
+    0xe3630b12, 0x94643b84, 0x0d6d6a3e, 0x7a6a5aa8, 0xe40ecf0b, 0x9309ff9d, 0x0a00ae27, 0x7d079eb1,
+    0xf00f9344, 0x8708a3d2, 0x1e01f268, 0x6906c2fe, 0xf762575d, 0x806567cb, 0x196c3671, 0x6e6b06e7,
+    0xfed41b76, 0x89d32be0, 0x10da7a5a, 0x67dd4acc, 0xf9b9df6f, 0x8ebeeff9, 0x17b7be43, 0x60b08ed5,
+    0xd6d6a3e8, 0xa1d1937e, 0x38d8c2c4, 0x4fdff252, 0xd1bb67f1, 0xa6bc5767, 0x3fb506dd, 0x48b2364b,
+    0xd80d2bda, 0xaf0a1b4c, 0x36034af6, 0x41047a60, 0xdf60efc3, 0xa867df55, 0x316e8eef, 0x4669be79,
+    0xcb61b38c, 0xbc66831a, 0x256fd2a0, 0x5268e236, 0xcc0c7795, 0xbb0b4703, 0x220216b9, 0x5505262f,
+    0xc5ba3bbe, 0xb2bd0b28, 0x2bb45a92, 0x5cb36a04, 0xc2d7ffa7, 0xb5d0cf31, 0x2cd99e8b, 0x5bdeae1d,
+    0x9b64c2b0, 0xec63f226, 0x756aa39c, 0x026d930a, 0x9c0906a9, 0xeb0e363f, 0x72076785, 0x05005713,
+    0x95bf4a82, 0xe2b87a14, 0x7bb12bae, 0x0cb61b38, 0x92d28e9b, 0xe5d5be0d, 0x7cdcefb7, 0x0bdbdf21,
+    0x86d3d2d4, 0xf1d4e242, 0x68ddb3f8, 0x1fda836e, 0x81be16cd, 0xf6b9265b, 0x6fb077e1, 0x18b74777,
+    0x88085ae6, 0xff0f6a70, 0x66063bca, 0x11010b5c, 0x8f659eff, 0xf862ae69, 0x616bffd3, 0x166ccf45,
+    0xa00ae278, 0xd70dd2ee, 0x4e048354, 0x3903b3c2, 0xa7672661, 0xd06016f7, 0x4969474d, 0x3e6e77db,
+    0xaed16a4a, 0xd9d65adc, 0x40df0b66, 0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
+    0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693, 0x54de5729, 0x23d967bf,
+    0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
+];
+if (typeof Int32Array !== 'undefined') {
+    crcjam_TABLE = new Int32Array(crcjam_TABLE);
+}
+const crcjam = (current, previous = -1) => {
+    let crc = previous === 0 ? 0 : ~~previous;
+    for (let index = 0; index < current.length; index++) {
+        crc = crcjam_TABLE[(crc ^ current[index]) & 0xff] ^ (crc >>> 8);
+    }
+    return crc;
+};
+/* harmony default export */ const calculators_crcjam = (crcjam);
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crcjam.js
+
+
+/* harmony default export */ const mjs_crcjam = (defineCrc('jam', calculators_crcjam));
+
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/index.js
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* harmony default export */ const mjs = ({
+    crc1: mjs_crc1,
+    crc8: mjs_crc8,
+    crc81wire: mjs_crc81wire,
+    crc8dvbs2: mjs_crc8dvbs2,
+    crc16: mjs_crc16,
+    crc16ccitt: mjs_crc16ccitt,
+    crc16modbus: mjs_crc16modbus,
+    crc16xmodem: mjs_crc16xmodem,
+    crc16kermit: mjs_crc16kermit,
+    crc24: mjs_crc24,
+    crc32: mjs_crc32,
+    crc32mpeg2: mjs_crc32mpeg2,
+    crcjam: mjs_crcjam,
+});
+
+// EXTERNAL MODULE: ./node_modules/.pnpm/png-chunk-text@1.0.0/node_modules/png-chunk-text/index.js
+var png_chunk_text = __webpack_require__(9890);
+// EXTERNAL MODULE: ./node_modules/.pnpm/png-chunks-extract@1.0.0/node_modules/png-chunks-extract/index.js
+var png_chunks_extract = __webpack_require__(3074);
+var png_chunks_extract_default = /*#__PURE__*/__webpack_require__.n(png_chunks_extract);
+;// ./src/server/bundle/character.ts
+
+
+
+
+
+
+// https://github.com/SillyTavern/SillyTavern/blob/bba43f33219e41de7331b61f6872f5c7227503a3/src/endpoints/characters.js
+function to_character_book(name, entries) {
+    return {
+        name,
+        entries: entries.map(entry => ({
+            id: entry.uid,
+            keys: entry.key,
+            secondary_keys: entry.keysecondary,
+            comment: entry.comment,
+            content: entry.content,
+            constant: entry.constant,
+            selective: entry.selective,
+            insertion_order: entry.order,
+            enabled: !entry.disable,
+            position: entry.position == 0 ? 'before_char' : 'after_char',
+            use_regex: true,
+            extensions: {
+                ...entry.extensions,
+                position: entry.position,
+                exclude_recursion: entry.excludeRecursion,
+                display_index: entry.displayIndex,
+                probability: entry.probability ?? null,
+                useProbability: entry.useProbability ?? false,
+                depth: entry.depth ?? 4,
+                selectiveLogic: entry.selectiveLogic ?? 0,
+                outlet_name: entry.outletName ?? '',
+                group: entry.group ?? '',
+                group_override: entry.groupOverride ?? false,
+                group_weight: entry.groupWeight ?? null,
+                prevent_recursion: entry.preventRecursion ?? false,
+                delay_until_recursion: entry.delayUntilRecursion ?? false,
+                scan_depth: entry.scanDepth ?? null,
+                match_whole_words: entry.matchWholeWords ?? null,
+                use_group_scoring: entry.useGroupScoring ?? false,
+                case_sensitive: entry.caseSensitive ?? null,
+                automation_id: entry.automationId ?? '',
+                role: entry.role ?? 0,
+                vectorized: entry.vectorized ?? false,
+                sticky: entry.sticky ?? null,
+                cooldown: entry.cooldown ?? null,
+                delay: entry.delay ?? null,
+                match_persona_description: entry.matchPersonaDescription ?? false,
+                match_character_description: entry.matchCharacterDescription ?? false,
+                match_character_personality: entry.matchCharacterPersonality ?? false,
+                match_character_depth_prompt: entry.matchCharacterDepthPrompt ?? false,
+                match_scenario: entry.matchScenario ?? false,
+                match_creator_notes: entry.matchCreatorNotes ?? false,
+                triggers: entry.triggers ?? [],
+                ignore_budget: entry.ignoreBudget ?? false,
+            },
+        })),
+    };
+}
+const ignored_fields = {
+    personality: '',
+    scenario: '',
+    mes_example: '',
+    avatar: 'none',
+    talkativeness: '0.5',
+    fav: false,
+    tags: [],
+    spec: 'chara_card_v3',
+    spec_version: '3.0',
+    data: {
+        personality: '',
+        scenario: '',
+        mes_example: '',
+        system_prompts: '',
+        post_history_instructions: '',
+        tags: [],
+        extensions: {
+            talkativeness: '0.5',
+            fav: false,
+            depth_prompt: {
+                prompt: '',
+                depth: 4,
+                role: 'system',
+            },
+        },
+        group_only_greetings: [],
+    },
+    create_date: '',
+};
+function to_original_character(name, character) {
+    return lodash_default().merge({
+        name,
+        description: character.description,
+        first_mes: character.first_messages[0].content ?? '',
+        creatorcomment: character.creator_notes,
+        data: {
+            name,
+            description: character.description,
+            first_mes: character.first_messages[0].content ?? '',
+            creator_notes: character.creator_notes,
+            creator: character.creator,
+            character_version: character.version,
+            alternate_greetings: character.first_messages.slice(1).map(message => message.content ?? ''),
+            extensions: {
+                world: character.worldbook,
+                regex_scripts: character.extensions?.regex_scripts?.map((script) => from_tavern_regex(script)) ?? [],
+                tavern_helper: character.extensions?.tavern_helper ?? {},
+                ...lodash_default().omit(character.extensions, 'regex_scripts', 'tavern_helper'),
+            },
+            character_book: to_character_book(character.worldbook, character.entries.map((entry, index) => to_original_worldbook_entry(entry, index))),
+        },
+    }, ignored_fields);
+}
+// https://github.com/SillyTavern/SillyTavern/blob/bba43f33219e41de7331b61f6872f5c7227503a3/src/png/encode.js#L9-L69
+function character_encode(chunks) {
+    const uint8 = new Uint8Array(4);
+    const int32 = new Int32Array(uint8.buffer);
+    const uint32 = new Uint32Array(uint8.buffer);
+    let totalSize = 8;
+    let idx = totalSize;
+    for (let i = 0; i < chunks.length; i++) {
+        totalSize += chunks[i].data.length;
+        totalSize += 12;
+    }
+    const output = new Uint8Array(totalSize);
+    output[0] = 0x89;
+    output[1] = 0x50;
+    output[2] = 0x4e;
+    output[3] = 0x47;
+    output[4] = 0x0d;
+    output[5] = 0x0a;
+    output[6] = 0x1a;
+    output[7] = 0x0a;
+    for (let i = 0; i < chunks.length; i++) {
+        const { name, data } = chunks[i];
+        const size = data.length;
+        const nameChars = [name.charCodeAt(0), name.charCodeAt(1), name.charCodeAt(2), name.charCodeAt(3)];
+        uint32[0] = size;
+        output[idx++] = uint8[3];
+        output[idx++] = uint8[2];
+        output[idx++] = uint8[1];
+        output[idx++] = uint8[0];
+        output[idx++] = nameChars[0];
+        output[idx++] = nameChars[1];
+        output[idx++] = nameChars[2];
+        output[idx++] = nameChars[3];
+        for (let j = 0; j < size;) {
+            output[idx++] = data[j++];
+        }
+        const crc = mjs_crc32(Buffer.from(data), mjs_crc32(Buffer.from(nameChars)));
+        int32[0] = crc;
+        output[idx++] = uint8[3];
+        output[idx++] = uint8[2];
+        output[idx++] = uint8[1];
+        output[idx++] = uint8[0];
+    }
+    return output;
+}
+// https://github.com/SillyTavern/SillyTavern/blob/bba43f33219e41de7331b61f6872f5c7227503a3/src/character-card-parser.js#L15
+function write(image, data) {
+    const chunks = png_chunks_extract_default()(new Uint8Array(image));
+    const tEXtChunks = chunks.filter(chunk => chunk.name === 'tEXt');
+    // Remove existing tEXt chunks
+    for (const tEXtChunk of tEXtChunks) {
+        const data = png_chunk_text.decode(tEXtChunk.data);
+        if (data.keyword.toLowerCase() === 'chara' || data.keyword.toLowerCase() === 'ccv3') {
+            chunks.splice(chunks.indexOf(tEXtChunk), 1);
+        }
+    }
+    // Add new v2 chunk before the IEND chunk
+    const base64EncodedData = Buffer.from(data, 'utf8').toString('base64');
+    chunks.splice(-1, 0, png_chunk_text.encode('chara', base64EncodedData));
+    // Try adding v3 chunk before the IEND chunk
+    try {
+        //change v2 format to v3
+        const v3Data = JSON.parse(data);
+        v3Data.spec = 'chara_card_v3';
+        v3Data.spec_version = '3.0';
+        const base64EncodedData = Buffer.from(JSON.stringify(v3Data), 'utf8').toString('base64');
+        chunks.splice(-1, 0, png_chunk_text.encode('ccv3', base64EncodedData));
+    }
+    catch (error) {
+        // Ignore errors when adding v3 chunk
+    }
+    const newBuffer = Buffer.from(character_encode(chunks));
+    return newBuffer;
+}
+function bundle_character(name, character) {
+    const original_character = to_original_character(name, character);
+    if (character.avatar) {
+        return write(character.avatar, JSON.stringify(original_character));
+    }
+    return original_character;
 }
 
 ;// ./src/server/component/collection_file.ts
@@ -62385,8 +63675,6 @@ var external_fs_ = __webpack_require__(9896);
 const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire_require("fs/promises");
 // EXTERNAL MODULE: external "events"
 var external_events_ = __webpack_require__(4434);
-// EXTERNAL MODULE: external "path"
-var external_path_ = __webpack_require__(6928);
 ;// external "node:fs/promises"
 const external_node_fs_promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire_require("node:fs/promises");
 ;// external "node:stream"
@@ -64178,21 +65466,21 @@ class Syncer_interface {
     config_name;
     name;
     file;
-    export_file;
+    bundle_file;
     dir;
     en_type;
     zh_type;
     zh_to_en_map;
     is_zh;
     tavern_type;
-    constructor(type, type_zh, config_name, name, file, export_file, en_type, zh_type, zh_to_en_map, is_zh, tavern_type) {
+    constructor(type, type_zh, config_name, name, file, bundle_file, en_type, zh_type, zh_to_en_map, is_zh, tavern_type) {
         this.type = type;
         this.type_zh = type_zh;
         this.config_name = config_name;
         this.name = name;
         this.file = (0,external_node_path_.resolve)(__webpack_dirname__, file);
         this.dir = (0,external_node_path_.dirname)(this.file);
-        this.export_file = export_file ? (0,external_node_path_.resolve)(__webpack_dirname__, export_file) : (0,external_node_path_.resolve)(this.dir, `${this.config_name}.json`);
+        this.bundle_file = bundle_file ? (0,external_node_path_.resolve)(__webpack_dirname__, bundle_file) : (0,external_node_path_.resolve)(this.dir, `${this.config_name}.json`);
         this.en_type = en_type;
         this.zh_type = zh_type;
         this.zh_to_en_map = zh_to_en_map;
@@ -64275,7 +65563,7 @@ ${this.do_beautify_config(tavern_data, language)}`;
         });
         console.info(`成功将${this.type_zh} '${this.name}' 拉取到本地文件 '${this.file}' 中`);
     }
-    async push_once({ should_force, should_export }) {
+    async push_once({ should_force }) {
         const local_data = this.get_parsed_local();
         if (typeof local_data === 'string') {
             throw Error(`推送${this.type_zh} '${this.name}' 失败: ${local_data}`);
@@ -64283,7 +65571,7 @@ ${this.do_beautify_config(tavern_data, language)}`;
         if (!should_force) {
             const tavern_data = await this.get_parsed_tavern({ queit: true });
             if (typeof tavern_data === 'string') {
-                throw Error(`推送${this.type_zh} '${this.name}' 失败: ${tavern_data}; 如果想直接创建预设, 请在命令尾部添加 '-f' 或 '--force' 选项, 如: 'node tavern_sync.mjs push 猴子打字机 -f'`);
+                throw Error(`推送${this.type_zh} '${this.name}' 失败: ${tavern_data};\n如果想直接创建角色卡/世界书/预设, 请在命令尾部添加 '-f' 或 '--force' 选项, 如: 'node tavern_sync.mjs push 猴子打字机 -f'`);
             }
             const { error_data } = this.check_safe(local_data, tavern_data);
             if (!lodash_default().isEmpty(error_data)) {
@@ -64300,15 +65588,6 @@ ${this.do_beautify_config(tavern_data, language)}`;
             name: this.name,
             data: result_data,
         });
-        if (should_export) {
-            const result = await socket.emitWithAck(`export_${this.type}`, {
-                name: this.name,
-            });
-            if (typeof result === 'string') {
-                throw Error(`导出${this.type_zh} '${this.name}' 失败: ${result}`);
-            }
-            write_file_recursively(this.dir, this.export_file, JSON.stringify(result, null, 2));
-        }
     }
     async push(options) {
         try {
@@ -64329,12 +65608,12 @@ ${this.do_beautify_config(tavern_data, language)}`;
             return this.do_watch(local_data);
         };
         const watcher = watch_on(get_watch_files_from_data());
-        await this.push_once({ ...options, should_export: false });
+        await this.push_once(options);
         console.info(`初始化推送完毕, 开始监听${this.type_zh} '${this.name}'`);
         watcher.on('all', async (_event, path) => {
             console.info(`检测到文件 '${path}' 发生变化, 进行推送...`);
             try {
-                await this.push_once({ ...options, should_export: false });
+                await this.push_once(options);
                 console.info(`推送成功`);
             }
             catch (err) {
@@ -64352,1045 +65631,120 @@ ${this.do_beautify_config(tavern_data, language)}`;
         if (!lodash_default().isEmpty(error_data)) {
             exit_on_error(dist.stringify({ [`打包${this.type_zh} '${this.name}' 失败`]: error_data }));
         }
-        write_file_recursively(this.dir, this.export_file, JSON.stringify(result_data, null, 2));
-        console.info(`成功将${this.type_zh} '${this.name}' 打包到 '${(0,external_node_path_.resolve)(this.dir, this.export_file)}' 中`);
+        write_file_recursively(this.dir, Buffer.isBuffer(result_data) ? this.bundle_file.replace('.json', '.png') : this.bundle_file, Buffer.isBuffer(result_data) ? result_data : JSON.stringify(result_data, null, 2));
+        console.info(`成功将${this.type_zh} '${this.name}' 打包到 '${(0,external_node_path_.resolve)(this.dir, this.bundle_file)}' 中`);
     }
 }
 
-;// ./node_modules/.pnpm/dedent@1.7.1/node_modules/dedent/dist/dedent.mjs
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
-function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
-const dedent = createDedent({});
-/* harmony default export */ const dist_dedent = (dedent);
-function createDedent(options) {
-  dedent.withOptions = newOptions => createDedent(_objectSpread(_objectSpread({}, options), newOptions));
-  return dedent;
-  function dedent(strings, ...values) {
-    const raw = typeof strings === "string" ? [strings] : strings.raw;
-    const {
-      alignValues = false,
-      escapeSpecialCharacters = Array.isArray(strings),
-      trimWhitespace = true
-    } = options;
-
-    // first, perform interpolation
-    let result = "";
-    for (let i = 0; i < raw.length; i++) {
-      let next = raw[i];
-      if (escapeSpecialCharacters) {
-        // handle escaped newlines, backticks, and interpolation characters
-        next = next.replace(/\\\n[ \t]*/g, "").replace(/\\`/g, "`").replace(/\\\$/g, "$").replace(/\\\{/g, "{");
-      }
-      result += next;
-      if (i < values.length) {
-        const value = alignValues ? alignValue(values[i], result) : values[i];
-
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        result += value;
-      }
-    }
-
-    // now strip indentation
-    const lines = result.split("\n");
-    let mindent = null;
-    for (const l of lines) {
-      const m = l.match(/^(\s+)\S+/);
-      if (m) {
-        const indent = m[1].length;
-        if (!mindent) {
-          // this is the first indented line
-          mindent = indent;
-        } else {
-          mindent = Math.min(mindent, indent);
-        }
-      }
-    }
-    if (mindent !== null) {
-      const m = mindent; // appease TypeScript
-      result = lines
-      // https://github.com/typescript-eslint/typescript-eslint/issues/7140
-      // eslint-disable-next-line @typescript-eslint/prefer-string-starts-ends-with
-      .map(l => l[0] === " " || l[0] === "\t" ? l.slice(m) : l).join("\n");
-    }
-
-    // dedent eats leading and trailing whitespace too
-    if (trimWhitespace) {
-      result = result.trim();
-    }
-
-    // handle escaped newlines at the end to ensure they don't get stripped too
-    if (escapeSpecialCharacters) {
-      result = result.replace(/\\n/g, "\n");
-    }
-
-    // Workaround for Bun issue with Unicode characters
-    // https://github.com/oven-sh/bun/issues/8745
-    if (typeof Bun !== "undefined") {
-      result = result.replace(
-      // Matches e.g. \\u{1f60a} or \\u5F1F
-      /\\u(?:\{([\da-fA-F]{1,6})\}|([\da-fA-F]{4}))/g, (_, braced, unbraced) => {
-        var _ref;
-        const hex = (_ref = braced !== null && braced !== void 0 ? braced : unbraced) !== null && _ref !== void 0 ? _ref : "";
-        return String.fromCodePoint(parseInt(hex, 16));
-      });
-    }
-    return result;
-  }
-}
-
-/**
- * Adjusts the indentation of a multi-line interpolated value to match the current line.
- */
-function alignValue(value, precedingText) {
-  if (typeof value !== "string" || !value.includes("\n")) {
-    return value;
-  }
-  const currentLine = precedingText.slice(precedingText.lastIndexOf("\n") + 1);
-  const indentMatch = currentLine.match(/^(\s+)/);
-  if (indentMatch) {
-    const indent = indentMatch[1];
-    return value.replace(/\n/g, `\n${indent}`);
-  }
-  return value;
-}
-
-;// ./src/type/preset.en.ts
+// EXTERNAL MODULE: ./node_modules/.pnpm/uuid-random@1.3.2/node_modules/uuid-random/index.js
+var uuid_random = __webpack_require__(327);
+var uuid_random_default = /*#__PURE__*/__webpack_require__.n(uuid_random);
+;// ./src/type/extensions.en.ts
 
 
-
-const Prompt_normal = strictObject({
+const ScriptButton = strictObject({
     name: coerce_string(),
-    id: never().optional(),
-    enabled: schemas_boolean(),
-    position: strictObject({
-        type: schemas_enum(['relative', 'in_chat']),
-        depth: schemas_number().optional(),
-        order: schemas_number().optional(),
-    })
-        .prefault({ type: 'relative' })
-        .superRefine((data, context) => {
-        if (data.type === 'in_chat' && (data.depth === undefined || data.order === undefined)) {
-            context.addIssue({
-                code: 'custom',
-                path: ['position'],
-                message: '当插入位置设置为`in_chat`时, 必须设置`depth`和`order`',
-            });
-        }
-    })
-        .describe('插入位置: `relative` 则按提示词相对位置插入, `in_chat` 则插入到聊天记录中的对应深度'),
-    role: schemas_enum(['system', 'user', 'assistant']).prefault('system'),
-    content: coerce_string().optional().describe('内嵌的提示词内容'),
-    file: schemas_string().optional().describe('外链的提示词文件路径'),
-    extra: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
-})
-    .superRefine((data, context) => {
-    if (data.content === undefined && data.file === undefined) {
-        ['content', 'file'].forEach(key => context.addIssue({
-            code: 'custom',
-            path: [key],
-            message: '必须填写 `content` 或 `file`',
-        }));
-    }
-    if (data.content !== undefined && data.file !== undefined) {
-        ['content', 'file'].forEach(key => context.addIssue({
-            code: 'custom',
-            path: [key],
-            message: '不能同时填写 `content` 和 `file`',
-        }));
-    }
-})
-    .transform(data => {
-    const unique_id = lodash_default().uniqueId();
-    return {
-        ...data,
-        id: unique_id === '1' ? 'main' : unique_id,
-    };
-})
-    .describe('手动在预设中添加的提示词');
-const prompt_rolable_placeholder_ids = [
-    'world_info_before',
-    'persona_description',
-    'char_description',
-    'char_personality',
-    'scenario',
-    'world_info_after',
-];
-const prompt_unrolable_placeholder_ids = ['dialogue_examples', 'chat_history'];
-const prompt_placeholder_ids = [...prompt_rolable_placeholder_ids, ...prompt_unrolable_placeholder_ids];
-const Prompt_placeholder = strictObject({
-    name: never().optional(),
-    id: schemas_enum(prompt_placeholder_ids).describe(dist_dedent(`
-        预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词
-        - world_info_before: 角色定义之前
-        - persona_description: 玩家描述. 创建 user 时填写的提示词
-        - char_description: 角色描述. 角色卡侧边栏中填写的提示词
-        - char_personality: 角色性格. 角色卡高级定义中的提示词, 一般没人用了
-        - scenario: 情景. 角色卡高级定义中的提示词, 一般没人用了
-        - world_info_after: 角色定义之后
-        - dialogue_examples: 对话示例. 角色卡高级定义中的提示词, 一般没人用了
-        - chat_history: 聊天记录
-      `)),
-    enabled: schemas_boolean(),
-    position: strictObject({
-        type: schemas_enum(['relative', 'in_chat']),
-        depth: schemas_number().optional(),
-        order: schemas_number().optional(),
-    })
-        .prefault({ type: 'relative' })
-        .superRefine((data, context) => {
-        if (data?.type === 'in_chat' && (data.depth === undefined || data.order === undefined)) {
-            context.addIssue({
-                code: 'custom',
-                path: ['position'],
-                message: '当插入位置设置为`in_chat`时, 必须设置`depth`和`order`',
-            });
-        }
-    })
-        .describe('插入位置: `relative` 则按提示词相对位置插入, `in_chat` 则插入到聊天记录中的对应深度'),
-    role: schemas_enum(['system', 'user', 'assistant']).optional(),
-    content: never().optional(),
-    file: never().optional(),
-    extra: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
-})
-    .superRefine((data, context) => {
-    if (lodash_default().includes(prompt_unrolable_placeholder_ids, data.id) && data.role !== undefined) {
-        context.addIssue({
-            code: 'custom',
-            message: `占位符提示词 '${data.id}' 不能设置自定义角色 (\`role\`)`,
-            path: ['role'],
-        });
-    }
-})
-    .transform(data => ({
-    ...data,
-    role: data.role ?? 'system',
-    name: {
-        world_info_before: 'World Info (before) - 角色定义之前',
-        persona_description: 'Persona Description - 玩家描述',
-        char_description: 'Char Description - 角色描述',
-        char_personality: 'Char Personality - 角色性格',
-        scenario: 'Scenario - 情景',
-        world_info_after: 'World Info (after) - 角色定义之后',
-        dialogue_examples: 'Chat Examples - 对话示例',
-        chat_history: 'Chat History - 聊天记录',
-    }[data.id],
-}))
-    .describe('预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词');
-const PromptLeaf = union([Prompt_normal, Prompt_placeholder]);
-const PromptBranch = object({
-    folder: schemas_string(),
-    get entries() {
-        return array(union([PromptLeaf, PromptBranch]));
-    },
+    visible: schemas_boolean(),
 });
-const PromptTree = union([PromptLeaf, PromptBranch]);
-function is_prompt_branch(data) {
-    return lodash_default().has(data, 'folder');
-}
-function flatten_tree(data) {
-    if (is_prompt_branch(data)) {
-        return data.entries.flatMap(flatten_tree);
-    }
-    return [data];
-}
-const PromptTrees = array(PromptTree).transform(data => data.flatMap(flatten_tree));
-const Preset = strictObject({
-    settings: strictObject({
-        max_context: schemas_number()
-            .min(0)
-            .max(2000000)
-            .describe('最大上下文 token 数. 酒馆计算出的上下文 token 数虚高, 容易在上下文 token 数没有达到限制时就报错, 因此建议调到最大 2000000'),
-        max_completion_tokens: schemas_number().min(0).describe('最大回复 token 数'),
-        reply_count: schemas_number().min(1).prefault(1).describe('每次生成几个回复'),
-        should_stream: schemas_boolean().describe('是否流式传输'),
-        temperature: schemas_number().min(0).max(2).describe('温度'),
-        frequency_penalty: schemas_number().min(-2).max(2).describe('频率惩罚'),
-        presence_penalty: schemas_number().min(-2).max(2).describe('存在惩罚'),
-        top_p: schemas_number().min(0).max(1),
-        repetition_penalty: schemas_number().min(1).max(2).prefault(1).describe('重复惩罚'),
-        min_p: schemas_number().min(0).max(1).prefault(0),
-        top_k: schemas_number().min(0).max(500).prefault(0),
-        top_a: schemas_number().min(0).max(1).prefault(0),
-        seed: schemas_number().prefault(-1).describe('种子, -1 表示随机'),
-        squash_system_messages: schemas_boolean().describe('压缩系统消息: 将连续的系统消息合并为一条消息'),
-        reasoning_effort: schemas_enum(['auto', 'min', 'low', 'medium', 'high', 'max'])
-            .describe('推理强度, 即内置思维链的投入程度. 例如, 如果酒馆直连 gemini-2.5-flash, 则 `min` 将会不使用内置思维链'),
-        request_thoughts: schemas_boolean()
-            .prefault(true)
-            .describe('请求思维链: 允许模型返回内置思维链的思考过程; 注意这只影响内置思维链显不显示, 不决定模型是否使用内置思维链'),
-        request_images: schemas_boolean().prefault(true).describe('请求图片: 允许模型在回复中返回图片'),
-        enable_function_calling: schemas_boolean()
-            .prefault(true)
-            .describe('启用函数调用: 允许模型使用函数调用功能; 比如 cursor 借此在回复中读写文件、运行命令'),
-        enable_web_search: schemas_boolean().prefault(true).describe('启用网络搜索: 允许模型使用网络搜索功能'),
-        allow_sending_images: schemas_enum(['disabled', 'auto', 'low', 'high'])
-            .prefault('auto')
-            .describe('是否允许发送图片作为提示词'),
-        allow_sending_videos: schemas_boolean().prefault(true).describe('是否允许发送视频作为提示词'),
-        character_name_prefix: schemas_enum(['none', 'default', 'content', 'completion'])
-            .prefault('none')
-            .describe(dist_dedent(`
-        角色名称前缀: 是否要为消息添加角色名称前缀, 以及怎么添加
-        - none: 不添加
-        - default: 为与角色卡不同名的消息添加角色名称前缀, 添加到 \`content\` 字段开头 (即发送的消息内容是 \`角色名: 消息内容\`)
-        - content: 为所有消息添加角色名称前缀, 添加到 \`content\` 字段开头 (即发送的消息内容是 \`角色名: 消息内容\`)
-        - completion: 在发送给模型时, 将角色名称写入到 \`name\` 字段; 仅支持字母数字和下划线, 不适用于 Claude、Google 等模型
-      `)),
-        wrap_user_messages_in_quotes: schemas_boolean()
-            .prefault(false)
-            .describe('用引号包裹用户消息: 在发送给模型之前, 将所有用户消息用引号包裹'),
+const Script = strictObject({
+    name: coerce_string(),
+    id: coerce_string().prefault((uuid_random_default())),
+    enabled: schemas_boolean(),
+    type: literal('script'),
+    content: coerce_string(),
+    info: coerce_string().prefault(''),
+    button: object({
+        enabled: schemas_boolean().prefault(true),
+        buttons: array(ScriptButton).prefault([]),
+    })
+        .prefault({}),
+    data: record(schemas_string(), any()).prefault({}).catch({}),
+});
+const ScriptFolder = strictObject({
+    name: coerce_string(),
+    id: coerce_string().prefault((uuid_random_default())),
+    enabled: schemas_boolean(),
+    type: literal('folder'),
+    icon: coerce_string().prefault('fa-solid fa-folder'),
+    color: coerce_string().prefault('rgba(219, 219, 214, 1)'),
+    scripts: array(Script).prefault([]).catch([]),
+});
+const ScriptTree = discriminatedUnion('type', [Script, ScriptFolder]);
+const Extensions = looseObject({
+    regex_scripts: array(strictObject({
+        script_name: coerce_string(),
+        id: coerce_string().prefault((uuid_random_default())),
+        enabled: schemas_boolean(),
+        find_regex: coerce_string(),
+        replace_string: coerce_string(),
+        source: strictObject({
+            user_input: schemas_boolean(),
+            ai_output: schemas_boolean(),
+            slash_command: schemas_boolean().prefault(false),
+            world_info: schemas_boolean().prefault(false),
+        }),
+        destination: strictObject({
+            display: schemas_boolean(),
+            prompt: schemas_boolean(),
+        }),
+        run_on_edit: schemas_boolean().prefault(false),
+        min_depth: union([schemas_number(), schemas_null()]).prefault(null),
+        max_depth: union([schemas_number(), schemas_null()]).prefault(null),
+    })),
+    tavern_helper: strictObject({
+        scripts: array(ScriptTree).prefault([]).catch([]),
+        variables: record(schemas_string(), any()).prefault({}).catch({}),
     }),
-    anchors: any().optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
-    prompts: PromptTrees.superRefine((data, context) => {
-        const duplicate_ids = lodash_default()(data)
-            .filter(prompt => lodash_default().includes(prompt_placeholder_ids, prompt.id))
-            .groupBy('id')
-            .filter(group => group.length > 1)
-            .keys()
-            .value();
-        if (duplicate_ids.length > 0) {
-            context.addIssue({
-                code: 'custom',
-                message: `提示词列表中出现了重复的占位符提示词 id: ${duplicate_ids.join(', ')}`,
-            });
-        }
-        const unused_ids = lodash_default().reject(prompt_placeholder_ids, id => data.some(prompt => lodash_default().get(prompt, 'id') === id));
-        if (unused_ids.length > 0) {
-            context.addIssue({
-                code: 'custom',
-                message: `提示词列表中缺少了这些必须添加的占位符提示词 id: ${unused_ids.join(', ')}`,
-            });
-        }
-    }).describe('提示词列表里已经添加的提示词'),
-    prompts_unused: PromptTrees.describe('下拉框里的, 没有添加进提示词列表的提示词'),
-    extensions: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设绑定额外数据'),
 });
 
-;// ./src/server/tavern/preset.ts
+;// ./src/server/tavern/extensions.ts
 
-
-
-const Prompt = object({
-    name: schemas_string(),
-    id: schemas_string().transform((lodash_default()).snakeCase),
-    enabled: schemas_boolean(),
-    position: object({
-        type: schemas_enum(['relative', 'in_chat']),
-        depth: schemas_number().optional(),
-        order: schemas_number().optional(),
-    })
-        .optional(),
-    role: schemas_enum(['system', 'user', 'assistant']),
-    content: schemas_string().optional(),
-    extra: record(schemas_string(), any()).optional(),
-})
-    .transform(data => {
-    if (lodash_default().includes(prompt_placeholder_ids, data.id)) {
-        lodash_default().unset(data, 'name');
-        lodash_default().unset(data, 'content');
-        if (data.position?.type === 'relative') {
-            lodash_default().unset(data, 'position');
+const extensions_Extensions = Extensions.transform(data => {
+    data.regex_scripts.forEach(script => {
+        if (script.source.slash_command === false) {
+            _.unset(script, 'source.slash_command');
         }
-        if (lodash_default().includes(prompt_unrolable_placeholder_ids, data.id) || data.role === 'system') {
-            lodash_default().unset(data, 'role');
+        if (script.source.world_info === false) {
+            _.unset(script, 'source.world_info');
         }
-        return data;
-    }
-    lodash_default().unset(data, 'id');
-    return data;
-});
-const preset_Preset = object({
-    settings: object({
-        max_context: schemas_number().min(0).max(2000000),
-        max_completion_tokens: schemas_number().min(0),
-        reply_count: schemas_number().min(1),
-        should_stream: schemas_boolean(),
-        temperature: schemas_number().min(0).max(2),
-        frequency_penalty: schemas_number().min(-2).max(2),
-        presence_penalty: schemas_number().min(-2).max(2),
-        top_p: schemas_number().min(0).max(1),
-        repetition_penalty: schemas_number().min(1).max(2),
-        min_p: schemas_number().min(0).max(1),
-        top_k: schemas_number().min(0).max(500),
-        top_a: schemas_number().min(0).max(1),
-        seed: schemas_number(),
-        squash_system_messages: schemas_boolean(),
-        reasoning_effort: schemas_enum(['auto', 'min', 'low', 'medium', 'high', 'max']),
-        request_thoughts: schemas_boolean(),
-        request_images: schemas_boolean(),
-        enable_function_calling: schemas_boolean(),
-        enable_web_search: schemas_boolean(),
-        allow_sending_images: schemas_enum(['disabled', 'auto', 'low', 'high']),
-        allow_sending_videos: schemas_boolean(),
-        character_name_prefix: schemas_enum(['none', 'default', 'content', 'completion']),
-        wrap_user_messages_in_quotes: schemas_boolean(),
-    }),
-    anchors: schemas_void().transform(() => ({})),
-    prompts: array(Prompt),
-    prompts_unused: array(Prompt)
-        .transform(prompts => prompts.filter(prompt => !lodash_default().includes(['Main Prompt', 'Auxiliary Prompt', 'Post-History Instructions', 'Enhance Definitions'], prompt.name) && !lodash_default().includes(prompt_placeholder_ids, prompt.id))),
-    extensions: record(schemas_string(), any()).optional(),
-})
-    .transform(data => {
-    if (data.settings.reply_count === 1) {
-        lodash_default().unset(data, 'settings.reply_count');
-    }
-    if (data.settings.repetition_penalty === 1) {
-        lodash_default().unset(data, 'settings.repetition_penalty');
-    }
-    if (data.settings.min_p === 0) {
-        lodash_default().unset(data, 'settings.min_p');
-    }
-    if (data.settings.top_a === 0) {
-        lodash_default().unset(data, 'settings.top_a');
-    }
-    if (data.settings.top_k === 0) {
-        lodash_default().unset(data, 'settings.top_k');
-    }
-    if (data.settings.seed === -1) {
-        lodash_default().unset(data, 'settings.seed');
-    }
-    if (data.settings.wrap_user_messages_in_quotes === false) {
-        lodash_default().unset(data, 'settings.wrap_user_messages_in_quotes');
-    }
-    if (lodash_default().isEmpty(data.extensions)) {
-        lodash_default().unset(data, 'extensions');
+        if (script.destination.display || script.destination.prompt) {
+            _.unset(script, 'run_on_edit');
+        }
+        if (!script.min_depth) {
+            _.unset(script, 'min_depth');
+        }
+        if (!script.max_depth) {
+            _.unset(script, 'max_depth');
+        }
+        return script;
+    });
+    data.tavern_helper.scripts.forEach(script => {
+        if (script.type === 'script') {
+            if (!script.info.trim()) {
+                _.unset(script, 'info');
+            }
+            if (script.button.buttons.length === 0) {
+                _.unset(script, 'button');
+            }
+            if (_.isEmpty(script.data)) {
+                _.unset(script, 'data');
+            }
+        }
+        else {
+            if (!script.icon.trim() || script.icon.trim() === 'fa-solid fa-folder') {
+                _.unset(script, 'icon');
+            }
+            if (script.color.trim() === 'rgba(219, 219, 214, 1)') {
+                _.unset(script, 'color');
+            }
+        }
+        return script;
+    });
+    if (_.isEmpty(data.tavern_helper.variables)) {
+        _.unset(data, 'tavern_helper.variables');
     }
     return data;
 });
-
-;// ./src/server/util/is_yaml.ts
-
-function is_yaml(content) {
-    try {
-        dist.parse(content);
-        return true;
-    }
-    catch (error) {
-        return false;
-    }
-}
-
-;// ./src/server/util/append_yaml_endline.ts
-
-function append_yaml_endline(content) {
-    return is_yaml(content) ? content.replace(/(\n)*$/s, '\n') : content;
-}
-
-;// ./src/server/util/detect_extension.ts
-
-function detect_extension(content) {
-    if (is_yaml(content)) {
-        return '.yaml';
-    }
-    return '.txt';
-}
-
-;// ./src/server/util/extract_file_content.ts
-
-function extract_file_content(path) {
-    return (0,external_node_fs_.readFileSync)(path, 'utf-8');
-}
-
-;// ./src/server/util/glob_file.ts
-
-
-function glob_file(base, file) {
-    return (0,external_node_fs_.globSync)((0,external_node_path_.resolve)(base, file).replaceAll(/[\[\]\{\}]/g, '[$&]') + '{.*,}');
-}
-
-;// ./src/server/util/is_parent.ts
-
-function is_parent(parent_path, possible_child_path) {
-    const result = (0,external_path_.relative)(parent_path, possible_child_path);
-    return Boolean(result) && !result.startsWith('..') && !(0,external_path_.isAbsolute)(result);
-}
-
-;// ./src/server/util/sanitize_filename.ts
-function sanitize_filename(filename) {
-    switch (process.platform) {
-        case 'win32':
-        case 'cygwin':
-            return filename.replace(/[\s<>:"/\\|?*\x00-\x1F\x7F]/g, '_');
-        case 'darwin':
-        case 'linux':
-            return filename.replace(/[:\/]/g, '_');
-        default:
-            return filename;
-    }
-}
-
-;// ./src/server/util/trim_yaml_endline.ts
-
-function trim_yaml_endline(content) {
-    return is_yaml(content) ? content.replace(/(\n)+$/s, '') : content;
-}
-
-;// ./src/type/preset.zh.ts
-
-
-
-const preset_zh_zh_to_en_map = {
-    名称: 'name',
-    启用: 'enabled',
-    插入位置: 'position',
-    类型: 'type',
-    相对: 'relative',
-    聊天中: 'in_chat',
-    深度: 'depth',
-    顺序: 'order',
-    角色: 'role',
-    系统: 'system',
-    用户: 'user',
-    AI: 'assistant',
-    内容: 'content',
-    文件: 'file',
-    额外字段: 'extra',
-    角色定义之前: 'world_info_before',
-    玩家描述: 'persona_description',
-    角色描述: 'char_description',
-    角色性格: 'char_personality',
-    情景: 'scenario',
-    角色定义之后: 'world_info_after',
-    对话示例: 'dialogue_examples',
-    聊天记录: 'chat_history',
-    文件夹: 'folder',
-    条目: 'entries',
-    设置: 'settings',
-    上下文长度: 'max_context',
-    最大回复token数: 'max_completion_tokens',
-    每次回复数: 'reply_count',
-    流式传输: 'should_stream',
-    温度: 'temperature',
-    频率惩罚: 'frequency_penalty',
-    存在惩罚: 'presence_penalty',
-    重复惩罚: 'repetition_penalty',
-    种子: 'seed',
-    压缩系统消息: 'squash_system_messages',
-    推理强度: 'reasoning_effort',
-    自动: 'auto',
-    最小: 'min',
-    低: 'low',
-    中: 'medium',
-    高: 'high',
-    最大: 'max',
-    请求思维链: 'request_thoughts',
-    请求图片: 'request_images',
-    启用函数调用: 'enable_function_calling',
-    启用网络搜索: 'enable_web_search',
-    允许发送图片: 'allow_sending_images',
-    禁用: 'disabled',
-    允许发送视频: 'allow_sending_videos',
-    角色名称前缀: 'character_name_prefix',
-    无: 'none',
-    默认: 'default',
-    补全对象: 'completion',
-    用引号包裹用户消息: 'wrap_user_messages_in_quotes',
-    锚点: 'anchors',
-    提示词: 'prompts',
-    未添加的提示词: 'prompts_unused',
-    扩展字段: 'extensions',
-};
-function preset_zh_is_zh(data) {
-    return lodash_default().has(data, '提示词');
-}
-const preset_zh_Prompt_normal = strictObject({
-    名称: coerce_string(),
-    id: never().optional(),
-    启用: schemas_boolean(),
-    插入位置: strictObject({
-        类型: schemas_enum(['相对', '聊天中']),
-        深度: schemas_number().optional(),
-        顺序: schemas_number().optional(),
-    })
-        .prefault({ 类型: '相对' })
-        .superRefine((data, context) => {
-        if (data.类型 === '聊天中' && (data.深度 === undefined || data.顺序 === undefined)) {
-            context.addIssue({
-                code: 'custom',
-                path: ['插入位置'],
-                message: '当插入位置设置为`聊天中`时, 必须设置`深度`和`顺序`',
-            });
-        }
-    })
-        .describe('插入位置: `相对`则按提示词相对位置插入, `聊天中`则插入到聊天记录中的对应深度'),
-    角色: schemas_enum(['系统', '用户', 'AI']).prefault('系统'),
-    内容: coerce_string().optional().describe('内嵌的提示词内容'),
-    文件: schemas_string().optional().describe('外链的提示词文件路径'),
-    额外字段: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
-})
-    .superRefine((data, context) => {
-    if (data.内容 === undefined && data.文件 === undefined) {
-        ['内容', '文件'].forEach(key => context.addIssue({
-            code: 'custom',
-            path: [key],
-            message: '必须填写`内容`或`文件`',
-        }));
-    }
-    if (data.内容 !== undefined && data.文件 !== undefined) {
-        ['内容', '文件'].forEach(key => context.addIssue({
-            code: 'custom',
-            path: [key],
-            message: '不能同时填写`内容`和`文件`',
-        }));
-    }
-})
-    .transform(data => {
-    const unique_id = lodash_default().uniqueId();
-    return {
-        ...data,
-        id: unique_id === '1' ? 'main' : unique_id,
-    };
-})
-    .describe('手动在预设中添加的提示词');
-const preset_zh_prompt_rolable_placeholder_ids = [
-    '角色定义之前',
-    '玩家描述',
-    '角色描述',
-    '角色性格',
-    '情景',
-    '角色定义之后',
-];
-const preset_zh_prompt_unrolable_placeholder_ids = ['对话示例', '聊天记录'];
-const preset_zh_prompt_placeholder_ids = [...preset_zh_prompt_rolable_placeholder_ids, ...preset_zh_prompt_unrolable_placeholder_ids];
-const preset_zh_Prompt_placeholder = strictObject({
-    名称: never().optional(),
-    id: schemas_enum(preset_zh_prompt_placeholder_ids).describe(dist_dedent(`
-        预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词
-        - 角色定义之前: world_info_before
-        - 玩家描述: persona_description. 创建 user 时填写的提示词
-        - 角色描述: char_description. 角色卡侧边栏中填写的提示词
-        - 角色性格: char_personality. 角色卡高级定义中的提示词, 一般没人用了
-        - 情景: scenario. 角色卡高级定义中的提示词, 一般没人用了
-        - 角色定义之后: world_info_after
-        - 对话示例: dialogue_examples. 角色卡高级定义中的提示词, 一般没人用了
-        - 聊天记录: chat_history
-      `)),
-    启用: schemas_boolean(),
-    插入位置: strictObject({
-        类型: schemas_enum(['相对', '聊天中']),
-        深度: schemas_number().optional(),
-        顺序: schemas_number().optional(),
-    })
-        .prefault({ 类型: '相对' })
-        .superRefine((data, context) => {
-        if (data.类型 === '聊天中' && (data.深度 === undefined || data.顺序 === undefined)) {
-            context.addIssue({
-                code: 'custom',
-                path: ['插入位置'],
-                message: '当插入位置设置为`聊天中`时, 必须设置`深度`和`顺序`',
-            });
-        }
-    })
-        .describe('插入位置: `相对`则按提示词相对位置插入, `聊天中`则插入到聊天记录中的对应深度'),
-    角色: schemas_enum(['系统', '用户', 'AI']).optional(),
-    内容: never().optional(),
-    文件: never().optional(),
-    额外字段: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
-})
-    .superRefine((data, context) => {
-    if (lodash_default().includes(preset_zh_prompt_unrolable_placeholder_ids, data.id) && data.角色 !== undefined) {
-        context.addIssue({
-            code: 'custom',
-            message: `占位符提示词 '${data.id}' 不能设置自定义\`角色\``,
-            path: ['角色'],
-        });
-    }
-})
-    .transform(data => ({
-    ...data,
-    角色: data.角色 ?? '系统',
-    名称: {
-        角色定义之前: 'World Info (before) - 角色定义之前',
-        玩家描述: 'Persona Description - 玩家描述',
-        角色描述: 'Char Description - 角色描述',
-        角色性格: 'Char Personality - 角色性格',
-        情景: 'Scenario - 情景',
-        角色定义之后: 'World Info (after) - 角色定义之后',
-        对话示例: 'Chat Examples - 对话示例',
-        聊天记录: 'Chat History - 聊天记录',
-    }[data.id],
-}))
-    .describe('预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词');
-const preset_zh_PromptLeaf = union([preset_zh_Prompt_normal, preset_zh_Prompt_placeholder]);
-const preset_zh_PromptBranch = object({
-    文件夹: schemas_string(),
-    get 条目() {
-        return array(union([preset_zh_PromptLeaf, preset_zh_PromptBranch]));
-    },
-});
-const preset_zh_PromptTree = union([preset_zh_PromptLeaf, preset_zh_PromptBranch]);
-function preset_zh_is_prompt_branch(data) {
-    return lodash_default().has(data, '文件夹');
-}
-function preset_zh_flatten_tree(data) {
-    if (preset_zh_is_prompt_branch(data)) {
-        return data.条目.flatMap(preset_zh_flatten_tree);
-    }
-    return [data];
-}
-const preset_zh_PromptTrees = array(preset_zh_PromptTree).transform(data => data.flatMap(preset_zh_flatten_tree));
-const preset_zh_Preset = strictObject({
-    设置: strictObject({
-        上下文长度: schemas_number()
-            .min(0)
-            .max(2000000)
-            .describe('最大上下文 token 数. 酒馆计算出的上下文 token 数虚高, 容易在上下文 token 数没有达到限制时就报错, 因此建议调到最大 2000000'),
-        最大回复token数: schemas_number().min(0).describe('最大回复 token 数'),
-        每次回复数: schemas_number().min(1).prefault(1).describe('每次生成几个回复'),
-        流式传输: schemas_boolean().describe('是否流式传输'),
-        温度: schemas_number().min(0).max(2).describe('温度'),
-        频率惩罚: schemas_number().min(-2).max(2).describe('频率惩罚'),
-        存在惩罚: schemas_number().min(-2).max(2).describe('存在惩罚'),
-        top_p: schemas_number().min(0).max(1),
-        重复惩罚: schemas_number().min(1).max(2).prefault(1).describe('重复惩罚'),
-        min_p: schemas_number().min(0).max(1).prefault(0),
-        top_k: schemas_number().min(0).max(500).prefault(0),
-        top_a: schemas_number().min(0).max(1).prefault(0),
-        种子: schemas_number().prefault(-1).describe('种子, -1 表示随机'),
-        压缩系统消息: schemas_boolean().describe('压缩系统消息: 将连续的系统消息合并为一条消息'),
-        推理强度: schemas_enum(['自动', '最小', '低', '中', '高', '最大'])
-            .describe('推理强度, 即内置思维链的投入程度. 例如, 如果酒馆直连 gemini-2.5-flash, 则`最小`将会不使用内置思维链'),
-        请求思维链: schemas_boolean()
-            .prefault(true)
-            .describe('请求思维链: 允许模型返回内置思维链的思考过程; 注意这只影响内置思维链显不显示, 不决定模型是否使用内置思维链'),
-        请求图片: schemas_boolean().prefault(true).describe('请求图片: 允许模型在回复中返回图片'),
-        启用函数调用: schemas_boolean()
-            .prefault(true)
-            .describe('启用函数调用: 允许模型使用函数调用功能; 比如 cursor 借此在回复中读写文件、运行命令'),
-        启用网络搜索: schemas_boolean().prefault(true).describe('启用网络搜索: 允许模型使用网络搜索功能'),
-        允许发送图片: schemas_enum(['禁用', '自动', '低', '高']).prefault('自动').describe('是否允许发送图片作为提示词'),
-        允许发送视频: schemas_boolean().prefault(true).describe('是否允许发送视频作为提示词'),
-        角色名称前缀: schemas_enum(['无', '默认', '内容', '补全'])
-            .prefault('无')
-            .describe(dist_dedent(`
-        角色名称前缀: 是否要为消息添加角色名称前缀, 以及怎么添加
-        - 无: 不添加
-        - 默认: 为与角色卡不同名的消息添加角色名称前缀, 添加到 \`content\` 字段开头 (即发送的消息内容是 \`角色名: 消息内容\`)
-        - 内容: 为所有消息添加角色名称前缀, 添加到 \`content\` 字段开头 (即发送的消息内容是 \`角色名: 消息内容\`)
-        - 补全: 在发送给模型时, 将角色名称写入到 \`name\` 字段; 仅支持字母数字和下划线, 不适用于 Claude、Google 等模型
-      `)),
-        用引号包裹用户消息: schemas_boolean()
-            .prefault(false)
-            .describe('用引号包裹用户消息: 在发送给模型之前, 将所有用户消息用引号包裹'),
-    }),
-    锚点: record(schemas_string(), any()).optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
-    提示词: preset_zh_PromptTrees.superRefine((data, context) => {
-        const duplicate_ids = lodash_default()(data)
-            .filter(prompt => lodash_default().includes(preset_zh_prompt_placeholder_ids, prompt.id))
-            .groupBy('id')
-            .filter(group => group.length > 1)
-            .keys()
-            .value();
-        if (duplicate_ids.length > 0) {
-            context.addIssue({
-                code: 'custom',
-                message: `提示词列表中出现了重复的占位符提示词 id: ${duplicate_ids.join(', ')}`,
-            });
-        }
-        const unused_ids = lodash_default().reject(preset_zh_prompt_placeholder_ids, id => data.some(prompt => lodash_default().get(prompt, 'id') === id));
-        if (unused_ids.length > 0) {
-            context.addIssue({
-                code: 'custom',
-                message: `提示词列表中缺少了这些必须添加的占位符提示词 id: ${unused_ids.join(', ')}`,
-            });
-        }
-    }).describe('提示词列表里已经添加的提示词'),
-    未添加的提示词: preset_zh_PromptTrees.describe('下拉框里的, 没有添加进提示词列表的提示词'),
-    扩展字段: any().optional().describe('扩展字段: 用于为预设绑定额外数据'),
-});
-
-;// ./src/server/syncer/preset.ts
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class Preset_syncer extends Syncer_interface {
-    constructor(config_name, name, file, export_file) {
-        super('preset', lodash_default().invert(zh_to_en_map)['preset'], config_name, name, file, export_file, Preset, preset_zh_Preset, preset_zh_zh_to_en_map, preset_zh_is_zh, preset_Preset);
-    }
-    // TODO: 拆分 component
-    do_check_safe(local_data, tavern_data) {
-        const get_names = (data) => {
-            return lodash_default()(data.prompts)
-                .concat(data.prompts_unused)
-                .filter(prompt => !lodash_default().includes(prompt_placeholder_ids, lodash_default().get(prompt, 'id', '')))
-                .map(prompt => prompt.name)
-                .value();
-        };
-        const local_names = get_names(local_data);
-        const tavern_names = get_names(tavern_data);
-        return {
-            local_only_data: lodash_default().difference(local_names, tavern_names),
-            tavern_only_data: lodash_default().difference(tavern_names, local_names),
-        };
-    }
-    // TODO: 拆分 component
-    do_pull(local_data, tavern_data, { language, should_split }) {
-        let files = [];
-        const prompts_state = local_data === null
-            ? []
-            : [...local_data.prompts, ...local_data.prompts_unused].filter(prompt => !lodash_default().has(prompt, 'id'));
-        const local_names = prompts_state.map(entry => entry.name);
-        const tavern_names = [...tavern_data.prompts, ...tavern_data.prompts_unused]
-            .filter(entry => entry.name !== undefined)
-            .map(entry => entry.name);
-        const duplicated_names = lodash_default()(tavern_names)
-            .filter(name => {
-            const index = local_names.findIndex(n => n === name);
-            if (index !== -1) {
-                local_names.splice(index, 1);
-                return false;
-            }
-            return true;
-        })
-            .countBy()
-            .pickBy(count => count > 1)
-            .keys()
-            .uniq()
-            .sort()
-            .value();
-        if (duplicated_names.length > 0) {
-            return { result_data: {}, error_data: { 以下条目存在同名条目: duplicated_names }, files: [] };
-        }
-        const convert_prompts = (prompts, { used }) => prompts.forEach(prompt => {
-            if (lodash_default().has(prompt, 'id')) {
-                return;
-            }
-            const handle_file = (prompt, file) => {
-                let file_to_write = '';
-                let file_to_set = '';
-                const glob_files = glob_file(this.dir, file);
-                if (glob_files.length === 0) {
-                    file_to_write = file.replace(/\.[^\\/.]+$|$/, detect_extension(prompt.content));
-                    file_to_set = file.replace(/\.[^\\/.]+$/, '');
-                }
-                else if (glob_files.length === 1) {
-                    file_to_write = glob_files[0];
-                    file_to_set = (0,external_node_path_.relative)(this.dir, glob_files[0]).replace(/\.[^\\/.]+$/, '');
-                }
-                else {
-                    file_to_write = file;
-                    file_to_set = file;
-                }
-                files.push({ name: prompt.name, path: file_to_write, content: append_yaml_endline(prompt.content) });
-                lodash_default().unset(prompt, 'content');
-                lodash_default().set(prompt, 'file', file_to_set);
-            };
-            const state = prompts_state.find(state => state.name === prompt.name);
-            if (state === undefined && should_split) {
-                const file = (0,external_node_path_.join)(sanitize_filename(this.config_name), used ? '' : language === 'zh' ? '未使用' : 'unused', sanitize_filename(prompt.name) + detect_extension(prompt.content));
-                handle_file(prompt, file);
-                return;
-            }
-            if (state?.file !== undefined) {
-                handle_file(prompt, state.file);
-                return;
-            }
-        });
-        convert_prompts(tavern_data.prompts, { used: true });
-        convert_prompts(tavern_data.prompts_unused, { used: false });
-        return { result_data: tavern_data, error_data: {}, files };
-    }
-    do_beautify_config(tavern_data, language) {
-        const document = new dist.Document(language === 'zh' ? translate(tavern_data, lodash_default().invert(this.zh_to_en_map)) : tavern_data);
-        ['提示词', '未添加的提示词', 'prompts', 'prompts_unused'].forEach(key => dist.visit(document.get(key), (key, node) => {
-            if (key === null) {
-                return;
-            }
-            if (key > 0) {
-                node.spaceBefore = true;
-            }
-            return dist.visit.SKIP;
-        }));
-        dist.visit(document, (key, node) => {
-            if (key === null) {
-                return;
-            }
-            if (dist.isPair(node) && key > 0) {
-                node.key.spaceBefore = true;
-            }
-            return dist.visit.SKIP;
-        });
-        return document.toString({ blockQuote: 'literal' });
-    }
-    // TODO: 拆分 component
-    do_push(local_data) {
-        let error_data = {
-            未能找到以下外链提示词文件: [],
-            通过补全文件后缀找到了多个文件: [],
-            未能从合集文件中找到以下条目: [],
-        };
-        const handle_placeholder_id = (prompts) => {
-            prompts.forEach(prompt => {
-                if (lodash_default().includes(prompt_placeholder_ids, prompt.id)) {
-                    lodash_default().set(prompt, 'id', lodash_default().camelCase(prompt.id));
-                }
-            });
-        };
-        handle_placeholder_id(local_data.prompts);
-        handle_placeholder_id(local_data.prompts_unused);
-        const handle_file = (prompts, source) => {
-            prompts.forEach((prompt, index) => {
-                if (!lodash_default().has(prompt, 'file') || prompt.file === undefined) {
-                    return;
-                }
-                const paths = glob_file(this.dir, prompt.file);
-                if (paths.length === 0) {
-                    error_data.未能找到以下外链提示词文件.push(`'${source}' 中第 '${index}' 条目 '${prompt.name}': '${prompt.file}'`);
-                    return;
-                }
-                if (paths.length > 1) {
-                    error_data.通过补全文件后缀找到了多个文件.push({
-                        [`'${source}' 中第 '${index}' 条目 '${prompt.name}'`]: paths,
-                    });
-                }
-                const content = extract_file_content(paths[0]);
-                if (is_collection_file(prompt.file)) {
-                    const collection_file = parse_collection_file(content);
-                    const collection_entry = collection_file.find(value => value.name === prompt.name);
-                    if (collection_entry === undefined) {
-                        error_data.未能从合集文件中找到以下条目.push(`'${prompt.file}': 第 '${index}' 条目 '${prompt.name}'`);
-                        return;
-                    }
-                    lodash_default().set(prompt, 'content', trim_yaml_endline(collection_entry.content));
-                    lodash_default().unset(prompt, 'file');
-                    return;
-                }
-                lodash_default().set(prompt, 'content', trim_yaml_endline(content));
-                lodash_default().unset(prompt, 'file');
-            });
-        };
-        handle_file(local_data.prompts, '提示词');
-        handle_file(local_data.prompts_unused, '未添加的提示词');
-        const handle_user_name = (prompts) => {
-            prompts.forEach(prompt => {
-                lodash_default().set(prompt, 'content', replace_user_name(prompt.content));
-            });
-        };
-        handle_user_name(local_data.prompts);
-        handle_user_name(local_data.prompts_unused);
-        const handle_raw_string = (prompts) => {
-            prompts.forEach(prompt => {
-                lodash_default().set(prompt, 'content', replace_raw_string(prompt.content));
-            });
-        };
-        handle_raw_string(local_data.prompts);
-        handle_raw_string(local_data.prompts_unused);
-        return {
-            result_data: local_data,
-            error_data: lodash_default().pickBy(error_data, value => value.length > 0),
-        };
-    }
-    do_watch(local_data) {
-        return lodash_default()(lodash_default()(local_data.prompts)
-            .concat(local_data.prompts_unused)
-            .filter(prompt => prompt.file !== undefined)
-            .map(prompt => (0,external_node_path_.resolve)(this.dir, prompt.file))
-            .value())
-            .map(path => (0,external_node_path_.dirname)(path))
-            .reduce((result, path) => {
-            if (result.some(parent => is_parent(parent, path))) {
-                return result;
-            }
-            result.push(path);
-            return result;
-        }, [])
-            .concat(this.file);
-    }
-    do_bundle(local_data) {
-        const { result_data, error_data } = this.do_push(local_data);
-        return { result_data: bundle_preset(result_data), error_data };
-    }
-}
-
-;// ./src/server/bundle/worldbook.ts
-
-const _default_implicit_keys = {
-    addMemo: true,
-    matchPersonaDescription: false,
-    matchCharacterDescription: false,
-    matchCharacterPersonality: false,
-    matchCharacterDepthPrompt: false,
-    matchScenario: false,
-    matchCreatorNotes: false,
-    group: '',
-    groupOverride: false,
-    groupWeight: 100,
-    caseSensitive: null,
-    matchWholeWords: null,
-    useGroupScoring: null,
-    automationId: '',
-};
-function to_original_worldbook_entry(entry, index) {
-    let result = lodash_default()({})
-        .set('uid', index)
-        .set('displayIndex', index)
-        .set('comment', entry.name)
-        .set('disable', !entry.enabled)
-        .set('constant', entry.strategy.type === 'constant')
-        .set('selective', entry.strategy.type === 'selective')
-        .set('key', entry.strategy.keys ?? [])
-        .set('selectiveLogic', {
-        and_any: 0,
-        not_all: 1,
-        not_any: 2,
-        and_all: 3,
-    }[entry.strategy.keys_secondary?.logic ?? 'and_any'])
-        .set('keysecondary', entry.strategy.keys_secondary?.keys ?? [])
-        .set('scanDepth', entry.strategy.scan_depth === 'same_as_global' ? null : (entry.strategy.scan_depth ?? null))
-        .set('vectorized', entry.strategy.type === 'vectorized')
-        .set('position', {
-        before_character_definition: 0,
-        after_character_definition: 1,
-        before_example_messages: 5,
-        after_example_messages: 6,
-        before_author_note: 2,
-        after_author_note: 3,
-        at_depth: 4,
-    }[entry.position.type])
-        .set('role', { system: 0, user: 1, assistant: 2 }[entry.position?.role ?? 'system'])
-        .set('depth', entry.position?.depth ?? 4)
-        .set('order', entry.position.order)
-        .set('content', entry.content)
-        .set('useProbability', true)
-        .set('probability', entry.probability ?? 100)
-        .set('excludeRecursion', entry.recursion?.prevent_incoming ?? false)
-        .set('preventRecursion', entry.recursion?.prevent_outgoing ?? false)
-        .set('delayUntilRecursion', entry.recursion?.delay_until ?? false)
-        .set('sticky', entry.effect?.sticky ?? null)
-        .set('cooldown', entry.effect?.cooldown ?? null)
-        .set('delay', entry.effect?.delay ?? null);
-    if (entry.extra) {
-        result = result.set('extra', entry.extra);
-    }
-    result = result.merge(_default_implicit_keys).merge(lodash_default().pick(entry, Object.keys(_default_implicit_keys)));
-    return result.value();
-}
-function bundle_worldbook(worldbook) {
-    return {
-        entries: Object.fromEntries(worldbook.entries.map((entry, index) => [index, to_original_worldbook_entry(entry, index)])),
-    };
-}
 
 ;// ./src/server/tavern/worldbook.ts
 
@@ -65501,6 +65855,190 @@ const Worldbook = array(Worldbook_entry)
     entries,
 }));
 
+;// ./src/server/tavern/character.ts
+
+
+
+const Character = strictObject({
+    avatar: _instanceof(Buffer),
+    version: schemas_string(),
+    creator: schemas_string(),
+    creator_notes: schemas_string(),
+    first_messages: array(schemas_string().transform(message => ({ content: message }))).prefault(['']),
+    description: schemas_string().default(''),
+    anchors: record(schemas_string(), any()).prefault({}),
+    worldbook: schemas_string(),
+    entries: array(Worldbook_entry).prefault([]),
+    extensions: extensions_Extensions.optional().describe('扩展字段: 用于为预设绑定额外数据'),
+});
+
+;// ./src/server/util/is_yaml.ts
+
+function is_yaml(content) {
+    try {
+        dist.parse(content);
+        return true;
+    }
+    catch (error) {
+        return false;
+    }
+}
+
+;// ./src/server/util/append_yaml_endline.ts
+
+function append_yaml_endline(content) {
+    return is_yaml(content) ? content.replace(/(\n)*$/s, '\n') : content;
+}
+
+;// ./src/server/util/detect_extension.ts
+
+function detect_extension(content) {
+    if (is_yaml(content)) {
+        return '.yaml';
+    }
+    return '.txt';
+}
+
+;// ./src/server/util/extract_file_content.ts
+
+function extract_file_content(path) {
+    return (0,external_node_fs_.readFileSync)(path, 'utf-8');
+}
+
+;// ./src/server/util/glob_file.ts
+
+
+function glob_file(base, file) {
+    return (0,external_node_fs_.globSync)((0,external_node_path_.resolve)(base, file).replaceAll(/[\[\]\{\}]/g, '[$&]') + '{.*,}');
+}
+
+;// ./src/server/util/is_parent.ts
+
+function is_parent(parent_path, possible_child_path) {
+    const result = (0,external_path_.relative)(parent_path, possible_child_path);
+    return Boolean(result) && !result.startsWith('..') && !(0,external_path_.isAbsolute)(result);
+}
+
+;// ./src/server/util/sanitize_filename.ts
+function sanitize_filename(filename) {
+    switch (process.platform) {
+        case 'win32':
+        case 'cygwin':
+            return filename.replace(/[\s<>:"/\\|?*\x00-\x1F\x7F]/g, '_');
+        case 'darwin':
+        case 'linux':
+            return filename.replace(/[:\/]/g, '_');
+        default:
+            return filename;
+    }
+}
+
+;// ./src/server/util/trim_yaml_endline.ts
+
+function trim_yaml_endline(content) {
+    return is_yaml(content) ? content.replace(/(\n)+$/s, '') : content;
+}
+
+;// ./node_modules/.pnpm/dedent@1.7.1/node_modules/dedent/dist/dedent.mjs
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+const dedent = createDedent({});
+/* harmony default export */ const dist_dedent = (dedent);
+function createDedent(options) {
+  dedent.withOptions = newOptions => createDedent(_objectSpread(_objectSpread({}, options), newOptions));
+  return dedent;
+  function dedent(strings, ...values) {
+    const raw = typeof strings === "string" ? [strings] : strings.raw;
+    const {
+      alignValues = false,
+      escapeSpecialCharacters = Array.isArray(strings),
+      trimWhitespace = true
+    } = options;
+
+    // first, perform interpolation
+    let result = "";
+    for (let i = 0; i < raw.length; i++) {
+      let next = raw[i];
+      if (escapeSpecialCharacters) {
+        // handle escaped newlines, backticks, and interpolation characters
+        next = next.replace(/\\\n[ \t]*/g, "").replace(/\\`/g, "`").replace(/\\\$/g, "$").replace(/\\\{/g, "{");
+      }
+      result += next;
+      if (i < values.length) {
+        const value = alignValues ? alignValue(values[i], result) : values[i];
+
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+        result += value;
+      }
+    }
+
+    // now strip indentation
+    const lines = result.split("\n");
+    let mindent = null;
+    for (const l of lines) {
+      const m = l.match(/^(\s+)\S+/);
+      if (m) {
+        const indent = m[1].length;
+        if (!mindent) {
+          // this is the first indented line
+          mindent = indent;
+        } else {
+          mindent = Math.min(mindent, indent);
+        }
+      }
+    }
+    if (mindent !== null) {
+      const m = mindent; // appease TypeScript
+      result = lines
+      // https://github.com/typescript-eslint/typescript-eslint/issues/7140
+      // eslint-disable-next-line @typescript-eslint/prefer-string-starts-ends-with
+      .map(l => l[0] === " " || l[0] === "\t" ? l.slice(m) : l).join("\n");
+    }
+
+    // dedent eats leading and trailing whitespace too
+    if (trimWhitespace) {
+      result = result.trim();
+    }
+
+    // handle escaped newlines at the end to ensure they don't get stripped too
+    if (escapeSpecialCharacters) {
+      result = result.replace(/\\n/g, "\n");
+    }
+
+    // Workaround for Bun issue with Unicode characters
+    // https://github.com/oven-sh/bun/issues/8745
+    if (typeof Bun !== "undefined") {
+      result = result.replace(
+      // Matches e.g. \\u{1f60a} or \\u5F1F
+      /\\u(?:\{([\da-fA-F]{1,6})\}|([\da-fA-F]{4}))/g, (_, braced, unbraced) => {
+        var _ref;
+        const hex = (_ref = braced !== null && braced !== void 0 ? braced : unbraced) !== null && _ref !== void 0 ? _ref : "";
+        return String.fromCodePoint(parseInt(hex, 16));
+      });
+    }
+    return result;
+  }
+}
+
+/**
+ * Adjusts the indentation of a multi-line interpolated value to match the current line.
+ */
+function alignValue(value, precedingText) {
+  if (typeof value !== "string" || !value.includes("\n")) {
+    return value;
+  }
+  const currentLine = precedingText.slice(precedingText.lastIndexOf("\n") + 1);
+  const indentMatch = currentLine.match(/^(\s+)/);
+  if (indentMatch) {
+    const indent = indentMatch[1];
+    return value.replace(/\n/g, `\n${indent}`);
+  }
+  return value;
+}
+
 ;// ./src/type/worldbook.en.ts
 
 
@@ -65515,7 +66053,7 @@ const worldbook_en_Worldbook_entry = strictObject({
           - selective: 可选项🟢, 俗称绿灯. 除了蓝灯条件, 还需要满足 \`keys\` 扫描条件
           - vectorized: 向量化🔗. 一般不使用
         `)),
-        keys: array(schemas_string())
+        keys: array(coerce_string())
             .min(1)
             .optional()
             .describe('关键字: 绿灯条目必须在欲扫描文本中扫描到其中任意一个关键字才能激活'),
@@ -65527,7 +66065,7 @@ const worldbook_en_Worldbook_entry = strictObject({
               - not_all: 次要关键字中至少有一个关键字没能在欲扫描文本中匹配到
               - not_any: 次要关键字中所有关键字都没能欲扫描文本中匹配到
             `)),
-            keys: array(schemas_string()).min(1),
+            keys: array(coerce_string()).min(1),
         })
             .optional()
             .describe('次要关键字: 如果设置了次要关键字, 则条目除了在 `keys` 中匹配到任意一个关键字外, 还需要按次要关键字的 `logic` 满足次要关键字的 `keys`'),
@@ -65617,7 +66155,7 @@ const worldbook_en_Worldbook_entry = strictObject({
         .partial()
         .optional(),
     group: strictObject({
-        labels: array(schemas_string()).min(1).describe('组标签'),
+        labels: array(coerce_string()).min(1).describe('组标签'),
         use_priority: schemas_boolean().default(false).describe('使用优先级'),
         weight: schemas_number().default(100).describe('权重'),
         use_scoring: union([schemas_boolean(), literal('same_as_global')])
@@ -65629,7 +66167,7 @@ const worldbook_en_Worldbook_entry = strictObject({
         .describe('包含组'),
     extra: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
     content: coerce_string().optional().describe('内嵌的提示词内容'),
-    file: schemas_string().optional().describe('外链的提示词文件路径'),
+    file: coerce_string().optional().describe('外链的提示词文件路径'),
 })
     .transform(data => {
     if (data.group !== undefined) {
@@ -65667,23 +66205,154 @@ const worldbook_en_Worldbook_entry = strictObject({
 });
 const Wolrdbook_leaf = worldbook_en_Worldbook_entry;
 const Wolrdbook_branch = object({
-    folder: schemas_string(),
+    folder: coerce_string(),
     entries: array(Wolrdbook_leaf),
 });
 const Wolrdbook_tree = union([Wolrdbook_leaf, Wolrdbook_branch]);
 function is_worldbook_branch(data) {
     return _.has(data, 'folder');
 }
-function worldbook_en_flatten_tree(data) {
+function flatten_tree(data) {
     if (is_worldbook_branch(data)) {
-        return data.entries.flatMap(worldbook_en_flatten_tree);
+        return data.entries.flatMap(flatten_tree);
     }
     return [data];
 }
-const Wolrdbook_trees = array(Wolrdbook_tree).transform(data => data.flatMap(worldbook_en_flatten_tree));
+const Wolrdbook_trees = array(Wolrdbook_tree).transform(data => data.flatMap(flatten_tree));
 const worldbook_en_Worldbook = strictObject({
     anchors: any().optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
     entries: Wolrdbook_trees,
+});
+
+;// ./src/type/character.en.ts
+
+
+
+const character_en_Character = strictObject({
+    avatar: coerce_string()
+        .nullish()
+        .describe('角色卡头像: 填写角色卡头像图片路径, 填为 `null` 或不设置该字段则打包时会打包为 JSON 文件'),
+    version: coerce_string(),
+    creator: coerce_string(),
+    creator_notes: coerce_string(),
+    first_messages: array(object({
+        content: coerce_string().optional().describe('内嵌的提示词内容'),
+        file: coerce_string().optional().describe('外链的提示词文件路径'),
+    })
+        .superRefine((data, context) => {
+        if (data.content === undefined && data.file === undefined) {
+            ['content', 'file'].forEach(key => context.addIssue({
+                code: 'custom',
+                path: [key],
+                message: '必须填写`content`或`file`',
+            }));
+        }
+        if (data.content !== undefined && data.file !== undefined) {
+            ['content', 'file'].forEach(key => context.addIssue({
+                code: 'custom',
+                path: [key],
+                message: '不能同时填写`content`和`file`',
+            }));
+        }
+    })
+        .default({ content: '' }))
+        .prefault([{}]),
+    description: coerce_string().default(''),
+    anchors: worldbook_en_Worldbook.shape.anchors,
+    worldbook: coerce_string().nullish().describe('世界书名称: 填为 `null` 或不设置该字段则与角色卡名称相同'),
+    entries: worldbook_en_Worldbook.shape.entries,
+    extensions: Extensions.optional().describe('扩展字段: 用于为预设绑定额外数据'),
+});
+
+;// ./src/type/extensions.zh.ts
+
+
+const extensions_zh_zh_to_en_map = {
+    正则: 'regex_scripts',
+    酒馆助手: 'tavern_helper',
+    脚本库: 'scripts',
+    变量: 'variables',
+    正则名称: 'script_name',
+    启用: 'enabled',
+    查找表达式: 'find_regex',
+    替换为: 'replace_string',
+    来源: 'source',
+    用户输入: 'user_input',
+    AI输出: 'ai_output',
+    快捷命令: 'slash_command',
+    世界信息: 'world_info',
+    作用于: 'destination',
+    仅格式显示: 'display',
+    仅格式提示词: 'prompt',
+    在编辑时运行: 'run_on_edit',
+    最小深度: 'min_depth',
+    最大深度: 'max_depth',
+    类型: 'type',
+    脚本: 'script',
+    文件夹: 'folder',
+    名称: 'name',
+    内容: 'content',
+    介绍: 'info',
+    按钮: 'button',
+    按钮列表: 'buttons',
+    数据: 'data',
+    可见: 'visible',
+};
+const extensions_zh_ScriptButton = strictObject({
+    名称: coerce_string(),
+    可见: schemas_boolean(),
+});
+const extensions_zh_Script = strictObject({
+    名称: coerce_string(),
+    id: coerce_string().prefault((uuid_random_default())),
+    启用: schemas_boolean(),
+    类型: literal('脚本'),
+    内容: coerce_string(),
+    介绍: coerce_string().prefault(''),
+    按钮: object({
+        启用: schemas_boolean().prefault(true),
+        按钮列表: array(extensions_zh_ScriptButton).prefault([]),
+    })
+        .prefault({}),
+    数据: record(schemas_string(), any()).prefault({}).catch({}),
+});
+const extensions_zh_ScriptFolder = strictObject({
+    名称: coerce_string(),
+    id: coerce_string().prefault((uuid_random_default())),
+    启用: schemas_boolean(),
+    类型: literal('文件夹'),
+    图标: coerce_string().prefault('fa-solid fa-folder'),
+    颜色: coerce_string().prefault('#DBDBD6'),
+    脚本库: array(extensions_zh_Script).prefault([]).catch([]),
+});
+const extensions_zh_ScriptTree = discriminatedUnion('类型', [extensions_zh_Script, extensions_zh_ScriptFolder]);
+const extensions_zh_Extensions = looseObject({
+    正则: array(strictObject({
+        正则名称: coerce_string(),
+        id: coerce_string().prefault((uuid_random_default())),
+        启用: schemas_boolean(),
+        查找表达式: coerce_string(),
+        替换为: coerce_string(),
+        来源: strictObject({
+            用户输入: schemas_boolean(),
+            AI输出: schemas_boolean(),
+            快捷命令: schemas_boolean().prefault(false),
+            世界信息: schemas_boolean().prefault(false),
+        }),
+        作用于: strictObject({
+            仅格式显示: schemas_boolean(),
+            仅格式提示词: schemas_boolean(),
+        }),
+        在编辑时运行: schemas_boolean().prefault(false),
+        最小深度: union([schemas_number(), schemas_null()]).prefault(null),
+        最大深度: union([schemas_number(), schemas_null()]).prefault(null),
+    }))
+        .prefault([])
+        .catch([]),
+    酒馆助手: strictObject({
+        脚本库: array(extensions_zh_ScriptTree).prefault([]).catch([]),
+        变量: record(schemas_string(), any()).prefault({}).catch({}),
+    }),
 });
 
 ;// ./src/type/worldbook.zh.ts
@@ -65755,7 +66424,7 @@ const worldbook_zh_Worldbook_entry = strictObject({
           - 绿灯: 可选项🟢 (selective). 除了蓝灯条件, 还需要满足 \`关键字\` 扫描条件
           - 向量化: 向量化🔗 (vectorized). 一般不使用
         `)),
-        关键字: array(schemas_string())
+        关键字: array(coerce_string())
             .min(1)
             .optional()
             .describe('关键字: 绿灯条目必须在欲扫描文本中扫描到其中任意一个关键字才能激活'),
@@ -65845,7 +66514,7 @@ const worldbook_zh_Worldbook_entry = strictObject({
         .partial()
         .optional(),
     群组: strictObject({
-        组标签: array(schemas_string()).min(1).describe('组标签'),
+        组标签: array(coerce_string()).min(1).describe('组标签'),
         使用优先级: schemas_boolean().default(false).describe('使用优先级'),
         权重: schemas_number().default(100).describe('权重'),
         使用评分: union([schemas_boolean(), literal('same_as_global')])
@@ -65857,7 +66526,7 @@ const worldbook_zh_Worldbook_entry = strictObject({
         .describe('包含组'),
     额外字段: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
     内容: coerce_string().optional().describe('内嵌的提示词内容'),
-    文件: schemas_string().optional().describe('外链的提示词文件路径'),
+    文件: coerce_string().optional().describe('外链的提示词文件路径'),
 })
     .transform(data => {
     if (data.群组 !== undefined) {
@@ -65895,7 +66564,7 @@ const worldbook_zh_Worldbook_entry = strictObject({
 });
 const worldbook_zh_Wolrdbook_leaf = worldbook_zh_Worldbook_entry;
 const worldbook_zh_Wolrdbook_branch = object({
-    文件夹: schemas_string(),
+    文件夹: coerce_string(),
     条目: array(worldbook_zh_Wolrdbook_leaf),
 });
 const worldbook_zh_Wolrdbook_tree = union([worldbook_zh_Wolrdbook_leaf, worldbook_zh_Wolrdbook_branch]);
@@ -65913,6 +66582,1276 @@ const worldbook_zh_Worldbook = strictObject({
     锚点: any().optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
     条目: worldbook_zh_Wolrdbook_trees,
 });
+
+;// ./src/type/character.zh.ts
+
+
+
+const character_zh_zh_to_en_map = {
+    头像: 'avatar',
+    版本: 'version',
+    作者: 'creator',
+    备注: 'creator_notes',
+    第一条消息: 'first_messages',
+    角色描述: 'description',
+    世界书名称: 'worldbook',
+    扩展字段: 'extensions',
+    ...worldbook_zh_zh_to_en_map,
+    ...extensions_zh_zh_to_en_map,
+};
+function character_zh_is_zh(data) {
+    return _.has(data, '头像');
+}
+const character_zh_Character = strictObject({
+    头像: coerce_string()
+        .nullish()
+        .describe('角色卡头像: 填写角色卡头像图片路径, 填为 `null` 或不设置该字段则打包时会打包为 JSON 文件'),
+    版本: coerce_string(),
+    作者: coerce_string(),
+    备注: coerce_string(),
+    第一条消息: array(object({
+        内容: coerce_string().optional().describe('内嵌的提示词内容'),
+        文件: coerce_string().optional().describe('外链的提示词文件路径'),
+    })
+        .superRefine((data, context) => {
+        if (data.内容 === undefined && data.文件 === undefined) {
+            ['内容', '文件'].forEach(key => context.addIssue({
+                code: 'custom',
+                path: [key],
+                message: '必须填写`内容`或`文件`',
+            }));
+        }
+        if (data.内容 !== undefined && data.文件 !== undefined) {
+            ['内容', '文件'].forEach(key => context.addIssue({
+                code: 'custom',
+                path: [key],
+                message: '不能同时填写`内容`和`文件`',
+            }));
+        }
+    })
+        .default({ 内容: '' }))
+        .prefault([{}]),
+    角色描述: coerce_string().default(''),
+    锚点: worldbook_zh_Worldbook.shape.锚点,
+    世界书名称: coerce_string().nullish().describe('世界书名称: 填为 `null` 或不设置该字段则与角色卡名称相同'),
+    条目: worldbook_zh_Worldbook.shape.条目,
+    扩展字段: extensions_zh_Extensions.optional().describe('扩展字段: 用于为预设绑定额外数据'),
+});
+
+;// ./src/server/syncer/character.ts
+// import { bundle_character } from '@server/bundle/character';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Character_syncer extends Syncer_interface {
+    constructor(config_name, name, file, bundle_file) {
+        super('character', lodash_default().invert(zh_to_en_map)['character'], config_name, name, file, bundle_file, character_en_Character, character_zh_Character, character_zh_zh_to_en_map, character_zh_is_zh, Character);
+    }
+    do_check_safe(local_data, tavern_data) {
+        const local_names = local_data.entries.map(entry => entry.name);
+        const tavern_names = tavern_data.entries.map(entry => entry.name);
+        return {
+            local_only_data: lodash_default().difference(local_names, tavern_names),
+            tavern_only_data: lodash_default().difference(tavern_names, local_names),
+        };
+    }
+    do_pull(local_data, tavern_data, { should_split }) {
+        // TODO: 知道很烂, 有时间重构
+        let files = [];
+        // 头像
+        {
+            const local_file = local_data?.avatar;
+            let file = local_file ?? '头像.png';
+            file = lodash_default().get(lodash_default().invert(this.zh_to_en_map), file, file);
+            let file_to_write = '';
+            let file_to_set = '';
+            const glob_files = glob_file(this.dir, file);
+            if (glob_files.length === 0) {
+                file_to_write = file.replace(/\.[^\\/.]+$|$/, '.png');
+                file_to_set = file.replace(/\.[^\\/.]+$/, '');
+            }
+            else if (glob_files.length === 1) {
+                file_to_write = glob_files[0];
+                file_to_set = (0,external_node_path_.relative)(this.dir, glob_files[0]).replace(/\.[^\\/.]+$/, '');
+            }
+            else {
+                file_to_write = file;
+                file_to_set = file;
+            }
+            files.push({
+                name: '!头像',
+                path: file_to_write,
+                content: tavern_data.avatar,
+            });
+            lodash_default().set(tavern_data, 'avatar', file_to_set);
+        }
+        // 第一条消息
+        {
+            const states = local_data === null
+                ? []
+                : local_data.first_messages.map((entry, index) => ({ name: `第一条消息${index}`, ...entry }));
+            tavern_data.first_messages.forEach((entry, index) => {
+                lodash_default().set(entry, 'content', replace_user_name(entry.content ?? ''));
+                const handle_file = (entry, file) => {
+                    let file_to_write = '';
+                    let file_to_set = '';
+                    const glob_files = glob_file(this.dir, file);
+                    if (glob_files.length === 0) {
+                        file_to_write = file.replace(/\.[^\\/.]+$|$/, '.txt');
+                        file_to_set = file.replace(/\.[^\\/.]+$/, '');
+                    }
+                    else if (glob_files.length === 1) {
+                        file_to_write = glob_files[0];
+                        file_to_set = (0,external_node_path_.relative)(this.dir, glob_files[0]).replace(/\.[^\\/.]+$/, '');
+                    }
+                    else {
+                        file_to_write = file;
+                        file_to_set = file;
+                    }
+                    files.push({
+                        name: `!第一条消息${index}`,
+                        path: file_to_write,
+                        content: entry.content,
+                    });
+                    lodash_default().unset(entry, 'content');
+                    lodash_default().set(entry, 'file', file_to_set);
+                };
+                const state = states.find(state => state.name === `第一条消息${index}`);
+                if (state === undefined && should_split) {
+                    handle_file(entry, (0,external_node_path_.join)('第一条消息', `${index}.txt`));
+                }
+                else if (state?.file !== undefined) {
+                    handle_file(entry, state.file);
+                }
+            });
+        }
+        // 世界书名称
+        {
+            if (tavern_data.worldbook === this.name) {
+                lodash_default().set(tavern_data, 'worldbook', '与角色卡名称相同');
+            }
+        }
+        // 条目
+        {
+            const states = local_data === null ? [] : local_data.entries;
+            const local_names = states.map(entry => entry.name);
+            const tavern_names = tavern_data.entries.map(entry => entry.name);
+            const duplicated_names = lodash_default()(tavern_names)
+                .filter(name => {
+                const index = local_names.findIndex(n => n === name);
+                if (index !== -1) {
+                    local_names.splice(index, 1);
+                    return false;
+                }
+                return true;
+            })
+                .countBy()
+                .pickBy(count => count > 1)
+                .keys()
+                .uniq()
+                .sort()
+                .value();
+            if (duplicated_names.length > 0) {
+                return { result_data: {}, error_data: { 以下条目存在同名条目: duplicated_names }, files: [] };
+            }
+            tavern_data.entries.forEach(entry => {
+                lodash_default().set(entry, 'content', replace_user_name(entry.content ?? ''));
+                const handle_file = (entry, file) => {
+                    let file_to_write = '';
+                    let file_to_set = '';
+                    const glob_files = glob_file(this.dir, file);
+                    if (glob_files.length === 0) {
+                        file_to_write = file.replace(/\.[^\\/.]+$|$/, detect_extension(entry.content));
+                        file_to_set = file.replace(/\.[^\\/.]+$/, '');
+                    }
+                    else if (glob_files.length === 1) {
+                        file_to_write = glob_files[0];
+                        file_to_set = (0,external_node_path_.relative)(this.dir, glob_files[0]).replace(/\.[^\\/.]+$/, '');
+                    }
+                    else {
+                        file_to_write = file;
+                        file_to_set = file;
+                    }
+                    files.push({
+                        name: entry.name,
+                        path: file_to_write,
+                        content: append_yaml_endline(entry.content),
+                    });
+                    lodash_default().unset(entry, 'content');
+                    lodash_default().set(entry, 'file', file_to_set);
+                };
+                const state = states.find(state => state.name === entry.name);
+                if (state === undefined && should_split) {
+                    handle_file(entry, (0,external_node_path_.join)('世界书', sanitize_filename(entry.name) + detect_extension(entry.content)));
+                }
+                else if (state?.file !== undefined) {
+                    handle_file(entry, state.file);
+                }
+            });
+        }
+        return { result_data: tavern_data, error_data: {}, files };
+    }
+    do_beautify_config(tavern_data, language) {
+        const document = new dist.Document(language === 'zh' ? translate(tavern_data, lodash_default().invert(this.zh_to_en_map)) : tavern_data);
+        [
+            ['条目'],
+            ['扩展字段', '正则'],
+            ['扩展字段', '酒馆助手', '脚本库'],
+            ['entries'],
+            ['extensions', 'regex_scripts'],
+            ['extensions', 'tavern_helper', 'scripts'],
+        ].forEach(key => dist.visit(document.getIn(key), (key, node) => {
+            if (key === null) {
+                return;
+            }
+            if (key > 0) {
+                node.spaceBefore = true;
+            }
+            return dist.visit.SKIP;
+        }));
+        [['扩展字段'], ['扩展字段', '酒馆助手'], ['extensions'], ['extensions', 'tavern_helper']].forEach(key => dist.visit(document.getIn(key), (key, node) => {
+            if (key === null) {
+                return;
+            }
+            if (dist.isPair(node) && key > 0) {
+                node.key.spaceBefore = true;
+            }
+            return dist.visit.SKIP;
+        }));
+        dist.visit(document, (key, node) => {
+            if (key === null) {
+                return;
+            }
+            if (dist.isPair(node) && key > 3 && key !== 8) {
+                node.key.spaceBefore = true;
+            }
+            return dist.visit.SKIP;
+        });
+        return document.toString({ blockQuote: 'literal' });
+    }
+    // TODO: 拆分 component
+    do_push(local_data) {
+        // TODO: 知道很烂, 有时间重构
+        let error_data = {
+            未能找到以下外链头像文件: [],
+            未能找到以下外链第一条消息文件: [],
+            未能找到以下外链提示词文件: [],
+            通过补全文件后缀找到了多个文件: [],
+            未能从合集文件中找到以下条目: [],
+        };
+        // 头像
+        {
+            if (local_data.avatar) {
+                const avatar = lodash_default().get(lodash_default().invert(this.zh_to_en_map), local_data.avatar, local_data.avatar);
+                const paths = glob_file(this.dir, avatar);
+                if (paths.length === 0) {
+                    error_data.未能找到以下外链头像文件.push(avatar);
+                }
+                else if (paths.length > 1) {
+                    error_data.通过补全文件后缀找到了多个文件.push({ 头像: paths });
+                }
+                else {
+                    const content = (0,external_node_fs_.readFileSync)(paths[0]);
+                    lodash_default().set(local_data, 'avatar', content);
+                }
+            }
+        }
+        // 第一条消息
+        {
+            local_data.first_messages.forEach((entry, index) => {
+                if (entry.file === undefined) {
+                    return;
+                }
+                const paths = glob_file(this.dir, entry.file);
+                if (paths.length === 0) {
+                    error_data.未能找到以下外链第一条消息文件.push(`第 '${index}' 第一条消息: '${entry.file}'`);
+                    return;
+                }
+                if (paths.length > 1) {
+                    error_data.通过补全文件后缀找到了多个文件.push({ [`第 '${index}' 第一条消息`]: paths });
+                    return;
+                }
+                const content = extract_file_content(paths[0]);
+                lodash_default().set(entry, 'content', trim_yaml_endline(content));
+                lodash_default().unset(entry, 'file');
+            });
+            local_data.first_messages.forEach(entry => {
+                lodash_default().set(entry, 'content', replace_raw_string(replace_user_name(entry.content)));
+            });
+        }
+        // 世界书名称
+        {
+            if (!local_data.worldbook || local_data.worldbook === '与角色卡名称相同') {
+                lodash_default().set(local_data, 'worldbook', this.name);
+            }
+        }
+        // 条目
+        {
+            local_data.entries.forEach((entry, index) => {
+                if (entry.file === undefined) {
+                    return;
+                }
+                const paths = glob_file(this.dir, entry.file);
+                if (paths.length === 0) {
+                    error_data.未能找到以下外链提示词文件.push(`第 '${index}' 条目 '${entry.name}': '${entry.file}'`);
+                    return;
+                }
+                if (paths.length > 1) {
+                    error_data.通过补全文件后缀找到了多个文件.push({ [`第 '${index}' 条目 '${entry.name}'`]: paths });
+                    return;
+                }
+                let content = extract_file_content(paths[0]);
+                if (is_collection_file(entry.file)) {
+                    const collection_file = parse_collection_file(content);
+                    const collection_entry = collection_file.find(value => value.name === entry.name);
+                    if (collection_entry === undefined) {
+                        error_data.未能从合集文件中找到以下条目.push(`'${entry.file}': 第 '${index}' 条目 '${entry.name}'`);
+                        return;
+                    }
+                    content = collection_entry.content;
+                }
+                lodash_default().set(entry, 'content', trim_yaml_endline(content));
+                lodash_default().unset(entry, 'file');
+            });
+            local_data.entries.forEach(entry => {
+                lodash_default().set(entry, 'content', replace_raw_string(replace_user_name(entry.content)));
+            });
+        }
+        return {
+            result_data: local_data,
+            error_data: lodash_default().pickBy(error_data, value => value.length > 0),
+        };
+    }
+    do_watch(local_data) {
+        return lodash_default()(lodash_default()(local_data.entries)
+            .filter(entry => entry.file !== undefined)
+            .map(entry => (0,external_node_path_.resolve)(this.dir, entry.file))
+            .value())
+            .map(path => (0,external_node_path_.dirname)(path))
+            .reduce((result, path) => {
+            if (result.some(parent => is_parent(parent, path))) {
+                return result;
+            }
+            result.push(path);
+            return result;
+        }, [])
+            .concat(this.file);
+    }
+    do_bundle(local_data) {
+        const { result_data, error_data } = this.do_push(local_data);
+        // @ts-expect-error TODO: 修复类型
+        return { result_data: bundle_character(this.name, result_data), error_data };
+    }
+}
+
+;// ./src/server/bundle/preset.ts
+
+
+function fromPresetPrompt(prompt) {
+    const is_system_prompt = prompt.id === 'main';
+    const is_placeholder_prompt = !is_system_prompt && Number.isNaN(parseInt(prompt.id));
+    const is_normal_prompt = !is_system_prompt && !is_placeholder_prompt;
+    let result = lodash_default()({}).set('identifier', prompt.id).set('name', prompt.name).set('enabled', prompt.enabled);
+    if ((is_normal_prompt || is_placeholder_prompt) && !['dialogueExamples', 'chatHistory'].includes(prompt.id)) {
+        result = result
+            .set('injection_position', (prompt.position?.type ?? 'relative') === 'relative' ? 0 : 1)
+            .set('injection_depth', prompt.position?.depth ?? 4)
+            .set('injection_order', prompt.position?.order ?? 100);
+    }
+    result = result.set('role', prompt.role);
+    if (is_normal_prompt || is_system_prompt) {
+        result = result.set('content', prompt.content);
+    }
+    result = result.set('system_prompt', is_system_prompt || is_placeholder_prompt).set('marker', is_placeholder_prompt);
+    if (prompt.extra) {
+        result = result.set('extra', prompt.extra);
+    }
+    result = result.set('forbid_overrides', false);
+    return result.value();
+}
+function bundle_preset(preset) {
+    const prompt_used = preset.prompts.map(prompt => fromPresetPrompt(prompt));
+    const prompt_unused = preset.prompts_unused.map(prompt => fromPresetPrompt(prompt));
+    const extensions = lodash_default().cloneDeep(preset.extensions);
+    if (lodash_default().has(extensions, 'regex_scripts[0].source')) {
+        extensions.regex_scripts = extensions.regex_scripts.map(from_tavern_regex);
+    }
+    return {
+        max_context_unlocked: true,
+        openai_max_context: preset.settings.max_context,
+        openai_max_tokens: preset.settings.max_completion_tokens,
+        n: preset.settings.reply_count,
+        stream_openai: preset.settings.should_stream,
+        temperature: preset.settings.temperature,
+        frequency_penalty: preset.settings.frequency_penalty,
+        presence_penalty: preset.settings.presence_penalty,
+        top_p: preset.settings.top_p,
+        repetition_penalty: preset.settings.repetition_penalty,
+        min_p: preset.settings.min_p,
+        top_k: preset.settings.top_k,
+        top_a: preset.settings.top_a,
+        seed: preset.settings.seed,
+        squash_system_messages: preset.settings.squash_system_messages,
+        reasoning_effort: preset.settings.reasoning_effort,
+        show_thoughts: preset.settings.request_thoughts,
+        request_images: preset.settings.request_images,
+        function_calling: preset.settings.enable_function_calling,
+        enable_web_search: preset.settings.enable_web_search,
+        image_inlining: preset.settings.allow_sending_images !== 'disabled',
+        inline_image_quality: preset.settings.allow_sending_images === 'disabled' ? 'auto' : preset.settings.allow_sending_images,
+        video_inlining: preset.settings.allow_sending_videos,
+        names_behavior: {
+            none: -1,
+            default: 0,
+            content: 2,
+            completion: 1,
+        }[preset.settings.character_name_prefix],
+        wrap_in_quotes: preset.settings.wrap_user_messages_in_quotes,
+        prompts: [...prompt_used, ...prompt_unused],
+        prompt_order: [
+            {
+                character_id: 100001,
+                order: prompt_used.map(prompt => ({ identifier: prompt.identifier, enabled: prompt.enabled ?? true })),
+            },
+        ],
+        extensions: preset.extensions ?? {},
+    };
+}
+
+;// ./src/type/preset.en.ts
+
+
+
+
+const Prompt_normal = strictObject({
+    name: coerce_string(),
+    id: never().optional(),
+    enabled: schemas_boolean(),
+    position: strictObject({
+        type: schemas_enum(['relative', 'in_chat']),
+        depth: schemas_number().optional(),
+        order: schemas_number().optional(),
+    })
+        .prefault({ type: 'relative' })
+        .superRefine((data, context) => {
+        if (data.type === 'in_chat' && (data.depth === undefined || data.order === undefined)) {
+            context.addIssue({
+                code: 'custom',
+                path: ['position'],
+                message: '当插入位置设置为`in_chat`时, 必须设置`depth`和`order`',
+            });
+        }
+    })
+        .describe('插入位置: `relative` 则按提示词相对位置插入, `in_chat` 则插入到聊天记录中的对应深度'),
+    role: schemas_enum(['system', 'user', 'assistant']).prefault('system'),
+    content: coerce_string().optional().describe('内嵌的提示词内容'),
+    file: coerce_string().optional().describe('外链的提示词文件路径'),
+    extra: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
+})
+    .superRefine((data, context) => {
+    if (data.content === undefined && data.file === undefined) {
+        ['content', 'file'].forEach(key => context.addIssue({
+            code: 'custom',
+            path: [key],
+            message: '必须填写 `content` 或 `file`',
+        }));
+    }
+    if (data.content !== undefined && data.file !== undefined) {
+        ['content', 'file'].forEach(key => context.addIssue({
+            code: 'custom',
+            path: [key],
+            message: '不能同时填写 `content` 和 `file`',
+        }));
+    }
+})
+    .transform(data => {
+    const unique_id = lodash_default().uniqueId();
+    return {
+        ...data,
+        id: unique_id === '1' ? 'main' : unique_id,
+    };
+})
+    .describe('手动在预设中添加的提示词');
+const prompt_rolable_placeholder_ids = [
+    'world_info_before',
+    'persona_description',
+    'char_description',
+    'char_personality',
+    'scenario',
+    'world_info_after',
+];
+const prompt_unrolable_placeholder_ids = ['dialogue_examples', 'chat_history'];
+const prompt_placeholder_ids = [...prompt_rolable_placeholder_ids, ...prompt_unrolable_placeholder_ids];
+const Prompt_placeholder = strictObject({
+    name: never().optional(),
+    id: schemas_enum(prompt_placeholder_ids).describe(dist_dedent(`
+        预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词
+        - world_info_before: 角色定义之前
+        - persona_description: 玩家描述. 创建 user 时填写的提示词
+        - char_description: 角色描述. 角色卡侧边栏中填写的提示词
+        - char_personality: 角色性格. 角色卡高级定义中的提示词, 一般没人用了
+        - scenario: 情景. 角色卡高级定义中的提示词, 一般没人用了
+        - world_info_after: 角色定义之后
+        - dialogue_examples: 对话示例. 角色卡高级定义中的提示词, 一般没人用了
+        - chat_history: 聊天记录
+      `)),
+    enabled: schemas_boolean(),
+    position: strictObject({
+        type: schemas_enum(['relative', 'in_chat']),
+        depth: schemas_number().optional(),
+        order: schemas_number().optional(),
+    })
+        .prefault({ type: 'relative' })
+        .superRefine((data, context) => {
+        if (data?.type === 'in_chat' && (data.depth === undefined || data.order === undefined)) {
+            context.addIssue({
+                code: 'custom',
+                path: ['position'],
+                message: '当插入位置设置为`in_chat`时, 必须设置`depth`和`order`',
+            });
+        }
+    })
+        .describe('插入位置: `relative` 则按提示词相对位置插入, `in_chat` 则插入到聊天记录中的对应深度'),
+    role: schemas_enum(['system', 'user', 'assistant']).optional(),
+    content: never().optional(),
+    file: never().optional(),
+    extra: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
+})
+    .superRefine((data, context) => {
+    if (lodash_default().includes(prompt_unrolable_placeholder_ids, data.id) && data.role !== undefined) {
+        context.addIssue({
+            code: 'custom',
+            message: `占位符提示词 '${data.id}' 不能设置自定义角色 (\`role\`)`,
+            path: ['role'],
+        });
+    }
+})
+    .transform(data => ({
+    ...data,
+    role: data.role ?? 'system',
+    name: {
+        world_info_before: 'World Info (before) - 角色定义之前',
+        persona_description: 'Persona Description - 玩家描述',
+        char_description: 'Char Description - 角色描述',
+        char_personality: 'Char Personality - 角色性格',
+        scenario: 'Scenario - 情景',
+        world_info_after: 'World Info (after) - 角色定义之后',
+        dialogue_examples: 'Chat Examples - 对话示例',
+        chat_history: 'Chat History - 聊天记录',
+    }[data.id],
+}))
+    .describe('预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词');
+const PromptLeaf = union([Prompt_normal, Prompt_placeholder]);
+const PromptBranch = object({
+    folder: coerce_string(),
+    get entries() {
+        return array(union([PromptLeaf, PromptBranch]));
+    },
+});
+const PromptTree = union([PromptLeaf, PromptBranch]);
+function is_prompt_branch(data) {
+    return lodash_default().has(data, 'folder');
+}
+function preset_en_flatten_tree(data) {
+    if (is_prompt_branch(data)) {
+        return data.entries.flatMap(preset_en_flatten_tree);
+    }
+    return [data];
+}
+const PromptTrees = array(PromptTree).transform(data => data.flatMap(preset_en_flatten_tree));
+const Preset = strictObject({
+    settings: strictObject({
+        max_context: schemas_number()
+            .min(0)
+            .max(2000000)
+            .describe('最大上下文 token 数. 酒馆计算出的上下文 token 数虚高, 容易在上下文 token 数没有达到限制时就报错, 因此建议调到最大 2000000'),
+        max_completion_tokens: schemas_number().min(0).describe('最大回复 token 数'),
+        reply_count: schemas_number().min(1).prefault(1).describe('每次生成几个回复'),
+        should_stream: schemas_boolean().describe('是否流式传输'),
+        temperature: schemas_number().min(0).max(2).describe('温度'),
+        frequency_penalty: schemas_number().min(-2).max(2).describe('频率惩罚'),
+        presence_penalty: schemas_number().min(-2).max(2).describe('存在惩罚'),
+        top_p: schemas_number().min(0).max(1),
+        repetition_penalty: schemas_number().min(1).max(2).prefault(1).describe('重复惩罚'),
+        min_p: schemas_number().min(0).max(1).prefault(0),
+        top_k: schemas_number().min(0).max(500).prefault(0),
+        top_a: schemas_number().min(0).max(1).prefault(0),
+        seed: schemas_number().prefault(-1).describe('种子, -1 表示随机'),
+        squash_system_messages: schemas_boolean().describe('压缩系统消息: 将连续的系统消息合并为一条消息'),
+        reasoning_effort: schemas_enum(['auto', 'min', 'low', 'medium', 'high', 'max'])
+            .describe('推理强度, 即内置思维链的投入程度. 例如, 如果酒馆直连 gemini-2.5-flash, 则 `min` 将会不使用内置思维链'),
+        request_thoughts: schemas_boolean()
+            .prefault(true)
+            .describe('请求思维链: 允许模型返回内置思维链的思考过程; 注意这只影响内置思维链显不显示, 不决定模型是否使用内置思维链'),
+        request_images: schemas_boolean().prefault(true).describe('请求图片: 允许模型在回复中返回图片'),
+        enable_function_calling: schemas_boolean()
+            .prefault(true)
+            .describe('启用函数调用: 允许模型使用函数调用功能; 比如 cursor 借此在回复中读写文件、运行命令'),
+        enable_web_search: schemas_boolean().prefault(true).describe('启用网络搜索: 允许模型使用网络搜索功能'),
+        allow_sending_images: schemas_enum(['disabled', 'auto', 'low', 'high'])
+            .prefault('auto')
+            .describe('是否允许发送图片作为提示词'),
+        allow_sending_videos: schemas_boolean().prefault(true).describe('是否允许发送视频作为提示词'),
+        character_name_prefix: schemas_enum(['none', 'default', 'content', 'completion'])
+            .prefault('none')
+            .describe(dist_dedent(`
+        角色名称前缀: 是否要为消息添加角色名称前缀, 以及怎么添加
+        - none: 不添加
+        - default: 为与角色卡不同名的消息添加角色名称前缀, 添加到 \`content\` 字段开头 (即发送的消息内容是 \`角色名: 消息内容\`)
+        - content: 为所有消息添加角色名称前缀, 添加到 \`content\` 字段开头 (即发送的消息内容是 \`角色名: 消息内容\`)
+        - completion: 在发送给模型时, 将角色名称写入到 \`name\` 字段; 仅支持字母数字和下划线, 不适用于 Claude、Google 等模型
+      `)),
+        wrap_user_messages_in_quotes: schemas_boolean()
+            .prefault(false)
+            .describe('用引号包裹用户消息: 在发送给模型之前, 将所有用户消息用引号包裹'),
+    }),
+    anchors: any().optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
+    prompts: PromptTrees.superRefine((data, context) => {
+        const duplicate_ids = lodash_default()(data)
+            .filter(prompt => lodash_default().includes(prompt_placeholder_ids, prompt.id))
+            .groupBy('id')
+            .filter(group => group.length > 1)
+            .keys()
+            .value();
+        if (duplicate_ids.length > 0) {
+            context.addIssue({
+                code: 'custom',
+                message: `提示词列表中出现了重复的占位符提示词 id: ${duplicate_ids.join(', ')}`,
+            });
+        }
+        const unused_ids = lodash_default().reject(prompt_placeholder_ids, id => data.some(prompt => lodash_default().get(prompt, 'id') === id));
+        if (unused_ids.length > 0) {
+            context.addIssue({
+                code: 'custom',
+                message: `提示词列表中缺少了这些必须添加的占位符提示词 id: ${unused_ids.join(', ')}`,
+            });
+        }
+    }).describe('提示词列表里已经添加的提示词'),
+    prompts_unused: PromptTrees.describe('下拉框里的, 没有添加进提示词列表的提示词'),
+    extensions: Extensions.optional().describe('额外字段: 用于为预设绑定额外数据'),
+});
+
+;// ./src/server/tavern/preset.ts
+
+
+
+
+const Prompt = object({
+    name: schemas_string(),
+    id: schemas_string().transform((lodash_default()).snakeCase),
+    enabled: schemas_boolean(),
+    position: object({
+        type: schemas_enum(['relative', 'in_chat']),
+        depth: schemas_number().optional(),
+        order: schemas_number().optional(),
+    })
+        .optional(),
+    role: schemas_enum(['system', 'user', 'assistant']),
+    content: schemas_string().optional(),
+    extra: record(schemas_string(), any()).optional(),
+})
+    .transform(data => {
+    if (lodash_default().includes(prompt_placeholder_ids, data.id)) {
+        lodash_default().unset(data, 'name');
+        lodash_default().unset(data, 'content');
+        if (data.position?.type === 'relative') {
+            lodash_default().unset(data, 'position');
+        }
+        if (lodash_default().includes(prompt_unrolable_placeholder_ids, data.id) || data.role === 'system') {
+            lodash_default().unset(data, 'role');
+        }
+        return data;
+    }
+    lodash_default().unset(data, 'id');
+    return data;
+});
+const preset_Preset = object({
+    settings: object({
+        max_context: schemas_number().min(0).max(2000000),
+        max_completion_tokens: schemas_number().min(0),
+        reply_count: schemas_number().min(1),
+        should_stream: schemas_boolean(),
+        temperature: schemas_number().min(0).max(2),
+        frequency_penalty: schemas_number().min(-2).max(2),
+        presence_penalty: schemas_number().min(-2).max(2),
+        top_p: schemas_number().min(0).max(1),
+        repetition_penalty: schemas_number().min(1).max(2),
+        min_p: schemas_number().min(0).max(1),
+        top_k: schemas_number().min(0).max(500),
+        top_a: schemas_number().min(0).max(1),
+        seed: schemas_number(),
+        squash_system_messages: schemas_boolean(),
+        reasoning_effort: schemas_enum(['auto', 'min', 'low', 'medium', 'high', 'max']),
+        request_thoughts: schemas_boolean(),
+        request_images: schemas_boolean(),
+        enable_function_calling: schemas_boolean(),
+        enable_web_search: schemas_boolean(),
+        allow_sending_images: schemas_enum(['disabled', 'auto', 'low', 'high']),
+        allow_sending_videos: schemas_boolean(),
+        character_name_prefix: schemas_enum(['none', 'default', 'content', 'completion']),
+        wrap_user_messages_in_quotes: schemas_boolean(),
+    }),
+    anchors: schemas_void().transform(() => ({})),
+    prompts: array(Prompt),
+    prompts_unused: array(Prompt)
+        .transform(prompts => prompts.filter(prompt => !lodash_default().includes(['Main Prompt', 'Auxiliary Prompt', 'Post-History Instructions', 'Enhance Definitions'], prompt.name) && !lodash_default().includes(prompt_placeholder_ids, prompt.id))),
+    extensions: extensions_Extensions.optional().describe('扩展字段: 用于为预设绑定额外数据'),
+})
+    .transform(data => {
+    if (data.settings.reply_count === 1) {
+        lodash_default().unset(data, 'settings.reply_count');
+    }
+    if (data.settings.repetition_penalty === 1) {
+        lodash_default().unset(data, 'settings.repetition_penalty');
+    }
+    if (data.settings.min_p === 0) {
+        lodash_default().unset(data, 'settings.min_p');
+    }
+    if (data.settings.top_a === 0) {
+        lodash_default().unset(data, 'settings.top_a');
+    }
+    if (data.settings.top_k === 0) {
+        lodash_default().unset(data, 'settings.top_k');
+    }
+    if (data.settings.seed === -1) {
+        lodash_default().unset(data, 'settings.seed');
+    }
+    if (data.settings.wrap_user_messages_in_quotes === false) {
+        lodash_default().unset(data, 'settings.wrap_user_messages_in_quotes');
+    }
+    if (lodash_default().isEmpty(data.extensions)) {
+        lodash_default().unset(data, 'extensions');
+    }
+    return data;
+});
+
+;// ./src/type/preset.zh.ts
+
+
+
+
+const preset_zh_zh_to_en_map = {
+    插入位置: 'position',
+    相对: 'relative',
+    聊天中: 'in_chat',
+    深度: 'depth',
+    顺序: 'order',
+    角色: 'role',
+    系统: 'system',
+    用户: 'user',
+    AI: 'assistant',
+    文件: 'file',
+    额外字段: 'extra',
+    角色定义之前: 'world_info_before',
+    玩家描述: 'persona_description',
+    角色描述: 'char_description',
+    角色性格: 'char_personality',
+    情景: 'scenario',
+    角色定义之后: 'world_info_after',
+    对话示例: 'dialogue_examples',
+    聊天记录: 'chat_history',
+    条目: 'entries',
+    设置: 'settings',
+    上下文长度: 'max_context',
+    最大回复token数: 'max_completion_tokens',
+    每次回复数: 'reply_count',
+    流式传输: 'should_stream',
+    温度: 'temperature',
+    频率惩罚: 'frequency_penalty',
+    存在惩罚: 'presence_penalty',
+    重复惩罚: 'repetition_penalty',
+    种子: 'seed',
+    压缩系统消息: 'squash_system_messages',
+    推理强度: 'reasoning_effort',
+    自动: 'auto',
+    最小: 'min',
+    低: 'low',
+    中: 'medium',
+    高: 'high',
+    最大: 'max',
+    请求思维链: 'request_thoughts',
+    请求图片: 'request_images',
+    启用函数调用: 'enable_function_calling',
+    启用网络搜索: 'enable_web_search',
+    允许发送图片: 'allow_sending_images',
+    禁用: 'disabled',
+    允许发送视频: 'allow_sending_videos',
+    角色名称前缀: 'character_name_prefix',
+    无: 'none',
+    默认: 'default',
+    补全对象: 'completion',
+    用引号包裹用户消息: 'wrap_user_messages_in_quotes',
+    锚点: 'anchors',
+    提示词: 'prompts',
+    未添加的提示词: 'prompts_unused',
+    扩展字段: 'extensions',
+    ...extensions_zh_zh_to_en_map,
+};
+function preset_zh_is_zh(data) {
+    return lodash_default().has(data, '提示词');
+}
+const preset_zh_Prompt_normal = strictObject({
+    名称: coerce_string(),
+    id: never().optional(),
+    启用: schemas_boolean(),
+    插入位置: strictObject({
+        类型: schemas_enum(['相对', '聊天中']),
+        深度: schemas_number().optional(),
+        顺序: schemas_number().optional(),
+    })
+        .prefault({ 类型: '相对' })
+        .superRefine((data, context) => {
+        if (data.类型 === '聊天中' && (data.深度 === undefined || data.顺序 === undefined)) {
+            context.addIssue({
+                code: 'custom',
+                path: ['插入位置'],
+                message: '当插入位置设置为`聊天中`时, 必须设置`深度`和`顺序`',
+            });
+        }
+    })
+        .describe('插入位置: `相对`则按提示词相对位置插入, `聊天中`则插入到聊天记录中的对应深度'),
+    角色: schemas_enum(['系统', '用户', 'AI']).prefault('系统'),
+    内容: coerce_string().optional().describe('内嵌的提示词内容'),
+    文件: coerce_string().optional().describe('外链的提示词文件路径'),
+    额外字段: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
+})
+    .superRefine((data, context) => {
+    if (data.内容 === undefined && data.文件 === undefined) {
+        ['内容', '文件'].forEach(key => context.addIssue({
+            code: 'custom',
+            path: [key],
+            message: '必须填写`内容`或`文件`',
+        }));
+    }
+    if (data.内容 !== undefined && data.文件 !== undefined) {
+        ['内容', '文件'].forEach(key => context.addIssue({
+            code: 'custom',
+            path: [key],
+            message: '不能同时填写`内容`和`文件`',
+        }));
+    }
+})
+    .transform(data => {
+    const unique_id = lodash_default().uniqueId();
+    return {
+        ...data,
+        id: unique_id === '1' ? 'main' : unique_id,
+    };
+})
+    .describe('手动在预设中添加的提示词');
+const preset_zh_prompt_rolable_placeholder_ids = [
+    '角色定义之前',
+    '玩家描述',
+    '角色描述',
+    '角色性格',
+    '情景',
+    '角色定义之后',
+];
+const preset_zh_prompt_unrolable_placeholder_ids = ['对话示例', '聊天记录'];
+const preset_zh_prompt_placeholder_ids = [...preset_zh_prompt_rolable_placeholder_ids, ...preset_zh_prompt_unrolable_placeholder_ids];
+const preset_zh_Prompt_placeholder = strictObject({
+    名称: never().optional(),
+    id: schemas_enum(preset_zh_prompt_placeholder_ids).describe(dist_dedent(`
+        预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词
+        - 角色定义之前: world_info_before
+        - 玩家描述: persona_description. 创建 user 时填写的提示词
+        - 角色描述: char_description. 角色卡侧边栏中填写的提示词
+        - 角色性格: char_personality. 角色卡高级定义中的提示词, 一般没人用了
+        - 情景: scenario. 角色卡高级定义中的提示词, 一般没人用了
+        - 角色定义之后: world_info_after
+        - 对话示例: dialogue_examples. 角色卡高级定义中的提示词, 一般没人用了
+        - 聊天记录: chat_history
+      `)),
+    启用: schemas_boolean(),
+    插入位置: strictObject({
+        类型: schemas_enum(['相对', '聊天中']),
+        深度: schemas_number().optional(),
+        顺序: schemas_number().optional(),
+    })
+        .prefault({ 类型: '相对' })
+        .superRefine((data, context) => {
+        if (data.类型 === '聊天中' && (data.深度 === undefined || data.顺序 === undefined)) {
+            context.addIssue({
+                code: 'custom',
+                path: ['插入位置'],
+                message: '当插入位置设置为`聊天中`时, 必须设置`深度`和`顺序`',
+            });
+        }
+    })
+        .describe('插入位置: `相对`则按提示词相对位置插入, `聊天中`则插入到聊天记录中的对应深度'),
+    角色: schemas_enum(['系统', '用户', 'AI']).optional(),
+    内容: never().optional(),
+    文件: never().optional(),
+    额外字段: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
+})
+    .superRefine((data, context) => {
+    if (lodash_default().includes(preset_zh_prompt_unrolable_placeholder_ids, data.id) && data.角色 !== undefined) {
+        context.addIssue({
+            code: 'custom',
+            message: `占位符提示词 '${data.id}' 不能设置自定义\`角色\``,
+            path: ['角色'],
+        });
+    }
+})
+    .transform(data => ({
+    ...data,
+    角色: data.角色 ?? '系统',
+    名称: {
+        角色定义之前: 'World Info (before) - 角色定义之前',
+        玩家描述: 'Persona Description - 玩家描述',
+        角色描述: 'Char Description - 角色描述',
+        角色性格: 'Char Personality - 角色性格',
+        情景: 'Scenario - 情景',
+        角色定义之后: 'World Info (after) - 角色定义之后',
+        对话示例: 'Chat Examples - 对话示例',
+        聊天记录: 'Chat History - 聊天记录',
+    }[data.id],
+}))
+    .describe('预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词');
+const preset_zh_PromptLeaf = union([preset_zh_Prompt_normal, preset_zh_Prompt_placeholder]);
+const preset_zh_PromptBranch = object({
+    文件夹: coerce_string(),
+    get 条目() {
+        return array(union([preset_zh_PromptLeaf, preset_zh_PromptBranch]));
+    },
+});
+const preset_zh_PromptTree = union([preset_zh_PromptLeaf, preset_zh_PromptBranch]);
+function preset_zh_is_prompt_branch(data) {
+    return lodash_default().has(data, '文件夹');
+}
+function preset_zh_flatten_tree(data) {
+    if (preset_zh_is_prompt_branch(data)) {
+        return data.条目.flatMap(preset_zh_flatten_tree);
+    }
+    return [data];
+}
+const preset_zh_PromptTrees = array(preset_zh_PromptTree).transform(data => data.flatMap(preset_zh_flatten_tree));
+const preset_zh_Preset = strictObject({
+    设置: strictObject({
+        上下文长度: schemas_number()
+            .min(0)
+            .max(2000000)
+            .describe('最大上下文 token 数. 酒馆计算出的上下文 token 数虚高, 容易在上下文 token 数没有达到限制时就报错, 因此建议调到最大 2000000'),
+        最大回复token数: schemas_number().min(0).describe('最大回复 token 数'),
+        每次回复数: schemas_number().min(1).prefault(1).describe('每次生成几个回复'),
+        流式传输: schemas_boolean().describe('是否流式传输'),
+        温度: schemas_number().min(0).max(2).describe('温度'),
+        频率惩罚: schemas_number().min(-2).max(2).describe('频率惩罚'),
+        存在惩罚: schemas_number().min(-2).max(2).describe('存在惩罚'),
+        top_p: schemas_number().min(0).max(1),
+        重复惩罚: schemas_number().min(1).max(2).prefault(1).describe('重复惩罚'),
+        min_p: schemas_number().min(0).max(1).prefault(0),
+        top_k: schemas_number().min(0).max(500).prefault(0),
+        top_a: schemas_number().min(0).max(1).prefault(0),
+        种子: schemas_number().prefault(-1).describe('种子, -1 表示随机'),
+        压缩系统消息: schemas_boolean().describe('压缩系统消息: 将连续的系统消息合并为一条消息'),
+        推理强度: schemas_enum(['自动', '最小', '低', '中', '高', '最大'])
+            .describe('推理强度, 即内置思维链的投入程度. 例如, 如果酒馆直连 gemini-2.5-flash, 则`最小`将会不使用内置思维链'),
+        请求思维链: schemas_boolean()
+            .prefault(true)
+            .describe('请求思维链: 允许模型返回内置思维链的思考过程; 注意这只影响内置思维链显不显示, 不决定模型是否使用内置思维链'),
+        请求图片: schemas_boolean().prefault(true).describe('请求图片: 允许模型在回复中返回图片'),
+        启用函数调用: schemas_boolean()
+            .prefault(true)
+            .describe('启用函数调用: 允许模型使用函数调用功能; 比如 cursor 借此在回复中读写文件、运行命令'),
+        启用网络搜索: schemas_boolean().prefault(true).describe('启用网络搜索: 允许模型使用网络搜索功能'),
+        允许发送图片: schemas_enum(['禁用', '自动', '低', '高']).prefault('自动').describe('是否允许发送图片作为提示词'),
+        允许发送视频: schemas_boolean().prefault(true).describe('是否允许发送视频作为提示词'),
+        角色名称前缀: schemas_enum(['无', '默认', '内容', '补全'])
+            .prefault('无')
+            .describe(dist_dedent(`
+        角色名称前缀: 是否要为消息添加角色名称前缀, 以及怎么添加
+        - 无: 不添加
+        - 默认: 为与角色卡不同名的消息添加角色名称前缀, 添加到 \`content\` 字段开头 (即发送的消息内容是 \`角色名: 消息内容\`)
+        - 内容: 为所有消息添加角色名称前缀, 添加到 \`content\` 字段开头 (即发送的消息内容是 \`角色名: 消息内容\`)
+        - 补全: 在发送给模型时, 将角色名称写入到 \`name\` 字段; 仅支持字母数字和下划线, 不适用于 Claude、Google 等模型
+      `)),
+        用引号包裹用户消息: schemas_boolean()
+            .prefault(false)
+            .describe('用引号包裹用户消息: 在发送给模型之前, 将所有用户消息用引号包裹'),
+    }),
+    锚点: record(schemas_string(), any()).optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
+    提示词: preset_zh_PromptTrees.superRefine((data, context) => {
+        const duplicate_ids = lodash_default()(data)
+            .filter(prompt => lodash_default().includes(preset_zh_prompt_placeholder_ids, prompt.id))
+            .groupBy('id')
+            .filter(group => group.length > 1)
+            .keys()
+            .value();
+        if (duplicate_ids.length > 0) {
+            context.addIssue({
+                code: 'custom',
+                message: `提示词列表中出现了重复的占位符提示词 id: ${duplicate_ids.join(', ')}`,
+            });
+        }
+        const unused_ids = lodash_default().reject(preset_zh_prompt_placeholder_ids, id => data.some(prompt => lodash_default().get(prompt, 'id') === id));
+        if (unused_ids.length > 0) {
+            context.addIssue({
+                code: 'custom',
+                message: `提示词列表中缺少了这些必须添加的占位符提示词 id: ${unused_ids.join(', ')}`,
+            });
+        }
+    }).describe('提示词列表里已经添加的提示词'),
+    未添加的提示词: preset_zh_PromptTrees.describe('下拉框里的, 没有添加进提示词列表的提示词'),
+    扩展字段: extensions_zh_Extensions.optional().describe('扩展字段: 用于为预设绑定额外数据'),
+});
+
+;// ./src/server/syncer/preset.ts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Preset_syncer extends Syncer_interface {
+    constructor(config_name, name, file, bundle_file) {
+        super('preset', lodash_default().invert(zh_to_en_map)['preset'], config_name, name, file, bundle_file, Preset, preset_zh_Preset, preset_zh_zh_to_en_map, preset_zh_is_zh, preset_Preset);
+    }
+    // TODO: 拆分 component
+    do_check_safe(local_data, tavern_data) {
+        const get_names = (data) => {
+            return lodash_default()(data.prompts)
+                .concat(data.prompts_unused)
+                .filter(prompt => !lodash_default().includes(prompt_placeholder_ids, lodash_default().get(prompt, 'id', '')))
+                .map(prompt => prompt.name)
+                .value();
+        };
+        const local_names = get_names(local_data);
+        const tavern_names = get_names(tavern_data);
+        return {
+            local_only_data: lodash_default().difference(local_names, tavern_names),
+            tavern_only_data: lodash_default().difference(tavern_names, local_names),
+        };
+    }
+    // TODO: 拆分 component
+    do_pull(local_data, tavern_data, { language, should_split }) {
+        let files = [];
+        const prompts_state = local_data === null
+            ? []
+            : [...local_data.prompts, ...local_data.prompts_unused].filter(prompt => !lodash_default().has(prompt, 'id'));
+        const local_names = prompts_state.map(entry => entry.name);
+        const tavern_names = [...tavern_data.prompts, ...tavern_data.prompts_unused]
+            .filter(entry => entry.name !== undefined)
+            .map(entry => entry.name);
+        const duplicated_names = lodash_default()(tavern_names)
+            .filter(name => {
+            const index = local_names.findIndex(n => n === name);
+            if (index !== -1) {
+                local_names.splice(index, 1);
+                return false;
+            }
+            return true;
+        })
+            .countBy()
+            .pickBy(count => count > 1)
+            .keys()
+            .uniq()
+            .sort()
+            .value();
+        if (duplicated_names.length > 0) {
+            return { result_data: {}, error_data: { 以下条目存在同名条目: duplicated_names }, files: [] };
+        }
+        const convert_prompts = (prompts, { used }) => prompts.forEach(prompt => {
+            if (lodash_default().has(prompt, 'id')) {
+                return;
+            }
+            lodash_default().set(prompt, 'content', replace_user_name(prompt.content ?? ''));
+            const handle_file = (prompt, file) => {
+                let file_to_write = '';
+                let file_to_set = '';
+                const glob_files = glob_file(this.dir, file);
+                if (glob_files.length === 0) {
+                    file_to_write = file.replace(/\.[^\\/.]+$|$/, detect_extension(prompt.content));
+                    file_to_set = file.replace(/\.[^\\/.]+$/, '');
+                }
+                else if (glob_files.length === 1) {
+                    file_to_write = glob_files[0];
+                    file_to_set = (0,external_node_path_.relative)(this.dir, glob_files[0]).replace(/\.[^\\/.]+$/, '');
+                }
+                else {
+                    file_to_write = file;
+                    file_to_set = file;
+                }
+                files.push({ name: prompt.name, path: file_to_write, content: append_yaml_endline(prompt.content) });
+                lodash_default().unset(prompt, 'content');
+                lodash_default().set(prompt, 'file', file_to_set);
+            };
+            const state = prompts_state.find(state => state.name === prompt.name);
+            if (state === undefined && should_split) {
+                const file = (0,external_node_path_.join)(sanitize_filename(this.config_name), used ? '' : language === 'zh' ? '未使用' : 'unused', sanitize_filename(prompt.name) + detect_extension(prompt.content));
+                handle_file(prompt, file);
+                return;
+            }
+            if (state?.file !== undefined) {
+                handle_file(prompt, state.file);
+                return;
+            }
+        });
+        convert_prompts(tavern_data.prompts, { used: true });
+        convert_prompts(tavern_data.prompts_unused, { used: false });
+        return { result_data: tavern_data, error_data: {}, files };
+    }
+    do_beautify_config(tavern_data, language) {
+        const document = new dist.Document(language === 'zh' ? translate(tavern_data, lodash_default().invert(this.zh_to_en_map)) : tavern_data);
+        [
+            ['提示词'],
+            ['未添加的提示词'],
+            ['扩展字段', '正则'],
+            ['扩展字段', '酒馆助手', '脚本库'],
+            ['prompts'],
+            ['prompts_unused'],
+            ['extensions', 'regex_scripts'],
+            ['extensions', 'tavern_helper', 'scripts'],
+        ].forEach(key => dist.visit(document.getIn(key), (key, node) => {
+            if (key === null) {
+                return;
+            }
+            if (key > 0) {
+                node.spaceBefore = true;
+            }
+            return dist.visit.SKIP;
+        }));
+        [['扩展字段'], ['扩展字段', '酒馆助手'], ['extensions'], ['extensions', 'tavern_helper']].forEach(key => dist.visit(document.getIn(key), (key, node) => {
+            if (key === null) {
+                return;
+            }
+            if (dist.isPair(node) && key > 0) {
+                node.key.spaceBefore = true;
+            }
+            return dist.visit.SKIP;
+        }));
+        dist.visit(document, (key, node) => {
+            if (key === null) {
+                return;
+            }
+            if (dist.isPair(node) && key > 0) {
+                node.key.spaceBefore = true;
+            }
+            return dist.visit.SKIP;
+        });
+        return document.toString({ blockQuote: 'literal' });
+    }
+    // TODO: 拆分 component
+    do_push(local_data) {
+        let error_data = {
+            未能找到以下外链提示词文件: [],
+            通过补全文件后缀找到了多个文件: [],
+            未能从合集文件中找到以下条目: [],
+        };
+        const handle_placeholder_id = (prompts) => {
+            prompts.forEach(prompt => {
+                if (lodash_default().includes(prompt_placeholder_ids, prompt.id)) {
+                    lodash_default().set(prompt, 'id', lodash_default().camelCase(prompt.id));
+                }
+            });
+        };
+        handle_placeholder_id(local_data.prompts);
+        handle_placeholder_id(local_data.prompts_unused);
+        const handle_file = (prompts, source) => {
+            prompts.forEach((prompt, index) => {
+                if (!lodash_default().has(prompt, 'file') || prompt.file === undefined) {
+                    return;
+                }
+                const paths = glob_file(this.dir, prompt.file);
+                if (paths.length === 0) {
+                    error_data.未能找到以下外链提示词文件.push(`'${source}' 中第 '${index}' 条目 '${prompt.name}': '${prompt.file}'`);
+                    return;
+                }
+                if (paths.length > 1) {
+                    error_data.通过补全文件后缀找到了多个文件.push({
+                        [`'${source}' 中第 '${index}' 条目 '${prompt.name}'`]: paths,
+                    });
+                }
+                const content = extract_file_content(paths[0]);
+                if (is_collection_file(prompt.file)) {
+                    const collection_file = parse_collection_file(content);
+                    const collection_entry = collection_file.find(value => value.name === prompt.name);
+                    if (collection_entry === undefined) {
+                        error_data.未能从合集文件中找到以下条目.push(`'${prompt.file}': 第 '${index}' 条目 '${prompt.name}'`);
+                        return;
+                    }
+                    lodash_default().set(prompt, 'content', trim_yaml_endline(collection_entry.content));
+                    lodash_default().unset(prompt, 'file');
+                    return;
+                }
+                lodash_default().set(prompt, 'content', trim_yaml_endline(content));
+                lodash_default().unset(prompt, 'file');
+            });
+        };
+        handle_file(local_data.prompts, '提示词');
+        handle_file(local_data.prompts_unused, '未添加的提示词');
+        const handle_user_name = (prompts) => {
+            prompts.forEach(prompt => {
+                lodash_default().set(prompt, 'content', replace_user_name(prompt.content));
+            });
+        };
+        handle_user_name(local_data.prompts);
+        handle_user_name(local_data.prompts_unused);
+        const handle_raw_string = (prompts) => {
+            prompts.forEach(prompt => {
+                lodash_default().set(prompt, 'content', replace_raw_string(prompt.content));
+            });
+        };
+        handle_raw_string(local_data.prompts);
+        handle_raw_string(local_data.prompts_unused);
+        return {
+            result_data: local_data,
+            error_data: lodash_default().pickBy(error_data, value => value.length > 0),
+        };
+    }
+    do_watch(local_data) {
+        return lodash_default()(lodash_default()(local_data.prompts)
+            .concat(local_data.prompts_unused)
+            .filter(prompt => prompt.file !== undefined)
+            .map(prompt => (0,external_node_path_.resolve)(this.dir, prompt.file))
+            .value())
+            .map(path => (0,external_node_path_.dirname)(path))
+            .reduce((result, path) => {
+            if (result.some(parent => is_parent(parent, path))) {
+                return result;
+            }
+            result.push(path);
+            return result;
+        }, [])
+            .concat(this.file);
+    }
+    do_bundle(local_data) {
+        const { result_data, error_data } = this.do_push(local_data);
+        return { result_data: bundle_preset(result_data), error_data };
+    }
+}
 
 ;// ./src/server/syncer/worldbook.ts
 
@@ -65936,8 +67875,8 @@ const worldbook_zh_Worldbook = strictObject({
 
 
 class Worldbook_syncer extends Syncer_interface {
-    constructor(config_name, name, file, export_file) {
-        super('worldbook', lodash_default().invert(zh_to_en_map)['worldbook'], config_name, name, file, export_file, worldbook_en_Worldbook, worldbook_zh_Worldbook, worldbook_zh_zh_to_en_map, worldbook_zh_is_zh, Worldbook);
+    constructor(config_name, name, file, bundle_file) {
+        super('worldbook', lodash_default().invert(zh_to_en_map)['worldbook'], config_name, name, file, bundle_file, worldbook_en_Worldbook, worldbook_zh_Worldbook, worldbook_zh_zh_to_en_map, worldbook_zh_is_zh, Worldbook);
     }
     // TODO: 拆分 component
     do_check_safe(local_data, tavern_data) {
@@ -65973,6 +67912,7 @@ class Worldbook_syncer extends Syncer_interface {
             return { result_data: {}, error_data: { 以下条目存在同名条目: duplicated_names }, files: [] };
         }
         tavern_data.entries.forEach(entry => {
+            lodash_default().set(entry, 'content', replace_user_name(entry.content ?? ''));
             const handle_file = (entry, file) => {
                 let file_to_write = '';
                 let file_to_set = '';
@@ -66100,11 +68040,15 @@ class Worldbook_syncer extends Syncer_interface {
 ;// ./src/server/syncer/factory.ts
 
 
+
 function create_syncer(config_name, config) {
-    if (config.type === 'worldbook') {
-        return new Worldbook_syncer(config_name, config.name, config.file, config.export_file);
+    if (config.type === 'character') {
+        return new Character_syncer(config_name, config.name, config.file, config.bundle_file);
     }
-    return new Preset_syncer(config_name, config.name, config.file, config.export_file);
+    if (config.type === 'worldbook') {
+        return new Worldbook_syncer(config_name, config.name, config.file, config.bundle_file);
+    }
+    return new Preset_syncer(config_name, config.name, config.file, config.bundle_file);
 }
 
 // EXTERNAL MODULE: ./node_modules/.pnpm/commander@13.1.0/node_modules/commander/index.js
@@ -66291,12 +68235,11 @@ function add_push_command() {
     const command = new Command('push').description('将本地内容推送到酒馆');
     add_configs_to_command(command);
     command.option('-f, --force', '强制推送: 如果本地文件中的条目名称或数量与酒馆中的不一致, 将会覆盖酒馆中的内容', false);
-    command.option('-e, --export', "导出结果: 将推送结果导出为 JSON 文件, 存放在配置文件中 '导出文件路径 (export_file)' 所指定路径下; 如果没有填写 '导出文件路径', 则存放在与 '本地文件路径 (file)' 同目录下", false);
     command.action(async (syncers, options) => {
         const update_abort_controller = new AbortController();
         check_update_silently(update_abort_controller.signal);
         try {
-            await Promise.all(syncers.map(syncer => syncer.push({ should_force: options.force, should_export: options.export })));
+            await Promise.all(syncers.map(syncer => syncer.push({ should_force: options.force })));
         }
         finally {
             update_abort_controller.abort();
