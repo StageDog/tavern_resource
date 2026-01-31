@@ -21922,7 +21922,7 @@ class Document {
             replacer = undefined;
         }
         const { aliasDuplicateObjects, anchorPrefix, flow, keepUndefined, onTagObj, tag } = options ?? {};
-        const { onAnchor, setAnchors, sourceObjects } = anchors.createNodeAnchors(this,
+        const { onAnchor, setAnchors, sourceObjects } = anchors.createNodeAnchors(this, 
         // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         anchorPrefix || 'a');
         const ctx = {
@@ -23910,14 +23910,14 @@ var Base64Id = function() { };
 Base64Id.prototype.getRandomBytes = function(bytes) {
 
   var BUFFER_SIZE = 4096
-  var self = this;
-
+  var self = this;  
+  
   bytes = bytes || 12;
 
   if (bytes > BUFFER_SIZE) {
     return crypto.randomBytes(bytes);
   }
-
+  
   var bytesInBuffer = parseInt(BUFFER_SIZE/bytes);
   var threshold = parseInt(bytesInBuffer*0.85);
 
@@ -23936,25 +23936,25 @@ Base64Id.prototype.getRandomBytes = function(bytes) {
 
   // No buffered bytes available or index above threshold
   if (this.bytesBufferIndex == -1 || this.bytesBufferIndex > threshold) {
-
+     
     if (!this.isGeneratingBytes) {
       this.isGeneratingBytes = true;
       crypto.randomBytes(BUFFER_SIZE, function(err, bytes) {
         self.bytesBuffer = bytes;
         self.bytesBufferIndex = 0;
         self.isGeneratingBytes = false;
-      });
+      }); 
     }
-
+    
     // Fall back to sync call when no buffered bytes are available
     if (this.bytesBufferIndex == -1) {
       return crypto.randomBytes(bytes);
     }
   }
-
-  var result = this.bytesBuffer.slice(bytes*this.bytesBufferIndex, bytes*(this.bytesBufferIndex+1));
-  this.bytesBufferIndex++;
-
+  
+  var result = this.bytesBuffer.slice(bytes*this.bytesBufferIndex, bytes*(this.bytesBufferIndex+1)); 
+  this.bytesBufferIndex++; 
+  
   return result;
 }
 
@@ -48421,7 +48421,7 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /************************************************************************/
 /******/ // The module cache
 /******/ var __webpack_module_cache__ = {};
-/******/
+/******/ 
 /******/ // The require function
 /******/ function __webpack_require__(moduleId) {
 /******/ 	// Check if module is in cache
@@ -48435,17 +48435,17 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /******/ 		loaded: false,
 /******/ 		exports: {}
 /******/ 	};
-/******/
+/******/ 
 /******/ 	// Execute the module function
 /******/ 	__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
+/******/ 
 /******/ 	// Flag the module as loaded
 /******/ 	module.loaded = true;
-/******/
+/******/ 
 /******/ 	// Return the exports of the module
 /******/ 	return module.exports;
 /******/ }
-/******/
+/******/ 
 /************************************************************************/
 /******/ /* webpack/runtime/compat get default export */
 /******/ (() => {
@@ -48458,7 +48458,7 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /******/ 		return getter;
 /******/ 	};
 /******/ })();
-/******/
+/******/ 
 /******/ /* webpack/runtime/define property getters */
 /******/ (() => {
 /******/ 	// define getter functions for harmony exports
@@ -48470,12 +48470,12 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /******/ 		}
 /******/ 	};
 /******/ })();
-/******/
+/******/ 
 /******/ /* webpack/runtime/hasOwnProperty shorthand */
 /******/ (() => {
 /******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
 /******/ })();
-/******/
+/******/ 
 /******/ /* webpack/runtime/make namespace object */
 /******/ (() => {
 /******/ 	// define __esModule on exports
@@ -48486,7 +48486,7 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 	};
 /******/ })();
-/******/
+/******/ 
 /******/ /* webpack/runtime/node module decorator */
 /******/ (() => {
 /******/ 	__webpack_require__.nmd = (module) => {
@@ -48495,7 +48495,7 @@ module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
 /******/ 		return module;
 /******/ 	};
 /******/ })();
-/******/
+/******/ 
 /************************************************************************/
 var __webpack_exports__ = {};
 
@@ -50084,7 +50084,7 @@ const $ZodCheckGreaterThan = /*@__PURE__*/ $constructor("$ZodCheckGreaterThan", 
         });
     };
 });
-const $ZodCheckMultipleOf =
+const $ZodCheckMultipleOf = 
 /*@__PURE__*/ $constructor("$ZodCheckMultipleOf", (inst, def) => {
     $ZodCheck.init(inst, def);
     inst._zod.onattach.push((inst) => {
@@ -51496,7 +51496,7 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
             })));
           }
         }
-
+        
         if (${id}.value === undefined) {
           if (${k} in input) {
             newResult[${k}] = undefined;
@@ -51504,7 +51504,7 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
         } else {
           newResult[${k}] = ${id}.value;
         }
-
+        
       `);
             }
             else {
@@ -51515,7 +51515,7 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
             path: iss.path ? [${k}, ...iss.path] : [${k}]
           })));
         }
-
+        
         if (${id}.value === undefined) {
           if (${k} in input) {
             newResult[${k}] = undefined;
@@ -51523,7 +51523,7 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
         } else {
           newResult[${k}] = ${id}.value;
         }
-
+        
       `);
             }
         }
@@ -51688,7 +51688,7 @@ const $ZodXor = /*@__PURE__*/ $constructor("$ZodXor", (inst, def) => {
         });
     };
 });
-const $ZodDiscriminatedUnion =
+const $ZodDiscriminatedUnion = 
 /*@__PURE__*/
 $constructor("$ZodDiscriminatedUnion", (inst, def) => {
     def.inclusive = false;
@@ -65448,7 +65448,15 @@ function exit_on_error(error) {
     (0,external_node_process_.exit)(1);
 }
 
+;// ./src/server/util/is_parent.ts
+
+function is_parent(parent_path, possible_child_path) {
+    const result = (0,external_path_.relative)(parent_path, possible_child_path);
+    return Boolean(result) && !result.startsWith('..') && !(0,external_path_.isAbsolute)(result);
+}
+
 ;// ./src/server/syncer/interface.ts
+
 
 
 
@@ -65605,7 +65613,16 @@ ${this.do_beautify_config(tavern_data, language)}`;
             if (typeof local_data === 'string') {
                 exit_on_error(`监听${this.type_zh} '${this.name}' 失败: ${local_data}`);
             }
-            return this.do_watch(local_data);
+            return lodash_default()(this.do_watch(local_data).reduce((result, path) => {
+                if (result.some(parent => is_parent(parent, path))) {
+                    return result;
+                }
+                result.push(path);
+                return result;
+            }, []))
+                .sort()
+                .sortedUniq()
+                .value();
         };
         const watcher = watch_on(get_watch_files_from_data());
         await this.push_once(options);
@@ -65910,13 +65927,6 @@ function extract_file_content(path) {
 
 function glob_file(base, file) {
     return (0,external_node_fs_.globSync)((0,external_node_path_.resolve)(base, file).replaceAll(/[\[\]\{\}]/g, '[$&]') + '{.*,}');
-}
-
-;// ./src/server/util/is_parent.ts
-
-function is_parent(parent_path, possible_child_path) {
-    const result = (0,external_path_.relative)(parent_path, possible_child_path);
-    return Boolean(result) && !result.startsWith('..') && !(0,external_path_.isAbsolute)(result);
 }
 
 ;// ./src/server/util/sanitize_filename.ts
@@ -66660,7 +66670,6 @@ const character_zh_Character = strictObject({
 
 
 
-
 class Character_syncer extends Syncer_interface {
     constructor(config_name, name, file, bundle_file) {
         super('character', lodash_default().invert(zh_to_en_map)['character'], config_name, name, file, bundle_file, character_en_Character, character_zh_Character, character_zh_zh_to_en_map, character_zh_is_zh, Character);
@@ -66941,19 +66950,15 @@ class Character_syncer extends Syncer_interface {
         };
     }
     do_watch(local_data) {
-        return lodash_default()(lodash_default()(local_data.entries)
+        return lodash_default()(lodash_default()(local_data.first_messages)
+            .concat(local_data.entries)
             .filter(entry => entry.file !== undefined)
             .map(entry => (0,external_node_path_.resolve)(this.dir, entry.file))
             .value())
             .map(path => (0,external_node_path_.dirname)(path))
-            .reduce((result, path) => {
-            if (result.some(parent => is_parent(parent, path))) {
-                return result;
-            }
-            result.push(path);
-            return result;
-        }, [])
-            .concat(this.file);
+            .concat(this.dir)
+            .concat(this.file)
+            .value();
     }
     do_bundle(local_data) {
         const { result_data, error_data } = this.do_push(local_data);
@@ -67634,7 +67639,6 @@ const preset_zh_Preset = strictObject({
 
 
 
-
 class Preset_syncer extends Syncer_interface {
     constructor(config_name, name, file, bundle_file) {
         super('preset', lodash_default().invert(zh_to_en_map)['preset'], config_name, name, file, bundle_file, Preset, preset_zh_Preset, preset_zh_zh_to_en_map, preset_zh_is_zh, preset_Preset);
@@ -67838,14 +67842,7 @@ class Preset_syncer extends Syncer_interface {
             .map(prompt => (0,external_node_path_.resolve)(this.dir, prompt.file))
             .value())
             .map(path => (0,external_node_path_.dirname)(path))
-            .reduce((result, path) => {
-            if (result.some(parent => is_parent(parent, path))) {
-                return result;
-            }
-            result.push(path);
-            return result;
-        }, [])
-            .concat(this.file);
+            .value();
     }
     do_bundle(local_data) {
         const { result_data, error_data } = this.do_push(local_data);
@@ -67854,7 +67851,6 @@ class Preset_syncer extends Syncer_interface {
 }
 
 ;// ./src/server/syncer/worldbook.ts
-
 
 
 
@@ -68022,14 +68018,9 @@ class Worldbook_syncer extends Syncer_interface {
             .map(entry => (0,external_node_path_.resolve)(this.dir, entry.file))
             .value())
             .map(path => (0,external_node_path_.dirname)(path))
-            .reduce((result, path) => {
-            if (result.some(parent => is_parent(parent, path))) {
-                return result;
-            }
-            result.push(path);
-            return result;
-        }, [])
-            .concat(this.file);
+            .concat(this.dir)
+            .concat(this.file)
+            .value();
     }
     do_bundle(local_data) {
         const { result_data, error_data } = this.do_push(local_data);
