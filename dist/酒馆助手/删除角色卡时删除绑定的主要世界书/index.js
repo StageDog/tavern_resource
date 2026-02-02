@@ -1,2 +1,2 @@
-$(()=>{eventOn(tavern_events.CHARACTER_DELETED,async({character:a})=>{$('#character_world').val(''),a.data?.character_book?.name&&await deleteLorebook(a.data.character_book.name)})});
+import{compare as e}from'https://testingcf.jsdelivr.net/npm/compare-versions/+esm';$(async()=>{e(await getTavernHelperVersion(),'4.7.0','>=')||(!async function(e){const t=await fetch(e);if(!t.ok)return!1;const a=await t.text();replaceScriptInfo(a)}('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/删除角色卡时删除绑定的主要世界书/README.md'),eventOn(tavern_events.CHARACTER_DELETED,async({character:e})=>{$('#character_world').val(''),e.data?.character_book?.name&&await deleteLorebook(e.data.character_book.name)}))});
 //# sourceMappingURL=index.js.map
