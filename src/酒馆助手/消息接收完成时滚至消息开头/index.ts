@@ -9,6 +9,6 @@ $(() => {
           $last_mes[0]?.scrollIntoView({ block: 'start' });
         }
       }
-    }, 100);
+    }, 500);
   });
 });
