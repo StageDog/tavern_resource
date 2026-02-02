@@ -28,6 +28,15 @@ jobs:
           path: resource
       - name: Checkout StageDog/tavern_private
         run: git clone https://StageDog:${{ secrets.GITLAB_PAT }}@gitgud.io/StageDog/tavern_private.git private
+      - name: Bump deps and bundle StageDog/tavern_private
+        run: |
+            rm -rf tavern_sync.mjs
+            curl -fsSL "https://raw.githubusercontent.com/StageDog/tavern_sync/refs/heads/main/dist/tavern_sync.mjs" -o tavern_sync.mjs
+            node tavern_sync.mjs bundle all
+            git add -A
+            git commit -m "[bot] chore: bundle"
+            git push
+        working-directory: private
       - uses: JesseTG/rm@v1.0.3
         with:
           path: resource/dist
