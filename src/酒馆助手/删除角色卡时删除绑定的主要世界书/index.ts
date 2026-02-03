@@ -13,7 +13,8 @@ $(async () => {
 
   eventOn(tavern_events.CHARACTER_DELETED, async ({ character }) => {
     $('#character_world').val('');
-    if (character.data?.character_book?.name) {
+    const worldbook = character.data?.character_book?.name;
+    if (worldbook && getLorebooks().includes(worldbook)) {
       await deleteLorebook(character.data.character_book.name);
     }
   });
