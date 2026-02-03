@@ -117,7 +117,6 @@ export function parseString(content: string): any {
   return parsed;
 }
 
-<<<<<<< HEAD
 export function getComplementString(string: string) {
   const encoder = new TextEncoder();
   const bytes = encoder.encode(string);
@@ -133,7 +132,8 @@ export function getComplementString(string: string) {
     hex += h;
   }
   return hex;
-=======
+}
+
 export async function checkAndUpdateCharacter(name: string, latest_version: string, png_url: string): Promise<void> {
   const current_version = (await getCharacter(name)).version.trim() || '0.0.0';
   if (compare(current_version, latest_version, '>=')) {
@@ -145,5 +145,4 @@ export async function checkAndUpdateCharacter(name: string, latest_version: stri
     `角色卡已自动更新到 '${latest_version.startsWith('v') ? latest_version : `v${latest_version}`}'`,
     name,
   );
->>>>>>> 657d325b384170d58b72e3fe3cc38173e31a414a
 }
