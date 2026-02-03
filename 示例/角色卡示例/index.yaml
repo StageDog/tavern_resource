@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://testingcf.jsdelivr.net/gh/StageDog/tavern_sync/dist/schema/character.zh.json
 头像: 头像
-版本: ''
+版本: 1.0.0
 作者: 青空莉想做舞台少女的狗
-备注: ''
+备注: '青空莉导航站: https://stagedog.github.io/'
 
 第一条消息:
   - 文件: 第一条消息/0
@@ -299,3 +299,10 @@
         类型: 脚本
         内容: |-
           import 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_helper_template/dist/角色卡示例/脚本/立即事件/index.js';
+
+      - 名称: 自动更新角色卡
+        id: 176b0b3c-b410-4373-8c81-8636a94a0839
+        启用: true
+        类型: 脚本
+        内容: |-
+          import 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_helper_template/dist/角色卡示例/脚本/自动更新角色卡/index.js';
