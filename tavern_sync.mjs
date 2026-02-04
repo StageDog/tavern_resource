@@ -65675,7 +65675,7 @@ const Script = strictObject({
         buttons: array(ScriptButton).prefault([]),
     })
         .prefault({}),
-    data: record(schemas_string(), any()).prefault({}).catch({}),
+    data: record(schemas_string(), any()).prefault({}),
 });
 const ScriptFolder = strictObject({
     name: coerce_string(),
@@ -65684,7 +65684,7 @@ const ScriptFolder = strictObject({
     type: literal('folder'),
     icon: coerce_string().prefault('fa-solid fa-folder'),
     color: coerce_string().prefault('rgba(219, 219, 214, 1)'),
-    scripts: array(Script).prefault([]).catch([]),
+    scripts: array(Script).prefault([]),
 });
 const ScriptTree = discriminatedUnion('type', [Script, ScriptFolder]);
 const Extensions = looseObject({
@@ -65707,11 +65707,13 @@ const Extensions = looseObject({
         run_on_edit: schemas_boolean().prefault(false),
         min_depth: union([schemas_number(), schemas_null()]).prefault(null),
         max_depth: union([schemas_number(), schemas_null()]).prefault(null),
-    })),
+    }))
+        .prefault([]),
     tavern_helper: strictObject({
-        scripts: array(ScriptTree).prefault([]).catch([]),
-        variables: record(schemas_string(), any()).prefault({}).catch({}),
-    }),
+        scripts: array(ScriptTree).prefault([]),
+        variables: record(schemas_string(), any()).prefault({}),
+    })
+        .prefault({}),
 });
 
 ;// ./src/server/tavern/extensions.ts
@@ -65757,9 +65759,6 @@ const extensions_Extensions = Extensions.transform(data => {
         }
         return script;
     });
-    if (_.isEmpty(data.tavern_helper.variables)) {
-        _.unset(data, 'tavern_helper.variables');
-    }
     return data;
 });
 
@@ -65865,9 +65864,7 @@ const Worldbook_entry = object({
     }
     return data;
 });
-const Worldbook = array(Worldbook_entry)
-    .min(1)
-    .transform(entries => ({
+const Worldbook = array(Worldbook_entry).transform(entries => ({
     anchors: {},
     entries,
 }));
@@ -66324,7 +66321,7 @@ const extensions_zh_Script = strictObject({
         按钮列表: array(extensions_zh_ScriptButton).prefault([]),
     })
         .prefault({}),
-    数据: record(schemas_string(), any()).prefault({}).catch({}),
+    数据: record(schemas_string(), any()).prefault({}),
 });
 const extensions_zh_ScriptFolder = strictObject({
     名称: coerce_string(),
@@ -66333,7 +66330,7 @@ const extensions_zh_ScriptFolder = strictObject({
     类型: literal('文件夹'),
     图标: coerce_string().prefault('fa-solid fa-folder'),
     颜色: coerce_string().prefault('#DBDBD6'),
-    脚本库: array(extensions_zh_Script).prefault([]).catch([]),
+    脚本库: array(extensions_zh_Script).prefault([]),
 });
 const extensions_zh_ScriptTree = discriminatedUnion('类型', [extensions_zh_Script, extensions_zh_ScriptFolder]);
 const extensions_zh_Extensions = looseObject({
@@ -66357,12 +66354,12 @@ const extensions_zh_Extensions = looseObject({
         最小深度: union([schemas_number(), schemas_null()]).prefault(null),
         最大深度: union([schemas_number(), schemas_null()]).prefault(null),
     }))
-        .prefault([])
-        .catch([]),
+        .prefault([]),
     酒馆助手: strictObject({
-        脚本库: array(extensions_zh_ScriptTree).prefault([]).catch([]),
-        变量: record(schemas_string(), any()).prefault({}).catch({}),
-    }),
+        脚本库: array(extensions_zh_ScriptTree).prefault([]),
+        变量: record(schemas_string(), any()).prefault({}),
+    })
+        .prefault({}),
 });
 
 ;// ./src/type/worldbook.zh.ts
@@ -66649,7 +66646,8 @@ const character_zh_Character = strictObject({
 });
 
 ;// ./src/server/syncer/character.ts
-// import { bundle_character } from '@server/bundle/character';
+
+
 
 
 
@@ -66705,10 +66703,19 @@ class Character_syncer extends Syncer_interface {
                 file_to_write = file;
                 file_to_set = file;
             }
+            const chunks = png_chunks_extract_default()(new Uint8Array(tavern_data.avatar));
+            const tEXtChunks = chunks.filter(chunk => chunk.name === 'tEXt');
+            // Remove existing tEXt chunks
+            for (const tEXtChunk of tEXtChunks) {
+                const data = png_chunk_text.decode(tEXtChunk.data);
+                if (data.keyword.toLowerCase() === 'chara' || data.keyword.toLowerCase() === 'ccv3') {
+                    chunks.splice(chunks.indexOf(tEXtChunk), 1);
+                }
+            }
             files.push({
                 name: '!头像',
                 path: file_to_write,
-                content: tavern_data.avatar,
+                content: Buffer.from(character_encode(chunks)),
             });
             lodash_default().set(tavern_data, 'avatar', file_to_set);
         }
@@ -67087,13 +67094,6 @@ const Prompt_normal = strictObject({
         }));
     }
 })
-    .transform(data => {
-    const unique_id = lodash_default().uniqueId();
-    return {
-        ...data,
-        id: unique_id === '1' ? 'main' : unique_id,
-    };
-})
     .describe('手动在预设中添加的提示词');
 const prompt_rolable_placeholder_ids = [
     'world_info_before',
@@ -67252,6 +67252,14 @@ const Preset = strictObject({
     }).describe('提示词列表里已经添加的提示词'),
     prompts_unused: PromptTrees.describe('下拉框里的, 没有添加进提示词列表的提示词'),
     extensions: Extensions.optional().describe('额外字段: 用于为预设绑定额外数据'),
+})
+    .transform(data => {
+    lodash_default().concat(data.prompts, data.prompts_unused)
+        .filter(prompt => prompt.id === undefined)
+        .forEach((prompt, index) => {
+        lodash_default().set(prompt, 'id', index === 0 ? 'main' : String(index));
+    });
+    return data;
 });
 
 ;// ./src/server/tavern/preset.ts
@@ -67454,13 +67462,6 @@ const preset_zh_Prompt_normal = strictObject({
         }));
     }
 })
-    .transform(data => {
-    const unique_id = lodash_default().uniqueId();
-    return {
-        ...data,
-        id: unique_id === '1' ? 'main' : unique_id,
-    };
-})
     .describe('手动在预设中添加的提示词');
 const preset_zh_prompt_rolable_placeholder_ids = [
     '角色定义之前',
@@ -67617,6 +67618,14 @@ const preset_zh_Preset = strictObject({
     }).describe('提示词列表里已经添加的提示词'),
     未添加的提示词: preset_zh_PromptTrees.describe('下拉框里的, 没有添加进提示词列表的提示词'),
     扩展字段: extensions_zh_Extensions.optional().describe('扩展字段: 用于为预设绑定额外数据'),
+})
+    .transform(data => {
+    lodash_default().concat(data.提示词, data.未添加的提示词)
+        .filter(prompt => prompt.id === undefined)
+        .forEach((prompt, index) => {
+        lodash_default().set(prompt, 'id', index === 0 ? 'main' : String(index));
+    });
+    return data;
 });
 
 ;// ./src/server/syncer/preset.ts
@@ -68172,7 +68181,7 @@ function add_bundle_command() {
         const update_abort_controller = new AbortController();
         check_update_silently(update_abort_controller.signal);
         try {
-            await Promise.all(syncers.map(syncer => syncer.bundle()));
+            await Promise.allSettled(syncers.map(syncer => syncer.bundle()));
         }
         finally {
             update_abort_controller.abort();
@@ -68207,7 +68216,7 @@ function add_pull_command() {
         const update_abort_controller = new AbortController();
         check_update_silently(update_abort_controller.signal);
         try {
-            await Promise.all(syncers.map(syncer => syncer.pull({ language: options.language, should_split: !options.inline, should_force: options.force })));
+            await Promise.allSettled(syncers.map(syncer => syncer.pull({ language: options.language, should_split: !options.inline, should_force: options.force })));
         }
         finally {
             update_abort_controller.abort();
@@ -68230,7 +68239,7 @@ function add_push_command() {
         const update_abort_controller = new AbortController();
         check_update_silently(update_abort_controller.signal);
         try {
-            await Promise.all(syncers.map(syncer => syncer.push({ should_force: options.force })));
+            await Promise.allSettled(syncers.map(syncer => syncer.push({ should_force: options.force })));
         }
         finally {
             update_abort_controller.abort();
