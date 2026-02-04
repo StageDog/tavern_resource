@@ -76,7 +76,9 @@ $(async () => {
   eventOn(tavern_events.CHARACTER_MESSAGE_RENDERED, errorCatched(renderOneMessage));
   eventOn(tavern_events.MESSAGE_UPDATED, errorCatched(renderOneMessage));
   eventOn(tavern_events.MESSAGE_SWIPED, errorCatched(renderOneMessage));
-  eventOn(tavern_events.MESSAGE_DELETED, () => setTimeout(errorCatched(renderAllMessage), 1000));
+  [tavern_events.MORE_MESSAGES_LOADED, tavern_events.MESSAGE_DELETED].forEach(event =>
+    eventOn(event, () => setTimeout(errorCatched(renderAllMessage), 1000)),
+  );
 
   $(window).on('pagehide', () => {
     $(`pre:contains("${TAG}")`).each(function () {
