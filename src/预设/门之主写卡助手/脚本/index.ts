@@ -20,7 +20,13 @@ $(async () => {
 
   const destroy_list: Array<() => void> = [];
   destroy_list.push((await initButtons()).destroy);
-  destroy_list.push(initSquash(Settings.decode({})).destroy);
+  destroy_list.push(
+    initSquash(
+      Settings.decode({
+        stop_string: '/<\\|im_end\\|>/',
+      }),
+    ).destroy,
+  );
 
   $(window).on('pagehide', () => {
     destroy_list.forEach(destroy => destroy());
