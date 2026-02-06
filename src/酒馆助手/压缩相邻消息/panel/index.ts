@@ -4,7 +4,7 @@ import { createApp } from 'vue';
 import Panel from './Panel.vue';
 
 export function initPanel() {
-  const app = createApp(Panel).use(createPinia());
+  const app = createApp(Panel).use(getActivePinia() ?? createPinia());
 
   const $app = createScriptIdDiv().appendTo('#extensions_settings2');
   app.mount($app[0]);

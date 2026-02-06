@@ -137,6 +137,8 @@ export const useSettingsStore = defineStore('压缩相邻消息', () => {
     should_enable.value = preferred_script_id === getScriptId();
   });
 
+  const locked_as = ref<false | string>(false);
+
   watchEffect(() => {
     replaceVariables(klona(settings.value), { type: 'script', script_id: getScriptId() });
   });
@@ -148,5 +150,5 @@ export const useSettingsStore = defineStore('压缩相邻消息', () => {
     });
   };
 
-  return { settings, should_enable, useEscapedNewline };
+  return { settings, should_enable, locked_as, useEscapedNewline };
 });

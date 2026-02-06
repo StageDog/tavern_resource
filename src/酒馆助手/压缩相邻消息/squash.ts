@@ -338,7 +338,7 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
   };
 }
 
-export function initSquash(settings: Settings) {
+export function initSquashWithoutPanel(settings: Settings) {
   const { unregister, getPreferredScriptId } = registerAsUniqueScript('压缩相邻消息');
   const { separators, uninject } = injectSeparators(settings);
   const { unlisten } = listenEvent(settings, separators, () => getPreferredScriptId() === getScriptId());
