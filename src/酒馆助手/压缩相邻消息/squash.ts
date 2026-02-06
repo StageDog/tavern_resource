@@ -318,9 +318,12 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
       return;
     }
 
-    chat_message.mes = chat_message.mes.slice(0, first_non_space_index + searched_index + 1);
+    const new_message =
+      chat_message.mes.slice(0, first_non_space_index + searched_index + 1).trimEnd() +
+      (chat_message.mes.includes('<StatusPlaceHolderImpl/>') ? '\n\n<StatusPlaceHolderImpl/>' : '');
+    chat_message.mes = new_message;
     if (chat_message.swipes) {
-      _.set(chat_message, ['swipes', chat_message.swipe_id!], chat_message.mes);
+      _.set(chat_message, ['swipes', chat_message.swipe_id!], new_message);
     }
     // 与 https://gitgud.io/Monblant/noass 采用相同逻辑而不使用 setChatMessages, 因为 CHARACTER_MESSAGE_RENDERED 将会随后自然触发
     SillyTavern.updateMessageBlock(Number(message_id), chat_message);
