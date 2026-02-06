@@ -9,7 +9,7 @@ const Config = z.object({
 type Config = z.infer<typeof Config>;
 
 export const useConfigStore = defineStore(
-  'config',
+  '可点击的选择框',
   errorCatched(() => {
     const config = ref<Config>(Config.parse({}));
 

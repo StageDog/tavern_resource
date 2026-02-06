@@ -4,7 +4,7 @@ const Settings = z
   })
   .prefault({});
 
-export const useSettingsStore = defineStore('settings', () => {
+export const useSettingsStore = defineStore('脚本示例', () => {
   const settings = ref(Settings.parse(getVariables({ type: 'script', script_id: getScriptId() })));
 
   watchEffect(() => {

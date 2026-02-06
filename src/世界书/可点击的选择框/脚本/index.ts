@@ -5,8 +5,7 @@ import { injectStyle } from './style';
 
 const apps: Map<number, VueApp> = new Map();
 
-const pinia = createPinia();
-setActivePinia(pinia);
+setActivePinia(getActivePinia() ?? createPinia());
 
 const TAG = '<roleplay_options>' as const;
 const REGEX = /<(roleplay_options)>\s*(?:```.*\n)?((?:(?!<\1>)[\s\S])*?)(?:\n```)?\s*<\/\1>/im;

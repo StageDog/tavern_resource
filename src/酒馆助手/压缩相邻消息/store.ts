@@ -125,7 +125,7 @@ export const Settings = z
   })
   .prefault({});
 
-export const useSettingsStore = defineStore('settings', () => {
+export const useSettingsStore = defineStore('压缩相邻消息', () => {
   const variables = getVariables({ type: 'script', script_id: getScriptId() });
   const settings = ref((_.has(variables, 'seperator') ? OldSettings : Settings).parse(variables));
 
