@@ -87,7 +87,10 @@ export const Settings = z
         return data;
       }),
 
-    stop_string: z.string().default('</observed_piece>').catch('</observed_piece>'),
+    stop_string: z
+      .string()
+      .default('/(?:</observed_pice>|<\\|im_end\\|>)/')
+      .catch('/(?:</observed_pice>|<\\|im_end\\|>)/'),
 
     depth_injection: z
       .object({
