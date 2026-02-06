@@ -74,12 +74,14 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
             return null;
           }
           const old_value = _.get(data, path);
-          const delta_value = parseCommandValue(command.args[1]);
-          if (typeof old_value === 'number' || typeof old_value === 'string') {
-            _.update(data, path, value => value + delta_value);
-            return checkSchema(data, command, true);
+          if (typeof old_value !== 'number' && typeof old_value !== 'string') {
+            return null;
           }
-          return null;
+          const delta_value = parseCommandValue(command.args[1]);
+          _.update(data, path, value =>
+            value + typeof old_value === 'number' ? Number(delta_value) : String(delta_value),
+          );
+          return checkSchema(data, command, true);
         }
         case 'insert': {
           const path = parsePath(command.args[0]);
