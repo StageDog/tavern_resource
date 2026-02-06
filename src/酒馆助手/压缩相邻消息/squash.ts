@@ -288,7 +288,8 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
     if (!regex) {
       return;
     }
-    if (regex.test(text)) {
+    // slice(1) 来避免 AI 在开头匹配到停止字符串的情况
+    if (regex.test(text.trimStart().slice(1))) {
       SillyTavern.stopGeneration();
     }
   };
@@ -301,20 +302,29 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
 
     const chat_message = SillyTavern.chat[Number(message_id)];
 
+    const first_non_space_index = chat_message.mes.search(/\S/);
+    if (first_non_space_index === -1) {
+      return;
+    }
+
     const regex = regexFromString(settings.stop_string, true);
     if (!regex) {
       return;
     }
-    const match = chat_message.mes.match(regex);
-    if (match) {
-      chat_message.mes = chat_message.mes.slice(0, match.index);
-      if (chat_message.swipes) {
-        _.set(chat_message, ['swipes', chat_message.swipe_id!], chat_message.mes);
-      }
-      // 与 https://gitgud.io/Monblant/noass 采用相同逻辑而不使用 setChatMessages, 因为 CHARACTER_MESSAGE_RENDERED 将会随后自然触发
-      SillyTavern.updateMessageBlock(Number(message_id), chat_message);
-      await SillyTavern.saveChat();
+
+    // slice(first_non_space_index + 1) 来避免 AI 在开头匹配到停止字符串的情况
+    const searched_index = chat_message.mes.slice(first_non_space_index + 1).search(regex);
+    if (searched_index === -1) {
+      return;
     }
+
+    chat_message.mes = chat_message.mes.slice(0, first_non_space_index + searched_index + 1);
+    if (chat_message.swipes) {
+      _.set(chat_message, ['swipes', chat_message.swipe_id!], chat_message.mes);
+    }
+    // 与 https://gitgud.io/Monblant/noass 采用相同逻辑而不使用 setChatMessages, 因为 CHARACTER_MESSAGE_RENDERED 将会随后自然触发
+    SillyTavern.updateMessageBlock(Number(message_id), chat_message);
+    await SillyTavern.saveChat();
   };
   eventOn(tavern_events.MESSAGE_RECEIVED, handleStopStringOnReceived);
 
