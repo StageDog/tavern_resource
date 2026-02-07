@@ -190,6 +190,10 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
     commands.length = 0;
   });
 
+  eventOn('mag_command_parsed_ended_for_zod', (_variables, commands) => {
+    commands.length = 0;
+  })
+
   eventOn('mag_variable_update_ended_for_zod', variables => {
     _.set(variables, 'schema', '没有用别管这个');
     _.unset(variables, 'display_data');
