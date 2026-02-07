@@ -1,4 +1,3 @@
-/? (slash|macros|format|hotkeys)? // Get help on macros, chat formatting and commands.
 // (string)? // Write a comment.
 /abort [quiet=true|false]?=true (string)? // Aborts the slash command batch execution.
 /abs (number|varname) // Performs an absolute value operation of a value and passes the result down the pipe. Can use variable names. Example: /abs i
