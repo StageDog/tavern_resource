@@ -16,7 +16,7 @@ $(async () => {
 
   const destroy_list: Array<() => void> = [];
   destroy_list.push((await initButtons()).destroy);
-  destroy_list.push(initSquash({ settings: Settings.decode({}), locked_as: '明月秋青写卡预设' }).destroy);
+  destroy_list.push(initSquash(Settings.decode({})).destroy);
 
   $(window).on('pagehide', () => {
     destroy_list.forEach(destroy => destroy());

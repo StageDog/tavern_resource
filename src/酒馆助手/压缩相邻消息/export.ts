@@ -2,15 +2,12 @@ import { initPanel } from './panel';
 import { initSquashWithoutPanel } from './squash';
 import { Settings, useSettingsStore } from './store';
 
-export function initSquash(options: { settings?: Settings; locked_as?: string } = {}) {
+export function initSquash(settings?: Settings) {
   const { destroy: destroyPanel } = initPanel();
 
   const store = useSettingsStore();
-  if (options.settings) {
-    store.settings = options.settings;
-  }
-  if (options.locked_as) {
-    store.locked_as = options.locked_as;
+  if (settings) {
+    store.settings = settings;
   }
 
   let destroySquash: () => void;

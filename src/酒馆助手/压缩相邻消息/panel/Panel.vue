@@ -7,13 +7,11 @@
       </div>
 
       <div class="inline-drawer-content">
-        <fieldset class="fs" :disabled="store.locked_as !== false">
-          <Section v-if="store.locked_as" :label="`已锁定为 '${store.locked_as}' 的设置`" without-content />
-          <Delimiter />
-          <Stop />
-          <DepthInjection />
-          <ChatHistory />
-        </fieldset>
+        <State />
+        <Delimiter />
+        <Stop />
+        <DepthInjection />
+        <ChatHistory />
       </div>
     </div>
   </template>
@@ -22,19 +20,10 @@
 <script setup lang="ts">
 import { useSettingsStore } from '../store';
 import ChatHistory from './ChatHistory.vue';
-import Section from './component/Section.vue';
 import Delimiter from './Delimiter.vue';
 import DepthInjection from './DepthInjection.vue';
+import State from './State.vue';
 import Stop from './Stop.vue';
 
 const store = useSettingsStore();
 </script>
-
-<style>
-.fs {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  min-inline-size: 0;
-}
-</style>

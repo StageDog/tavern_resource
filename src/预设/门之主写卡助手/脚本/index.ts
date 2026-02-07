@@ -21,8 +21,8 @@ $(async () => {
   const destroy_list: Array<() => void> = [];
   destroy_list.push((await initButtons()).destroy);
   destroy_list.push(
-    initSquash({
-      settings: Settings.decode({
+    initSquash(
+      Settings.decode({
         stop_string: '/Explorer:|<\\|im_end\\|>/',
         chat_history: {
           user_prefix: 'Explorer:\n',
@@ -33,8 +33,7 @@ $(async () => {
           system_suffix: '',
         },
       }),
-      locked_as: '门之主写卡助手',
-    }).destroy,
+    ).destroy,
   );
 
   $(window).on('pagehide', () => {

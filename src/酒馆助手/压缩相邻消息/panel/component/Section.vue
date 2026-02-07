@@ -6,14 +6,14 @@
       </strong>
       <slot name="label-suffix" />
     </div>
-    <div v-if="!withoutContent" class="TR-section__content flex-container flexFlowColumn">
+    <div class="TR-section__content flex-container flexFlowColumn">
       <slot />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{ label: string; withoutContent?: boolean }>();
+defineProps<{ label: string }>();
 </script>
 
 <style scoped>

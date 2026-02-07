@@ -38,7 +38,7 @@ const OldSettings = z
     stop_string: z.string(),
   })
   .transform(data => {
-    return Settings.parse({
+    return Settings.decode({
       delimiter: data.seperator,
       stop_string: data.stop_string,
       depth_injection: {
@@ -137,8 +137,6 @@ export const useSettingsStore = defineStore('压缩相邻消息', () => {
     should_enable.value = preferred_script_id === getScriptId();
   });
 
-  const locked_as = ref<false | string>(false);
-
   watchEffect(() => {
     replaceVariables(klona(settings.value), { type: 'script', script_id: getScriptId() });
   });
@@ -150,5 +148,5 @@ export const useSettingsStore = defineStore('压缩相邻消息', () => {
     });
   };
 
-  return { settings, should_enable, locked_as, useEscapedNewline };
+  return { settings, should_enable, useEscapedNewline };
 });
