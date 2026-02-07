@@ -1,13 +1,15 @@
 declare namespace Mvu {
   type MvuData = {
     /** 已被 mvu 初始化 initvar 条目的世界书列表 */
-    initialized_lorebooks: string[];
+    initialized_lorebooks: Record<string, any[]>;
 
     /** 实际的变量数据 */
     stat_data: Record<string, any>;
+
+    [key: string]: any;
   };
 
-  type CommandInfo = SetCommandInfo | InsertCommandInfo | DeleteCommandInfo | AddCommandInfo;
+  type CommandInfo = SetCommandInfo | InsertCommandInfo | DeleteCommandInfo | AddCommandInfo | MoveCommandInfo;
   type SetCommandInfo = {
     type: 'set';
     full_match: string;
@@ -136,7 +138,7 @@ declare const Mvu: {
   getMvuData: (options: VariableOption) => Mvu.MvuData;
 
   /**
-   * 完全替换变量表为包含 mvu 数据的 `mvu_data` (但如果没用 parseMessages 自行处理变量, 则更建议监听 mvu 事件来修改 mvu 数据!)
+   * 完全替换变量表为包含 mvu 数据的 `mvu_data` (但如果没用 `parseMessages` 自行处理变量, 则更建议监听 mvu 事件来修改 mvu 数据!)
    *
    * @param variables 要用于替换的变量表
    * @param option 可选选项
@@ -169,15 +171,6 @@ declare const Mvu: {
   parseMessage: (message: string, old_data: Mvu.MvuData) => Promise<Mvu.MvuData>;
 
   /**
-   * 重新加载初始变量数据
-   *
-   * @param mvu_data 要重新加载初始数据的 MvuData 数据表
-   *
-   * @returns 是否加载成功
-   */
-  reloadInitVar: (mvu_data: Mvu.MvuData) => Promise<boolean>;
-
-  /**
    * 酒馆是否正在进行额外模型解析
    */
   isDuringExtraAnalysis: () => boolean;
@@ -186,11 +179,11 @@ declare const Mvu: {
 interface ListenerType {
   [Mvu.events.VARIABLE_INITIALIZED]: (variables: Mvu.MvuData, swipe_id: number) => void;
 
-  [Mvu.events.BEFORE_MESSAGE_UPDATE]: (context: { variables: Mvu.MvuData; message_content: string }) => void;
-
   [Mvu.events.VARIABLE_UPDATE_STARTED]: (variables: Mvu.MvuData) => void;
 
   [Mvu.events.COMMAND_PARSED]: (variables: Mvu.MvuData, commands: Mvu.CommandInfo[], message_content: string) => void;
 
   [Mvu.events.VARIABLE_UPDATE_ENDED]: (variables: Mvu.MvuData, variables_before_update: Mvu.MvuData) => void;
+
+  [Mvu.events.BEFORE_MESSAGE_UPDATE]: (context: { variables: Mvu.MvuData; message_content: string }) => void;
 }
