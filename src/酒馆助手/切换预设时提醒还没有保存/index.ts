@@ -39,8 +39,6 @@ $(() => {
       },
     );
 
-    console.warn(result);
-
     if (!result) {
       $select
         .find('option')
