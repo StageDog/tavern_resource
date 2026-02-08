@@ -74,15 +74,23 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
             return null;
           }
           const old_value = _.get(data, path);
-          if (typeof old_value !== 'number' && typeof old_value !== 'string') {
+          const old_value_type = typeof old_value;
+          if (old_value_type !== 'number') {
+            if (notification_enabled) {
+              reportError(
+                'warn',
+                [
+                  `✖ 不能对非数字类型 '${old_value_type}' 进行加减运算`,
+                  `  → 路径: ${path}`,
+                  `  → 原值: ${JSON.stringify(old_value)}`,
+                ].join('\n'),
+                `发生变量更新错误, 可能需要重Roll: ${command.full_match}`,
+              );
+            }
             return null;
           }
           const delta_value = parseCommandValue(command.args[1]);
-          _.update(
-            data,
-            path,
-            value => value + (typeof old_value === 'number' ? Number(delta_value) : String(delta_value)),
-          );
+          _.update(data, path, value => value + Number(delta_value));
           return checkSchema(data, command, true);
         }
         case 'insert': {
@@ -192,7 +200,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
 
   eventOn('mag_command_parsed_ended_for_zod', (_variables, commands) => {
     commands.length = 0;
-  })
+  });
 
   eventOn('mag_variable_update_ended_for_zod', variables => {
     _.set(variables, 'schema', '没有用别管这个');
