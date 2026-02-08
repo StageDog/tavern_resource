@@ -1,46 +1,66 @@
 import { detailedDiff } from 'deep-object-diff';
 
-function selectPreset(settings: Record<string, any>, preset_name: string) {
-  _.set(settings, 'preset_settings_openai', preset_name);
-  $(`#settings_preset_openai option`)
-    .filter(function () {
-      return $(this).text() === preset_name;
-    })
-    .prop('selected', true);
-}
-
 $(() => {
-  eventOn(tavern_events.OAI_PRESET_CHANGED_BEFORE, async data => {
+  const $select = $('#settings_preset_openai');
+
+  let allow_next = false;
+  async function onChange(event: Event) {
+    if (allow_next) {
+      allow_next = false;
+      return;
+    }
+    event.stopImmediatePropagation();
+    event.stopPropagation();
+
+    const preset_before = SillyTavern.chatCompletionSettings.preset_settings_openai;
+
     const in_use = getPreset('in_use');
-    const preset = getPreset(data.presetNameBefore);
-    if (_.isEqual(in_use, preset)) {
+    const preset_content = getPreset(preset_before);
+    if (_.isEqual(in_use, preset_content)) {
+      allow_next = true;
+      $select.trigger('change');
       return;
     }
 
-    const diff = detailedDiff(preset, in_use);
+    const diff = detailedDiff(preset_content, in_use);
+    const preset_after = $select.find(':selected').text();
     const result = await SillyTavern.callGenericPopup(
       builtin.renderMarkdown(
-        `'${data.presetNameBefore}' 预设存在以下内容还未保存, 是否切换成 '${data.presetName}' 预设?\n\`\`\`yaml\n${YAML.stringify(_.pickBy(diff, value => !_.isEmpty(value)))}\n\`\`\``,
+        `'${preset_before}' 预设存在以下内容还未保存, 是否切换成 '${preset_after}' 预设?\n\`\`\`yaml\n${YAML.stringify(_.pickBy(diff, value => !_.isEmpty(value)))}\n\`\`\``,
       ),
       SillyTavern.POPUP_TYPE.CONFIRM,
       '',
       {
         leftAlign: true,
-        okButton: '保存并切换',
+        customButtons: ['保存并切换'],
+        okButton: '仅切换',
         cancelButton: '取消',
-        customButtons: ['直接切换'],
         wide: true,
       },
     );
-    if (result === SillyTavern.POPUP_RESULT.CUSTOM1 || result === 2) {
+
+    console.warn(result);
+
+    if (!result) {
+      $select
+        .find('option')
+        .filter(function () {
+          return $(this).text() === preset_before;
+        })
+        .prop('selected', true);
       return;
     }
-    if (result === SillyTavern.POPUP_RESULT.AFFIRMATIVE) {
-      await data.savePreset(data.presetNameBefore, data.settings, false);
-      selectPreset(data.settings, data.presetNameBefore);
-      return;
+
+    if (result === 2) {
+      await replacePreset(preset_before, in_use);
     }
-    Object.keys(data.preset).forEach(key => _.unset(data.preset, key));
-    selectPreset(data.settings, data.presetNameBefore);
+    allow_next = true;
+    $select.trigger('change');
+  }
+
+  $select[0].addEventListener('change', onChange, { capture: true });
+
+  $(window).on('pagehide', () => {
+    $select[0].removeEventListener('change', onChange);
   });
 });
