@@ -30,7 +30,7 @@ const onGenerateAfterData = ({ prompt }: Parameters<ListenerType['generate_after
     const total_tokens = tokens.reduce((result, current) => result + current, 0);
     if (total_tokens > getSettings().token数阈值) {
       toastr.warning(
-        `<u>点击查看如何减少 token</u><br>如果不想被提醒，请通过 '酒馆助手-工具箱' 关闭此功能`,
+        `<u>点击查看如何减少 token</u><br>如果不想被提醒，请关闭 'token数过多提醒' 脚本`,
         `token 数 (${total_tokens}) 超过建议 (${getSettings().token数阈值})`,
         {
           showDuration: 1000,
