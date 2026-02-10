@@ -72,7 +72,11 @@ const show_changelog: Button = {
   name: '更新日志',
   function: () => {
     marked.parse(changelog_content, { async: true, breaks: true }).then(html => {
-      SillyTavern.callGenericPopup(html, SillyTavern.POPUP_TYPE.TEXT, '', { leftAlign: true });
+      SillyTavern.callGenericPopup(html, SillyTavern.POPUP_TYPE.TEXT, '', {
+        leftAlign: true,
+        wider: true,
+        allowVerticalScrolling: true,
+      });
     });
   },
 };
