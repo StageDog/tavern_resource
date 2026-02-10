@@ -31,7 +31,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
     }
   });
 
-  eventOn('mag_command_parsed_for_zod', (variables, commands) => {
+  eventOn('mag_command_parsed_for_zod', (variables: Mvu.MvuData, commands: Mvu.CommandInfo[]) => {
     const schema = unwrapSchema();
     const notification_enabled = Boolean($('#mvu_notification_error').prop('checked'));
 
@@ -54,13 +54,23 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
       return null;
     };
 
-    const applyCommand = (data: any, command: Mvu.CommandInfo): any | null => {
+    const isReadonlyPath = (path: string | string[]) => {
+      if (typeof path === 'string') {
+        path = _.toPath(path);
+      }
+      return path.some(p => p.startsWith('_'));
+    };
+
+    const applyCommand = (data: any, command: Mvu.CommandInfo): Record<string, any> | null => {
       switch (command.type) {
         case 'set': {
           if (command.args.length === 3) {
             command.args.splice(1, 1);
           }
           const path = parsePath(command.args[0]);
+          if (isReadonlyPath(path)) {
+            return null;
+          }
           if (path) {
             _.set(data, path, parseCommandValue(command.args[1]));
           } else {
@@ -70,7 +80,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
         }
         case 'add': {
           const path = parsePath(command.args[0]);
-          if (!path) {
+          if (!path || isReadonlyPath(path)) {
             return null;
           }
           const old_value = _.get(data, path);
@@ -95,6 +105,9 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
         }
         case 'insert': {
           const path = parsePath(command.args[0]);
+          if (isReadonlyPath(path)) {
+            return null;
+          }
           const key_or_index = parseCommandValue(command.args[1]);
           const value = parseCommandValue(command.args.at(-1)!);
 
@@ -132,8 +145,11 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
         }
         case 'delete': {
           const path = command.args.map(parsePath).join('.');
-          const path_array = _(path).toPath().value();
-          const parent_path = _(path_array).dropRight().join('.');
+          const path_array = _.toPath(path);
+          if (isReadonlyPath(path_array)) {
+            return null;
+          }
+          const parent_path = _.dropRight(path_array).join('.');
           if (_.isArray(_.get(data, parent_path))) {
             _.pullAt(_.get(data, parent_path), Number(_(path_array).last()));
           } else {
@@ -142,12 +158,12 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
           return checkSchema(data, command, true);
         }
       }
+      return null;
     };
 
-    const old_data = klona(variables.stat_data);
-
-    for (const command of commands) {
-      let data = klona(variables.stat_data);
+    const consumed_indices: number[] = [];
+    commands.forEach((command, index) => {
+      let data: Record<string, any> | null = klona(variables.stat_data);
       if (command.type === 'move') {
         const from_path = parsePath(command.args[0]);
         if (!_.has(data, from_path)) {
@@ -158,7 +174,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
               `发生变量更新错误，可能需要重Roll: ${command.full_match}`,
             );
           }
-          continue;
+          return;
         }
         const value = _.get(data, from_path);
         const to_path = parsePath(command.args[1]);
@@ -168,37 +184,16 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
       } else {
         data = applyCommand(data, command);
       }
-      if (data !== null) {
+      if (data !== null && !_.isEqual(data, _.pick(variables.stat_data, Object.keys(data)))) {
         variables.stat_data = { ...variables.stat_data, ...data };
+        consumed_indices.push(index);
       }
-    }
+    });
 
-    function keepReadonly(new_data: Record<string, any>, old_data: Record<string, any>): void {
-      function traverse(obj: Record<string, any>, path: Array<string | number> = []) {
-        if (!_.isObjectLike(obj)) {
-          return;
-        }
-        _.forOwn(obj, (value, key) => {
-          const current_path = [...path, key];
-          if (key.startsWith('_')) {
-            const rhs_value = _.get(old_data, current_path);
-            if (rhs_value !== undefined) {
-              _.set(new_data, current_path, rhs_value);
-            }
-          }
-          if (_.isObjectLike(value)) {
-            traverse(value, current_path);
-          }
-        });
-      }
-      traverse(new_data);
-    }
-    keepReadonly(variables.stat_data, old_data);
-
-    commands.length = 0;
+    _.pullAt(commands, consumed_indices);
   });
 
-  eventOn('mag_command_parsed_ended_for_zod', (_variables, commands) => {
+  eventOn('mag_command_parsed_ended_for_zod', (_variables, commands: Mvu.CommandInfo[]) => {
     commands.length = 0;
   });
 
