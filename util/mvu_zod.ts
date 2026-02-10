@@ -193,6 +193,10 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
     _.pullAt(commands, consumed_indices);
   });
 
+  // 临时处理, 之后缓存更新后删掉
+  eventOn('mag_command_parsedended_for_zod', (_variables, commands: Mvu.CommandInfo[]) => {
+    commands.length = 0;
+  });
   eventOn('mag_command_parsed_ended_for_zod', (_variables, commands: Mvu.CommandInfo[]) => {
     commands.length = 0;
   });
