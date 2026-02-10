@@ -30,10 +30,10 @@ const STEPS: Step[] = [
   { category: 'MVU变量', design: '📋 MVU变量更新规则', check: '🔍 MVU变量更新规则' },
   { category: 'MVU变量', design: '📋 MVU变量列表', check: '🔍 MVU变量列表' },
   { category: 'MVU变量', design: '📋 MVU变量输出格式', check: '🔍 MVU变量输出格式' },
-  { category: 'MVU变量', design: '📋 前端美化状态栏', check: '🔍 前端美化状态栏' },
+  { category: 'MVU变量', design: '📋 MVU前端状态栏', check: '🔍 MVU前端状态栏' },
   { category: 'MVU变量', design: '📋 EJS代码' },
-  { category: 'MVU变量', design: '📋 多阶段人设' },
-  { category: 'MVU变量', design: '📋 多阶段控制器' },
+  { category: 'MVU变量', design: '📋 EJS多阶段人设' },
+  { category: 'MVU变量', design: '📋 EJS多阶段控制器' },
 ] as const;
 
 const ALL_STEPS = STEPS.flatMap(step => [step.design, step.check].filter(_.isString));
