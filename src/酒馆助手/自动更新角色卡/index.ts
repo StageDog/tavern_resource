@@ -28,6 +28,32 @@ function makeUpdateCharacter(data: Data): Button {
   return {
     name: `更新角色卡: ${data.name}${data.version}`,
     function: async () => {
+      const primary = getCharWorldbookNames('current').primary;
+      if (primary) {
+        const result = await SillyTavern.callGenericPopup(
+          '更新角色卡将会覆盖掉现在的世界书, 你需要备份吗?',
+          SillyTavern.POPUP_TYPE.CONFIRM,
+          '',
+          {
+            leftAlign: true,
+            customButtons: ['备份并更新'],
+            okButton: '仅更新',
+            cancelButton: '取消',
+            wide: true,
+          },
+        );
+        if (!result) {
+          return;
+        }
+        if (result === 2) {
+          const backup = `${primary} (备份)`;
+          const success = await createOrReplaceWorldbook(backup, await getWorldbook(primary));
+          if (success) {
+            toastr.success(`已将世界书备份为 '${backup}'`);
+          }
+        }
+      }
+
       const success = await importRawCharacter(data.name, data.content);
       if (!success) {
         toastr.error('更新角色卡失败, 请刷新重试');
