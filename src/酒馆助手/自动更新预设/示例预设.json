@@ -1,0 +1,253 @@
+{
+    "temperature": 1,
+    "frequency_penalty": 0,
+    "presence_penalty": 0,
+    "top_p": 1,
+    "top_k": 0,
+    "top_a": 0,
+    "min_p": 0,
+    "repetition_penalty": 1,
+    "max_context_unlocked": true,
+    "openai_max_context": 2000000,
+    "openai_max_tokens": 8192,
+    "names_behavior": 0,
+    "send_if_empty": "",
+    "impersonation_prompt": "",
+    "new_chat_prompt": "",
+    "new_group_chat_prompt": "",
+    "new_example_chat_prompt": "",
+    "continue_nudge_prompt": "",
+    "bias_preset_selected": "Default (none)",
+    "wi_format": "{0}",
+    "scenario_format": "{{scenario}}",
+    "personality_format": "{{personality}}",
+    "group_nudge_prompt": "",
+    "stream_openai": true,
+    "prompts": [
+        {
+            "identifier": "worldInfoBefore",
+            "name": "World Info (before)",
+            "enabled": true,
+            "injection_position": 0,
+            "injection_depth": 4,
+            "injection_order": 100,
+            "role": "system",
+            "system_prompt": true,
+            "marker": true,
+            "extra": {},
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "personaDescription",
+            "name": "Persona Description",
+            "enabled": true,
+            "injection_position": 0,
+            "injection_depth": 4,
+            "injection_order": 100,
+            "role": "system",
+            "system_prompt": true,
+            "marker": true,
+            "extra": {},
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "charDescription",
+            "name": "Char Description",
+            "enabled": true,
+            "injection_position": 0,
+            "injection_depth": 4,
+            "injection_order": 100,
+            "role": "system",
+            "system_prompt": true,
+            "marker": true,
+            "extra": {},
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "charPersonality",
+            "name": "Char Personality",
+            "enabled": true,
+            "injection_position": 0,
+            "injection_depth": 4,
+            "injection_order": 100,
+            "role": "system",
+            "system_prompt": true,
+            "marker": true,
+            "extra": {},
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "scenario",
+            "name": "Scenario",
+            "enabled": true,
+            "injection_position": 0,
+            "injection_depth": 4,
+            "injection_order": 100,
+            "role": "system",
+            "system_prompt": true,
+            "marker": true,
+            "extra": {},
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "enhanceDefinitions",
+            "name": "Enhance Definitions",
+            "enabled": true,
+            "role": "system",
+            "content": "",
+            "system_prompt": true,
+            "marker": false,
+            "extra": {},
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "worldInfoAfter",
+            "name": "World Info (after)",
+            "enabled": true,
+            "injection_position": 0,
+            "injection_depth": 4,
+            "injection_order": 100,
+            "role": "system",
+            "system_prompt": true,
+            "marker": true,
+            "extra": {},
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "dialogueExamples",
+            "name": "Chat Examples",
+            "enabled": true,
+            "role": "system",
+            "system_prompt": true,
+            "marker": true,
+            "extra": {},
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "chatHistory",
+            "name": "Chat History",
+            "enabled": true,
+            "role": "system",
+            "system_prompt": true,
+            "marker": true,
+            "extra": {},
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "main",
+            "name": "Main Prompt",
+            "enabled": true,
+            "role": "system",
+            "content": "",
+            "system_prompt": true,
+            "marker": false,
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "nsfw",
+            "name": "Auxiliary Prompt",
+            "enabled": true,
+            "role": "system",
+            "content": "",
+            "system_prompt": true,
+            "marker": false,
+            "forbid_overrides": false
+        },
+        {
+            "identifier": "jailbreak",
+            "name": "Post-History Instructions",
+            "enabled": true,
+            "role": "system",
+            "content": "",
+            "system_prompt": true,
+            "marker": false,
+            "forbid_overrides": false
+        }
+    ],
+    "prompt_order": [
+        {
+            "character_id": 100001,
+            "order": [
+                {
+                    "identifier": "worldInfoBefore",
+                    "enabled": true
+                },
+                {
+                    "identifier": "personaDescription",
+                    "enabled": true
+                },
+                {
+                    "identifier": "charDescription",
+                    "enabled": true
+                },
+                {
+                    "identifier": "charPersonality",
+                    "enabled": true
+                },
+                {
+                    "identifier": "scenario",
+                    "enabled": true
+                },
+                {
+                    "identifier": "enhanceDefinitions",
+                    "enabled": true
+                },
+                {
+                    "identifier": "worldInfoAfter",
+                    "enabled": true
+                },
+                {
+                    "identifier": "dialogueExamples",
+                    "enabled": true
+                },
+                {
+                    "identifier": "chatHistory",
+                    "enabled": true
+                }
+            ]
+        }
+    ],
+    "assistant_prefill": "",
+    "assistant_impersonation": "",
+    "use_sysprompt": true,
+    "squash_system_messages": false,
+    "media_inlining": false,
+    "inline_image_quality": "auto",
+    "continue_prefill": false,
+    "continue_postfix": "",
+    "function_calling": true,
+    "show_thoughts": false,
+    "reasoning_effort": "min",
+    "verbosity": "auto",
+    "enable_web_search": false,
+    "seed": -1,
+    "n": 1,
+    "request_images": false,
+    "request_image_aspect_ratio": "",
+    "request_image_resolution": "",
+    "extensions": {
+        "regex_scripts": [],
+        "tavern_helper": {
+            "scripts": [
+                {
+                    "type": "script",
+                    "enabled": true,
+                    "name": "自动更新预设",
+                    "id": "ef582ed6-acc6-4ffa-8629-48034064fce6",
+                    "content": "import 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/dist/酒馆助手/自动更新预设/index.js'",
+                    "info": "",
+                    "button": {
+                        "enabled": true,
+                        "buttons": []
+                    },
+                    "data": {
+                        "预设名称": "自动更新预设示例",
+                        "预设链接": "https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/自动更新预设/示例预设.json",
+                        "更新日志链接": "https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/自动更新预设/示例更新日志.md"
+                    }
+                }
+            ],
+            "variables": {}
+        }
+    }
+}
