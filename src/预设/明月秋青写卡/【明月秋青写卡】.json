@@ -26,7 +26,7 @@
   "prompts": [
     {
       "identifier": "worldInfoBefore",
-      "name": "World Info (before)",
+      "name": "这不是预设本体",
       "enabled": true,
       "injection_position": 0,
       "injection_depth": 4,
@@ -39,7 +39,7 @@
     },
     {
       "identifier": "personaDescription",
-      "name": "Persona Description",
+      "name": "只是一个空预设",
       "enabled": true,
       "injection_position": 0,
       "injection_depth": 4,
@@ -52,7 +52,7 @@
     },
     {
       "identifier": "charDescription",
-      "name": "Char Description",
+      "name": "去看酒馆输入框",
       "enabled": true,
       "injection_position": 0,
       "injection_depth": 4,
@@ -61,11 +61,13 @@
       "system_prompt": true,
       "marker": true,
       "extra": {},
-      "forbid_overrides": false
+      "forbid_overrides": false,
+      "content": "",
+      "injection_trigger": []
     },
     {
       "identifier": "charPersonality",
-      "name": "Char Personality",
+      "name": "点击上面的「导入预设」",
       "enabled": true,
       "injection_position": 0,
       "injection_depth": 4,
@@ -74,11 +76,13 @@
       "system_prompt": true,
       "marker": true,
       "extra": {},
-      "forbid_overrides": false
+      "forbid_overrides": false,
+      "content": "",
+      "injection_trigger": []
     },
     {
       "identifier": "scenario",
-      "name": "Scenario",
+      "name": "会导入预设本体",
       "enabled": true,
       "injection_position": 0,
       "injection_depth": 4,
@@ -87,22 +91,13 @@
       "system_prompt": true,
       "marker": true,
       "extra": {},
-      "forbid_overrides": false
-    },
-    {
-      "identifier": "enhanceDefinitions",
-      "name": "Enhance Definitions",
-      "enabled": true,
-      "role": "system",
+      "forbid_overrides": false,
       "content": "",
-      "system_prompt": true,
-      "marker": false,
-      "extra": {},
-      "forbid_overrides": false
+      "injection_trigger": []
     },
     {
       "identifier": "worldInfoAfter",
-      "name": "World Info (after)",
+      "name": "然后你可以删除这个预设",
       "enabled": true,
       "injection_position": 0,
       "injection_depth": 4,
@@ -111,7 +106,9 @@
       "system_prompt": true,
       "marker": true,
       "extra": {},
-      "forbid_overrides": false
+      "forbid_overrides": false,
+      "content": "",
+      "injection_trigger": []
     },
     {
       "identifier": "dialogueExamples",
@@ -186,10 +183,6 @@
         },
         {
           "identifier": "scenario",
-          "enabled": true
-        },
-        {
-          "identifier": "enhanceDefinitions",
           "enabled": true
         },
         {
