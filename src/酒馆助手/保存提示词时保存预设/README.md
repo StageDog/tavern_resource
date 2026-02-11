@@ -3,5 +3,5 @@
 - **作者:** 青空莉想做舞台少女的狗
 - **版本:** 2025/05/13
 - **原帖:** [点此跳转](https://discord.com/channels/1291925535324110879/1371874887156891689)
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 - **说明:** 编辑预设条目完成点击保存时，直接保存整个预设，避免切换预设时原本编辑的条目忘了保存而丢失

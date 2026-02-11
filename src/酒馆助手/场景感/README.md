@@ -3,7 +3,7 @@
 - **作者:** 青空莉想做舞台少女的狗
 - **版本:** 2025/08/13
 - **原帖:** [点此跳转](https://discord.com/channels/1134557553011998840/1308428327731855472)
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 
 灵感来源：我玩酒馆喜欢随着 AI 推演自己慢慢有一个剧情大纲，所以，
 

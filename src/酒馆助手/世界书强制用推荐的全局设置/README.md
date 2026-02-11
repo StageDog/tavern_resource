@@ -2,7 +2,7 @@
 
 - **作者:** 青空莉想做舞台少女的狗
 - **版本:** 2025/08/09
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 - **说明:** 启用后将锁定世界书全局设置为推荐的全局设置
 
 现在角色卡作者默认均会用这样的全局设置, 本来就没有玩家去修改的必要.

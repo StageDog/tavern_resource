@@ -3,7 +3,7 @@
 - **作者:** 青空莉想做舞台少女的狗
 - **版本:** 2025/04/21
 - **原帖:** [点此跳转](https://discord.com/channels/1291925535324110879/1354791063935520898)
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 - **说明:** 提前缓存
 
 导入脚本后, 点击编辑脚本将会看到变量表中有一个 "资源预载" 变量, 在值中填入要预载的图片链接, 每行一个

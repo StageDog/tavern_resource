@@ -2,5 +2,5 @@
 
 - **作者:** 青空莉想做舞台少女的狗
 - **版本:** 2025/04/29
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 - **说明:** 启用后将预设上下文长度锁定成最大 (200w), 避免酒馆错误地截断本来可以完整发给 AI 的提示词, 例如酒馆助手宏、提示词模板会导致 token 数虚高, 而酒馆容易错误处理它们.

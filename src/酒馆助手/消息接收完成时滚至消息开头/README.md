@@ -2,5 +2,5 @@
 
 - **作者:** 青空莉想做舞台少女的狗
 - **版本:** 2025/04/27
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 - **说明:** 虽然酒馆选项里关闭【自动滚动消息】也能做到，但有人想要收到 AI 消息后顶部对齐，所以做了

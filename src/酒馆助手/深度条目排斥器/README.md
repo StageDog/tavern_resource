@@ -2,7 +2,7 @@
 
 - **作者:** 青空莉想做舞台少女的狗
 - **版本:** 2025/11/13
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 
 ## 功能
 

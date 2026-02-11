@@ -2,7 +2,7 @@
 
 - **作者:** 青空莉想做舞台少女的狗
 - **版本:** 2025/10/04
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 
 一些写卡助手可能会帮助你制作带有 `{{get_message_variable::stat_data.xxx}}` 等酒馆助手宏和 `<%_ _%>` 等 EJS 提示词模板的提示词. 则此时的酒馆助手宏和 EJS 提示词模板只是作为纯文本提示词, 不应该被真的执行.
 

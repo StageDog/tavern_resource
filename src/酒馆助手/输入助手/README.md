@@ -2,7 +2,7 @@
 
 - **作者:** 司马咩咩, 青空莉想做舞台少女的狗
 - **版本:** 2025/08/30
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 
 方便在输入框指定位置输入引号、括号或自定义内容, 并指定输入后光标位置.
 

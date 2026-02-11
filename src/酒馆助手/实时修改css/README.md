@@ -3,7 +3,7 @@
 - **作者:** 青空莉想做舞台少女的狗
 - **版本:** 2025/11/06
 - **原帖:** [点此跳转](https://discord.com/channels/1134557553011998840/1333758463582404670)
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 - **说明:** 实时修改酒馆主题的 css
 
 ## 使用说明

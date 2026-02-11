@@ -2,7 +2,7 @@
 
 - **作者:** 青空莉想做舞台少女的狗
 - **版本:** 2025/11/15
-- **源文件:** [点此跳转](https://gitgud.io/StageDog/tavern_resource/-/tree/main/src)
+- **源文件:** [点此跳转](https://github.com/StageDog/tavern_resource/tree/main/src)
 - **说明:** 切换到某个角色卡时自动切换为对应预设
 
 导入本脚本, 编辑脚本将脚本变量中的 "要绑定的预设名称" 值改为对应预设名称, 然后将脚本移动到角色脚本中即可.
