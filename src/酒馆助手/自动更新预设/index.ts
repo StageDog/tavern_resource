@@ -104,7 +104,7 @@ $(
     loadReadme('https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/src/酒馆助手/自动更新预设/README.md');
 
     const settings = Settings.parse(getVariables({ type: 'script' }));
-    replaceVariables(settings, { type: 'script' });
+    insertOrAssignVariables(settings, { type: 'script' });
 
     if (Object.values(settings).some(value => !value || value === '未填写')) {
       return;
