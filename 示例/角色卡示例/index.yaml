@@ -190,7 +190,7 @@
       id: 2d2018ae-c085-4916-af05-6830110a8293
       启用: true
       查找表达式: /<update(?:variable)?>(?:(?!.*<\/update(?:variable)?>).*$|.*<\/update(?:variable)?>)/gsi
-      替换为: ''
+      内容: ''
       来源:
         用户输入: true
         AI输出: true
@@ -203,7 +203,7 @@
       id: ea96523f-a1cc-4634-b9d2-f28531adca6c
       启用: true
       查找表达式: /<update(?:variable)?>(?!.*<\/update(?:variable)?>)\s*(.*)\s*$/gsi
-      替换为: |-
+      内容: |-
 
         <details>
         <summary>变量更新中{{random::.::..::...}}</summary>
@@ -220,7 +220,7 @@
       id: 06dec31f-c0a9-456c-8b88-1f9176a73039
       启用: true
       查找表达式: /<update(?:variable)?>\s*(.*)\s*<\/update(?:variable)?>/gsi
-      替换为: |-
+      内容: |-
 
         <details>
         <summary>变量更新情况</summary>
@@ -237,7 +237,7 @@
       id: 65bd44f0-0098-4d54-a07d-9deced287d96
       启用: false
       查找表达式: <StatusPlaceHolderImpl/>
-      替换为: |-
+      内容: |-
         <style>
         /* 在这里写你的CSS样式 */
         .status-bar {
@@ -262,7 +262,7 @@
       id: b50d0bed-ff40-4a25-9ada-14feb4283324
       启用: true
       查找表达式: <StatusPlaceHolderImpl/>
-      替换为: |-
+      内容: |-
         ```
         <body>
         <script>

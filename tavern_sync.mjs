@@ -62535,7 +62535,6 @@ config(en());
 function detailed_parse(schema, data) {
     const result = schema.safeParse(data, { reportInput: true });
     if (!result.success) {
-        console.info(result);
         throw Error(prettifyError(result.error));
     }
     return result.data;
@@ -66411,7 +66410,7 @@ const extensions_zh_Extensions = looseObject({
         .transform(data => {
         if (data.替换为 !== undefined) {
             _.set(data, '内容', data.替换为);
-            _.unset(data, '内容');
+            _.unset(data, '替换为');
         }
         return data;
     })
