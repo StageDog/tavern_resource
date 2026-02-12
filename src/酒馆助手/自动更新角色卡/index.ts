@@ -1,6 +1,7 @@
 // TODO: 抽象出其中与其他脚本重复的代码
 import { checkMinimumVersion } from '@util/common';
 import { loadReadme } from '@util/script';
+import { compare } from 'compare-versions';
 import { marked } from 'marked';
 
 const Settings = z
@@ -90,7 +91,17 @@ function registerButtons(buttons: Button[]) {
 }
 
 async function checkButtonStatus(data: Data): Promise<Button[]> {
-  if (!getCharacterNames().includes(data.name) || (await getCharacter(data.name)).version !== data.version) {
+  const current_version = await getCharacter(data.name)
+    .then(character => character.version.trim() || '0.0.0')
+    .catch(() => '0.0.0');
+
+  let should_update = false;
+  try {
+    should_update = current_version !== data.version || compare(current_version, data.version, '<');
+  } catch (error) {
+    /** ignore */
+  }
+  if (should_update) {
     return [makeUpdateCharacter(data), makeShowChangelog(data)];
   }
   return [];
