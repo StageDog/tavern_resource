@@ -57,19 +57,31 @@ function makeShowChangelog(data: Data): Button {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-function registerButtons(buttons: Button[]) {
+async function updateButtons(data: Data): Promise<void> {
+  const should_update = !getPresetNames().includes(data.name);
+
+  const buttons = [makeUpdatePreset(data), makeShowChangelog(data)];
+  if (should_update) {
+    buttons.forEach(button => {
+      eventClearEvent(getButtonEvent(button.name));
+      eventOn(getButtonEvent(button.name), button.function);
+    });
+    replaceScriptButtons(
+      _(getScriptButtons())
+        .filter(button => buttons.every(b => b.name !== button.name))
+        .concat(buttons.map(button => ({ name: button.name, visible: true })))
+        .value(),
+    );
+    return;
+  }
   buttons.forEach(button => {
     eventClearEvent(getButtonEvent(button.name));
-    eventOn(getButtonEvent(button.name), button.function);
   });
-  replaceScriptButtons(buttons.map(button => ({ name: button.name, visible: true })));
-}
-
-async function checkButtonStatus(data: Data): Promise<Button[]> {
-  if (!getPresetNames().includes(data.name)) {
-    return [makeUpdatePreset(data), makeShowChangelog(data)];
-  }
-  return [];
+  replaceScriptButtons(
+    _(getScriptButtons())
+      .filter(button => buttons.every(b => b.name !== button.name))
+      .value(),
+  );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -105,6 +117,6 @@ $(
       changelog,
     };
 
-    registerButtons(await checkButtonStatus(data));
+    await updateButtons(data);
   }),
 );

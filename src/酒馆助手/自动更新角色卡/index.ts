@@ -82,15 +82,7 @@ function makeShowChangelog(data: Data): Button {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-function registerButtons(buttons: Button[]) {
-  buttons.forEach(button => {
-    eventClearEvent(getButtonEvent(button.name));
-    eventOn(getButtonEvent(button.name), button.function);
-  });
-  replaceScriptButtons(buttons.map(button => ({ name: button.name, visible: true })));
-}
-
-async function checkButtonStatus(data: Data): Promise<Button[]> {
+async function updateButtons(data: Data): Promise<void> {
   const current_version = await getCharacter(data.name)
     .then(character => character.version.trim() || '0.0.0')
     .catch(() => '0.0.0');
@@ -101,10 +93,28 @@ async function checkButtonStatus(data: Data): Promise<Button[]> {
   } catch (error) {
     /** ignore */
   }
+  const buttons = [makeUpdateCharacter(data), makeShowChangelog(data)];
   if (should_update) {
-    return [makeUpdateCharacter(data), makeShowChangelog(data)];
+    buttons.forEach(button => {
+      eventClearEvent(getButtonEvent(button.name));
+      eventOn(getButtonEvent(button.name), button.function);
+    });
+    replaceScriptButtons(
+      _(getScriptButtons())
+        .filter(button => buttons.every(b => b.name !== button.name))
+        .concat(buttons.map(button => ({ name: button.name, visible: true })))
+        .value(),
+    );
+    return;
   }
-  return [];
+  buttons.forEach(button => {
+    eventClearEvent(getButtonEvent(button.name));
+  });
+  replaceScriptButtons(
+    _(getScriptButtons())
+      .filter(button => buttons.every(b => b.name !== button.name))
+      .value(),
+  );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -141,6 +151,6 @@ $(
       changelog: changelog,
     };
 
-    registerButtons(await checkButtonStatus(data));
+    await updateButtons(data);
   }),
 );
