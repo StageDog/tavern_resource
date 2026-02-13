@@ -62772,7 +62772,7 @@ function from_tavern_regex(tavern_regex) {
         runOnEdit: tavern_regex.run_on_edit,
         findRegex: tavern_regex.find_regex,
         replaceString: tavern_regex.replace_string,
-        trimStrings: [], // TODO: handle this?
+        trimStrings: tavern_regex.trim_strings,
         placement: [
             ...(tavern_regex.source.user_input ? [1] : []),
             ...(tavern_regex.source.ai_output ? [2] : []),
@@ -65720,6 +65720,7 @@ const Extensions = looseObject({
         enabled: schemas_boolean(),
         find_regex: coerce_string(),
         replace_string: coerce_string().optional().describe(`已弃用, 请使用 'content' 或 'file'`),
+        trim_strings: array(coerce_string()).default([]),
         content: coerce_string().optional().describe('要替换为的内容'),
         file: coerce_string().optional().describe('要替换为的内容所在的文件路径'),
         source: strictObject({
@@ -65771,6 +65772,9 @@ const Extensions = looseObject({
 
 const extensions_Extensions = Extensions.transform(data => {
     data.regex_scripts.forEach(script => {
+        if ((script?.trim_strings?.length ?? 0) === 0) {
+            _.unset(script, 'trim_strings');
+        }
         if (script.source.slash_command === false) {
             _.unset(script, 'source.slash_command');
         }
@@ -65941,7 +65945,7 @@ const Character = strictObject({
 
 function is_yaml(content) {
     try {
-        dist.parse(content);
+        dist.parse(content, { logLevel: 'error' });
         return true;
     }
     catch (error) {
@@ -65967,7 +65971,7 @@ function detect_extension(content) {
 ;// ./src/server/util/extract_file_content.ts
 
 function extract_file_content(path) {
-    return __WEBPACK_EXTERNAL_MODULE_node_fs_75ed2103_readFileSync__(path, 'utf-8');
+    return __WEBPACK_EXTERNAL_MODULE_node_fs_75ed2103_readFileSync__(path, 'utf-8').replaceAll('\r\n', '\n');
 }
 
 ;// ./src/server/util/glob_file.ts
@@ -66333,6 +66337,7 @@ const extensions_zh_zh_to_en_map = {
     正则名称: 'script_name',
     启用: 'enabled',
     查找表达式: 'find_regex',
+    修剪掉: 'trim_strings',
     替换为: 'replace_string',
     来源: 'source',
     用户输入: 'user_input',
@@ -66390,6 +66395,7 @@ const extensions_zh_Extensions = looseObject({
         id: coerce_string().prefault((uuid_random_default())),
         启用: schemas_boolean(),
         查找表达式: coerce_string(),
+        修剪掉: array(coerce_string()).default([]),
         替换为: coerce_string().optional().describe(`已弃用, 请使用 '内容' 或 '文件'`),
         内容: coerce_string().optional().describe('要替换为的内容'),
         文件: coerce_string().optional().describe('要替换为的内容所在的文件路径'),
@@ -67166,10 +67172,6 @@ function fromPresetPrompt(prompt) {
 function bundle_preset(preset) {
     const prompt_used = preset.prompts.map(prompt => fromPresetPrompt(prompt));
     const prompt_unused = preset.prompts_unused.map(prompt => fromPresetPrompt(prompt));
-    const extensions = lodash_default().cloneDeep(preset.extensions);
-    if (lodash_default().has(extensions, 'regex_scripts[0].source')) {
-        extensions.regex_scripts = extensions.regex_scripts.map(from_tavern_regex);
-    }
     return {
         max_context_unlocked: true,
         openai_max_context: preset.settings.max_context,
@@ -67208,7 +67210,11 @@ function bundle_preset(preset) {
                 order: prompt_used.map(prompt => ({ identifier: prompt.identifier, enabled: prompt.enabled ?? true })),
             },
         ],
-        extensions: preset.extensions ?? {},
+        extensions: {
+            regex_scripts: preset.extensions?.regex_scripts?.map((script) => script.source !== undefined ? from_tavern_regex(script) : script) ?? [],
+            tavern_helper: preset.extensions?.tavern_helper ?? {},
+            ...lodash_default().omit(preset.extensions, 'regex_scripts', 'tavern_helper'),
+        },
     };
 }
 
@@ -67835,72 +67841,75 @@ class Preset_syncer extends Syncer_interface {
     // TODO: 拆分 component
     do_pull(local_data, tavern_data, { language, should_split }) {
         let files = [];
-        const prompts_state = local_data === null
-            ? []
-            : [...local_data.prompts, ...local_data.prompts_unused].filter(prompt => !lodash_default().has(prompt, 'id'));
-        const local_names = prompts_state.map(entry => entry.name);
-        const tavern_names = [...tavern_data.prompts, ...tavern_data.prompts_unused]
-            .filter(entry => entry.name !== undefined)
-            .map(entry => entry.name);
-        const duplicated_names = lodash_default()(tavern_names)
-            .filter(name => {
-            const index = local_names.findIndex(n => n === name);
-            if (index !== -1) {
-                local_names.splice(index, 1);
-                return false;
+        // 条目
+        {
+            const states = local_data === null
+                ? []
+                : [...local_data.prompts, ...local_data.prompts_unused].filter(prompt => !prompt.id || !prompt_placeholder_ids.includes(prompt.id));
+            const local_names = states.map(entry => entry.name);
+            const tavern_names = [...tavern_data.prompts, ...tavern_data.prompts_unused]
+                .filter(entry => entry.name !== undefined)
+                .map(entry => entry.name);
+            const duplicated_names = lodash_default()(tavern_names)
+                .filter(name => {
+                const index = local_names.findIndex(n => n === name);
+                if (index !== -1) {
+                    local_names.splice(index, 1);
+                    return false;
+                }
+                return true;
+            })
+                .countBy()
+                .pickBy(count => count > 1)
+                .keys()
+                .uniq()
+                .sort()
+                .value();
+            if (duplicated_names.length > 0) {
+                return { result_data: {}, error_data: { 以下条目存在同名条目: duplicated_names }, files: [] };
             }
-            return true;
-        })
-            .countBy()
-            .pickBy(count => count > 1)
-            .keys()
-            .uniq()
-            .sort()
-            .value();
-        if (duplicated_names.length > 0) {
-            return { result_data: {}, error_data: { 以下条目存在同名条目: duplicated_names }, files: [] };
+            const convert_prompts = (prompts, { used }) => prompts.forEach(prompt => {
+                if (lodash_default().has(prompt, 'id')) {
+                    return;
+                }
+                lodash_default().set(prompt, 'content', replace_user_name(prompt.content ?? ''));
+                if (prompt.content === '') {
+                    return;
+                }
+                const handle_file = (prompt, file) => {
+                    let file_to_write = '';
+                    let file_to_set = '';
+                    const glob_files = glob_file(this.dir, file);
+                    if (glob_files.length === 0) {
+                        file_to_write = file.replace(/\.[^\\/.]+$|$/, detect_extension(prompt.content));
+                        file_to_set = file.replace(/\.[^\\/.]+$/, '');
+                    }
+                    else if (glob_files.length === 1) {
+                        file_to_write = glob_files[0];
+                        file_to_set = __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_relative__(this.dir, glob_files[0]).replace(/\.[^\\/.]+$/, '');
+                    }
+                    else {
+                        file_to_write = file;
+                        file_to_set = file;
+                    }
+                    files.push({ name: prompt.name, path: file_to_write, content: append_yaml_endline(prompt.content) });
+                    lodash_default().unset(prompt, 'content');
+                    lodash_default().set(prompt, 'file', file_to_set);
+                };
+                const state = states.find(state => state.name === prompt.name);
+                if (state === undefined && should_split) {
+                    const file = __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_join__(used ? (language === 'zh' ? '条目' : 'prompts') : language === 'zh' ? '未使用条目' : 'unused_prompts', sanitize_filename(prompt.name) + detect_extension(prompt.content));
+                    handle_file(prompt, file);
+                    return;
+                }
+                if (state?.file !== undefined) {
+                    handle_file(prompt, state.file);
+                    return;
+                }
+            });
+            convert_prompts(tavern_data.prompts, { used: true });
+            convert_prompts(tavern_data.prompts_unused, { used: false });
         }
-        const convert_prompts = (prompts, { used }) => prompts.forEach(prompt => {
-            if (lodash_default().has(prompt, 'id')) {
-                return;
-            }
-            lodash_default().set(prompt, 'content', replace_user_name(prompt.content ?? ''));
-            if (prompt.content === '') {
-                return;
-            }
-            const handle_file = (prompt, file) => {
-                let file_to_write = '';
-                let file_to_set = '';
-                const glob_files = glob_file(this.dir, file);
-                if (glob_files.length === 0) {
-                    file_to_write = file.replace(/\.[^\\/.]+$|$/, detect_extension(prompt.content));
-                    file_to_set = file.replace(/\.[^\\/.]+$/, '');
-                }
-                else if (glob_files.length === 1) {
-                    file_to_write = glob_files[0];
-                    file_to_set = __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_relative__(this.dir, glob_files[0]).replace(/\.[^\\/.]+$/, '');
-                }
-                else {
-                    file_to_write = file;
-                    file_to_set = file;
-                }
-                files.push({ name: prompt.name, path: file_to_write, content: append_yaml_endline(prompt.content) });
-                lodash_default().unset(prompt, 'content');
-                lodash_default().set(prompt, 'file', file_to_set);
-            };
-            const state = prompts_state.find(state => state.name === prompt.name);
-            if (state === undefined && should_split) {
-                const file = __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_join__(sanitize_filename(this.config_name), used ? '' : language === 'zh' ? '未使用' : 'unused', sanitize_filename(prompt.name) + detect_extension(prompt.content));
-                handle_file(prompt, file);
-                return;
-            }
-            if (state?.file !== undefined) {
-                handle_file(prompt, state.file);
-                return;
-            }
-        });
-        convert_prompts(tavern_data.prompts, { used: true });
-        convert_prompts(tavern_data.prompts_unused, { used: false });
         // 正则
         {
             const states = local_data === null
