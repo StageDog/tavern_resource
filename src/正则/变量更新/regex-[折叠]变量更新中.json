@@ -2,7 +2,7 @@
     "id": "2775e67e-9b96-4269-85a8-351b014e46b8",
     "scriptName": "[折叠]变量更新中",
     "findRegex": "/<(update(?:variable)?)>(?!.*<\\/\\1>)\\s*((?:(?!<\\1>).)*)\\s*$/gsi",
-    "replaceString": "\n<details>\n<summary>变量更新中{{random::.::..::...}}</summary>\n$2\n</details>",
+    "replaceString": "\n\n<details>\n<summary>变量更新中{{random::.::..::...}}</summary>\n$2\n</details>\n",
     "trimStrings": [],
     "placement": [
         1,
