@@ -229,7 +229,11 @@ function parsePath(string: string): string {
   );
 }
 
-function parseCommandValue(string: string): any {
+function parseCommandValue(string: any): any {
+  if (typeof string !== 'string') {
+    return string;
+  }
+
   const value = parseCommandValueImpl(string);
   if (value instanceof Date) {
     return value.toISOString();
