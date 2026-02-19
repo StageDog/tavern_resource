@@ -227,7 +227,7 @@
           "enabled": true,
           "name": "明月秋青写卡预设配套脚本",
           "id": "3692a4df-d51a-405f-8704-1559337d653b",
-          "content": "import 'https://cdn.jsdelivr.net/gh/StageDog/tavern_resource/dist/预设/明月秋青写卡/脚本/index.js'"
+          "content": "import 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/dist/预设/明月秋青写卡/脚本/index.js'"
         }
       ]
     }
