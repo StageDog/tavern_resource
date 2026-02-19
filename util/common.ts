@@ -1,5 +1,4 @@
 import { compare } from 'compare-versions';
-import JSON5 from 'json5';
 import { jsonrepair } from 'jsonrepair';
 import { toDotPath } from 'zod/v4/core';
 
@@ -94,32 +93,24 @@ export function literalYamlify(value: any) {
 }
 
 export function parseString(content: string): any {
-  let parsed: unknown;
+  const json_first = /^[[{]/s.test(content.trimStart());
   try {
-    parsed = YAML.parseDocument(content, { merge: true }).toJS();
-  } catch (yaml_error) {
+    return json_first ? JSON.parse(jsonrepair(content)) : YAML.parseDocument(content, { merge: true }).toJS();
+  } catch (e1) {
     try {
-      // eslint-disable-next-line import-x/no-named-as-default-member
-      parsed = JSON5.parse(content);
-    } catch (json5_error) {
-      try {
-        parsed = JSON.parse(jsonrepair(content));
-      } catch (json_error) {
-        const toError = (error: unknown) => (error instanceof Error ? error.message : String(error));
-        throw new Error(
-          literalYamlify({
-            ['要解析的字符串不是有效的 YAML/JSON 格式']: {
-              字符串内容: content,
-              YAML错误信息: toError(yaml_error),
-              JSON5错误信息: toError(json5_error),
-              尝试修复JSON时的错误信息: toError(json_error),
-            },
-          }),
-        );
-      }
+      return json_first ? YAML.parseDocument(content, { merge: true }).toJS() : JSON.parse(jsonrepair(content));
+    } catch (e2) {
+      const toError = (error: unknown) =>
+        error instanceof Error ? `${error.stack ? error.stack : error.message}` : String(error);
+
+      const error = { 字符串内容: content };
+      _.set(error, json_first ? 'JSON错误信息' : 'YAML错误信息', toError(e1));
+      _.set(error, json_first ? 'YAML错误信息' : 'JSON错误信息', toError(e2));
+      throw new Error(
+        literalYamlify({ [`要解析的字符串不是有效的 ${json_first ? 'JSON/YAML' : 'YAML/JSON'} 格式`]: error }),
+      );
     }
   }
-  return parsed;
 }
 
 export function getComplementString(string: string) {
