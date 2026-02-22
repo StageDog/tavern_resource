@@ -15,7 +15,8 @@ export function toggleEjsAndMacro(enable: boolean) {
     $TH_macro_disabled.trigger('click');
   }
 
-  if (EjsTemplate) {
+  // @ts-expect-error 类型正确
+  if (window.EjsTemplate) {
     EjsTemplate.setFeatures({
       enabled: enable,
       generate_enabled: true,
