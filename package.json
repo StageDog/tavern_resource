@@ -13,7 +13,7 @@
     "defaults and partially supports es6-module"
   ],
   "devDependencies": {
-    "@eslint/js": "^9.39.2",
+    "@eslint/js": "^9.39.3",
     "@tailwindcss/postcss": "^4.2.0",
     "@types/jquery": "^3.5.33",
     "@types/jqueryui": "^1.12.24",
@@ -27,7 +27,7 @@
     "autoprefixer": "^10.4.24",
     "chokidar": "^4.0.3",
     "css-loader": "^7.1.4",
-    "eslint": "^9.39.2",
+    "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-better-tailwindcss": "^3.8.0",
