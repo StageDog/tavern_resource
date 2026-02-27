@@ -55,13 +55,28 @@ async function on_file_attach(file_list: FileList) {
   }
 }
 
+const files: Map<string, File> = new Map();
+
 function attach_file_from_text(text: string) {
-  const file = new File([text], 'pasted.txt');
+  let file: File;
+  if (files.has(text)) {
+    file = files.get(text)!;
+  } else {
+    file = new File([text], 'pasted.txt');
+    files.set(text, file);
+  }
+
+  const $file_form_input = $('#file_form_input');
 
   const data_transfer = new DataTransfer();
-  data_transfer.items.add(file);
+  _(Array.from($file_form_input.prop('files') as FileList))
+    .concat(file)
+    .uniqBy(file => `${file.lastModified}-${file.name}-${file.size}-${file.type}`)
+    .forEach(file => {
+      data_transfer.items.add(file);
+    });
 
-  $('#file_form_input').prop('files', data_transfer.files);
+  $file_form_input.prop('files', data_transfer.files);
   on_file_attach(data_transfer.files);
 }
 
