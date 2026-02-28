@@ -48796,6 +48796,9 @@ __webpack_require__.d(classic_schemas_namespaceObject, {
 
 ;// ./src/server/settings_default.yaml?raw
 const settings_defaultraw_namespaceObject = "# yaml-language-server: $schema=https://testingcf.jsdelivr.net/gh/StageDog/tavern_sync/dist/schema/settings.zh.json\n\n# 在此填入 user 名称, 提示词中如果有这个名字则会被替换成 <user> 宏\nuser名称: 青空黎\n\n# 在此填入新的\"角色卡\"、\"世界书\"或\"预设\"配置\n配置:\n  # 配置名称, 可以和酒馆中的不同. 你使用脚本时需要填写配置名称来指出用哪个配置, 因此尽量配置名称尽量简单点方便填写\n  角色卡示例:\n    # 类型可以是\"角色卡\"、\"世界书\"或\"预设\"\n    类型: 角色卡\n\n    # 在酒馆中这个\"角色卡\"、\"世界书\"或\"预设\"叫什么\n    酒馆中的名称: 呕吐内心的少女\n\n    # 这个\"角色卡\"、\"世界书\"或\"预设\"的等效配置文件要提取到本地哪个文件中, 可以是绝对路径或相对于本文件的相对路径\n    # 如果不满足路径格式将会报错\n    # - 绝对路径: 如 Windows 中, 想将世界书提取到 C 盘\"角色卡示例\"文件夹中, 则填入 `C:/角色卡示例`\n    # - 相对路径:\n    #   - 想将配置文件提取到本文件相同的文件夹中, 则填入 `./角色卡示例` 或 `角色卡示例`\n    #   - 想将配置文件提取到本文件所在文件夹的子文件夹\"世界书\"中, 则填入 `./世界书/角色卡示例` 或 `世界书/角色卡示例`\n    #   - 想将配置文件提取到本文件所在文件夹的父文件夹中, 则填入 `../角色卡示例`\n    本地文件路径: 角色卡示例/index\n\n    # 当使用打包功能 `node tavern_sync.mjs bundle 配置名称` 直接生成\"角色卡\"、\"世界书\"或\"预设\"文件时, 要将它存放在哪个文件中\n    # 你也可以直接删去下面一行不填, 则默认会导出到本地文件路径的同目录下\n    导出文件路径: 角色卡示例/角色卡示例\n";
+// EXTERNAL MODULE: ./node_modules/.pnpm/lodash@4.17.23/node_modules/lodash/lodash.js
+var lodash = __webpack_require__(9345);
+var lodash_default = /*#__PURE__*/__webpack_require__.n(lodash);
 ;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/core/core.js
 /** A special constant with type `never` */
 const NEVER = Object.freeze({
@@ -60607,6 +60610,106 @@ class JSONSchemaGenerator {
 
 
 
+;// ./src/server/util/prettify_error_with_input.ts
+
+
+function prettify_error_with_input(error) {
+    return lodash_default()([...error.issues])
+        .sortBy(issue => issue.path?.length ?? 0)
+        .flatMap(issue => {
+        const lines = [`✖ ${issue.message}`];
+        if (issue.path?.length) {
+            lines.push(`  → 路径: ${toDotPath(issue.path)}`);
+        }
+        if (issue.input !== undefined) {
+            lines.push(`  → 输入: ${JSON.stringify(issue.input)}`);
+        }
+        return lines;
+    })
+        .join('\n');
+}
+
+;// ./src/server/util/prettified_parse.ts
+
+function detailed_parse(schema, data) {
+    const result = schema.safeParse(data, { reportInput: true });
+    if (!result.success) {
+        throw Error(prettify_error_with_input(result.error));
+    }
+    return result.data;
+}
+
+;// ./src/server/util/map_deep.ts
+
+function map_keys_deep_impl(data, fn, is_recursive) {
+    if (!data && !is_recursive) {
+        return {};
+    }
+    if (!is_recursive) {
+        if (typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean') {
+            return {};
+        }
+    }
+    if (Array.isArray(data)) {
+        return data.map(item => map_keys_deep_impl(item, fn, true));
+    }
+    if (!lodash_default().isPlainObject(data)) {
+        return data;
+    }
+    const result = lodash_default().mapKeys(data, fn);
+    return lodash_default().mapValues(result, value => map_keys_deep_impl(value, fn, true));
+}
+function map_keys_deep(data, fn) {
+    return map_keys_deep_impl(data, fn, false);
+}
+function map_values_deep(data, fn) {
+    if (Array.isArray(data)) {
+        return data.map(item => map_values_deep(item, fn));
+    }
+    if (!lodash_default().isPlainObject(data)) {
+        return fn(data);
+    }
+    return lodash_default().mapValues(data, value => map_values_deep(value, fn));
+}
+
+;// ./src/server/util/translate.ts
+
+function translate(data, map) {
+    const try_map = (string) => {
+        if (typeof string !== 'string') {
+            return string;
+        }
+        if (map[string]) {
+            return map[string];
+        }
+        return string;
+    };
+    data = map_keys_deep(data, (_value, key) => {
+        return try_map(key);
+    });
+    data = map_values_deep(data, try_map);
+    return data;
+}
+
+;// external "node:fs"
+
+;// external "node:path"
+
+;// ./src/server/util/write_file_recursively.ts
+
+
+function write_file_recursively(base, file, content) {
+    try {
+        __WEBPACK_EXTERNAL_MODULE_node_fs_75ed2103_mkdirSync__(__WEBPACK_EXTERNAL_MODULE_node_path_02319fef_resolve__(base, __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_dirname__(file)), { recursive: true });
+        __WEBPACK_EXTERNAL_MODULE_node_fs_75ed2103_writeFileSync__(__WEBPACK_EXTERNAL_MODULE_node_path_02319fef_resolve__(base, file), content);
+    }
+    catch (error) {
+        throw Error(`写入文件 '${file}' 失败: ${error}`);
+    }
+}
+
+;// external "path"
+
 ;// ./node_modules/.pnpm/zod@4.3.6/node_modules/zod/v4/classic/checks.js
 
 
@@ -62529,90 +62632,6 @@ config(en());
 
 
 
-
-;// ./src/server/util/prettified_parse.ts
-
-function detailed_parse(schema, data) {
-    const result = schema.safeParse(data, { reportInput: true });
-    if (!result.success) {
-        throw Error(prettifyError(result.error));
-    }
-    return result.data;
-}
-
-// EXTERNAL MODULE: ./node_modules/.pnpm/lodash@4.17.23/node_modules/lodash/lodash.js
-var lodash = __webpack_require__(9345);
-var lodash_default = /*#__PURE__*/__webpack_require__.n(lodash);
-;// ./src/server/util/map_deep.ts
-
-function map_keys_deep_impl(data, fn, is_recursive) {
-    if (!data && !is_recursive) {
-        return {};
-    }
-    if (!is_recursive) {
-        if (typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean') {
-            return {};
-        }
-    }
-    if (Array.isArray(data)) {
-        return data.map(item => map_keys_deep_impl(item, fn, true));
-    }
-    if (!lodash_default().isPlainObject(data)) {
-        return data;
-    }
-    const result = lodash_default().mapKeys(data, fn);
-    return lodash_default().mapValues(result, value => map_keys_deep_impl(value, fn, true));
-}
-function map_keys_deep(data, fn) {
-    return map_keys_deep_impl(data, fn, false);
-}
-function map_values_deep(data, fn) {
-    if (Array.isArray(data)) {
-        return data.map(item => map_values_deep(item, fn));
-    }
-    if (!lodash_default().isPlainObject(data)) {
-        return fn(data);
-    }
-    return lodash_default().mapValues(data, value => map_values_deep(value, fn));
-}
-
-;// ./src/server/util/translate.ts
-
-function translate(data, map) {
-    const try_map = (string) => {
-        if (typeof string !== 'string') {
-            return string;
-        }
-        if (map[string]) {
-            return map[string];
-        }
-        return string;
-    };
-    data = map_keys_deep(data, (_value, key) => {
-        return try_map(key);
-    });
-    data = map_values_deep(data, try_map);
-    return data;
-}
-
-;// external "node:fs"
-
-;// external "node:path"
-
-;// ./src/server/util/write_file_recursively.ts
-
-
-function write_file_recursively(base, file, content) {
-    try {
-        __WEBPACK_EXTERNAL_MODULE_node_fs_75ed2103_mkdirSync__(__WEBPACK_EXTERNAL_MODULE_node_path_02319fef_resolve__(base, __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_dirname__(file)), { recursive: true });
-        __WEBPACK_EXTERNAL_MODULE_node_fs_75ed2103_writeFileSync__(__WEBPACK_EXTERNAL_MODULE_node_path_02319fef_resolve__(base, file), content);
-    }
-    catch (error) {
-        throw Error(`写入文件 '${file}' 失败: ${error}`);
-    }
-}
-
-;// external "path"
 
 ;// ./src/type/settings.en.ts
 
