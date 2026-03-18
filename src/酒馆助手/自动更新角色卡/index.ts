@@ -89,9 +89,9 @@ async function updateButtons(data: Data): Promise<void> {
 
   let should_update = false;
   try {
-    should_update = current_version !== data.version || compare(current_version, data.version, '<');
+    should_update = compare(current_version, data.version, '<');
   } catch (error) {
-    /** ignore */
+    should_update = current_version !== data.version;
   }
   const buttons = [makeUpdateCharacter(data), makeShowChangelog(data)];
   if (should_update) {
