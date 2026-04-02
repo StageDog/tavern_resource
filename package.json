@@ -83,6 +83,7 @@
     "@vueuse/integrations": "^13.9.0",
     "@vueuse/shared": "^13.9.0",
     "async-wait-until": "^2.0.31",
+    "axios": "1.14.0",
     "chinese-simple2traditional": "^2.3.2",
     "compare-versions": "^6.1.1",
     "dedent": "^1.7.2",
