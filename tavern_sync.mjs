@@ -32308,7 +32308,7 @@ exports.protocol = 4;
 
 /***/ },
 
-/***/ 6911
+/***/ 215
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -32317,17 +32317,17 @@ exports.protocol = exports.Transport = exports.Socket = exports.uServer = export
 exports.listen = listen;
 exports.attach = attach;
 const http_1 = __webpack_require__(8611);
-const server_1 = __webpack_require__(7493);
+const server_1 = __webpack_require__(5512);
 Object.defineProperty(exports, "Server", ({ enumerable: true, get: function () { return server_1.Server; } }));
-const index_1 = __webpack_require__(5495);
+const index_1 = __webpack_require__(7806);
 exports.transports = index_1.default;
 const parser = __webpack_require__(2680);
 exports.parser = parser;
-var userver_1 = __webpack_require__(7088);
+var userver_1 = __webpack_require__(8851);
 Object.defineProperty(exports, "uServer", ({ enumerable: true, get: function () { return userver_1.uServer; } }));
-var socket_1 = __webpack_require__(5299);
+var socket_1 = __webpack_require__(9162);
 Object.defineProperty(exports, "Socket", ({ enumerable: true, get: function () { return socket_1.Socket; } }));
-var transport_1 = __webpack_require__(7413);
+var transport_1 = __webpack_require__(9150);
 Object.defineProperty(exports, "Transport", ({ enumerable: true, get: function () { return transport_1.Transport; } }));
 exports.protocol = parser.protocol;
 /**
@@ -32369,7 +32369,7 @@ function attach(server, options) {
 
 /***/ },
 
-/***/ 7994
+/***/ 8793
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -32387,7 +32387,7 @@ exports.decodePayloadAsBinary = decodePayloadAsBinary;
 /**
  * Module dependencies.
  */
-var utf8 = __webpack_require__(2819);
+var utf8 = __webpack_require__(1830);
 /**
  * Current protocol version.
  */
@@ -32800,7 +32800,7 @@ function decodePayloadAsBinary(data, binaryType, callback) {
 
 /***/ },
 
-/***/ 2819
+/***/ 1830
 (module) {
 
 /*! https://mths.be/utf8js v2.1.2 by @mathias */
@@ -32994,20 +32994,20 @@ module.exports = {
 
 /***/ },
 
-/***/ 7493
+/***/ 5512
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Server = exports.BaseServer = void 0;
 const base64id = __webpack_require__(6821);
-const transports_1 = __webpack_require__(5495);
+const transports_1 = __webpack_require__(7806);
 const events_1 = __webpack_require__(4434);
-const socket_1 = __webpack_require__(5299);
+const socket_1 = __webpack_require__(9162);
 const debug_1 = __webpack_require__(7181);
 const cookie_1 = __webpack_require__(4058);
 const ws_1 = __webpack_require__(7159);
-const webtransport_1 = __webpack_require__(2252);
+const webtransport_1 = __webpack_require__(6827);
 const engine_io_parser_1 = __webpack_require__(2680);
 const debug = (0, debug_1.default)("engine");
 const kResponseHeaders = Symbol("responseHeaders");
@@ -33788,7 +33788,7 @@ function checkInvalidHeaderChar(val) {
 
 /***/ },
 
-/***/ 5299
+/***/ 9162
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -34255,7 +34255,7 @@ exports.Socket = Socket;
 
 /***/ },
 
-/***/ 7413
+/***/ 9150
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -34263,7 +34263,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Transport = void 0;
 const events_1 = __webpack_require__(4434);
 const parser_v4 = __webpack_require__(2680);
-const parser_v3 = __webpack_require__(7994);
+const parser_v3 = __webpack_require__(8793);
 const debug_1 = __webpack_require__(7181);
 const debug = (0, debug_1.default)("engine:transport");
 function noop() { }
@@ -34383,13 +34383,13 @@ Transport.upgradesTo = [];
 
 /***/ },
 
-/***/ 1195
+/***/ 8126
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const polling_1 = __webpack_require__(6448);
-const websocket_1 = __webpack_require__(7244);
+const polling_1 = __webpack_require__(3157);
+const websocket_1 = __webpack_require__(4617);
 exports["default"] = {
     polling: polling_1.Polling,
     websocket: websocket_1.WebSocket,
@@ -34398,13 +34398,13 @@ exports["default"] = {
 
 /***/ },
 
-/***/ 6448
+/***/ 3157
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Polling = void 0;
-const transport_1 = __webpack_require__(7413);
+const transport_1 = __webpack_require__(9150);
 const zlib_1 = __webpack_require__(3106);
 const accepts = __webpack_require__(9);
 const debug_1 = __webpack_require__(7181);
@@ -34769,13 +34769,13 @@ exports.Polling = Polling;
 
 /***/ },
 
-/***/ 7244
+/***/ 4617
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WebSocket = void 0;
-const transport_1 = __webpack_require__(7413);
+const transport_1 = __webpack_require__(9150);
 const debug_1 = __webpack_require__(7181);
 const debug = (0, debug_1.default)("engine:ws");
 class WebSocket extends transport_1.Transport {
@@ -34849,15 +34849,15 @@ exports.WebSocket = WebSocket;
 
 /***/ },
 
-/***/ 5495
+/***/ 7806
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const polling_1 = __webpack_require__(172);
-const polling_jsonp_1 = __webpack_require__(3927);
-const websocket_1 = __webpack_require__(3112);
-const webtransport_1 = __webpack_require__(2252);
+const polling_1 = __webpack_require__(5413);
+const polling_jsonp_1 = __webpack_require__(5442);
+const websocket_1 = __webpack_require__(3433);
+const webtransport_1 = __webpack_require__(6827);
 exports["default"] = {
     polling,
     websocket: websocket_1.WebSocket,
@@ -34879,13 +34879,13 @@ polling.upgradesTo = ["websocket", "webtransport"];
 
 /***/ },
 
-/***/ 3927
+/***/ 5442
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JSONP = void 0;
-const polling_1 = __webpack_require__(172);
+const polling_1 = __webpack_require__(5413);
 const qs = __webpack_require__(3480);
 const rDoubleSlashes = /\\\\n/g;
 const rSlashes = /(\\)?\\n/g;
@@ -34927,13 +34927,13 @@ exports.JSONP = JSONP;
 
 /***/ },
 
-/***/ 172
+/***/ 5413
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Polling = void 0;
-const transport_1 = __webpack_require__(7413);
+const transport_1 = __webpack_require__(9150);
 const zlib_1 = __webpack_require__(3106);
 const accepts = __webpack_require__(9);
 const debug_1 = __webpack_require__(7181);
@@ -35266,13 +35266,13 @@ exports.Polling = Polling;
 
 /***/ },
 
-/***/ 3112
+/***/ 3433
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WebSocket = void 0;
-const transport_1 = __webpack_require__(7413);
+const transport_1 = __webpack_require__(9150);
 const debug_1 = __webpack_require__(7181);
 const debug = (0, debug_1.default)("engine:ws");
 class WebSocket extends transport_1.Transport {
@@ -35366,13 +35366,13 @@ exports.WebSocket = WebSocket;
 
 /***/ },
 
-/***/ 2252
+/***/ 6827
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WebTransport = void 0;
-const transport_1 = __webpack_require__(7413);
+const transport_1 = __webpack_require__(9150);
 const debug_1 = __webpack_require__(7181);
 const engine_io_parser_1 = __webpack_require__(2680);
 const debug = (0, debug_1.default)("engine:webtransport");
@@ -35436,15 +35436,15 @@ exports.WebTransport = WebTransport;
 
 /***/ },
 
-/***/ 7088
+/***/ 8851
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.uServer = void 0;
 const debug_1 = __webpack_require__(7181);
-const server_1 = __webpack_require__(7493);
-const transports_uws_1 = __webpack_require__(1195);
+const server_1 = __webpack_require__(5512);
+const transports_uws_1 = __webpack_require__(8126);
 const debug = (0, debug_1.default)("engine:uws");
 /**
  * An Engine.IO server based on the `uWebSockets.js` package.
@@ -35598,8 +35598,18 @@ class uServer extends server_1.BaseServer {
                     return;
                 }
             }
+            // emit headers events for WebSocket upgrades
+            const additionalHeaders = {};
+            const isInitialRequest = !id;
+            if (isInitialRequest) {
+                this.emit("initial_headers", additionalHeaders, req);
+            }
+            this.emit("headers", additionalHeaders, req);
             // calling writeStatus() triggers the flushing of any header added in a middleware
             req.res.writeStatus("101 Switching Protocols");
+            Object.keys(additionalHeaders).forEach((key) => {
+                req.res.writeHeader(key, additionalHeaders[key]);
+            });
             res.upgrade({
                 transport,
             }, req.getHeader("sec-websocket-key"), req.getHeader("sec-websocket-protocol"), req.getHeader("sec-websocket-extensions"), context);
@@ -35723,14 +35733,14 @@ class ResponseWrapper {
 
 /***/ },
 
-/***/ 6328
+/***/ 6903
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deconstructPacket = deconstructPacket;
 exports.reconstructPacket = reconstructPacket;
-const is_binary_js_1 = __webpack_require__(6607);
+const is_binary_js_1 = __webpack_require__(5618);
 /**
  * Replaces every Buffer | ArrayBuffer | Blob | File in packet with a numbered placeholder.
  *
@@ -35817,7 +35827,7 @@ function _reconstructPacket(data, buffers) {
 
 /***/ },
 
-/***/ 6633
+/***/ 8580
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -35825,8 +35835,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Decoder = exports.Encoder = exports.PacketType = exports.protocol = void 0;
 exports.isPacketValid = isPacketValid;
 const component_emitter_1 = __webpack_require__(7320);
-const binary_js_1 = __webpack_require__(6328);
-const is_binary_js_1 = __webpack_require__(6607);
+const binary_js_1 = __webpack_require__(6903);
+const is_binary_js_1 = __webpack_require__(5618);
 const debug_1 = __webpack_require__(7181); // debug()
 const debug = (0, debug_1.default)("socket.io-parser"); // debug()
 /**
@@ -35939,12 +35949,13 @@ exports.Encoder = Encoder;
 class Decoder extends component_emitter_1.Emitter {
     /**
      * Decoder constructor
-     *
-     * @param {function} reviver - custom reviver to pass down to JSON.stringify
      */
-    constructor(reviver) {
+    constructor(opts) {
         super();
-        this.reviver = reviver;
+        this.opts = Object.assign({
+            reviver: undefined,
+            maxAttachments: 10,
+        }, typeof opts === "function" ? { reviver: opts } : opts);
     }
     /**
      * Decodes an encoded packet string into packet JSON.
@@ -36015,7 +36026,14 @@ class Decoder extends component_emitter_1.Emitter {
             if (buf != Number(buf) || str.charAt(i) !== "-") {
                 throw new Error("Illegal attachments");
             }
-            p.attachments = Number(buf);
+            const n = Number(buf);
+            if (!isInteger(n) || n < 0) {
+                throw new Error("Illegal attachments");
+            }
+            else if (n > this.opts.maxAttachments) {
+                throw new Error("too many attachments");
+            }
+            p.attachments = n;
         }
         // look up namespace (if any)
         if ("/" === str.charAt(i + 1)) {
@@ -36062,7 +36080,7 @@ class Decoder extends component_emitter_1.Emitter {
     }
     tryParse(str) {
         try {
-            return JSON.parse(str, this.reviver);
+            return JSON.parse(str, this.opts.reviver);
         }
         catch (e) {
             return false;
@@ -36183,7 +36201,7 @@ function isPacketValid(packet) {
 
 /***/ },
 
-/***/ 6607
+/***/ 5618
 (__unused_webpack_module, exports) {
 
 
@@ -36251,7 +36269,7 @@ function hasBinary(obj, toJSON) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RemoteSocket = exports.BroadcastOperator = void 0;
 const socket_types_1 = __webpack_require__(5355);
-const socket_io_parser_1 = __webpack_require__(6633);
+const socket_io_parser_1 = __webpack_require__(8580);
 class BroadcastOperator {
     constructor(adapter, rooms = new Set(), exceptRooms = new Set(), flags = {}) {
         this.adapter = adapter;
@@ -36696,7 +36714,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Client = void 0;
-const socket_io_parser_1 = __webpack_require__(6633);
+const socket_io_parser_1 = __webpack_require__(8580);
 const debug_1 = __importDefault(__webpack_require__(7181));
 const debug = (0, debug_1.default)("socket.io:client");
 class Client {
@@ -37006,14 +37024,14 @@ const zlib_1 = __webpack_require__(3106);
 const accepts = __webpack_require__(9);
 const stream_1 = __webpack_require__(2203);
 const path = __webpack_require__(6928);
-const engine_io_1 = __webpack_require__(6911);
+const engine_io_1 = __webpack_require__(215);
 const client_1 = __webpack_require__(6941);
 const events_1 = __webpack_require__(4434);
 const namespace_1 = __webpack_require__(5219);
 Object.defineProperty(exports, "Namespace", ({ enumerable: true, get: function () { return namespace_1.Namespace; } }));
 const parent_namespace_1 = __webpack_require__(4576);
 const socket_io_adapter_1 = __webpack_require__(7395);
-const parser = __importStar(__webpack_require__(6633));
+const parser = __importStar(__webpack_require__(8580));
 const debug_1 = __importDefault(__webpack_require__(7181));
 const socket_1 = __webpack_require__(1751);
 Object.defineProperty(exports, "Socket", ({ enumerable: true, get: function () { return socket_1.Socket; } }));
@@ -38506,7 +38524,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Socket = void 0;
-const socket_io_parser_1 = __webpack_require__(6633);
+const socket_io_parser_1 = __webpack_require__(8580);
 const debug_1 = __importDefault(__webpack_require__(7181));
 const typed_events_1 = __webpack_require__(8984);
 const base64id_1 = __importDefault(__webpack_require__(6821));
@@ -39712,18 +39730,18 @@ function serveFile(res /* : HttpResponse */, filepath) {
 
 /***/ },
 
-/***/ 3353
+/***/ 818
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var Scalar = __webpack_require__(7201);
-var YAMLMap = __webpack_require__(4538);
-var YAMLSeq = __webpack_require__(3939);
-var resolveBlockMap = __webpack_require__(1451);
-var resolveBlockSeq = __webpack_require__(6058);
-var resolveFlowCollection = __webpack_require__(50);
+var identity = __webpack_require__(5188);
+var Scalar = __webpack_require__(5410);
+var YAMLMap = __webpack_require__(7339);
+var YAMLSeq = __webpack_require__(4682);
+var resolveBlockMap = __webpack_require__(4509);
+var resolveBlockSeq = __webpack_require__(7523);
+var resolveFlowCollection = __webpack_require__(8947);
 
 function resolveCollection(CN, ctx, token, onError, tagName, tag) {
     const coll = token.type === 'block-map'
@@ -39809,15 +39827,15 @@ exports.composeCollection = composeCollection;
 
 /***/ },
 
-/***/ 8295
+/***/ 6702
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Document = __webpack_require__(6121);
-var composeNode = __webpack_require__(3549);
-var resolveEnd = __webpack_require__(720);
-var resolveProps = __webpack_require__(6571);
+var Document = __webpack_require__(7238);
+var composeNode = __webpack_require__(1694);
+var resolveEnd = __webpack_require__(3597);
+var resolveProps = __webpack_require__(3450);
 
 function composeDoc(options, directives, { offset, start, value, end }, onError) {
     const opts = Object.assign({ _directives: directives }, options);
@@ -39861,17 +39879,17 @@ exports.composeDoc = composeDoc;
 
 /***/ },
 
-/***/ 3549
+/***/ 1694
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Alias = __webpack_require__(6149);
-var identity = __webpack_require__(3619);
-var composeCollection = __webpack_require__(3353);
-var composeScalar = __webpack_require__(5849);
-var resolveEnd = __webpack_require__(720);
-var utilEmptyScalarPosition = __webpack_require__(2523);
+var Alias = __webpack_require__(4456);
+var identity = __webpack_require__(5188);
+var composeCollection = __webpack_require__(818);
+var composeScalar = __webpack_require__(4454);
+var resolveEnd = __webpack_require__(3597);
+var utilEmptyScalarPosition = __webpack_require__(9056);
 
 const CN = { composeNode, composeEmptyNode };
 function composeNode(ctx, token, props, onError) {
@@ -39896,19 +39914,26 @@ function composeNode(ctx, token, props, onError) {
         case 'block-map':
         case 'block-seq':
         case 'flow-collection':
-            node = composeCollection.composeCollection(CN, ctx, token, props, onError);
-            if (anchor)
-                node.anchor = anchor.source.substring(1);
+            try {
+                node = composeCollection.composeCollection(CN, ctx, token, props, onError);
+                if (anchor)
+                    node.anchor = anchor.source.substring(1);
+            }
+            catch (error) {
+                // Almost certainly here due to a stack overflow
+                const message = error instanceof Error ? error.message : String(error);
+                onError(token, 'RESOURCE_EXHAUSTION', message);
+            }
             break;
         default: {
             const message = token.type === 'error'
                 ? token.message
                 : `Unsupported token (type: ${token.type})`;
             onError(token, 'UNEXPECTED_TOKEN', message);
-            node = composeEmptyNode(ctx, token.offset, undefined, null, props, onError);
             isSrcToken = false;
         }
     }
+    node ?? (node = composeEmptyNode(ctx, token.offset, undefined, null, props, onError));
     if (anchor && node.anchor === '')
         onError(anchor, 'BAD_ALIAS', 'Anchor cannot be an empty string');
     if (atKey &&
@@ -39973,15 +39998,15 @@ exports.composeNode = composeNode;
 
 /***/ },
 
-/***/ 5849
+/***/ 4454
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var Scalar = __webpack_require__(7201);
-var resolveBlockScalar = __webpack_require__(6965);
-var resolveFlowScalar = __webpack_require__(5158);
+var identity = __webpack_require__(5188);
+var Scalar = __webpack_require__(5410);
+var resolveBlockScalar = __webpack_require__(3078);
+var resolveFlowScalar = __webpack_require__(2899);
 
 function composeScalar(ctx, token, tagToken, onError) {
     const { value, type, comment, range } = token.type === 'block-scalar'
@@ -40068,18 +40093,18 @@ exports.composeScalar = composeScalar;
 
 /***/ },
 
-/***/ 1828
+/***/ 2351
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
 var node_process = __webpack_require__(932);
-var directives = __webpack_require__(7034);
-var Document = __webpack_require__(6121);
-var errors = __webpack_require__(1188);
-var identity = __webpack_require__(3619);
-var composeDoc = __webpack_require__(8295);
-var resolveEnd = __webpack_require__(720);
+var directives = __webpack_require__(4449);
+var Document = __webpack_require__(7238);
+var errors = __webpack_require__(7027);
+var identity = __webpack_require__(5188);
+var composeDoc = __webpack_require__(6702);
+var resolveEnd = __webpack_require__(3597);
 
 function getErrorPos(src) {
     if (typeof src === 'number')
@@ -40297,17 +40322,17 @@ exports.Composer = Composer;
 
 /***/ },
 
-/***/ 1451
+/***/ 4509
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Pair = __webpack_require__(5009);
-var YAMLMap = __webpack_require__(4538);
-var resolveProps = __webpack_require__(6571);
-var utilContainsNewline = __webpack_require__(9119);
-var utilFlowIndentCheck = __webpack_require__(2967);
-var utilMapIncludes = __webpack_require__(5559);
+var Pair = __webpack_require__(2766);
+var YAMLMap = __webpack_require__(7339);
+var resolveProps = __webpack_require__(3450);
+var utilContainsNewline = __webpack_require__(8098);
+var utilFlowIndentCheck = __webpack_require__(5172);
+var utilMapIncludes = __webpack_require__(2110);
 
 const startColMsg = 'All mapping items must start at the same column';
 function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError, tag) {
@@ -40421,12 +40446,12 @@ exports.resolveBlockMap = resolveBlockMap;
 
 /***/ },
 
-/***/ 6965
+/***/ 3078
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Scalar = __webpack_require__(7201);
+var Scalar = __webpack_require__(5410);
 
 function resolveBlockScalar(ctx, scalar, onError) {
     const start = scalar.offset;
@@ -40628,14 +40653,14 @@ exports.resolveBlockScalar = resolveBlockScalar;
 
 /***/ },
 
-/***/ 6058
+/***/ 7523
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var YAMLSeq = __webpack_require__(3939);
-var resolveProps = __webpack_require__(6571);
-var utilFlowIndentCheck = __webpack_require__(2967);
+var YAMLSeq = __webpack_require__(4682);
+var resolveProps = __webpack_require__(3450);
+var utilFlowIndentCheck = __webpack_require__(5172);
 
 function resolveBlockSeq({ composeNode, composeEmptyNode }, ctx, bs, onError, tag) {
     const NodeClass = tag?.nodeClass ?? YAMLSeq.YAMLSeq;
@@ -40686,7 +40711,7 @@ exports.resolveBlockSeq = resolveBlockSeq;
 
 /***/ },
 
-/***/ 720
+/***/ 3597
 (__unused_webpack_module, exports) {
 
 
@@ -40732,19 +40757,19 @@ exports.resolveEnd = resolveEnd;
 
 /***/ },
 
-/***/ 50
+/***/ 8947
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var Pair = __webpack_require__(5009);
-var YAMLMap = __webpack_require__(4538);
-var YAMLSeq = __webpack_require__(3939);
-var resolveEnd = __webpack_require__(720);
-var resolveProps = __webpack_require__(6571);
-var utilContainsNewline = __webpack_require__(9119);
-var utilMapIncludes = __webpack_require__(5559);
+var identity = __webpack_require__(5188);
+var Pair = __webpack_require__(2766);
+var YAMLMap = __webpack_require__(7339);
+var YAMLSeq = __webpack_require__(4682);
+var resolveEnd = __webpack_require__(3597);
+var resolveProps = __webpack_require__(3450);
+var utilContainsNewline = __webpack_require__(8098);
+var utilMapIncludes = __webpack_require__(2110);
 
 const blockMsg = 'Block collections are not allowed within flow collections';
 const isBlock = (token) => token && (token.type === 'block-map' || token.type === 'block-seq');
@@ -40948,13 +40973,13 @@ exports.resolveFlowCollection = resolveFlowCollection;
 
 /***/ },
 
-/***/ 5158
+/***/ 2899
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Scalar = __webpack_require__(7201);
-var resolveEnd = __webpack_require__(720);
+var Scalar = __webpack_require__(5410);
+var resolveEnd = __webpack_require__(3597);
 
 function resolveFlowScalar(scalar, strict, onError) {
     const { offset, type, source, end } = scalar;
@@ -41180,7 +41205,7 @@ exports.resolveFlowScalar = resolveFlowScalar;
 
 /***/ },
 
-/***/ 6571
+/***/ 3450
 (__unused_webpack_module, exports) {
 
 
@@ -41335,7 +41360,7 @@ exports.resolveProps = resolveProps;
 
 /***/ },
 
-/***/ 9119
+/***/ 8098
 (__unused_webpack_module, exports) {
 
 
@@ -41378,7 +41403,7 @@ exports.containsNewline = containsNewline;
 
 /***/ },
 
-/***/ 2523
+/***/ 9056
 (__unused_webpack_module, exports) {
 
 
@@ -41413,12 +41438,12 @@ exports.emptyScalarPosition = emptyScalarPosition;
 
 /***/ },
 
-/***/ 2967
+/***/ 5172
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var utilContainsNewline = __webpack_require__(9119);
+var utilContainsNewline = __webpack_require__(8098);
 
 function flowIndentCheck(indent, fc, onError) {
     if (fc?.type === 'flow-collection') {
@@ -41437,12 +41462,12 @@ exports.flowIndentCheck = flowIndentCheck;
 
 /***/ },
 
-/***/ 5559
+/***/ 2110
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
+var identity = __webpack_require__(5188);
 
 function mapIncludes(ctx, items, search) {
     const { uniqueKeys } = ctx.options;
@@ -41459,22 +41484,22 @@ exports.mapIncludes = mapIncludes;
 
 /***/ },
 
-/***/ 6121
+/***/ 7238
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Alias = __webpack_require__(6149);
-var Collection = __webpack_require__(5025);
-var identity = __webpack_require__(3619);
-var Pair = __webpack_require__(5009);
-var toJS = __webpack_require__(9455);
-var Schema = __webpack_require__(1948);
-var stringifyDocument = __webpack_require__(6001);
-var anchors = __webpack_require__(3352);
-var applyReviver = __webpack_require__(873);
-var createNode = __webpack_require__(2464);
-var directives = __webpack_require__(7034);
+var Alias = __webpack_require__(4456);
+var Collection = __webpack_require__(7550);
+var identity = __webpack_require__(5188);
+var Pair = __webpack_require__(2766);
+var toJS = __webpack_require__(8164);
+var Schema = __webpack_require__(6529);
+var stringifyDocument = __webpack_require__(6072);
+var anchors = __webpack_require__(9029);
+var applyReviver = __webpack_require__(7914);
+var createNode = __webpack_require__(9043);
+var directives = __webpack_require__(4449);
 
 class Document {
     constructor(value, replacer, options) {
@@ -41803,13 +41828,13 @@ exports.Document = Document;
 
 /***/ },
 
-/***/ 3352
+/***/ 9029
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var visit = __webpack_require__(1984);
+var identity = __webpack_require__(5188);
+var visit = __webpack_require__(3509);
 
 /**
  * Verify that the input string is a valid anchor.
@@ -41886,7 +41911,7 @@ exports.findNewAnchor = findNewAnchor;
 
 /***/ },
 
-/***/ 873
+/***/ 7914
 (__unused_webpack_module, exports) {
 
 
@@ -41950,14 +41975,14 @@ exports.applyReviver = applyReviver;
 
 /***/ },
 
-/***/ 2464
+/***/ 9043
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Alias = __webpack_require__(6149);
-var identity = __webpack_require__(3619);
-var Scalar = __webpack_require__(7201);
+var Alias = __webpack_require__(4456);
+var identity = __webpack_require__(5188);
+var Scalar = __webpack_require__(5410);
 
 const defaultTagPrefix = 'tag:yaml.org,2002:';
 function findTagObject(value, tagName, tags) {
@@ -42047,13 +42072,13 @@ exports.createNode = createNode;
 
 /***/ },
 
-/***/ 7034
+/***/ 4449
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var visit = __webpack_require__(1984);
+var identity = __webpack_require__(5188);
+var visit = __webpack_require__(3509);
 
 const escapeChars = {
     '!': '%21',
@@ -42232,7 +42257,7 @@ exports.Directives = Directives;
 
 /***/ },
 
-/***/ 1188
+/***/ 7027
 (__unused_webpack_module, exports) {
 
 
@@ -42301,27 +42326,27 @@ exports.prettifyError = prettifyError;
 
 /***/ },
 
-/***/ 2075
+/***/ 8638
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var composer = __webpack_require__(1828);
-var Document = __webpack_require__(6121);
-var Schema = __webpack_require__(1948);
-var errors = __webpack_require__(1188);
-var Alias = __webpack_require__(6149);
-var identity = __webpack_require__(3619);
-var Pair = __webpack_require__(5009);
-var Scalar = __webpack_require__(7201);
-var YAMLMap = __webpack_require__(4538);
-var YAMLSeq = __webpack_require__(3939);
-var cst = __webpack_require__(2081);
-var lexer = __webpack_require__(5989);
-var lineCounter = __webpack_require__(9752);
-var parser = __webpack_require__(4884);
-var publicApi = __webpack_require__(1235);
-var visit = __webpack_require__(1984);
+var composer = __webpack_require__(2351);
+var Document = __webpack_require__(7238);
+var Schema = __webpack_require__(6529);
+var errors = __webpack_require__(7027);
+var Alias = __webpack_require__(4456);
+var identity = __webpack_require__(5188);
+var Pair = __webpack_require__(2766);
+var Scalar = __webpack_require__(5410);
+var YAMLMap = __webpack_require__(7339);
+var YAMLSeq = __webpack_require__(4682);
+var cst = __webpack_require__(8328);
+var lexer = __webpack_require__(6296);
+var lineCounter = __webpack_require__(547);
+var parser = __webpack_require__(3239);
+var publicApi = __webpack_require__(3396);
+var visit = __webpack_require__(3509);
 
 
 
@@ -42358,7 +42383,7 @@ exports.visitAsync = visit.visitAsync;
 
 /***/ },
 
-/***/ 925
+/***/ 7796
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -42384,16 +42409,16 @@ exports.warn = warn;
 
 /***/ },
 
-/***/ 6149
+/***/ 4456
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var anchors = __webpack_require__(3352);
-var visit = __webpack_require__(1984);
-var identity = __webpack_require__(3619);
-var Node = __webpack_require__(2853);
-var toJS = __webpack_require__(9455);
+var anchors = __webpack_require__(9029);
+var visit = __webpack_require__(3509);
+var identity = __webpack_require__(5188);
+var Node = __webpack_require__(5586);
+var toJS = __webpack_require__(8164);
 
 class Alias extends Node.NodeBase {
     constructor(source) {
@@ -42507,14 +42532,14 @@ exports.Alias = Alias;
 
 /***/ },
 
-/***/ 5025
+/***/ 7550
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var createNode = __webpack_require__(2464);
-var identity = __webpack_require__(3619);
-var Node = __webpack_require__(2853);
+var createNode = __webpack_require__(9043);
+var identity = __webpack_require__(5188);
+var Node = __webpack_require__(5586);
 
 function collectionFromPath(schema, path, value) {
     let v = value;
@@ -42665,14 +42690,14 @@ exports.isEmptyPath = isEmptyPath;
 
 /***/ },
 
-/***/ 2853
+/***/ 5586
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var applyReviver = __webpack_require__(873);
-var identity = __webpack_require__(3619);
-var toJS = __webpack_require__(9455);
+var applyReviver = __webpack_require__(7914);
+var identity = __webpack_require__(5188);
+var toJS = __webpack_require__(8164);
 
 class NodeBase {
     constructor(type) {
@@ -42712,15 +42737,15 @@ exports.NodeBase = NodeBase;
 
 /***/ },
 
-/***/ 5009
+/***/ 2766
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var createNode = __webpack_require__(2464);
-var stringifyPair = __webpack_require__(1440);
-var addPairToJSMap = __webpack_require__(812);
-var identity = __webpack_require__(3619);
+var createNode = __webpack_require__(9043);
+var stringifyPair = __webpack_require__(625);
+var addPairToJSMap = __webpack_require__(3171);
+var identity = __webpack_require__(5188);
 
 function createPair(key, value, ctx) {
     const k = createNode.createNode(key, undefined, ctx);
@@ -42758,14 +42783,14 @@ exports.createPair = createPair;
 
 /***/ },
 
-/***/ 7201
+/***/ 5410
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var Node = __webpack_require__(2853);
-var toJS = __webpack_require__(9455);
+var identity = __webpack_require__(5188);
+var Node = __webpack_require__(5586);
+var toJS = __webpack_require__(8164);
 
 const isScalarValue = (value) => !value || (typeof value !== 'function' && typeof value !== 'object');
 class Scalar extends Node.NodeBase {
@@ -42792,17 +42817,17 @@ exports.isScalarValue = isScalarValue;
 
 /***/ },
 
-/***/ 4538
+/***/ 7339
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var stringifyCollection = __webpack_require__(3040);
-var addPairToJSMap = __webpack_require__(812);
-var Collection = __webpack_require__(5025);
-var identity = __webpack_require__(3619);
-var Pair = __webpack_require__(5009);
-var Scalar = __webpack_require__(7201);
+var stringifyCollection = __webpack_require__(2945);
+var addPairToJSMap = __webpack_require__(3171);
+var Collection = __webpack_require__(7550);
+var identity = __webpack_require__(5188);
+var Pair = __webpack_require__(2766);
+var Scalar = __webpack_require__(5410);
 
 function findPair(items, key) {
     const k = identity.isScalar(key) ? key.value : key;
@@ -42946,17 +42971,17 @@ exports.findPair = findPair;
 
 /***/ },
 
-/***/ 3939
+/***/ 4682
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var createNode = __webpack_require__(2464);
-var stringifyCollection = __webpack_require__(3040);
-var Collection = __webpack_require__(5025);
-var identity = __webpack_require__(3619);
-var Scalar = __webpack_require__(7201);
-var toJS = __webpack_require__(9455);
+var createNode = __webpack_require__(9043);
+var stringifyCollection = __webpack_require__(2945);
+var Collection = __webpack_require__(7550);
+var identity = __webpack_require__(5188);
+var Scalar = __webpack_require__(5410);
+var toJS = __webpack_require__(8164);
 
 class YAMLSeq extends Collection.Collection {
     static get tagName() {
@@ -43068,16 +43093,16 @@ exports.YAMLSeq = YAMLSeq;
 
 /***/ },
 
-/***/ 812
+/***/ 3171
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var log = __webpack_require__(925);
-var merge = __webpack_require__(968);
-var stringify = __webpack_require__(6848);
-var identity = __webpack_require__(3619);
-var toJS = __webpack_require__(9455);
+var log = __webpack_require__(7796);
+var merge = __webpack_require__(8805);
+var stringify = __webpack_require__(5249);
+var identity = __webpack_require__(5188);
+var toJS = __webpack_require__(8164);
 
 function addPairToJSMap(ctx, map, { key, value }) {
     if (identity.isNode(key) && key.addToJSMap)
@@ -43140,7 +43165,7 @@ exports.addPairToJSMap = addPairToJSMap;
 
 /***/ },
 
-/***/ 3619
+/***/ 5188
 (__unused_webpack_module, exports) {
 
 
@@ -43200,12 +43225,12 @@ exports.isSeq = isSeq;
 
 /***/ },
 
-/***/ 9455
+/***/ 8164
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
+var identity = __webpack_require__(5188);
 
 /**
  * Recursively convert any node or its contents to native JavaScript
@@ -43246,15 +43271,15 @@ exports.toJS = toJS;
 
 /***/ },
 
-/***/ 1106
+/***/ 2437
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var resolveBlockScalar = __webpack_require__(6965);
-var resolveFlowScalar = __webpack_require__(5158);
-var errors = __webpack_require__(1188);
-var stringifyString = __webpack_require__(5921);
+var resolveBlockScalar = __webpack_require__(3078);
+var resolveFlowScalar = __webpack_require__(2899);
+var errors = __webpack_require__(7027);
+var stringifyString = __webpack_require__(3468);
 
 function resolveAsScalar(token, strict = true, onError) {
     if (token) {
@@ -43471,7 +43496,7 @@ exports.setScalarValue = setScalarValue;
 
 /***/ },
 
-/***/ 9641
+/***/ 1168
 (__unused_webpack_module, exports) {
 
 
@@ -43541,7 +43566,7 @@ exports.stringify = stringify;
 
 /***/ },
 
-/***/ 2823
+/***/ 2898
 (__unused_webpack_module, exports) {
 
 
@@ -43647,14 +43672,14 @@ exports.visit = visit;
 
 /***/ },
 
-/***/ 2081
+/***/ 8328
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var cstScalar = __webpack_require__(1106);
-var cstStringify = __webpack_require__(9641);
-var cstVisit = __webpack_require__(2823);
+var cstScalar = __webpack_require__(2437);
+var cstStringify = __webpack_require__(1168);
+var cstVisit = __webpack_require__(2898);
 
 /** The byte order mark */
 const BOM = '\u{FEFF}';
@@ -43766,12 +43791,12 @@ exports.tokenType = tokenType;
 
 /***/ },
 
-/***/ 5989
+/***/ 6296
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var cst = __webpack_require__(2081);
+var cst = __webpack_require__(8328);
 
 /*
 START -> stream
@@ -44492,7 +44517,7 @@ exports.Lexer = Lexer;
 
 /***/ },
 
-/***/ 9752
+/***/ 547
 (__unused_webpack_module, exports) {
 
 
@@ -44540,14 +44565,14 @@ exports.LineCounter = LineCounter;
 
 /***/ },
 
-/***/ 4884
+/***/ 3239
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
 var node_process = __webpack_require__(932);
-var cst = __webpack_require__(2081);
-var lexer = __webpack_require__(5989);
+var cst = __webpack_require__(8328);
+var lexer = __webpack_require__(6296);
 
 function includesToken(list, type) {
     for (let i = 0; i < list.length; ++i)
@@ -45519,18 +45544,18 @@ exports.Parser = Parser;
 
 /***/ },
 
-/***/ 1235
+/***/ 3396
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var composer = __webpack_require__(1828);
-var Document = __webpack_require__(6121);
-var errors = __webpack_require__(1188);
-var log = __webpack_require__(925);
-var identity = __webpack_require__(3619);
-var lineCounter = __webpack_require__(9752);
-var parser = __webpack_require__(4884);
+var composer = __webpack_require__(2351);
+var Document = __webpack_require__(7238);
+var errors = __webpack_require__(7027);
+var log = __webpack_require__(7796);
+var identity = __webpack_require__(5188);
+var lineCounter = __webpack_require__(547);
+var parser = __webpack_require__(3239);
 
 function parseOptions(options) {
     const prettyErrors = options.prettyErrors !== false;
@@ -45633,16 +45658,16 @@ exports.stringify = stringify;
 
 /***/ },
 
-/***/ 1948
+/***/ 6529
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var map = __webpack_require__(1615);
-var seq = __webpack_require__(7470);
-var string = __webpack_require__(9292);
-var tags = __webpack_require__(222);
+var identity = __webpack_require__(5188);
+var map = __webpack_require__(7526);
+var seq = __webpack_require__(3647);
+var string = __webpack_require__(8627);
+var tags = __webpack_require__(3071);
 
 const sortMapEntriesByKey = (a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
 class Schema {
@@ -45679,13 +45704,13 @@ exports.Schema = Schema;
 
 /***/ },
 
-/***/ 1615
+/***/ 7526
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var YAMLMap = __webpack_require__(4538);
+var identity = __webpack_require__(5188);
+var YAMLMap = __webpack_require__(7339);
 
 const map = {
     collection: 'map',
@@ -45705,12 +45730,12 @@ exports.map = map;
 
 /***/ },
 
-/***/ 6756
+/***/ 5863
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Scalar = __webpack_require__(7201);
+var Scalar = __webpack_require__(5410);
 
 const nullTag = {
     identify: value => value == null,
@@ -45729,13 +45754,13 @@ exports.nullTag = nullTag;
 
 /***/ },
 
-/***/ 7470
+/***/ 3647
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var YAMLSeq = __webpack_require__(3939);
+var identity = __webpack_require__(5188);
+var YAMLSeq = __webpack_require__(4682);
 
 const seq = {
     collection: 'seq',
@@ -45755,12 +45780,12 @@ exports.seq = seq;
 
 /***/ },
 
-/***/ 9292
+/***/ 8627
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var stringifyString = __webpack_require__(5921);
+var stringifyString = __webpack_require__(3468);
 
 const string = {
     identify: value => typeof value === 'string',
@@ -45778,12 +45803,12 @@ exports.string = string;
 
 /***/ },
 
-/***/ 6987
+/***/ 4892
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Scalar = __webpack_require__(7201);
+var Scalar = __webpack_require__(5410);
 
 const boolTag = {
     identify: value => typeof value === 'boolean',
@@ -45806,13 +45831,13 @@ exports.boolTag = boolTag;
 
 /***/ },
 
-/***/ 5193
+/***/ 8956
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Scalar = __webpack_require__(7201);
-var stringifyNumber = __webpack_require__(1277);
+var Scalar = __webpack_require__(5410);
+var stringifyNumber = __webpack_require__(9032);
 
 const floatNaN = {
     identify: value => typeof value === 'number',
@@ -45860,12 +45885,12 @@ exports.floatNaN = floatNaN;
 
 /***/ },
 
-/***/ 1510
+/***/ 5435
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var stringifyNumber = __webpack_require__(1277);
+var stringifyNumber = __webpack_require__(9032);
 
 const intIdentify = (value) => typeof value === 'bigint' || Number.isInteger(value);
 const intResolve = (str, offset, radix, { intAsBigInt }) => (intAsBigInt ? BigInt(str) : parseInt(str.substring(offset), radix));
@@ -45909,18 +45934,18 @@ exports.intOct = intOct;
 
 /***/ },
 
-/***/ 2652
+/***/ 3595
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var map = __webpack_require__(1615);
-var _null = __webpack_require__(6756);
-var seq = __webpack_require__(7470);
-var string = __webpack_require__(9292);
-var bool = __webpack_require__(6987);
-var float = __webpack_require__(5193);
-var int = __webpack_require__(1510);
+var map = __webpack_require__(7526);
+var _null = __webpack_require__(5863);
+var seq = __webpack_require__(3647);
+var string = __webpack_require__(8627);
+var bool = __webpack_require__(4892);
+var float = __webpack_require__(8956);
+var int = __webpack_require__(5435);
 
 const schema = [
     map.map,
@@ -45941,14 +45966,14 @@ exports.schema = schema;
 
 /***/ },
 
-/***/ 5075
+/***/ 9372
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Scalar = __webpack_require__(7201);
-var map = __webpack_require__(1615);
-var seq = __webpack_require__(7470);
+var Scalar = __webpack_require__(5410);
+var map = __webpack_require__(7526);
+var seq = __webpack_require__(3647);
 
 function intIdentify(value) {
     return typeof value === 'bigint' || Number.isInteger(value);
@@ -46012,27 +46037,27 @@ exports.schema = schema;
 
 /***/ },
 
-/***/ 222
+/***/ 3071
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var map = __webpack_require__(1615);
-var _null = __webpack_require__(6756);
-var seq = __webpack_require__(7470);
-var string = __webpack_require__(9292);
-var bool = __webpack_require__(6987);
-var float = __webpack_require__(5193);
-var int = __webpack_require__(1510);
-var schema = __webpack_require__(2652);
-var schema$1 = __webpack_require__(5075);
-var binary = __webpack_require__(9367);
-var merge = __webpack_require__(968);
-var omap = __webpack_require__(5659);
-var pairs = __webpack_require__(533);
-var schema$2 = __webpack_require__(5509);
-var set = __webpack_require__(3436);
-var timestamp = __webpack_require__(3676);
+var map = __webpack_require__(7526);
+var _null = __webpack_require__(5863);
+var seq = __webpack_require__(3647);
+var string = __webpack_require__(8627);
+var bool = __webpack_require__(4892);
+var float = __webpack_require__(8956);
+var int = __webpack_require__(5435);
+var schema = __webpack_require__(3595);
+var schema$1 = __webpack_require__(9372);
+var binary = __webpack_require__(7744);
+var merge = __webpack_require__(8805);
+var omap = __webpack_require__(4132);
+var pairs = __webpack_require__(6960);
+var schema$2 = __webpack_require__(6526);
+var set = __webpack_require__(4813);
+var timestamp = __webpack_require__(797);
 
 const schemas = new Map([
     ['core', schema.schema],
@@ -46118,14 +46143,14 @@ exports.getTags = getTags;
 
 /***/ },
 
-/***/ 9367
+/***/ 7744
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
 var node_buffer = __webpack_require__(181);
-var Scalar = __webpack_require__(7201);
-var stringifyString = __webpack_require__(5921);
+var Scalar = __webpack_require__(5410);
+var stringifyString = __webpack_require__(3468);
 
 const binary = {
     identify: value => value instanceof Uint8Array, // Buffer inherits from Uint8Array
@@ -46195,12 +46220,12 @@ exports.binary = binary;
 
 /***/ },
 
-/***/ 1314
+/***/ 481
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Scalar = __webpack_require__(7201);
+var Scalar = __webpack_require__(5410);
 
 function boolStringify({ value, source }, ctx) {
     const boolObj = value ? trueTag : falseTag;
@@ -46231,13 +46256,13 @@ exports.trueTag = trueTag;
 
 /***/ },
 
-/***/ 1642
+/***/ 1895
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Scalar = __webpack_require__(7201);
-var stringifyNumber = __webpack_require__(1277);
+var Scalar = __webpack_require__(5410);
+var stringifyNumber = __webpack_require__(9032);
 
 const floatNaN = {
     identify: value => typeof value === 'number',
@@ -46288,12 +46313,12 @@ exports.floatNaN = floatNaN;
 
 /***/ },
 
-/***/ 2605
+/***/ 8616
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var stringifyNumber = __webpack_require__(1277);
+var stringifyNumber = __webpack_require__(9032);
 
 const intIdentify = (value) => typeof value === 'bigint' || Number.isInteger(value);
 function intResolve(str, offset, radix, { intAsBigInt }) {
@@ -46371,13 +46396,13 @@ exports.intOct = intOct;
 
 /***/ },
 
-/***/ 968
+/***/ 8805
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var Scalar = __webpack_require__(7201);
+var identity = __webpack_require__(5188);
+var Scalar = __webpack_require__(5410);
 
 // If the value associated with a merge key is a single mapping node, each of
 // its key/value pairs is inserted into the current mapping, unless the key
@@ -46446,16 +46471,16 @@ exports.merge = merge;
 
 /***/ },
 
-/***/ 5659
+/***/ 4132
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var toJS = __webpack_require__(9455);
-var YAMLMap = __webpack_require__(4538);
-var YAMLSeq = __webpack_require__(3939);
-var pairs = __webpack_require__(533);
+var identity = __webpack_require__(5188);
+var toJS = __webpack_require__(8164);
+var YAMLMap = __webpack_require__(7339);
+var YAMLSeq = __webpack_require__(4682);
+var pairs = __webpack_require__(6960);
 
 class YAMLOMap extends YAMLSeq.YAMLSeq {
     constructor() {
@@ -46530,15 +46555,15 @@ exports.omap = omap;
 
 /***/ },
 
-/***/ 533
+/***/ 6960
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var Pair = __webpack_require__(5009);
-var Scalar = __webpack_require__(7201);
-var YAMLSeq = __webpack_require__(3939);
+var identity = __webpack_require__(5188);
+var Pair = __webpack_require__(2766);
+var Scalar = __webpack_require__(5410);
+var YAMLSeq = __webpack_require__(4682);
 
 function resolvePairs(seq, onError) {
     if (identity.isSeq(seq)) {
@@ -46619,24 +46644,24 @@ exports.resolvePairs = resolvePairs;
 
 /***/ },
 
-/***/ 5509
+/***/ 6526
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var map = __webpack_require__(1615);
-var _null = __webpack_require__(6756);
-var seq = __webpack_require__(7470);
-var string = __webpack_require__(9292);
-var binary = __webpack_require__(9367);
-var bool = __webpack_require__(1314);
-var float = __webpack_require__(1642);
-var int = __webpack_require__(2605);
-var merge = __webpack_require__(968);
-var omap = __webpack_require__(5659);
-var pairs = __webpack_require__(533);
-var set = __webpack_require__(3436);
-var timestamp = __webpack_require__(3676);
+var map = __webpack_require__(7526);
+var _null = __webpack_require__(5863);
+var seq = __webpack_require__(3647);
+var string = __webpack_require__(8627);
+var binary = __webpack_require__(7744);
+var bool = __webpack_require__(481);
+var float = __webpack_require__(1895);
+var int = __webpack_require__(8616);
+var merge = __webpack_require__(8805);
+var omap = __webpack_require__(4132);
+var pairs = __webpack_require__(6960);
+var set = __webpack_require__(4813);
+var timestamp = __webpack_require__(797);
 
 const schema = [
     map.map,
@@ -46667,14 +46692,14 @@ exports.schema = schema;
 
 /***/ },
 
-/***/ 3436
+/***/ 4813
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var Pair = __webpack_require__(5009);
-var YAMLMap = __webpack_require__(4538);
+var identity = __webpack_require__(5188);
+var Pair = __webpack_require__(2766);
+var YAMLMap = __webpack_require__(7339);
 
 class YAMLSet extends YAMLMap.YAMLMap {
     constructor(schema) {
@@ -46770,12 +46795,12 @@ exports.set = set;
 
 /***/ },
 
-/***/ 3676
+/***/ 797
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var stringifyNumber = __webpack_require__(1277);
+var stringifyNumber = __webpack_require__(9032);
 
 /** Internal types handle bigint as number, because TS can't figure it out. */
 function parseSexagesimal(str, asBigInt) {
@@ -46882,7 +46907,7 @@ exports.timestamp = timestamp;
 
 /***/ },
 
-/***/ 9631
+/***/ 6890
 (__unused_webpack_module, exports) {
 
 
@@ -47040,15 +47065,15 @@ exports.foldFlowLines = foldFlowLines;
 
 /***/ },
 
-/***/ 6848
+/***/ 5249
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var anchors = __webpack_require__(3352);
-var identity = __webpack_require__(3619);
-var stringifyComment = __webpack_require__(1995);
-var stringifyString = __webpack_require__(5921);
+var anchors = __webpack_require__(9029);
+var identity = __webpack_require__(5188);
+var stringifyComment = __webpack_require__(2088);
+var stringifyString = __webpack_require__(3468);
 
 function createStringifyContext(doc, options) {
     const opt = Object.assign({
@@ -47067,6 +47092,7 @@ function createStringifyContext(doc, options) {
         nullStr: 'null',
         simpleKeys: false,
         singleQuote: null,
+        trailingComma: false,
         trueStr: 'true',
         verifyAliasOrder: true
     }, doc.schema.toStringOptions, options);
@@ -47178,14 +47204,14 @@ exports.stringify = stringify;
 
 /***/ },
 
-/***/ 3040
+/***/ 2945
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var stringify = __webpack_require__(6848);
-var stringifyComment = __webpack_require__(1995);
+var identity = __webpack_require__(5188);
+var stringify = __webpack_require__(5249);
+var stringifyComment = __webpack_require__(2088);
 
 function stringifyCollection(collection, ctx, options) {
     const flow = ctx.inFlow ?? collection.flow;
@@ -47287,12 +47313,22 @@ function stringifyFlowCollection({ items }, ctx, { flowChars, itemIndent }) {
         if (comment)
             reqNewline = true;
         let str = stringify.stringify(item, itemCtx, () => (comment = null));
-        if (i < items.length - 1)
+        reqNewline || (reqNewline = lines.length > linesAtValue || str.includes('\n'));
+        if (i < items.length - 1) {
             str += ',';
+        }
+        else if (ctx.options.trailingComma) {
+            if (ctx.options.lineWidth > 0) {
+                reqNewline || (reqNewline = lines.reduce((sum, line) => sum + line.length + 2, 2) +
+                    (str.length + 2) >
+                    ctx.options.lineWidth);
+            }
+            if (reqNewline) {
+                str += ',';
+            }
+        }
         if (comment)
             str += stringifyComment.lineComment(str, itemIndent, commentString(comment));
-        if (!reqNewline && (lines.length > linesAtValue || str.includes('\n')))
-            reqNewline = true;
         lines.push(str);
         linesAtValue = lines.length;
     }
@@ -47330,7 +47366,7 @@ exports.stringifyCollection = stringifyCollection;
 
 /***/ },
 
-/***/ 1995
+/***/ 2088
 (__unused_webpack_module, exports) {
 
 
@@ -47361,14 +47397,14 @@ exports.stringifyComment = stringifyComment;
 
 /***/ },
 
-/***/ 6001
+/***/ 6072
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var stringify = __webpack_require__(6848);
-var stringifyComment = __webpack_require__(1995);
+var identity = __webpack_require__(5188);
+var stringify = __webpack_require__(5249);
+var stringifyComment = __webpack_require__(2088);
 
 function stringifyDocument(doc, options) {
     const lines = [];
@@ -47455,7 +47491,7 @@ exports.stringifyDocument = stringifyDocument;
 
 /***/ },
 
-/***/ 1277
+/***/ 9032
 (__unused_webpack_module, exports) {
 
 
@@ -47488,15 +47524,15 @@ exports.stringifyNumber = stringifyNumber;
 
 /***/ },
 
-/***/ 1440
+/***/ 625
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
-var Scalar = __webpack_require__(7201);
-var stringify = __webpack_require__(6848);
-var stringifyComment = __webpack_require__(1995);
+var identity = __webpack_require__(5188);
+var Scalar = __webpack_require__(5410);
+var stringify = __webpack_require__(5249);
+var stringifyComment = __webpack_require__(2088);
 
 function stringifyPair({ key, value }, ctx, onComment, onChompKeep) {
     const { allNullValues, doc, indent, indentStep, options: { commentString, indentSeq, simpleKeys } } = ctx;
@@ -47647,13 +47683,13 @@ exports.stringifyPair = stringifyPair;
 
 /***/ },
 
-/***/ 5921
+/***/ 3468
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var Scalar = __webpack_require__(7201);
-var foldFlowLines = __webpack_require__(9631);
+var Scalar = __webpack_require__(5410);
+var foldFlowLines = __webpack_require__(6890);
 
 const getFoldOptions = (ctx, isBlock) => ({
     indentAtStart: isBlock ? ctx.indent.length : ctx.indentAtStart,
@@ -47992,12 +48028,12 @@ exports.stringifyString = stringifyString;
 
 /***/ },
 
-/***/ 1984
+/***/ 3509
 (__unused_webpack_module, exports, __webpack_require__) {
 
 
 
-var identity = __webpack_require__(3619);
+var identity = __webpack_require__(5188);
 
 const BREAK = Symbol('break visit');
 const SKIP = Symbol('skip children');
@@ -62742,8 +62778,8 @@ const settings_zh_Settings = strictObject({
 
 ;// external "node:process"
 
-// EXTERNAL MODULE: ./node_modules/.pnpm/yaml@2.8.2/node_modules/yaml/dist/index.js
-var dist = __webpack_require__(2075);
+// EXTERNAL MODULE: ./node_modules/.pnpm/yaml@2.8.3/node_modules/yaml/dist/index.js
+var dist = __webpack_require__(8638);
 ;// ./src/server/settings.ts
 
 
@@ -66037,7 +66073,7 @@ function trim_yaml_endline(content) {
     return is_yaml(content) ? content.replace(/(\n)+$/s, '') : content;
 }
 
-;// ./node_modules/.pnpm/dedent@1.7.1/node_modules/dedent/dist/dedent.mjs
+;// ./node_modules/.pnpm/dedent@1.7.2/node_modules/dedent/dist/dedent.mjs
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -66101,9 +66137,10 @@ function createDedent(options) {
       result = result.trim();
     }
 
-    // handle escaped newlines at the end to ensure they don't get stripped too
+    // Unescape escapes after trimming so sequences like `\n`, `\t`,
+    // `\xHH` and `\u{...}` are preserved (fixes #24)
     if (escapeSpecialCharacters) {
-      result = result.replace(/\\n/g, "\n");
+      result = result.replace(/\\n/g, "\n").replace(/\\t/g, "\t").replace(/\\r/g, "\r").replace(/\\v/g, "\v").replace(/\\b/g, "\b").replace(/\\f/g, "\f").replace(/\\0/g, "\0").replace(/\\x([\da-fA-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16))).replace(/\\u\{([\da-fA-F]{1,6})\}/g, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/\\u([\da-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
     }
 
     // Workaround for Bun issue with Unicode characters
