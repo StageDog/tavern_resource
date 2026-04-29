@@ -36,6 +36,7 @@
         style="width: 90%; align-self: flex-end"
         :options="[
           { label: '按顺序插入到 D0', value: 'exclude' },
+          { label: '按顺序插入到 D1', value: 'exclude_d1' },
           { label: `合并后替换到 ${store.settings.depth_injection.below.placeholder} 宏位置`, value: 'placeholder' },
         ]"
       />

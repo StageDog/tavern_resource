@@ -156,6 +156,8 @@ function squashAdjacentMessage(
 }
 
 function squashChatHistory(prompts: SillyTavern.SendingMessage[], settings: Settings): SillyTavern.SendingMessage[] {
+  prompts = squashAdjacentMessage(prompts, settings);
+
   // TODO: zod encode
   const prefix = {
     system: substitudeMacros(settings.chat_history.system_prefix),
@@ -209,7 +211,7 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
 
     const { above, below } = settings.depth_injection;
 
-    const applyInjection = (injection_settings: typeof above, from: number, to: number) => {
+    const applyInjection = (injection_settings: typeof below, from: number, to: number) => {
       if (!injection_settings.enabled) {
         return;
       }
@@ -235,9 +237,13 @@ function listenEvent(settings: Settings, separators: Separators, shouldEnable: (
           .some(p => getPromptContent(p, settings).includes(injection_settings.placeholder))
       ) {
         _.remove(chunks[from], isSystemWithoutPlaceholder);
-      } else {
+      } else{
         const exclude_chunk = _.remove(chunks[from], p => p.role === 'system');
-        chunks[to] = to < from ? _.concat(chunks[to], exclude_chunk) : _.concat(exclude_chunk, chunks[to]);
+        if (injection_settings.type === 'exclude_d1') {
+          chunks[from].splice(chunks[from].length - 1, 0, ...exclude_chunk);
+        } else {
+          chunks[to] = to < from ? _.concat(chunks[to], exclude_chunk) : _.concat(exclude_chunk, chunks[to]);
+        }
       }
       _(chunks)
         .flatten()

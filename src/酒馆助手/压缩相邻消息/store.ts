@@ -105,7 +105,7 @@ export const Settings = z
         below: z
           .object({
             enabled: z.boolean().default(false),
-            type: z.enum(['exclude', 'placeholder']).default('exclude'),
+            type: z.enum(['exclude', 'exclude_d1', 'placeholder']).default('exclude'),
             placeholder: z.string().default('{{压缩相邻消息::below_dx}}'),
           })
           .prefault({}),
