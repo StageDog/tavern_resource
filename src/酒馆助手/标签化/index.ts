@@ -22,9 +22,20 @@ function extract_tags_from(name: string): string[] {
 }
 
 function extract_control_tags(): string[] {
+  const char_worldbooks: string[] = [];
+  try {
+    const data = getCharWorldbookNames('current');
+    if (data.primary) {
+      char_worldbooks.push(data.primary);
+    }
+    char_worldbooks.push(...data.additional);
+  } catch (e) {
+    /** ignore */
+  }
   return _.sortedUniq(
     _.sortBy([
       ...extract_tags_from(get_current_preset_name()),
+      ...char_worldbooks.flatMap(extract_tags_from),
       ...get_current_global_lorebooks().flatMap(extract_tags_from),
       ...extract_tags_from(get_current_connection_profile()),
     ]),
