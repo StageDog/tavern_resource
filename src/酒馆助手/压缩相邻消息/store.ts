@@ -94,7 +94,7 @@ export const Settings = z
 
     depth_injection: z
       .object({
-        threshold: z.number().int().min(1).default(10).catch(10),
+        threshold: z.number().int().min(0).default(10).catch(10),
         above: z
           .object({
             enabled: z.boolean().default(false),
