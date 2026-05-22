@@ -51143,7 +51143,7 @@ const $ZodNever = /*@__PURE__*/ $constructor("$ZodNever", (inst, def) => {
         return payload;
     };
 });
-const $ZodVoid = /*@__PURE__*/ $constructor("$ZodVoid", (inst, def) => {
+const $ZodVoid = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodVoid", (inst, def) => {
     $ZodType.init(inst, def);
     inst._zod.parse = (payload, _ctx) => {
         const input = payload.value;
@@ -51157,7 +51157,7 @@ const $ZodVoid = /*@__PURE__*/ $constructor("$ZodVoid", (inst, def) => {
         });
         return payload;
     };
-});
+})));
 const $ZodDate = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodDate", (inst, def) => {
     $ZodType.init(inst, def);
     inst._zod.parse = (payload, _ctx) => {
@@ -53271,7 +53271,7 @@ function _never(Class, params) {
 function _void(Class, params) {
     return new Class({
         type: "void",
-        ...normalizeParams(params),
+        ...api_util.normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -55734,13 +55734,13 @@ const ZodNever = /*@__PURE__*/ $constructor("ZodNever", (inst, def) => {
 function never(params) {
     return _never(ZodNever, params);
 }
-const ZodVoid = /*@__PURE__*/ $constructor("ZodVoid", (inst, def) => {
-    $ZodVoid.init(inst, def);
+const ZodVoid = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodVoid", (inst, def) => {
+    classic_schemas_core.$ZodVoid.init(inst, def);
     ZodType.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json, params) => voidProcessor(inst, ctx, json, params);
-});
+    inst._zod.processJSONSchema = (ctx, json, params) => processors.voidProcessor(inst, ctx, json, params);
+})));
 function schemas_void(params) {
-    return _void(ZodVoid, params);
+    return classic_schemas_core._void(ZodVoid, params);
 }
 
 const ZodDate = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodDate", (inst, def) => {
@@ -61482,7 +61482,7 @@ const preset_Preset = object({
         character_name_prefix: schemas_enum(['none', 'default', 'content', 'completion']),
         wrap_user_messages_in_quotes: schemas_boolean(),
     }),
-    anchors: schemas_void().transform(() => ({})),
+    anchors: record(schemas_string(), any()).prefault({}),
     prompts: array(Prompt),
     prompts_unused: array(Prompt)
         .transform(prompts => prompts.filter(prompt => !lodash_default().includes(['Main Prompt', 'Auxiliary Prompt', 'Post-History Instructions', 'Enhance Definitions'], prompt.name) && !lodash_default().includes(prompt_placeholder_ids, prompt.id))),
