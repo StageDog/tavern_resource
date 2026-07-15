@@ -569,7 +569,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
       };
       const package_versions = { ...package_json.devDependencies, ...package_json.dependencies };
       const version = package_versions[request]?.replace(/^[~^]/, '');
-      const versioned_request = version ? `${request}@${version}` : request;
+      const versioned_request = /^[.\d]+$/.test(version) ? `${request}@${version}` : request;
       return callback(
         null,
         'module-import ' +
