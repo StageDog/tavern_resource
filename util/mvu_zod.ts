@@ -149,11 +149,12 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
           if (isReadonlyPath(path_array)) {
             return null;
           }
-          const parent_path = _.dropRight(path_array).join('.');
-          if (_.isArray(_.get(data, parent_path))) {
-            _.pullAt(_.get(data, parent_path), Number(_(path_array).last()));
+          const parent_path = _.dropRight(path_array);
+          const parent = _.get(data, parent_path);
+          if (_.isArray(parent)) {
+            _.pullAt(parent, Number(_(path_array).last()));
           } else {
-            _.unset(data, path);
+            _.unset(data, path_array);
           }
           return checkSchema(data, command, true);
         }
@@ -184,7 +185,22 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
       } else {
         data = applyCommand(data, command);
       }
-      if (data !== null && !_.isEqual(data, _.pick(variables.stat_data, Object.keys(data)))) {
+
+      const removed_paths =
+        command.type === 'delete'
+          ? [_.toPath(command.args.map(parsePath).join('.'))]
+          : command.type === 'move'
+            ? [_.toPath(parsePath(command.args[0]))]
+            : [];
+      const has_removed_value =
+        data !== null && removed_paths.some(path => _.has(variables.stat_data, path) && !_.has(data, path));
+
+      if (data !== null && (has_removed_value || !_.isEqual(data, _.pick(variables.stat_data, Object.keys(data))))) {
+        removed_paths.forEach(path => {
+          if (!_.has(data, path)) {
+            _.unset(variables.stat_data, path);
+          }
+        });
         variables.stat_data = { ...variables.stat_data, ...data };
         consumed_indices.push(index);
       }
