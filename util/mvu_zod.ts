@@ -149,6 +149,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
           if (isReadonlyPath(path_array)) {
             return null;
           }
+          // 保留路径分段，避免 `inventory.v2` 这类带点号的键被重新解释成多层路径。
           const parent_path = _.dropRight(path_array);
           const parent = _.get(data, parent_path);
           if (_.isArray(parent)) {
@@ -186,6 +187,8 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
         data = applyCommand(data, command);
       }
 
+      // 顶层 delete/move 会让 data 少一个键，仅按 data 现有键比较会误判为没有变化；
+      // 对象展开也不会删除旧键，因此合并前需要显式清理被移除的源路径。
       const removed_paths =
         command.type === 'delete'
           ? [_.toPath(command.args.map(parsePath).join('.'))]
