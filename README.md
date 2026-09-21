@@ -5,4 +5,4 @@
 
 ## 许可证
 
-[Aladdin](LICENSE)
+[PolyForm Noncommercial License 1.0.0](LICENSE)
