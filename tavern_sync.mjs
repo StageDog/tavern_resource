@@ -34,8 +34,8 @@ import { stripVTControlCharacters as __WEBPACK_EXTERNAL_MODULE_node_util_1f09367
  * @private
  */
 
-var Negotiator = __webpack_require__(1882)
-var mime = __webpack_require__(1976)
+var Negotiator = __webpack_require__(882)
+var mime = __webpack_require__(976)
 
 /**
  * Module exports.
@@ -262,7 +262,7 @@ function validMime (type) {
 
 /***/ },
 
-/***/ 6821
+/***/ 821
 (module, exports, __webpack_require__) {
 
 /*!
@@ -273,7 +273,7 @@ function validMime (type) {
  * Module dependencies
  */
 
-var crypto = __webpack_require__(6982);
+var crypto = __webpack_require__(982);
 
 /**
  * Constructor
@@ -372,7 +372,7 @@ exports = module.exports = new Base64Id();
 
 /***/ },
 
-/***/ 4554
+/***/ 554
 (module) {
 
 
@@ -413,372 +413,15 @@ module.exports = { mask, unmask };
 
 /***/ },
 
-/***/ 6498
-(module, __unused_webpack_exports, __webpack_require__) {
-
-
-
-try {
-  module.exports = __webpack_require__(5173)(__webpack_dirname__);
-} catch (e) {
-  module.exports = __webpack_require__(4554);
-}
-
-
-/***/ },
-
-/***/ 4058
-(__unused_webpack_module, exports) {
-
-var __webpack_unused_export__;
-/*!
- * cookie
- * Copyright(c) 2012-2014 Roman Shtylman
- * Copyright(c) 2015 Douglas Christopher Wilson
- * MIT Licensed
- */
-
-
-
-/**
- * Module exports.
- * @public
- */
-
-__webpack_unused_export__ = parse;
-exports.serialize = serialize;
-
-/**
- * Module variables.
- * @private
- */
-
-var __toString = Object.prototype.toString
-var __hasOwnProperty = Object.prototype.hasOwnProperty
-
-/**
- * RegExp to match cookie-name in RFC 6265 sec 4.1.1
- * This refers out to the obsoleted definition of token in RFC 2616 sec 2.2
- * which has been replaced by the token definition in RFC 7230 appendix B.
- *
- * cookie-name       = token
- * token             = 1*tchar
- * tchar             = "!" / "#" / "$" / "%" / "&" / "'" /
- *                     "*" / "+" / "-" / "." / "^" / "_" /
- *                     "`" / "|" / "~" / DIGIT / ALPHA
- */
-
-var cookieNameRegExp = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
-
-/**
- * RegExp to match cookie-value in RFC 6265 sec 4.1.1
- *
- * cookie-value      = *cookie-octet / ( DQUOTE *cookie-octet DQUOTE )
- * cookie-octet      = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E
- *                     ; US-ASCII characters excluding CTLs,
- *                     ; whitespace DQUOTE, comma, semicolon,
- *                     ; and backslash
- */
-
-var cookieValueRegExp = /^("?)[\u0021\u0023-\u002B\u002D-\u003A\u003C-\u005B\u005D-\u007E]*\1$/;
-
-/**
- * RegExp to match domain-value in RFC 6265 sec 4.1.1
- *
- * domain-value      = <subdomain>
- *                     ; defined in [RFC1034], Section 3.5, as
- *                     ; enhanced by [RFC1123], Section 2.1
- * <subdomain>       = <label> | <subdomain> "." <label>
- * <label>           = <let-dig> [ [ <ldh-str> ] <let-dig> ]
- *                     Labels must be 63 characters or less.
- *                     'let-dig' not 'letter' in the first char, per RFC1123
- * <ldh-str>         = <let-dig-hyp> | <let-dig-hyp> <ldh-str>
- * <let-dig-hyp>     = <let-dig> | "-"
- * <let-dig>         = <letter> | <digit>
- * <letter>          = any one of the 52 alphabetic characters A through Z in
- *                     upper case and a through z in lower case
- * <digit>           = any one of the ten digits 0 through 9
- *
- * Keep support for leading dot: https://github.com/jshttp/cookie/issues/173
- *
- * > (Note that a leading %x2E ("."), if present, is ignored even though that
- * character is not permitted, but a trailing %x2E ("."), if present, will
- * cause the user agent to ignore the attribute.)
- */
-
-var domainValueRegExp = /^([.]?[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)([.][a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/i;
-
-/**
- * RegExp to match path-value in RFC 6265 sec 4.1.1
- *
- * path-value        = <any CHAR except CTLs or ";">
- * CHAR              = %x01-7F
- *                     ; defined in RFC 5234 appendix B.1
- */
-
-var pathValueRegExp = /^[\u0020-\u003A\u003D-\u007E]*$/;
-
-/**
- * Parse a cookie header.
- *
- * Parse the given cookie header string into an object
- * The object has the various cookies as keys(names) => values
- *
- * @param {string} str
- * @param {object} [opt]
- * @return {object}
- * @public
- */
-
-function parse(str, opt) {
-  if (typeof str !== 'string') {
-    throw new TypeError('argument str must be a string');
-  }
-
-  var obj = {};
-  var len = str.length;
-  // RFC 6265 sec 4.1.1, RFC 2616 2.2 defines a cookie name consists of one char minimum, plus '='.
-  if (len < 2) return obj;
-
-  var dec = (opt && opt.decode) || decode;
-  var index = 0;
-  var eqIdx = 0;
-  var endIdx = 0;
-
-  do {
-    eqIdx = str.indexOf('=', index);
-    if (eqIdx === -1) break; // No more cookie pairs.
-
-    endIdx = str.indexOf(';', index);
-
-    if (endIdx === -1) {
-      endIdx = len;
-    } else if (eqIdx > endIdx) {
-      // backtrack on prior semicolon
-      index = str.lastIndexOf(';', eqIdx - 1) + 1;
-      continue;
-    }
-
-    var keyStartIdx = startIndex(str, index, eqIdx);
-    var keyEndIdx = endIndex(str, eqIdx, keyStartIdx);
-    var key = str.slice(keyStartIdx, keyEndIdx);
-
-    // only assign once
-    if (!__hasOwnProperty.call(obj, key)) {
-      var valStartIdx = startIndex(str, eqIdx + 1, endIdx);
-      var valEndIdx = endIndex(str, endIdx, valStartIdx);
-
-      if (str.charCodeAt(valStartIdx) === 0x22 /* " */ && str.charCodeAt(valEndIdx - 1) === 0x22 /* " */) {
-        valStartIdx++;
-        valEndIdx--;
-      }
-
-      var val = str.slice(valStartIdx, valEndIdx);
-      obj[key] = tryDecode(val, dec);
-    }
-
-    index = endIdx + 1
-  } while (index < len);
-
-  return obj;
-}
-
-function startIndex(str, index, max) {
-  do {
-    var code = str.charCodeAt(index);
-    if (code !== 0x20 /*   */ && code !== 0x09 /* \t */) return index;
-  } while (++index < max);
-  return max;
-}
-
-function endIndex(str, index, min) {
-  while (index > min) {
-    var code = str.charCodeAt(--index);
-    if (code !== 0x20 /*   */ && code !== 0x09 /* \t */) return index + 1;
-  }
-  return min;
-}
-
-/**
- * Serialize data into a cookie header.
- *
- * Serialize a name value pair into a cookie string suitable for
- * http headers. An optional options object specifies cookie parameters.
- *
- * serialize('foo', 'bar', { httpOnly: true })
- *   => "foo=bar; httpOnly"
- *
- * @param {string} name
- * @param {string} val
- * @param {object} [opt]
- * @return {string}
- * @public
- */
-
-function serialize(name, val, opt) {
-  var enc = (opt && opt.encode) || encodeURIComponent;
-
-  if (typeof enc !== 'function') {
-    throw new TypeError('option encode is invalid');
-  }
-
-  if (!cookieNameRegExp.test(name)) {
-    throw new TypeError('argument name is invalid');
-  }
-
-  var value = enc(val);
-
-  if (!cookieValueRegExp.test(value)) {
-    throw new TypeError('argument val is invalid');
-  }
-
-  var str = name + '=' + value;
-  if (!opt) return str;
-
-  if (null != opt.maxAge) {
-    var maxAge = Math.floor(opt.maxAge);
-
-    if (!isFinite(maxAge)) {
-      throw new TypeError('option maxAge is invalid')
-    }
-
-    str += '; Max-Age=' + maxAge;
-  }
-
-  if (opt.domain) {
-    if (!domainValueRegExp.test(opt.domain)) {
-      throw new TypeError('option domain is invalid');
-    }
-
-    str += '; Domain=' + opt.domain;
-  }
-
-  if (opt.path) {
-    if (!pathValueRegExp.test(opt.path)) {
-      throw new TypeError('option path is invalid');
-    }
-
-    str += '; Path=' + opt.path;
-  }
-
-  if (opt.expires) {
-    var expires = opt.expires
-
-    if (!isDate(expires) || isNaN(expires.valueOf())) {
-      throw new TypeError('option expires is invalid');
-    }
-
-    str += '; Expires=' + expires.toUTCString()
-  }
-
-  if (opt.httpOnly) {
-    str += '; HttpOnly';
-  }
-
-  if (opt.secure) {
-    str += '; Secure';
-  }
-
-  if (opt.partitioned) {
-    str += '; Partitioned'
-  }
-
-  if (opt.priority) {
-    var priority = typeof opt.priority === 'string'
-      ? opt.priority.toLowerCase() : opt.priority;
-
-    switch (priority) {
-      case 'low':
-        str += '; Priority=Low'
-        break
-      case 'medium':
-        str += '; Priority=Medium'
-        break
-      case 'high':
-        str += '; Priority=High'
-        break
-      default:
-        throw new TypeError('option priority is invalid')
-    }
-  }
-
-  if (opt.sameSite) {
-    var sameSite = typeof opt.sameSite === 'string'
-      ? opt.sameSite.toLowerCase() : opt.sameSite;
-
-    switch (sameSite) {
-      case true:
-        str += '; SameSite=Strict';
-        break;
-      case 'lax':
-        str += '; SameSite=Lax';
-        break;
-      case 'strict':
-        str += '; SameSite=Strict';
-        break;
-      case 'none':
-        str += '; SameSite=None';
-        break;
-      default:
-        throw new TypeError('option sameSite is invalid');
-    }
-  }
-
-  return str;
-}
-
-/**
- * URL-decode string value. Optimized to skip native call when no %.
- *
- * @param {string} str
- * @returns {string}
- */
-
-function decode (str) {
-  return str.indexOf('%') !== -1
-    ? decodeURIComponent(str)
-    : str
-}
-
-/**
- * Determine if value is a Date.
- *
- * @param {*} val
- * @private
- */
-
-function isDate (val) {
-  return __toString.call(val) === '[object Date]';
-}
-
-/**
- * Try decoding a string using a decoding function.
- *
- * @param {string} str
- * @param {function} decode
- * @private
- */
-
-function tryDecode(str, decode) {
-  try {
-    return decode(str);
-  } catch (e) {
-    return str;
-  }
-}
-
-
-/***/ },
-
-/***/ 4941
+/***/ 941
 (module, __unused_webpack_exports, __webpack_require__) {
 
 (function () {
 
   'use strict';
 
-  var assign = __webpack_require__(4059);
-  var vary = __webpack_require__(4795);
+  var assign = __webpack_require__(59);
+  var vary = __webpack_require__(795);
 
   var defaults = {
     origin: '*',
@@ -1015,7 +658,7 @@ function tryDecode(str, decode) {
 
 /***/ },
 
-/***/ 2355
+/***/ 355
 (__unused_webpack_module, exports) {
 
 /* crc32.js (C) 2014-2015 SheetJS -- http://sheetjs.com */
@@ -1385,7 +1028,7 @@ function localstorage() {
 	}
 }
 
-module.exports = __webpack_require__(6156)(exports);
+module.exports = __webpack_require__(156)(exports);
 
 const {formatters} = module.exports;
 
@@ -1404,7 +1047,7 @@ formatters.j = function (v) {
 
 /***/ },
 
-/***/ 6156
+/***/ 156
 (module, __unused_webpack_exports, __webpack_require__) {
 
 
@@ -1420,7 +1063,7 @@ function setup(env) {
 	createDebug.disable = disable;
 	createDebug.enable = enable;
 	createDebug.enabled = enabled;
-	createDebug.humanize = __webpack_require__(9049);
+	createDebug.humanize = __webpack_require__(49);
 	createDebug.destroy = destroy;
 
 	Object.keys(env).forEach(key => {
@@ -1703,7 +1346,7 @@ module.exports = setup;
 
 /***/ },
 
-/***/ 7181
+/***/ 181
 (module, __unused_webpack_exports, __webpack_require__) {
 
 /**
@@ -1714,21 +1357,21 @@ module.exports = setup;
 if (typeof process === 'undefined' || process.type === 'renderer' || process.browser === true || process.__nwjs) {
 	module.exports = __webpack_require__(221);
 } else {
-	module.exports = __webpack_require__(9365);
+	module.exports = __webpack_require__(365);
 }
 
 
 /***/ },
 
-/***/ 9365
+/***/ 365
 (module, exports, __webpack_require__) {
 
 /**
  * Module dependencies.
  */
 
-const tty = __webpack_require__(2018);
-const util = __webpack_require__(9023);
+const tty = __webpack_require__(18);
+const util = __webpack_require__(23);
 
 /**
  * This is the Node.js implementation of `debug()`.
@@ -1754,7 +1397,7 @@ exports.colors = [6, 2, 3, 4, 5, 1];
 try {
 	// Optional dependency (as in, doesn't need to be installed, NOT like optionalDependencies in package.json)
 	// eslint-disable-next-line import/no-extraneous-dependencies
-	const supportsColor = __webpack_require__(9478);
+	const supportsColor = __webpack_require__(478);
 
 	if (supportsColor && (supportsColor.stderr || supportsColor).level >= 2) {
 		exports.colors = [
@@ -1962,7 +1605,7 @@ function init(debug) {
 	}
 }
 
-module.exports = __webpack_require__(6156)(exports);
+module.exports = __webpack_require__(156)(exports);
 
 const {formatters} = module.exports;
 
@@ -1990,7 +1633,7 @@ formatters.O = function (v) {
 
 /***/ },
 
-/***/ 1533
+/***/ 533
 (module) {
 
 
@@ -2005,7 +1648,7 @@ module.exports = (flag, argv = process.argv) => {
 
 /***/ },
 
-/***/ 6746
+/***/ 746
 (module, exports, __webpack_require__) {
 
 /* module decorator */ module = __webpack_require__.nmd(module);
@@ -19265,7 +18908,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 /***/ },
 
-/***/ 6713
+/***/ 713
 (module, __unused_webpack_exports, __webpack_require__) {
 
 /*!
@@ -19279,12 +18922,12 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
  * Module exports.
  */
 
-module.exports = __webpack_require__(7080)
+module.exports = __webpack_require__(80)
 
 
 /***/ },
 
-/***/ 1976
+/***/ 976
 (__unused_webpack_module, exports, __webpack_require__) {
 
 /*!
@@ -19301,8 +18944,8 @@ module.exports = __webpack_require__(7080)
  * @private
  */
 
-var db = __webpack_require__(6713)
-var extname = (__webpack_require__(6928).extname)
+var db = __webpack_require__(713)
+var extname = (__webpack_require__(928).extname)
 
 /**
  * Module variables.
@@ -19479,7 +19122,7 @@ function populateMaps (extensions, types) {
 
 /***/ },
 
-/***/ 9049
+/***/ 49
 (module) {
 
 /**
@@ -19648,7 +19291,7 @@ function plural(ms, msAbs, n, name) {
 
 /***/ },
 
-/***/ 1882
+/***/ 882
 (module, __unused_webpack_exports, __webpack_require__) {
 
 /*!
@@ -19661,10 +19304,10 @@ function plural(ms, msAbs, n, name) {
 
 
 
-var preferredCharsets = __webpack_require__(8958)
-var preferredEncodings = __webpack_require__(8417)
-var preferredLanguages = __webpack_require__(2338)
-var preferredMediaTypes = __webpack_require__(5434)
+var preferredCharsets = __webpack_require__(958)
+var preferredEncodings = __webpack_require__(417)
+var preferredLanguages = __webpack_require__(338)
+var preferredMediaTypes = __webpack_require__(434)
 
 /**
  * Module exports.
@@ -19737,7 +19380,7 @@ Negotiator.prototype.preferredMediaTypes = Negotiator.prototype.mediaTypes;
 
 /***/ },
 
-/***/ 8958
+/***/ 958
 (module) {
 
 /**
@@ -19913,7 +19556,7 @@ function isQuality(spec) {
 
 /***/ },
 
-/***/ 8417
+/***/ 417
 (module) {
 
 /**
@@ -20104,7 +19747,7 @@ function isQuality(spec) {
 
 /***/ },
 
-/***/ 2338
+/***/ 338
 (module) {
 
 /**
@@ -20290,7 +19933,7 @@ function isQuality(spec) {
 
 /***/ },
 
-/***/ 5434
+/***/ 434
 (module) {
 
 /**
@@ -20591,24 +20234,24 @@ function splitParameters(str) {
 
 /***/ },
 
-/***/ 5173
+/***/ 173
 (module, __unused_webpack_exports, __webpack_require__) {
 
 const runtimeRequire =  true ? __WEBPACK_EXTERNAL_createRequire_require : 0 // eslint-disable-line
 if (typeof runtimeRequire.addon === 'function') { // if the platform supports native resolving prefer that
   module.exports = runtimeRequire.addon.bind(runtimeRequire)
 } else { // else use the runtime version here
-  module.exports = __webpack_require__(4321)
+  module.exports = __webpack_require__(321)
 }
 
 
 /***/ },
 
-/***/ 4321
+/***/ 321
 (module, __unused_webpack_exports, __webpack_require__) {
 
-var fs = __webpack_require__(9896)
-var path = __webpack_require__(6928)
+var fs = __webpack_require__(896)
+var path = __webpack_require__(928)
 var os = __webpack_require__(857)
 
 // Workaround to fix webpack's build warnings: 'the request of a dependency is an expression'
@@ -20818,7 +20461,7 @@ load.compareTuples = compareTuples
 
 /***/ },
 
-/***/ 4059
+/***/ 59
 (module) {
 
 /*
@@ -20915,7 +20558,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 /***/ },
 
-/***/ 5118
+/***/ 118
 (module) {
 
 module.exports = decode
@@ -20956,7 +20599,7 @@ function decode (data) {
 
 /***/ },
 
-/***/ 4162
+/***/ 162
 (module) {
 
 module.exports = encode
@@ -21005,19 +20648,19 @@ function encode (keyword, content) {
 
 /***/ },
 
-/***/ 9890
+/***/ 890
 (__unused_webpack_module, exports, __webpack_require__) {
 
-exports.encode = __webpack_require__(4162)
-exports.decode = __webpack_require__(5118)
+exports.encode = __webpack_require__(162)
+exports.decode = __webpack_require__(118)
 
 
 /***/ },
 
-/***/ 3074
+/***/ 74
 (module, __unused_webpack_exports, __webpack_require__) {
 
-var crc32 = __webpack_require__(2355)
+var crc32 = __webpack_require__(355)
 
 module.exports = extractChunks
 
@@ -21123,9 +20766,1581 @@ function extractChunks (data) {
 
 /***/ },
 
-/***/ 4493
+/***/ 478
+(module, __unused_webpack_exports, __webpack_require__) {
+
+
+const os = __webpack_require__(857);
+const tty = __webpack_require__(18);
+const hasFlag = __webpack_require__(533);
+
+const {env} = process;
+
+let forceColor;
+if (hasFlag('no-color') ||
+	hasFlag('no-colors') ||
+	hasFlag('color=false') ||
+	hasFlag('color=never')) {
+	forceColor = 0;
+} else if (hasFlag('color') ||
+	hasFlag('colors') ||
+	hasFlag('color=true') ||
+	hasFlag('color=always')) {
+	forceColor = 1;
+}
+
+if ('FORCE_COLOR' in env) {
+	if (env.FORCE_COLOR === 'true') {
+		forceColor = 1;
+	} else if (env.FORCE_COLOR === 'false') {
+		forceColor = 0;
+	} else {
+		forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
+	}
+}
+
+function translateLevel(level) {
+	if (level === 0) {
+		return false;
+	}
+
+	return {
+		level,
+		hasBasic: true,
+		has256: level >= 2,
+		has16m: level >= 3
+	};
+}
+
+function supportsColor(haveStream, streamIsTTY) {
+	if (forceColor === 0) {
+		return 0;
+	}
+
+	if (hasFlag('color=16m') ||
+		hasFlag('color=full') ||
+		hasFlag('color=truecolor')) {
+		return 3;
+	}
+
+	if (hasFlag('color=256')) {
+		return 2;
+	}
+
+	if (haveStream && !streamIsTTY && forceColor === undefined) {
+		return 0;
+	}
+
+	const min = forceColor || 0;
+
+	if (env.TERM === 'dumb') {
+		return min;
+	}
+
+	if (process.platform === 'win32') {
+		// Windows 10 build 10586 is the first Windows release that supports 256 colors.
+		// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
+		const osRelease = os.release().split('.');
+		if (
+			Number(osRelease[0]) >= 10 &&
+			Number(osRelease[2]) >= 10586
+		) {
+			return Number(osRelease[2]) >= 14931 ? 3 : 2;
+		}
+
+		return 1;
+	}
+
+	if ('CI' in env) {
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'GITHUB_ACTIONS', 'BUILDKITE'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
+			return 1;
+		}
+
+		return min;
+	}
+
+	if ('TEAMCITY_VERSION' in env) {
+		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
+	}
+
+	if (env.COLORTERM === 'truecolor') {
+		return 3;
+	}
+
+	if ('TERM_PROGRAM' in env) {
+		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
+
+		switch (env.TERM_PROGRAM) {
+			case 'iTerm.app':
+				return version >= 3 ? 3 : 2;
+			case 'Apple_Terminal':
+				return 2;
+			// No default
+		}
+	}
+
+	if (/-256(color)?$/i.test(env.TERM)) {
+		return 2;
+	}
+
+	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
+		return 1;
+	}
+
+	if ('COLORTERM' in env) {
+		return 1;
+	}
+
+	return min;
+}
+
+function getSupportLevel(stream) {
+	const level = supportsColor(stream, stream && stream.isTTY);
+	return translateLevel(level);
+}
+
+module.exports = {
+	supportsColor: getSupportLevel,
+	stdout: translateLevel(supportsColor(true, tty.isatty(1))),
+	stderr: translateLevel(supportsColor(true, tty.isatty(2)))
+};
+
+
+/***/ },
+
+/***/ 143
+(module) {
+
+
+
+/**
+ * Checks if a given buffer contains only correct UTF-8.
+ * Ported from https://www.cl.cam.ac.uk/%7Emgk25/ucs/utf8_check.c by
+ * Markus Kuhn.
+ *
+ * @param {Buffer} buf The buffer to check
+ * @return {Boolean} `true` if `buf` contains only correct UTF-8, else `false`
+ * @public
+ */
+function isValidUTF8(buf) {
+  const len = buf.length;
+  let i = 0;
+
+  while (i < len) {
+    if ((buf[i] & 0x80) === 0x00) {  // 0xxxxxxx
+      i++;
+    } else if ((buf[i] & 0xe0) === 0xc0) {  // 110xxxxx 10xxxxxx
+      if (
+        i + 1 === len ||
+        (buf[i + 1] & 0xc0) !== 0x80 ||
+        (buf[i] & 0xfe) === 0xc0  // overlong
+      ) {
+        return false;
+      }
+
+      i += 2;
+    } else if ((buf[i] & 0xf0) === 0xe0) {  // 1110xxxx 10xxxxxx 10xxxxxx
+      if (
+        i + 2 >= len ||
+        (buf[i + 1] & 0xc0) !== 0x80 ||
+        (buf[i + 2] & 0xc0) !== 0x80 ||
+        buf[i] === 0xe0 && (buf[i + 1] & 0xe0) === 0x80 ||  // overlong
+        buf[i] === 0xed && (buf[i + 1] & 0xe0) === 0xa0  // surrogate (U+D800 - U+DFFF)
+      ) {
+        return false;
+      }
+
+      i += 3;
+    } else if ((buf[i] & 0xf8) === 0xf0) {  // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+      if (
+        i + 3 >= len ||
+        (buf[i + 1] & 0xc0) !== 0x80 ||
+        (buf[i + 2] & 0xc0) !== 0x80 ||
+        (buf[i + 3] & 0xc0) !== 0x80 ||
+        buf[i] === 0xf0 && (buf[i + 1] & 0xf0) === 0x80 ||  // overlong
+        buf[i] === 0xf4 && buf[i + 1] > 0x8f || buf[i] > 0xf4  // > U+10FFFF
+      ) {
+        return false;
+      }
+
+      i += 4;
+    } else {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+module.exports = isValidUTF8;
+
+
+/***/ },
+
+/***/ 795
+(module) {
+
+/*!
+ * vary
+ * Copyright(c) 2014-2017 Douglas Christopher Wilson
+ * MIT Licensed
+ */
+
+
+
+/**
+ * Module exports.
+ */
+
+module.exports = vary
+module.exports.append = append
+
+/**
+ * RegExp to match field-name in RFC 7230 sec 3.2
+ *
+ * field-name    = token
+ * token         = 1*tchar
+ * tchar         = "!" / "#" / "$" / "%" / "&" / "'" / "*"
+ *               / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~"
+ *               / DIGIT / ALPHA
+ *               ; any VCHAR, except delimiters
+ */
+
+var FIELD_NAME_REGEXP = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/
+
+/**
+ * Append a field to a vary header.
+ *
+ * @param {String} header
+ * @param {String|Array} field
+ * @return {String}
+ * @public
+ */
+
+function append (header, field) {
+  if (typeof header !== 'string') {
+    throw new TypeError('header argument is required')
+  }
+
+  if (!field) {
+    throw new TypeError('field argument is required')
+  }
+
+  // get fields array
+  var fields = !Array.isArray(field)
+    ? parse(String(field))
+    : field
+
+  // assert on invalid field names
+  for (var j = 0; j < fields.length; j++) {
+    if (!FIELD_NAME_REGEXP.test(fields[j])) {
+      throw new TypeError('field argument contains an invalid header name')
+    }
+  }
+
+  // existing, unspecified vary
+  if (header === '*') {
+    return header
+  }
+
+  // enumerate current values
+  var val = header
+  var vals = parse(header.toLowerCase())
+
+  // unspecified vary
+  if (fields.indexOf('*') !== -1 || vals.indexOf('*') !== -1) {
+    return '*'
+  }
+
+  for (var i = 0; i < fields.length; i++) {
+    var fld = fields[i].toLowerCase()
+
+    // append value (case-preserving)
+    if (vals.indexOf(fld) === -1) {
+      vals.push(fld)
+      val = val
+        ? val + ', ' + fields[i]
+        : fields[i]
+    }
+  }
+
+  return val
+}
+
+/**
+ * Parse a vary header into an array.
+ *
+ * @param {String} header
+ * @return {Array}
+ * @private
+ */
+
+function parse (header) {
+  var end = 0
+  var list = []
+  var start = 0
+
+  // gather tokens
+  for (var i = 0, len = header.length; i < len; i++) {
+    switch (header.charCodeAt(i)) {
+      case 0x20: /*   */
+        if (start === end) {
+          start = end = i + 1
+        }
+        break
+      case 0x2c: /* , */
+        list.push(header.substring(start, end))
+        start = end = i + 1
+        break
+      default:
+        end = i + 1
+        break
+    }
+  }
+
+  // final token
+  list.push(header.substring(start, end))
+
+  return list
+}
+
+/**
+ * Mark that a request is varied on a header field.
+ *
+ * @param {Object} res
+ * @param {String|Array} field
+ * @public
+ */
+
+function vary (res, field) {
+  if (!res || !res.getHeader || !res.setHeader) {
+    // quack quack
+    throw new TypeError('res argument is required')
+  }
+
+  // get existing header
+  var val = res.getHeader('Vary') || ''
+  var header = Array.isArray(val)
+    ? val.join(', ')
+    : String(val)
+
+  // set new header
+  if ((val = append(header, field))) {
+    res.setHeader('Vary', val)
+  }
+}
+
+
+/***/ },
+
+/***/ 231
+(module) {
+
+
+
+const kDone = Symbol('kDone');
+const kRun = Symbol('kRun');
+
+/**
+ * A very simple job queue with adjustable concurrency. Adapted from
+ * https://github.com/STRML/async-limiter
+ */
+class Limiter {
+  /**
+   * Creates a new `Limiter`.
+   *
+   * @param {Number} [concurrency=Infinity] The maximum number of jobs allowed
+   *     to run concurrently
+   */
+  constructor(concurrency) {
+    this[kDone] = () => {
+      this.pending--;
+      this[kRun]();
+    };
+    this.concurrency = concurrency || Infinity;
+    this.jobs = [];
+    this.pending = 0;
+  }
+
+  /**
+   * Adds a job to the queue.
+   *
+   * @param {Function} job The job to run
+   * @public
+   */
+  add(job) {
+    this.jobs.push(job);
+    this[kRun]();
+  }
+
+  /**
+   * Removes a job from the queue and runs it if possible.
+   *
+   * @private
+   */
+  [kRun]() {
+    if (this.pending === this.concurrency) return;
+
+    if (this.jobs.length) {
+      const job = this.jobs.shift();
+
+      this.pending++;
+      job(this[kDone]);
+    }
+  }
+}
+
+module.exports = Limiter;
+
+
+/***/ },
+
+/***/ 982
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire_require("crypto");
+
+/***/ },
+
+/***/ 896
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
+
+/***/ },
+
+/***/ 857
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire_require("os");
+
+/***/ },
+
+/***/ 928
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire_require("path");
+
+/***/ },
+
+/***/ 480
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire_require("querystring");
+
+/***/ },
+
+/***/ 18
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire_require("tty");
+
+/***/ },
+
+/***/ 23
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire_require("util");
+
+/***/ },
+
+/***/ 856
 (__unused_webpack_module, exports, __webpack_require__) {
 
+
+// imported from https://github.com/socketio/engine.io-parser/tree/2.2.x
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.packets = exports.protocol = void 0;
+exports.encodePacket = encodePacket;
+exports.encodeBase64Packet = encodeBase64Packet;
+exports.decodePacket = decodePacket;
+exports.decodeBase64Packet = decodeBase64Packet;
+exports.encodePayload = encodePayload;
+exports.decodePayload = decodePayload;
+exports.encodePayloadAsBinary = encodePayloadAsBinary;
+exports.decodePayloadAsBinary = decodePayloadAsBinary;
+/**
+ * Module dependencies.
+ */
+var utf8 = __webpack_require__(637);
+/**
+ * Current protocol version.
+ */
+exports.protocol = 3;
+const hasBinary = (packets) => {
+    for (const packet of packets) {
+        if (packet.data instanceof ArrayBuffer || ArrayBuffer.isView(packet.data)) {
+            return true;
+        }
+    }
+    return false;
+};
+/**
+ * Packet types.
+ */
+exports.packets = {
+    open: 0 // non-ws
+    ,
+    close: 1 // non-ws
+    ,
+    ping: 2,
+    pong: 3,
+    message: 4,
+    upgrade: 5,
+    noop: 6
+};
+var packetslist = Object.keys(exports.packets);
+/**
+ * Premade error packet.
+ */
+var err = { type: 'error', data: 'parser error' };
+const EMPTY_BUFFER = Buffer.concat([]);
+/**
+ * Encodes a packet.
+ *
+ *     <packet type id> [ <data> ]
+ *
+ * Example:
+ *
+ *     5hello world
+ *     3
+ *     4
+ *
+ * Binary is encoded in an identical principle
+ *
+ * @api private
+ */
+function encodePacket(packet, supportsBinary, utf8encode, callback) {
+    if (typeof supportsBinary === 'function') {
+        callback = supportsBinary;
+        supportsBinary = null;
+    }
+    if (typeof utf8encode === 'function') {
+        callback = utf8encode;
+        utf8encode = null;
+    }
+    if (Buffer.isBuffer(packet.data)) {
+        return encodeBuffer(packet, supportsBinary, callback);
+    }
+    else if (packet.data && (packet.data.buffer || packet.data) instanceof ArrayBuffer) {
+        return encodeBuffer({ type: packet.type, data: arrayBufferToBuffer(packet.data) }, supportsBinary, callback);
+    }
+    // Sending data as a utf-8 string
+    var encoded = exports.packets[packet.type];
+    // data fragment is optional
+    if (undefined !== packet.data) {
+        encoded += utf8encode ? utf8.encode(String(packet.data), { strict: false }) : String(packet.data);
+    }
+    return callback('' + encoded);
+}
+/**
+ * Encode Buffer data
+ */
+function encodeBuffer(packet, supportsBinary, callback) {
+    if (!supportsBinary) {
+        return encodeBase64Packet(packet, callback);
+    }
+    var data = packet.data;
+    var typeBuffer = Buffer.allocUnsafe(1);
+    typeBuffer[0] = exports.packets[packet.type];
+    return callback(Buffer.concat([typeBuffer, data]));
+}
+/**
+ * Encodes a packet with binary data in a base64 string
+ *
+ * @param {Object} packet, has `type` and `data`
+ * @return {String} base64 encoded message
+ */
+function encodeBase64Packet(packet, callback) {
+    var data = Buffer.isBuffer(packet.data) ? packet.data : arrayBufferToBuffer(packet.data);
+    var message = 'b' + exports.packets[packet.type];
+    message += data.toString('base64');
+    return callback(message);
+}
+;
+/**
+ * Decodes a packet. Data also available as an ArrayBuffer if requested.
+ *
+ * @return {import('engine.io-parser').Packet} with `type` and `data` (if any)
+ * @api private
+ */
+function decodePacket(data, binaryType, utf8decode) {
+    if (data === undefined) {
+        return err;
+    }
+    let type;
+    // String data
+    if (typeof data === 'string') {
+        type = data.charAt(0);
+        if (type === 'b') {
+            return decodeBase64Packet(data.slice(1), binaryType);
+        }
+        if (utf8decode) {
+            data = tryDecode(data);
+            if (data === false) {
+                return err;
+            }
+        }
+        // @ts-expect-error
+        if (Number(type) != type || !packetslist[type]) {
+            return err;
+        }
+        if (data.length > 1) {
+            return { type: packetslist[type], data: data.slice(1) };
+        }
+        else {
+            return { type: packetslist[type] };
+        }
+    }
+    // Binary data
+    if (binaryType === 'arraybuffer') {
+        // wrap Buffer/ArrayBuffer data into an Uint8Array
+        var intArray = new Uint8Array(data);
+        type = intArray[0];
+        return { type: packetslist[type], data: intArray.buffer.slice(1) };
+    }
+    if (data instanceof ArrayBuffer) {
+        data = arrayBufferToBuffer(data);
+    }
+    type = data[0];
+    return { type: packetslist[type], data: data.slice(1) };
+}
+;
+function tryDecode(data) {
+    try {
+        data = utf8.decode(data, { strict: false });
+    }
+    catch (e) {
+        return false;
+    }
+    return data;
+}
+/**
+ * Decodes a packet encoded in a base64 string.
+ *
+ * @param {String} base64 encoded message
+ * @return {Object} with `type` and `data` (if any)
+ */
+function decodeBase64Packet(msg, binaryType) {
+    var type = packetslist[msg.charAt(0)];
+    var data = Buffer.from(msg.slice(1), 'base64');
+    if (binaryType === 'arraybuffer') {
+        var abv = new Uint8Array(data.length);
+        for (var i = 0; i < abv.length; i++) {
+            abv[i] = data[i];
+        }
+        // @ts-ignore
+        data = abv.buffer;
+    }
+    return { type: type, data: data };
+}
+;
+/**
+ * Encodes multiple messages (payload).
+ *
+ *     <length>:data
+ *
+ * Example:
+ *
+ *     11:hello world2:hi
+ *
+ * If any contents are binary, they will be encoded as base64 strings. Base64
+ * encoded strings are marked with a b before the length specifier
+ *
+ * @param {Array} packets
+ * @api private
+ */
+function encodePayload(packets, supportsBinary, callback) {
+    if (typeof supportsBinary === 'function') {
+        callback = supportsBinary;
+        supportsBinary = null;
+    }
+    if (supportsBinary && hasBinary(packets)) {
+        return encodePayloadAsBinary(packets, callback);
+    }
+    if (!packets.length) {
+        return callback('0:');
+    }
+    function encodeOne(packet, doneCallback) {
+        encodePacket(packet, supportsBinary, false, function (message) {
+            doneCallback(null, setLengthHeader(message));
+        });
+    }
+    map(packets, encodeOne, function (err, results) {
+        return callback(results.join(''));
+    });
+}
+;
+function setLengthHeader(message) {
+    return message.length + ':' + message;
+}
+/**
+ * Async array map using after
+ */
+function map(ary, each, done) {
+    const results = new Array(ary.length);
+    let count = 0;
+    for (let i = 0; i < ary.length; i++) {
+        each(ary[i], (error, msg) => {
+            results[i] = msg;
+            if (++count === ary.length) {
+                done(null, results);
+            }
+        });
+    }
+}
+/*
+ * Decodes data when a payload is maybe expected. Possible binary contents are
+ * decoded from their base64 representation
+ *
+ * @param {String} data, callback method
+ * @api public
+ */
+function decodePayload(data, binaryType, callback) {
+    if (typeof data !== 'string') {
+        return decodePayloadAsBinary(data, binaryType, callback);
+    }
+    if (typeof binaryType === 'function') {
+        callback = binaryType;
+        binaryType = null;
+    }
+    if (data === '') {
+        // parser error - ignoring payload
+        return callback(err, 0, 1);
+    }
+    var length = '', n, msg, packet;
+    for (var i = 0, l = data.length; i < l; i++) {
+        var chr = data.charAt(i);
+        if (chr !== ':') {
+            length += chr;
+            continue;
+        }
+        // @ts-ignore
+        if (length === '' || (length != (n = Number(length)))) {
+            // parser error - ignoring payload
+            return callback(err, 0, 1);
+        }
+        msg = data.slice(i + 1, i + 1 + n);
+        if (length != msg.length) {
+            // parser error - ignoring payload
+            return callback(err, 0, 1);
+        }
+        if (msg.length) {
+            packet = decodePacket(msg, binaryType, false);
+            if (err.type === packet.type && err.data === packet.data) {
+                // parser error in individual packet - ignoring payload
+                return callback(err, 0, 1);
+            }
+            var more = callback(packet, i + n, l);
+            if (false === more)
+                return;
+        }
+        // advance cursor
+        i += n;
+        length = '';
+    }
+    if (length !== '') {
+        // parser error - ignoring payload
+        return callback(err, 0, 1);
+    }
+}
+;
+/**
+ *
+ * Converts a buffer to a utf8.js encoded string
+ *
+ * @api private
+ */
+function bufferToString(buffer) {
+    var str = '';
+    for (var i = 0, l = buffer.length; i < l; i++) {
+        str += String.fromCharCode(buffer[i]);
+    }
+    return str;
+}
+/**
+ *
+ * Converts a utf8.js encoded string to a buffer
+ *
+ * @api private
+ */
+function stringToBuffer(string) {
+    var buf = Buffer.allocUnsafe(string.length);
+    for (var i = 0, l = string.length; i < l; i++) {
+        buf.writeUInt8(string.charCodeAt(i), i);
+    }
+    return buf;
+}
+/**
+ *
+ * Converts an ArrayBuffer to a Buffer
+ *
+ * @api private
+ */
+function arrayBufferToBuffer(data) {
+    // data is either an ArrayBuffer or ArrayBufferView.
+    var length = data.byteLength || data.length;
+    var offset = data.byteOffset || 0;
+    return Buffer.from(data.buffer || data, offset, length);
+}
+/**
+ * Encodes multiple messages (payload) as binary.
+ *
+ * <1 = binary, 0 = string><number from 0-9><number from 0-9>[...]<number
+ * 255><data>
+ *
+ * Example:
+ * 1 3 255 1 2 3, if the binary contents are interpreted as 8 bit integers
+ *
+ * @param {Array} packets
+ * @return {Buffer} encoded payload
+ * @api private
+ */
+function encodePayloadAsBinary(packets, callback) {
+    if (!packets.length) {
+        return callback(EMPTY_BUFFER);
+    }
+    map(packets, encodeOneBinaryPacket, function (err, results) {
+        return callback(Buffer.concat(results));
+    });
+}
+;
+function encodeOneBinaryPacket(p, doneCallback) {
+    function onBinaryPacketEncode(packet) {
+        var encodingLength = '' + packet.length;
+        var sizeBuffer;
+        if (typeof packet === 'string') {
+            sizeBuffer = Buffer.allocUnsafe(encodingLength.length + 2);
+            sizeBuffer[0] = 0; // is a string (not true binary = 0)
+            for (var i = 0; i < encodingLength.length; i++) {
+                sizeBuffer[i + 1] = parseInt(encodingLength[i], 10);
+            }
+            sizeBuffer[sizeBuffer.length - 1] = 255;
+            return doneCallback(null, Buffer.concat([sizeBuffer, stringToBuffer(packet)]));
+        }
+        sizeBuffer = Buffer.allocUnsafe(encodingLength.length + 2);
+        sizeBuffer[0] = 1; // is binary (true binary = 1)
+        for (var i = 0; i < encodingLength.length; i++) {
+            sizeBuffer[i + 1] = parseInt(encodingLength[i], 10);
+        }
+        sizeBuffer[sizeBuffer.length - 1] = 255;
+        doneCallback(null, Buffer.concat([sizeBuffer, packet]));
+    }
+    encodePacket(p, true, true, onBinaryPacketEncode);
+}
+/*
+ * Decodes data when a payload is maybe expected. Strings are decoded by
+ * interpreting each byte as a key code for entries marked to start with 0. See
+ * description of encodePayloadAsBinary
+
+ * @param {Buffer} data, callback method
+ * @api public
+ */
+function decodePayloadAsBinary(data, binaryType, callback) {
+    if (typeof binaryType === 'function') {
+        callback = binaryType;
+        binaryType = null;
+    }
+    var bufferTail = data;
+    var buffers = [];
+    var i;
+    while (bufferTail.length > 0) {
+        var strLen = '';
+        var isString = bufferTail[0] === 0;
+        for (i = 1;; i++) {
+            if (bufferTail[i] === 255)
+                break;
+            // 310 = char length of Number.MAX_VALUE
+            if (strLen.length > 310) {
+                return callback(err, 0, 1);
+            }
+            strLen += '' + bufferTail[i];
+        }
+        bufferTail = bufferTail.slice(strLen.length + 1);
+        var msgLength = parseInt(strLen, 10);
+        var msg = bufferTail.slice(1, msgLength + 1);
+        if (isString)
+            msg = bufferToString(msg);
+        buffers.push(msg);
+        bufferTail = bufferTail.slice(msgLength + 1);
+    }
+    var total = buffers.length;
+    for (i = 0; i < total; i++) {
+        var buffer = buffers[i];
+        callback(decodePacket(buffer, binaryType, true), i, total);
+    }
+}
+;
+
+
+/***/ },
+
+/***/ 637
+(module) {
+
+
+/*! https://mths.be/utf8js v2.1.2 by @mathias */
+var stringFromCharCode = String.fromCharCode;
+// Taken from https://mths.be/punycode
+function ucs2decode(string) {
+    var output = [];
+    var counter = 0;
+    var length = string.length;
+    var value;
+    var extra;
+    while (counter < length) {
+        value = string.charCodeAt(counter++);
+        if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+            // high surrogate, and there is a next character
+            extra = string.charCodeAt(counter++);
+            if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+                output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+            }
+            else {
+                // unmatched surrogate; only append this code unit, in case the next
+                // code unit is the high surrogate of a surrogate pair
+                output.push(value);
+                counter--;
+            }
+        }
+        else {
+            output.push(value);
+        }
+    }
+    return output;
+}
+// Taken from https://mths.be/punycode
+function ucs2encode(array) {
+    var length = array.length;
+    var index = -1;
+    var value;
+    var output = '';
+    while (++index < length) {
+        value = array[index];
+        if (value > 0xFFFF) {
+            value -= 0x10000;
+            output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+            value = 0xDC00 | value & 0x3FF;
+        }
+        output += stringFromCharCode(value);
+    }
+    return output;
+}
+function checkScalarValue(codePoint, strict) {
+    if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
+        if (strict) {
+            throw Error('Lone surrogate U+' + codePoint.toString(16).toUpperCase() +
+                ' is not a scalar value');
+        }
+        return false;
+    }
+    return true;
+}
+/*--------------------------------------------------------------------------*/
+function createByte(codePoint, shift) {
+    return stringFromCharCode(((codePoint >> shift) & 0x3F) | 0x80);
+}
+function encodeCodePoint(codePoint, strict) {
+    if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
+        return stringFromCharCode(codePoint);
+    }
+    var symbol = '';
+    if ((codePoint & 0xFFFFF800) == 0) { // 2-byte sequence
+        symbol = stringFromCharCode(((codePoint >> 6) & 0x1F) | 0xC0);
+    }
+    else if ((codePoint & 0xFFFF0000) == 0) { // 3-byte sequence
+        if (!checkScalarValue(codePoint, strict)) {
+            codePoint = 0xFFFD;
+        }
+        symbol = stringFromCharCode(((codePoint >> 12) & 0x0F) | 0xE0);
+        symbol += createByte(codePoint, 6);
+    }
+    else if ((codePoint & 0xFFE00000) == 0) { // 4-byte sequence
+        symbol = stringFromCharCode(((codePoint >> 18) & 0x07) | 0xF0);
+        symbol += createByte(codePoint, 12);
+        symbol += createByte(codePoint, 6);
+    }
+    symbol += stringFromCharCode((codePoint & 0x3F) | 0x80);
+    return symbol;
+}
+function utf8encode(string, opts) {
+    opts = opts || {};
+    var strict = false !== opts.strict;
+    var codePoints = ucs2decode(string);
+    var length = codePoints.length;
+    var index = -1;
+    var codePoint;
+    var byteString = '';
+    while (++index < length) {
+        codePoint = codePoints[index];
+        byteString += encodeCodePoint(codePoint, strict);
+    }
+    return byteString;
+}
+/*--------------------------------------------------------------------------*/
+function readContinuationByte() {
+    if (byteIndex >= byteCount) {
+        throw Error('Invalid byte index');
+    }
+    var continuationByte = byteArray[byteIndex] & 0xFF;
+    byteIndex++;
+    if ((continuationByte & 0xC0) == 0x80) {
+        return continuationByte & 0x3F;
+    }
+    // If we end up here, it’s not a continuation byte
+    throw Error('Invalid continuation byte');
+}
+function decodeSymbol(strict) {
+    var byte1;
+    var byte2;
+    var byte3;
+    var byte4;
+    var codePoint;
+    if (byteIndex > byteCount) {
+        throw Error('Invalid byte index');
+    }
+    if (byteIndex == byteCount) {
+        return false;
+    }
+    // Read first byte
+    byte1 = byteArray[byteIndex] & 0xFF;
+    byteIndex++;
+    // 1-byte sequence (no continuation bytes)
+    if ((byte1 & 0x80) == 0) {
+        return byte1;
+    }
+    // 2-byte sequence
+    if ((byte1 & 0xE0) == 0xC0) {
+        byte2 = readContinuationByte();
+        codePoint = ((byte1 & 0x1F) << 6) | byte2;
+        if (codePoint >= 0x80) {
+            return codePoint;
+        }
+        else {
+            throw Error('Invalid continuation byte');
+        }
+    }
+    // 3-byte sequence (may include unpaired surrogates)
+    if ((byte1 & 0xF0) == 0xE0) {
+        byte2 = readContinuationByte();
+        byte3 = readContinuationByte();
+        codePoint = ((byte1 & 0x0F) << 12) | (byte2 << 6) | byte3;
+        if (codePoint >= 0x0800) {
+            return checkScalarValue(codePoint, strict) ? codePoint : 0xFFFD;
+        }
+        else {
+            throw Error('Invalid continuation byte');
+        }
+    }
+    // 4-byte sequence
+    if ((byte1 & 0xF8) == 0xF0) {
+        byte2 = readContinuationByte();
+        byte3 = readContinuationByte();
+        byte4 = readContinuationByte();
+        codePoint = ((byte1 & 0x07) << 0x12) | (byte2 << 0x0C) |
+            (byte3 << 0x06) | byte4;
+        if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
+            return codePoint;
+        }
+    }
+    throw Error('Invalid UTF-8 detected');
+}
+var byteArray;
+var byteCount;
+var byteIndex;
+function utf8decode(byteString, opts) {
+    opts = opts || {};
+    var strict = false !== opts.strict;
+    byteArray = ucs2decode(byteString);
+    byteCount = byteArray.length;
+    byteIndex = 0;
+    var codePoints = [];
+    var tmp;
+    while ((tmp = decodeSymbol(strict)) !== false) {
+        codePoints.push(tmp);
+    }
+    return ucs2encode(codePoints);
+}
+module.exports = {
+    version: '2.1.2',
+    encode: utf8encode,
+    decode: utf8decode
+};
+
+
+/***/ },
+
+/***/ 80
+(module) {
+
+module.exports = /*#__PURE__*/JSON.parse('{"application/1d-interleaved-parityfec":{"source":"iana"},"application/3gpdash-qoe-report+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/3gpp-ims+xml":{"source":"iana","compressible":true},"application/3gpphal+json":{"source":"iana","compressible":true},"application/3gpphalforms+json":{"source":"iana","compressible":true},"application/a2l":{"source":"iana"},"application/ace+cbor":{"source":"iana"},"application/activemessage":{"source":"iana"},"application/activity+json":{"source":"iana","compressible":true},"application/alto-costmap+json":{"source":"iana","compressible":true},"application/alto-costmapfilter+json":{"source":"iana","compressible":true},"application/alto-directory+json":{"source":"iana","compressible":true},"application/alto-endpointcost+json":{"source":"iana","compressible":true},"application/alto-endpointcostparams+json":{"source":"iana","compressible":true},"application/alto-endpointprop+json":{"source":"iana","compressible":true},"application/alto-endpointpropparams+json":{"source":"iana","compressible":true},"application/alto-error+json":{"source":"iana","compressible":true},"application/alto-networkmap+json":{"source":"iana","compressible":true},"application/alto-networkmapfilter+json":{"source":"iana","compressible":true},"application/alto-updatestreamcontrol+json":{"source":"iana","compressible":true},"application/alto-updatestreamparams+json":{"source":"iana","compressible":true},"application/aml":{"source":"iana"},"application/andrew-inset":{"source":"iana","extensions":["ez"]},"application/applefile":{"source":"iana"},"application/applixware":{"source":"apache","extensions":["aw"]},"application/at+jwt":{"source":"iana"},"application/atf":{"source":"iana"},"application/atfx":{"source":"iana"},"application/atom+xml":{"source":"iana","compressible":true,"extensions":["atom"]},"application/atomcat+xml":{"source":"iana","compressible":true,"extensions":["atomcat"]},"application/atomdeleted+xml":{"source":"iana","compressible":true,"extensions":["atomdeleted"]},"application/atomicmail":{"source":"iana"},"application/atomsvc+xml":{"source":"iana","compressible":true,"extensions":["atomsvc"]},"application/atsc-dwd+xml":{"source":"iana","compressible":true,"extensions":["dwd"]},"application/atsc-dynamic-event-message":{"source":"iana"},"application/atsc-held+xml":{"source":"iana","compressible":true,"extensions":["held"]},"application/atsc-rdt+json":{"source":"iana","compressible":true},"application/atsc-rsat+xml":{"source":"iana","compressible":true,"extensions":["rsat"]},"application/atxml":{"source":"iana"},"application/auth-policy+xml":{"source":"iana","compressible":true},"application/bacnet-xdd+zip":{"source":"iana","compressible":false},"application/batch-smtp":{"source":"iana"},"application/bdoc":{"compressible":false,"extensions":["bdoc"]},"application/beep+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/calendar+json":{"source":"iana","compressible":true},"application/calendar+xml":{"source":"iana","compressible":true,"extensions":["xcs"]},"application/call-completion":{"source":"iana"},"application/cals-1840":{"source":"iana"},"application/captive+json":{"source":"iana","compressible":true},"application/cbor":{"source":"iana"},"application/cbor-seq":{"source":"iana"},"application/cccex":{"source":"iana"},"application/ccmp+xml":{"source":"iana","compressible":true},"application/ccxml+xml":{"source":"iana","compressible":true,"extensions":["ccxml"]},"application/cdfx+xml":{"source":"iana","compressible":true,"extensions":["cdfx"]},"application/cdmi-capability":{"source":"iana","extensions":["cdmia"]},"application/cdmi-container":{"source":"iana","extensions":["cdmic"]},"application/cdmi-domain":{"source":"iana","extensions":["cdmid"]},"application/cdmi-object":{"source":"iana","extensions":["cdmio"]},"application/cdmi-queue":{"source":"iana","extensions":["cdmiq"]},"application/cdni":{"source":"iana"},"application/cea":{"source":"iana"},"application/cea-2018+xml":{"source":"iana","compressible":true},"application/cellml+xml":{"source":"iana","compressible":true},"application/cfw":{"source":"iana"},"application/city+json":{"source":"iana","compressible":true},"application/clr":{"source":"iana"},"application/clue+xml":{"source":"iana","compressible":true},"application/clue_info+xml":{"source":"iana","compressible":true},"application/cms":{"source":"iana"},"application/cnrp+xml":{"source":"iana","compressible":true},"application/coap-group+json":{"source":"iana","compressible":true},"application/coap-payload":{"source":"iana"},"application/commonground":{"source":"iana"},"application/conference-info+xml":{"source":"iana","compressible":true},"application/cose":{"source":"iana"},"application/cose-key":{"source":"iana"},"application/cose-key-set":{"source":"iana"},"application/cpl+xml":{"source":"iana","compressible":true,"extensions":["cpl"]},"application/csrattrs":{"source":"iana"},"application/csta+xml":{"source":"iana","compressible":true},"application/cstadata+xml":{"source":"iana","compressible":true},"application/csvm+json":{"source":"iana","compressible":true},"application/cu-seeme":{"source":"apache","extensions":["cu"]},"application/cwt":{"source":"iana"},"application/cybercash":{"source":"iana"},"application/dart":{"compressible":true},"application/dash+xml":{"source":"iana","compressible":true,"extensions":["mpd"]},"application/dash-patch+xml":{"source":"iana","compressible":true,"extensions":["mpp"]},"application/dashdelta":{"source":"iana"},"application/davmount+xml":{"source":"iana","compressible":true,"extensions":["davmount"]},"application/dca-rft":{"source":"iana"},"application/dcd":{"source":"iana"},"application/dec-dx":{"source":"iana"},"application/dialog-info+xml":{"source":"iana","compressible":true},"application/dicom":{"source":"iana"},"application/dicom+json":{"source":"iana","compressible":true},"application/dicom+xml":{"source":"iana","compressible":true},"application/dii":{"source":"iana"},"application/dit":{"source":"iana"},"application/dns":{"source":"iana"},"application/dns+json":{"source":"iana","compressible":true},"application/dns-message":{"source":"iana"},"application/docbook+xml":{"source":"apache","compressible":true,"extensions":["dbk"]},"application/dots+cbor":{"source":"iana"},"application/dskpp+xml":{"source":"iana","compressible":true},"application/dssc+der":{"source":"iana","extensions":["dssc"]},"application/dssc+xml":{"source":"iana","compressible":true,"extensions":["xdssc"]},"application/dvcs":{"source":"iana"},"application/ecmascript":{"source":"iana","compressible":true,"extensions":["es","ecma"]},"application/edi-consent":{"source":"iana"},"application/edi-x12":{"source":"iana","compressible":false},"application/edifact":{"source":"iana","compressible":false},"application/efi":{"source":"iana"},"application/elm+json":{"source":"iana","charset":"UTF-8","compressible":true},"application/elm+xml":{"source":"iana","compressible":true},"application/emergencycalldata.cap+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/emergencycalldata.comment+xml":{"source":"iana","compressible":true},"application/emergencycalldata.control+xml":{"source":"iana","compressible":true},"application/emergencycalldata.deviceinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.ecall.msd":{"source":"iana"},"application/emergencycalldata.providerinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.serviceinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.subscriberinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.veds+xml":{"source":"iana","compressible":true},"application/emma+xml":{"source":"iana","compressible":true,"extensions":["emma"]},"application/emotionml+xml":{"source":"iana","compressible":true,"extensions":["emotionml"]},"application/encaprtp":{"source":"iana"},"application/epp+xml":{"source":"iana","compressible":true},"application/epub+zip":{"source":"iana","compressible":false,"extensions":["epub"]},"application/eshop":{"source":"iana"},"application/exi":{"source":"iana","extensions":["exi"]},"application/expect-ct-report+json":{"source":"iana","compressible":true},"application/express":{"source":"iana","extensions":["exp"]},"application/fastinfoset":{"source":"iana"},"application/fastsoap":{"source":"iana"},"application/fdt+xml":{"source":"iana","compressible":true,"extensions":["fdt"]},"application/fhir+json":{"source":"iana","charset":"UTF-8","compressible":true},"application/fhir+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/fido.trusted-apps+json":{"compressible":true},"application/fits":{"source":"iana"},"application/flexfec":{"source":"iana"},"application/font-sfnt":{"source":"iana"},"application/font-tdpfr":{"source":"iana","extensions":["pfr"]},"application/font-woff":{"source":"iana","compressible":false},"application/framework-attributes+xml":{"source":"iana","compressible":true},"application/geo+json":{"source":"iana","compressible":true,"extensions":["geojson"]},"application/geo+json-seq":{"source":"iana"},"application/geopackage+sqlite3":{"source":"iana"},"application/geoxacml+xml":{"source":"iana","compressible":true},"application/gltf-buffer":{"source":"iana"},"application/gml+xml":{"source":"iana","compressible":true,"extensions":["gml"]},"application/gpx+xml":{"source":"apache","compressible":true,"extensions":["gpx"]},"application/gxf":{"source":"apache","extensions":["gxf"]},"application/gzip":{"source":"iana","compressible":false,"extensions":["gz"]},"application/h224":{"source":"iana"},"application/held+xml":{"source":"iana","compressible":true},"application/hjson":{"extensions":["hjson"]},"application/http":{"source":"iana"},"application/hyperstudio":{"source":"iana","extensions":["stk"]},"application/ibe-key-request+xml":{"source":"iana","compressible":true},"application/ibe-pkg-reply+xml":{"source":"iana","compressible":true},"application/ibe-pp-data":{"source":"iana"},"application/iges":{"source":"iana"},"application/im-iscomposing+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/index":{"source":"iana"},"application/index.cmd":{"source":"iana"},"application/index.obj":{"source":"iana"},"application/index.response":{"source":"iana"},"application/index.vnd":{"source":"iana"},"application/inkml+xml":{"source":"iana","compressible":true,"extensions":["ink","inkml"]},"application/iotp":{"source":"iana"},"application/ipfix":{"source":"iana","extensions":["ipfix"]},"application/ipp":{"source":"iana"},"application/isup":{"source":"iana"},"application/its+xml":{"source":"iana","compressible":true,"extensions":["its"]},"application/java-archive":{"source":"apache","compressible":false,"extensions":["jar","war","ear"]},"application/java-serialized-object":{"source":"apache","compressible":false,"extensions":["ser"]},"application/java-vm":{"source":"apache","compressible":false,"extensions":["class"]},"application/javascript":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["js","mjs"]},"application/jf2feed+json":{"source":"iana","compressible":true},"application/jose":{"source":"iana"},"application/jose+json":{"source":"iana","compressible":true},"application/jrd+json":{"source":"iana","compressible":true},"application/jscalendar+json":{"source":"iana","compressible":true},"application/json":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["json","map"]},"application/json-patch+json":{"source":"iana","compressible":true},"application/json-seq":{"source":"iana"},"application/json5":{"extensions":["json5"]},"application/jsonml+json":{"source":"apache","compressible":true,"extensions":["jsonml"]},"application/jwk+json":{"source":"iana","compressible":true},"application/jwk-set+json":{"source":"iana","compressible":true},"application/jwt":{"source":"iana"},"application/kpml-request+xml":{"source":"iana","compressible":true},"application/kpml-response+xml":{"source":"iana","compressible":true},"application/ld+json":{"source":"iana","compressible":true,"extensions":["jsonld"]},"application/lgr+xml":{"source":"iana","compressible":true,"extensions":["lgr"]},"application/link-format":{"source":"iana"},"application/load-control+xml":{"source":"iana","compressible":true},"application/lost+xml":{"source":"iana","compressible":true,"extensions":["lostxml"]},"application/lostsync+xml":{"source":"iana","compressible":true},"application/lpf+zip":{"source":"iana","compressible":false},"application/lxf":{"source":"iana"},"application/mac-binhex40":{"source":"iana","extensions":["hqx"]},"application/mac-compactpro":{"source":"apache","extensions":["cpt"]},"application/macwriteii":{"source":"iana"},"application/mads+xml":{"source":"iana","compressible":true,"extensions":["mads"]},"application/manifest+json":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["webmanifest"]},"application/marc":{"source":"iana","extensions":["mrc"]},"application/marcxml+xml":{"source":"iana","compressible":true,"extensions":["mrcx"]},"application/mathematica":{"source":"iana","extensions":["ma","nb","mb"]},"application/mathml+xml":{"source":"iana","compressible":true,"extensions":["mathml"]},"application/mathml-content+xml":{"source":"iana","compressible":true},"application/mathml-presentation+xml":{"source":"iana","compressible":true},"application/mbms-associated-procedure-description+xml":{"source":"iana","compressible":true},"application/mbms-deregister+xml":{"source":"iana","compressible":true},"application/mbms-envelope+xml":{"source":"iana","compressible":true},"application/mbms-msk+xml":{"source":"iana","compressible":true},"application/mbms-msk-response+xml":{"source":"iana","compressible":true},"application/mbms-protection-description+xml":{"source":"iana","compressible":true},"application/mbms-reception-report+xml":{"source":"iana","compressible":true},"application/mbms-register+xml":{"source":"iana","compressible":true},"application/mbms-register-response+xml":{"source":"iana","compressible":true},"application/mbms-schedule+xml":{"source":"iana","compressible":true},"application/mbms-user-service-description+xml":{"source":"iana","compressible":true},"application/mbox":{"source":"iana","extensions":["mbox"]},"application/media-policy-dataset+xml":{"source":"iana","compressible":true,"extensions":["mpf"]},"application/media_control+xml":{"source":"iana","compressible":true},"application/mediaservercontrol+xml":{"source":"iana","compressible":true,"extensions":["mscml"]},"application/merge-patch+json":{"source":"iana","compressible":true},"application/metalink+xml":{"source":"apache","compressible":true,"extensions":["metalink"]},"application/metalink4+xml":{"source":"iana","compressible":true,"extensions":["meta4"]},"application/mets+xml":{"source":"iana","compressible":true,"extensions":["mets"]},"application/mf4":{"source":"iana"},"application/mikey":{"source":"iana"},"application/mipc":{"source":"iana"},"application/missing-blocks+cbor-seq":{"source":"iana"},"application/mmt-aei+xml":{"source":"iana","compressible":true,"extensions":["maei"]},"application/mmt-usd+xml":{"source":"iana","compressible":true,"extensions":["musd"]},"application/mods+xml":{"source":"iana","compressible":true,"extensions":["mods"]},"application/moss-keys":{"source":"iana"},"application/moss-signature":{"source":"iana"},"application/mosskey-data":{"source":"iana"},"application/mosskey-request":{"source":"iana"},"application/mp21":{"source":"iana","extensions":["m21","mp21"]},"application/mp4":{"source":"iana","extensions":["mp4s","m4p"]},"application/mpeg4-generic":{"source":"iana"},"application/mpeg4-iod":{"source":"iana"},"application/mpeg4-iod-xmt":{"source":"iana"},"application/mrb-consumer+xml":{"source":"iana","compressible":true},"application/mrb-publish+xml":{"source":"iana","compressible":true},"application/msc-ivr+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/msc-mixer+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/msword":{"source":"iana","compressible":false,"extensions":["doc","dot"]},"application/mud+json":{"source":"iana","compressible":true},"application/multipart-core":{"source":"iana"},"application/mxf":{"source":"iana","extensions":["mxf"]},"application/n-quads":{"source":"iana","extensions":["nq"]},"application/n-triples":{"source":"iana","extensions":["nt"]},"application/nasdata":{"source":"iana"},"application/news-checkgroups":{"source":"iana","charset":"US-ASCII"},"application/news-groupinfo":{"source":"iana","charset":"US-ASCII"},"application/news-transmission":{"source":"iana"},"application/nlsml+xml":{"source":"iana","compressible":true},"application/node":{"source":"iana","extensions":["cjs"]},"application/nss":{"source":"iana"},"application/oauth-authz-req+jwt":{"source":"iana"},"application/oblivious-dns-message":{"source":"iana"},"application/ocsp-request":{"source":"iana"},"application/ocsp-response":{"source":"iana"},"application/octet-stream":{"source":"iana","compressible":false,"extensions":["bin","dms","lrf","mar","so","dist","distz","pkg","bpk","dump","elc","deploy","exe","dll","deb","dmg","iso","img","msi","msp","msm","buffer"]},"application/oda":{"source":"iana","extensions":["oda"]},"application/odm+xml":{"source":"iana","compressible":true},"application/odx":{"source":"iana"},"application/oebps-package+xml":{"source":"iana","compressible":true,"extensions":["opf"]},"application/ogg":{"source":"iana","compressible":false,"extensions":["ogx"]},"application/omdoc+xml":{"source":"apache","compressible":true,"extensions":["omdoc"]},"application/onenote":{"source":"apache","extensions":["onetoc","onetoc2","onetmp","onepkg"]},"application/opc-nodeset+xml":{"source":"iana","compressible":true},"application/oscore":{"source":"iana"},"application/oxps":{"source":"iana","extensions":["oxps"]},"application/p21":{"source":"iana"},"application/p21+zip":{"source":"iana","compressible":false},"application/p2p-overlay+xml":{"source":"iana","compressible":true,"extensions":["relo"]},"application/parityfec":{"source":"iana"},"application/passport":{"source":"iana"},"application/patch-ops-error+xml":{"source":"iana","compressible":true,"extensions":["xer"]},"application/pdf":{"source":"iana","compressible":false,"extensions":["pdf"]},"application/pdx":{"source":"iana"},"application/pem-certificate-chain":{"source":"iana"},"application/pgp-encrypted":{"source":"iana","compressible":false,"extensions":["pgp"]},"application/pgp-keys":{"source":"iana","extensions":["asc"]},"application/pgp-signature":{"source":"iana","extensions":["asc","sig"]},"application/pics-rules":{"source":"apache","extensions":["prf"]},"application/pidf+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/pidf-diff+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/pkcs10":{"source":"iana","extensions":["p10"]},"application/pkcs12":{"source":"iana"},"application/pkcs7-mime":{"source":"iana","extensions":["p7m","p7c"]},"application/pkcs7-signature":{"source":"iana","extensions":["p7s"]},"application/pkcs8":{"source":"iana","extensions":["p8"]},"application/pkcs8-encrypted":{"source":"iana"},"application/pkix-attr-cert":{"source":"iana","extensions":["ac"]},"application/pkix-cert":{"source":"iana","extensions":["cer"]},"application/pkix-crl":{"source":"iana","extensions":["crl"]},"application/pkix-pkipath":{"source":"iana","extensions":["pkipath"]},"application/pkixcmp":{"source":"iana","extensions":["pki"]},"application/pls+xml":{"source":"iana","compressible":true,"extensions":["pls"]},"application/poc-settings+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/postscript":{"source":"iana","compressible":true,"extensions":["ai","eps","ps"]},"application/ppsp-tracker+json":{"source":"iana","compressible":true},"application/problem+json":{"source":"iana","compressible":true},"application/problem+xml":{"source":"iana","compressible":true},"application/provenance+xml":{"source":"iana","compressible":true,"extensions":["provx"]},"application/prs.alvestrand.titrax-sheet":{"source":"iana"},"application/prs.cww":{"source":"iana","extensions":["cww"]},"application/prs.cyn":{"source":"iana","charset":"7-BIT"},"application/prs.hpub+zip":{"source":"iana","compressible":false},"application/prs.nprend":{"source":"iana"},"application/prs.plucker":{"source":"iana"},"application/prs.rdf-xml-crypt":{"source":"iana"},"application/prs.xsf+xml":{"source":"iana","compressible":true},"application/pskc+xml":{"source":"iana","compressible":true,"extensions":["pskcxml"]},"application/pvd+json":{"source":"iana","compressible":true},"application/qsig":{"source":"iana"},"application/raml+yaml":{"compressible":true,"extensions":["raml"]},"application/raptorfec":{"source":"iana"},"application/rdap+json":{"source":"iana","compressible":true},"application/rdf+xml":{"source":"iana","compressible":true,"extensions":["rdf","owl"]},"application/reginfo+xml":{"source":"iana","compressible":true,"extensions":["rif"]},"application/relax-ng-compact-syntax":{"source":"iana","extensions":["rnc"]},"application/remote-printing":{"source":"iana"},"application/reputon+json":{"source":"iana","compressible":true},"application/resource-lists+xml":{"source":"iana","compressible":true,"extensions":["rl"]},"application/resource-lists-diff+xml":{"source":"iana","compressible":true,"extensions":["rld"]},"application/rfc+xml":{"source":"iana","compressible":true},"application/riscos":{"source":"iana"},"application/rlmi+xml":{"source":"iana","compressible":true},"application/rls-services+xml":{"source":"iana","compressible":true,"extensions":["rs"]},"application/route-apd+xml":{"source":"iana","compressible":true,"extensions":["rapd"]},"application/route-s-tsid+xml":{"source":"iana","compressible":true,"extensions":["sls"]},"application/route-usd+xml":{"source":"iana","compressible":true,"extensions":["rusd"]},"application/rpki-ghostbusters":{"source":"iana","extensions":["gbr"]},"application/rpki-manifest":{"source":"iana","extensions":["mft"]},"application/rpki-publication":{"source":"iana"},"application/rpki-roa":{"source":"iana","extensions":["roa"]},"application/rpki-updown":{"source":"iana"},"application/rsd+xml":{"source":"apache","compressible":true,"extensions":["rsd"]},"application/rss+xml":{"source":"apache","compressible":true,"extensions":["rss"]},"application/rtf":{"source":"iana","compressible":true,"extensions":["rtf"]},"application/rtploopback":{"source":"iana"},"application/rtx":{"source":"iana"},"application/samlassertion+xml":{"source":"iana","compressible":true},"application/samlmetadata+xml":{"source":"iana","compressible":true},"application/sarif+json":{"source":"iana","compressible":true},"application/sarif-external-properties+json":{"source":"iana","compressible":true},"application/sbe":{"source":"iana"},"application/sbml+xml":{"source":"iana","compressible":true,"extensions":["sbml"]},"application/scaip+xml":{"source":"iana","compressible":true},"application/scim+json":{"source":"iana","compressible":true},"application/scvp-cv-request":{"source":"iana","extensions":["scq"]},"application/scvp-cv-response":{"source":"iana","extensions":["scs"]},"application/scvp-vp-request":{"source":"iana","extensions":["spq"]},"application/scvp-vp-response":{"source":"iana","extensions":["spp"]},"application/sdp":{"source":"iana","extensions":["sdp"]},"application/secevent+jwt":{"source":"iana"},"application/senml+cbor":{"source":"iana"},"application/senml+json":{"source":"iana","compressible":true},"application/senml+xml":{"source":"iana","compressible":true,"extensions":["senmlx"]},"application/senml-etch+cbor":{"source":"iana"},"application/senml-etch+json":{"source":"iana","compressible":true},"application/senml-exi":{"source":"iana"},"application/sensml+cbor":{"source":"iana"},"application/sensml+json":{"source":"iana","compressible":true},"application/sensml+xml":{"source":"iana","compressible":true,"extensions":["sensmlx"]},"application/sensml-exi":{"source":"iana"},"application/sep+xml":{"source":"iana","compressible":true},"application/sep-exi":{"source":"iana"},"application/session-info":{"source":"iana"},"application/set-payment":{"source":"iana"},"application/set-payment-initiation":{"source":"iana","extensions":["setpay"]},"application/set-registration":{"source":"iana"},"application/set-registration-initiation":{"source":"iana","extensions":["setreg"]},"application/sgml":{"source":"iana"},"application/sgml-open-catalog":{"source":"iana"},"application/shf+xml":{"source":"iana","compressible":true,"extensions":["shf"]},"application/sieve":{"source":"iana","extensions":["siv","sieve"]},"application/simple-filter+xml":{"source":"iana","compressible":true},"application/simple-message-summary":{"source":"iana"},"application/simplesymbolcontainer":{"source":"iana"},"application/sipc":{"source":"iana"},"application/slate":{"source":"iana"},"application/smil":{"source":"iana"},"application/smil+xml":{"source":"iana","compressible":true,"extensions":["smi","smil"]},"application/smpte336m":{"source":"iana"},"application/soap+fastinfoset":{"source":"iana"},"application/soap+xml":{"source":"iana","compressible":true},"application/sparql-query":{"source":"iana","extensions":["rq"]},"application/sparql-results+xml":{"source":"iana","compressible":true,"extensions":["srx"]},"application/spdx+json":{"source":"iana","compressible":true},"application/spirits-event+xml":{"source":"iana","compressible":true},"application/sql":{"source":"iana"},"application/srgs":{"source":"iana","extensions":["gram"]},"application/srgs+xml":{"source":"iana","compressible":true,"extensions":["grxml"]},"application/sru+xml":{"source":"iana","compressible":true,"extensions":["sru"]},"application/ssdl+xml":{"source":"apache","compressible":true,"extensions":["ssdl"]},"application/ssml+xml":{"source":"iana","compressible":true,"extensions":["ssml"]},"application/stix+json":{"source":"iana","compressible":true},"application/swid+xml":{"source":"iana","compressible":true,"extensions":["swidtag"]},"application/tamp-apex-update":{"source":"iana"},"application/tamp-apex-update-confirm":{"source":"iana"},"application/tamp-community-update":{"source":"iana"},"application/tamp-community-update-confirm":{"source":"iana"},"application/tamp-error":{"source":"iana"},"application/tamp-sequence-adjust":{"source":"iana"},"application/tamp-sequence-adjust-confirm":{"source":"iana"},"application/tamp-status-query":{"source":"iana"},"application/tamp-status-response":{"source":"iana"},"application/tamp-update":{"source":"iana"},"application/tamp-update-confirm":{"source":"iana"},"application/tar":{"compressible":true},"application/taxii+json":{"source":"iana","compressible":true},"application/td+json":{"source":"iana","compressible":true},"application/tei+xml":{"source":"iana","compressible":true,"extensions":["tei","teicorpus"]},"application/tetra_isi":{"source":"iana"},"application/thraud+xml":{"source":"iana","compressible":true,"extensions":["tfi"]},"application/timestamp-query":{"source":"iana"},"application/timestamp-reply":{"source":"iana"},"application/timestamped-data":{"source":"iana","extensions":["tsd"]},"application/tlsrpt+gzip":{"source":"iana"},"application/tlsrpt+json":{"source":"iana","compressible":true},"application/tnauthlist":{"source":"iana"},"application/token-introspection+jwt":{"source":"iana"},"application/toml":{"compressible":true,"extensions":["toml"]},"application/trickle-ice-sdpfrag":{"source":"iana"},"application/trig":{"source":"iana","extensions":["trig"]},"application/ttml+xml":{"source":"iana","compressible":true,"extensions":["ttml"]},"application/tve-trigger":{"source":"iana"},"application/tzif":{"source":"iana"},"application/tzif-leap":{"source":"iana"},"application/ubjson":{"compressible":false,"extensions":["ubj"]},"application/ulpfec":{"source":"iana"},"application/urc-grpsheet+xml":{"source":"iana","compressible":true},"application/urc-ressheet+xml":{"source":"iana","compressible":true,"extensions":["rsheet"]},"application/urc-targetdesc+xml":{"source":"iana","compressible":true,"extensions":["td"]},"application/urc-uisocketdesc+xml":{"source":"iana","compressible":true},"application/vcard+json":{"source":"iana","compressible":true},"application/vcard+xml":{"source":"iana","compressible":true},"application/vemmi":{"source":"iana"},"application/vividence.scriptfile":{"source":"apache"},"application/vnd.1000minds.decision-model+xml":{"source":"iana","compressible":true,"extensions":["1km"]},"application/vnd.3gpp-prose+xml":{"source":"iana","compressible":true},"application/vnd.3gpp-prose-pc3ch+xml":{"source":"iana","compressible":true},"application/vnd.3gpp-v2x-local-service-information":{"source":"iana"},"application/vnd.3gpp.5gnas":{"source":"iana"},"application/vnd.3gpp.access-transfer-events+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.bsf+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.gmop+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.gtpc":{"source":"iana"},"application/vnd.3gpp.interworking-data":{"source":"iana"},"application/vnd.3gpp.lpp":{"source":"iana"},"application/vnd.3gpp.mc-signalling-ear":{"source":"iana"},"application/vnd.3gpp.mcdata-affiliation-command+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-payload":{"source":"iana"},"application/vnd.3gpp.mcdata-service-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-signalling":{"source":"iana"},"application/vnd.3gpp.mcdata-ue-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-user-profile+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-affiliation-command+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-floor-request+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-location-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-mbms-usage-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-service-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-signed+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-ue-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-ue-init-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-user-profile+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-affiliation-command+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-affiliation-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-location-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-mbms-usage-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-service-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-transmission-request+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-ue-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-user-profile+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mid-call+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.ngap":{"source":"iana"},"application/vnd.3gpp.pfcp":{"source":"iana"},"application/vnd.3gpp.pic-bw-large":{"source":"iana","extensions":["plb"]},"application/vnd.3gpp.pic-bw-small":{"source":"iana","extensions":["psb"]},"application/vnd.3gpp.pic-bw-var":{"source":"iana","extensions":["pvb"]},"application/vnd.3gpp.s1ap":{"source":"iana"},"application/vnd.3gpp.sms":{"source":"iana"},"application/vnd.3gpp.sms+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.srvcc-ext+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.srvcc-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.state-and-event-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.ussd+xml":{"source":"iana","compressible":true},"application/vnd.3gpp2.bcmcsinfo+xml":{"source":"iana","compressible":true},"application/vnd.3gpp2.sms":{"source":"iana"},"application/vnd.3gpp2.tcap":{"source":"iana","extensions":["tcap"]},"application/vnd.3lightssoftware.imagescal":{"source":"iana"},"application/vnd.3m.post-it-notes":{"source":"iana","extensions":["pwn"]},"application/vnd.accpac.simply.aso":{"source":"iana","extensions":["aso"]},"application/vnd.accpac.simply.imp":{"source":"iana","extensions":["imp"]},"application/vnd.acucobol":{"source":"iana","extensions":["acu"]},"application/vnd.acucorp":{"source":"iana","extensions":["atc","acutc"]},"application/vnd.adobe.air-application-installer-package+zip":{"source":"apache","compressible":false,"extensions":["air"]},"application/vnd.adobe.flash.movie":{"source":"iana"},"application/vnd.adobe.formscentral.fcdt":{"source":"iana","extensions":["fcdt"]},"application/vnd.adobe.fxp":{"source":"iana","extensions":["fxp","fxpl"]},"application/vnd.adobe.partial-upload":{"source":"iana"},"application/vnd.adobe.xdp+xml":{"source":"iana","compressible":true,"extensions":["xdp"]},"application/vnd.adobe.xfdf":{"source":"iana","extensions":["xfdf"]},"application/vnd.aether.imp":{"source":"iana"},"application/vnd.afpc.afplinedata":{"source":"iana"},"application/vnd.afpc.afplinedata-pagedef":{"source":"iana"},"application/vnd.afpc.cmoca-cmresource":{"source":"iana"},"application/vnd.afpc.foca-charset":{"source":"iana"},"application/vnd.afpc.foca-codedfont":{"source":"iana"},"application/vnd.afpc.foca-codepage":{"source":"iana"},"application/vnd.afpc.modca":{"source":"iana"},"application/vnd.afpc.modca-cmtable":{"source":"iana"},"application/vnd.afpc.modca-formdef":{"source":"iana"},"application/vnd.afpc.modca-mediummap":{"source":"iana"},"application/vnd.afpc.modca-objectcontainer":{"source":"iana"},"application/vnd.afpc.modca-overlay":{"source":"iana"},"application/vnd.afpc.modca-pagesegment":{"source":"iana"},"application/vnd.age":{"source":"iana","extensions":["age"]},"application/vnd.ah-barcode":{"source":"iana"},"application/vnd.ahead.space":{"source":"iana","extensions":["ahead"]},"application/vnd.airzip.filesecure.azf":{"source":"iana","extensions":["azf"]},"application/vnd.airzip.filesecure.azs":{"source":"iana","extensions":["azs"]},"application/vnd.amadeus+json":{"source":"iana","compressible":true},"application/vnd.amazon.ebook":{"source":"apache","extensions":["azw"]},"application/vnd.amazon.mobi8-ebook":{"source":"iana"},"application/vnd.americandynamics.acc":{"source":"iana","extensions":["acc"]},"application/vnd.amiga.ami":{"source":"iana","extensions":["ami"]},"application/vnd.amundsen.maze+xml":{"source":"iana","compressible":true},"application/vnd.android.ota":{"source":"iana"},"application/vnd.android.package-archive":{"source":"apache","compressible":false,"extensions":["apk"]},"application/vnd.anki":{"source":"iana"},"application/vnd.anser-web-certificate-issue-initiation":{"source":"iana","extensions":["cii"]},"application/vnd.anser-web-funds-transfer-initiation":{"source":"apache","extensions":["fti"]},"application/vnd.antix.game-component":{"source":"iana","extensions":["atx"]},"application/vnd.apache.arrow.file":{"source":"iana"},"application/vnd.apache.arrow.stream":{"source":"iana"},"application/vnd.apache.thrift.binary":{"source":"iana"},"application/vnd.apache.thrift.compact":{"source":"iana"},"application/vnd.apache.thrift.json":{"source":"iana"},"application/vnd.api+json":{"source":"iana","compressible":true},"application/vnd.aplextor.warrp+json":{"source":"iana","compressible":true},"application/vnd.apothekende.reservation+json":{"source":"iana","compressible":true},"application/vnd.apple.installer+xml":{"source":"iana","compressible":true,"extensions":["mpkg"]},"application/vnd.apple.keynote":{"source":"iana","extensions":["key"]},"application/vnd.apple.mpegurl":{"source":"iana","extensions":["m3u8"]},"application/vnd.apple.numbers":{"source":"iana","extensions":["numbers"]},"application/vnd.apple.pages":{"source":"iana","extensions":["pages"]},"application/vnd.apple.pkpass":{"compressible":false,"extensions":["pkpass"]},"application/vnd.arastra.swi":{"source":"iana"},"application/vnd.aristanetworks.swi":{"source":"iana","extensions":["swi"]},"application/vnd.artisan+json":{"source":"iana","compressible":true},"application/vnd.artsquare":{"source":"iana"},"application/vnd.astraea-software.iota":{"source":"iana","extensions":["iota"]},"application/vnd.audiograph":{"source":"iana","extensions":["aep"]},"application/vnd.autopackage":{"source":"iana"},"application/vnd.avalon+json":{"source":"iana","compressible":true},"application/vnd.avistar+xml":{"source":"iana","compressible":true},"application/vnd.balsamiq.bmml+xml":{"source":"iana","compressible":true,"extensions":["bmml"]},"application/vnd.balsamiq.bmpr":{"source":"iana"},"application/vnd.banana-accounting":{"source":"iana"},"application/vnd.bbf.usp.error":{"source":"iana"},"application/vnd.bbf.usp.msg":{"source":"iana"},"application/vnd.bbf.usp.msg+json":{"source":"iana","compressible":true},"application/vnd.bekitzur-stech+json":{"source":"iana","compressible":true},"application/vnd.bint.med-content":{"source":"iana"},"application/vnd.biopax.rdf+xml":{"source":"iana","compressible":true},"application/vnd.blink-idb-value-wrapper":{"source":"iana"},"application/vnd.blueice.multipass":{"source":"iana","extensions":["mpm"]},"application/vnd.bluetooth.ep.oob":{"source":"iana"},"application/vnd.bluetooth.le.oob":{"source":"iana"},"application/vnd.bmi":{"source":"iana","extensions":["bmi"]},"application/vnd.bpf":{"source":"iana"},"application/vnd.bpf3":{"source":"iana"},"application/vnd.businessobjects":{"source":"iana","extensions":["rep"]},"application/vnd.byu.uapi+json":{"source":"iana","compressible":true},"application/vnd.cab-jscript":{"source":"iana"},"application/vnd.canon-cpdl":{"source":"iana"},"application/vnd.canon-lips":{"source":"iana"},"application/vnd.capasystems-pg+json":{"source":"iana","compressible":true},"application/vnd.cendio.thinlinc.clientconf":{"source":"iana"},"application/vnd.century-systems.tcp_stream":{"source":"iana"},"application/vnd.chemdraw+xml":{"source":"iana","compressible":true,"extensions":["cdxml"]},"application/vnd.chess-pgn":{"source":"iana"},"application/vnd.chipnuts.karaoke-mmd":{"source":"iana","extensions":["mmd"]},"application/vnd.ciedi":{"source":"iana"},"application/vnd.cinderella":{"source":"iana","extensions":["cdy"]},"application/vnd.cirpack.isdn-ext":{"source":"iana"},"application/vnd.citationstyles.style+xml":{"source":"iana","compressible":true,"extensions":["csl"]},"application/vnd.claymore":{"source":"iana","extensions":["cla"]},"application/vnd.cloanto.rp9":{"source":"iana","extensions":["rp9"]},"application/vnd.clonk.c4group":{"source":"iana","extensions":["c4g","c4d","c4f","c4p","c4u"]},"application/vnd.cluetrust.cartomobile-config":{"source":"iana","extensions":["c11amc"]},"application/vnd.cluetrust.cartomobile-config-pkg":{"source":"iana","extensions":["c11amz"]},"application/vnd.coffeescript":{"source":"iana"},"application/vnd.collabio.xodocuments.document":{"source":"iana"},"application/vnd.collabio.xodocuments.document-template":{"source":"iana"},"application/vnd.collabio.xodocuments.presentation":{"source":"iana"},"application/vnd.collabio.xodocuments.presentation-template":{"source":"iana"},"application/vnd.collabio.xodocuments.spreadsheet":{"source":"iana"},"application/vnd.collabio.xodocuments.spreadsheet-template":{"source":"iana"},"application/vnd.collection+json":{"source":"iana","compressible":true},"application/vnd.collection.doc+json":{"source":"iana","compressible":true},"application/vnd.collection.next+json":{"source":"iana","compressible":true},"application/vnd.comicbook+zip":{"source":"iana","compressible":false},"application/vnd.comicbook-rar":{"source":"iana"},"application/vnd.commerce-battelle":{"source":"iana"},"application/vnd.commonspace":{"source":"iana","extensions":["csp"]},"application/vnd.contact.cmsg":{"source":"iana","extensions":["cdbcmsg"]},"application/vnd.coreos.ignition+json":{"source":"iana","compressible":true},"application/vnd.cosmocaller":{"source":"iana","extensions":["cmc"]},"application/vnd.crick.clicker":{"source":"iana","extensions":["clkx"]},"application/vnd.crick.clicker.keyboard":{"source":"iana","extensions":["clkk"]},"application/vnd.crick.clicker.palette":{"source":"iana","extensions":["clkp"]},"application/vnd.crick.clicker.template":{"source":"iana","extensions":["clkt"]},"application/vnd.crick.clicker.wordbank":{"source":"iana","extensions":["clkw"]},"application/vnd.criticaltools.wbs+xml":{"source":"iana","compressible":true,"extensions":["wbs"]},"application/vnd.cryptii.pipe+json":{"source":"iana","compressible":true},"application/vnd.crypto-shade-file":{"source":"iana"},"application/vnd.cryptomator.encrypted":{"source":"iana"},"application/vnd.cryptomator.vault":{"source":"iana"},"application/vnd.ctc-posml":{"source":"iana","extensions":["pml"]},"application/vnd.ctct.ws+xml":{"source":"iana","compressible":true},"application/vnd.cups-pdf":{"source":"iana"},"application/vnd.cups-postscript":{"source":"iana"},"application/vnd.cups-ppd":{"source":"iana","extensions":["ppd"]},"application/vnd.cups-raster":{"source":"iana"},"application/vnd.cups-raw":{"source":"iana"},"application/vnd.curl":{"source":"iana"},"application/vnd.curl.car":{"source":"apache","extensions":["car"]},"application/vnd.curl.pcurl":{"source":"apache","extensions":["pcurl"]},"application/vnd.cyan.dean.root+xml":{"source":"iana","compressible":true},"application/vnd.cybank":{"source":"iana"},"application/vnd.cyclonedx+json":{"source":"iana","compressible":true},"application/vnd.cyclonedx+xml":{"source":"iana","compressible":true},"application/vnd.d2l.coursepackage1p0+zip":{"source":"iana","compressible":false},"application/vnd.d3m-dataset":{"source":"iana"},"application/vnd.d3m-problem":{"source":"iana"},"application/vnd.dart":{"source":"iana","compressible":true,"extensions":["dart"]},"application/vnd.data-vision.rdz":{"source":"iana","extensions":["rdz"]},"application/vnd.datapackage+json":{"source":"iana","compressible":true},"application/vnd.dataresource+json":{"source":"iana","compressible":true},"application/vnd.dbf":{"source":"iana","extensions":["dbf"]},"application/vnd.debian.binary-package":{"source":"iana"},"application/vnd.dece.data":{"source":"iana","extensions":["uvf","uvvf","uvd","uvvd"]},"application/vnd.dece.ttml+xml":{"source":"iana","compressible":true,"extensions":["uvt","uvvt"]},"application/vnd.dece.unspecified":{"source":"iana","extensions":["uvx","uvvx"]},"application/vnd.dece.zip":{"source":"iana","extensions":["uvz","uvvz"]},"application/vnd.denovo.fcselayout-link":{"source":"iana","extensions":["fe_launch"]},"application/vnd.desmume.movie":{"source":"iana"},"application/vnd.dir-bi.plate-dl-nosuffix":{"source":"iana"},"application/vnd.dm.delegation+xml":{"source":"iana","compressible":true},"application/vnd.dna":{"source":"iana","extensions":["dna"]},"application/vnd.document+json":{"source":"iana","compressible":true},"application/vnd.dolby.mlp":{"source":"apache","extensions":["mlp"]},"application/vnd.dolby.mobile.1":{"source":"iana"},"application/vnd.dolby.mobile.2":{"source":"iana"},"application/vnd.doremir.scorecloud-binary-document":{"source":"iana"},"application/vnd.dpgraph":{"source":"iana","extensions":["dpg"]},"application/vnd.dreamfactory":{"source":"iana","extensions":["dfac"]},"application/vnd.drive+json":{"source":"iana","compressible":true},"application/vnd.ds-keypoint":{"source":"apache","extensions":["kpxx"]},"application/vnd.dtg.local":{"source":"iana"},"application/vnd.dtg.local.flash":{"source":"iana"},"application/vnd.dtg.local.html":{"source":"iana"},"application/vnd.dvb.ait":{"source":"iana","extensions":["ait"]},"application/vnd.dvb.dvbisl+xml":{"source":"iana","compressible":true},"application/vnd.dvb.dvbj":{"source":"iana"},"application/vnd.dvb.esgcontainer":{"source":"iana"},"application/vnd.dvb.ipdcdftnotifaccess":{"source":"iana"},"application/vnd.dvb.ipdcesgaccess":{"source":"iana"},"application/vnd.dvb.ipdcesgaccess2":{"source":"iana"},"application/vnd.dvb.ipdcesgpdd":{"source":"iana"},"application/vnd.dvb.ipdcroaming":{"source":"iana"},"application/vnd.dvb.iptv.alfec-base":{"source":"iana"},"application/vnd.dvb.iptv.alfec-enhancement":{"source":"iana"},"application/vnd.dvb.notif-aggregate-root+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-container+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-generic+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-ia-msglist+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-ia-registration-request+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-ia-registration-response+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-init+xml":{"source":"iana","compressible":true},"application/vnd.dvb.pfr":{"source":"iana"},"application/vnd.dvb.service":{"source":"iana","extensions":["svc"]},"application/vnd.dxr":{"source":"iana"},"application/vnd.dynageo":{"source":"iana","extensions":["geo"]},"application/vnd.dzr":{"source":"iana"},"application/vnd.easykaraoke.cdgdownload":{"source":"iana"},"application/vnd.ecdis-update":{"source":"iana"},"application/vnd.ecip.rlp":{"source":"iana"},"application/vnd.eclipse.ditto+json":{"source":"iana","compressible":true},"application/vnd.ecowin.chart":{"source":"iana","extensions":["mag"]},"application/vnd.ecowin.filerequest":{"source":"iana"},"application/vnd.ecowin.fileupdate":{"source":"iana"},"application/vnd.ecowin.series":{"source":"iana"},"application/vnd.ecowin.seriesrequest":{"source":"iana"},"application/vnd.ecowin.seriesupdate":{"source":"iana"},"application/vnd.efi.img":{"source":"iana"},"application/vnd.efi.iso":{"source":"iana"},"application/vnd.emclient.accessrequest+xml":{"source":"iana","compressible":true},"application/vnd.enliven":{"source":"iana","extensions":["nml"]},"application/vnd.enphase.envoy":{"source":"iana"},"application/vnd.eprints.data+xml":{"source":"iana","compressible":true},"application/vnd.epson.esf":{"source":"iana","extensions":["esf"]},"application/vnd.epson.msf":{"source":"iana","extensions":["msf"]},"application/vnd.epson.quickanime":{"source":"iana","extensions":["qam"]},"application/vnd.epson.salt":{"source":"iana","extensions":["slt"]},"application/vnd.epson.ssf":{"source":"iana","extensions":["ssf"]},"application/vnd.ericsson.quickcall":{"source":"iana"},"application/vnd.espass-espass+zip":{"source":"iana","compressible":false},"application/vnd.eszigno3+xml":{"source":"iana","compressible":true,"extensions":["es3","et3"]},"application/vnd.etsi.aoc+xml":{"source":"iana","compressible":true},"application/vnd.etsi.asic-e+zip":{"source":"iana","compressible":false},"application/vnd.etsi.asic-s+zip":{"source":"iana","compressible":false},"application/vnd.etsi.cug+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvcommand+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvdiscovery+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvprofile+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsad-bc+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsad-cod+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsad-npvr+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvservice+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsync+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvueprofile+xml":{"source":"iana","compressible":true},"application/vnd.etsi.mcid+xml":{"source":"iana","compressible":true},"application/vnd.etsi.mheg5":{"source":"iana"},"application/vnd.etsi.overload-control-policy-dataset+xml":{"source":"iana","compressible":true},"application/vnd.etsi.pstn+xml":{"source":"iana","compressible":true},"application/vnd.etsi.sci+xml":{"source":"iana","compressible":true},"application/vnd.etsi.simservs+xml":{"source":"iana","compressible":true},"application/vnd.etsi.timestamp-token":{"source":"iana"},"application/vnd.etsi.tsl+xml":{"source":"iana","compressible":true},"application/vnd.etsi.tsl.der":{"source":"iana"},"application/vnd.eu.kasparian.car+json":{"source":"iana","compressible":true},"application/vnd.eudora.data":{"source":"iana"},"application/vnd.evolv.ecig.profile":{"source":"iana"},"application/vnd.evolv.ecig.settings":{"source":"iana"},"application/vnd.evolv.ecig.theme":{"source":"iana"},"application/vnd.exstream-empower+zip":{"source":"iana","compressible":false},"application/vnd.exstream-package":{"source":"iana"},"application/vnd.ezpix-album":{"source":"iana","extensions":["ez2"]},"application/vnd.ezpix-package":{"source":"iana","extensions":["ez3"]},"application/vnd.f-secure.mobile":{"source":"iana"},"application/vnd.familysearch.gedcom+zip":{"source":"iana","compressible":false},"application/vnd.fastcopy-disk-image":{"source":"iana"},"application/vnd.fdf":{"source":"iana","extensions":["fdf"]},"application/vnd.fdsn.mseed":{"source":"iana","extensions":["mseed"]},"application/vnd.fdsn.seed":{"source":"iana","extensions":["seed","dataless"]},"application/vnd.ffsns":{"source":"iana"},"application/vnd.ficlab.flb+zip":{"source":"iana","compressible":false},"application/vnd.filmit.zfc":{"source":"iana"},"application/vnd.fints":{"source":"iana"},"application/vnd.firemonkeys.cloudcell":{"source":"iana"},"application/vnd.flographit":{"source":"iana","extensions":["gph"]},"application/vnd.fluxtime.clip":{"source":"iana","extensions":["ftc"]},"application/vnd.font-fontforge-sfd":{"source":"iana"},"application/vnd.framemaker":{"source":"iana","extensions":["fm","frame","maker","book"]},"application/vnd.frogans.fnc":{"source":"iana","extensions":["fnc"]},"application/vnd.frogans.ltf":{"source":"iana","extensions":["ltf"]},"application/vnd.fsc.weblaunch":{"source":"iana","extensions":["fsc"]},"application/vnd.fujifilm.fb.docuworks":{"source":"iana"},"application/vnd.fujifilm.fb.docuworks.binder":{"source":"iana"},"application/vnd.fujifilm.fb.docuworks.container":{"source":"iana"},"application/vnd.fujifilm.fb.jfi+xml":{"source":"iana","compressible":true},"application/vnd.fujitsu.oasys":{"source":"iana","extensions":["oas"]},"application/vnd.fujitsu.oasys2":{"source":"iana","extensions":["oa2"]},"application/vnd.fujitsu.oasys3":{"source":"iana","extensions":["oa3"]},"application/vnd.fujitsu.oasysgp":{"source":"iana","extensions":["fg5"]},"application/vnd.fujitsu.oasysprs":{"source":"iana","extensions":["bh2"]},"application/vnd.fujixerox.art-ex":{"source":"iana"},"application/vnd.fujixerox.art4":{"source":"iana"},"application/vnd.fujixerox.ddd":{"source":"iana","extensions":["ddd"]},"application/vnd.fujixerox.docuworks":{"source":"iana","extensions":["xdw"]},"application/vnd.fujixerox.docuworks.binder":{"source":"iana","extensions":["xbd"]},"application/vnd.fujixerox.docuworks.container":{"source":"iana"},"application/vnd.fujixerox.hbpl":{"source":"iana"},"application/vnd.fut-misnet":{"source":"iana"},"application/vnd.futoin+cbor":{"source":"iana"},"application/vnd.futoin+json":{"source":"iana","compressible":true},"application/vnd.fuzzysheet":{"source":"iana","extensions":["fzs"]},"application/vnd.genomatix.tuxedo":{"source":"iana","extensions":["txd"]},"application/vnd.gentics.grd+json":{"source":"iana","compressible":true},"application/vnd.geo+json":{"source":"iana","compressible":true},"application/vnd.geocube+xml":{"source":"iana","compressible":true},"application/vnd.geogebra.file":{"source":"iana","extensions":["ggb"]},"application/vnd.geogebra.slides":{"source":"iana"},"application/vnd.geogebra.tool":{"source":"iana","extensions":["ggt"]},"application/vnd.geometry-explorer":{"source":"iana","extensions":["gex","gre"]},"application/vnd.geonext":{"source":"iana","extensions":["gxt"]},"application/vnd.geoplan":{"source":"iana","extensions":["g2w"]},"application/vnd.geospace":{"source":"iana","extensions":["g3w"]},"application/vnd.gerber":{"source":"iana"},"application/vnd.globalplatform.card-content-mgt":{"source":"iana"},"application/vnd.globalplatform.card-content-mgt-response":{"source":"iana"},"application/vnd.gmx":{"source":"iana","extensions":["gmx"]},"application/vnd.google-apps.document":{"compressible":false,"extensions":["gdoc"]},"application/vnd.google-apps.presentation":{"compressible":false,"extensions":["gslides"]},"application/vnd.google-apps.spreadsheet":{"compressible":false,"extensions":["gsheet"]},"application/vnd.google-earth.kml+xml":{"source":"iana","compressible":true,"extensions":["kml"]},"application/vnd.google-earth.kmz":{"source":"iana","compressible":false,"extensions":["kmz"]},"application/vnd.gov.sk.e-form+xml":{"source":"iana","compressible":true},"application/vnd.gov.sk.e-form+zip":{"source":"iana","compressible":false},"application/vnd.gov.sk.xmldatacontainer+xml":{"source":"iana","compressible":true},"application/vnd.grafeq":{"source":"iana","extensions":["gqf","gqs"]},"application/vnd.gridmp":{"source":"iana"},"application/vnd.groove-account":{"source":"iana","extensions":["gac"]},"application/vnd.groove-help":{"source":"iana","extensions":["ghf"]},"application/vnd.groove-identity-message":{"source":"iana","extensions":["gim"]},"application/vnd.groove-injector":{"source":"iana","extensions":["grv"]},"application/vnd.groove-tool-message":{"source":"iana","extensions":["gtm"]},"application/vnd.groove-tool-template":{"source":"iana","extensions":["tpl"]},"application/vnd.groove-vcard":{"source":"iana","extensions":["vcg"]},"application/vnd.hal+json":{"source":"iana","compressible":true},"application/vnd.hal+xml":{"source":"iana","compressible":true,"extensions":["hal"]},"application/vnd.handheld-entertainment+xml":{"source":"iana","compressible":true,"extensions":["zmm"]},"application/vnd.hbci":{"source":"iana","extensions":["hbci"]},"application/vnd.hc+json":{"source":"iana","compressible":true},"application/vnd.hcl-bireports":{"source":"iana"},"application/vnd.hdt":{"source":"iana"},"application/vnd.heroku+json":{"source":"iana","compressible":true},"application/vnd.hhe.lesson-player":{"source":"iana","extensions":["les"]},"application/vnd.hl7cda+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.hl7v2+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.hp-hpgl":{"source":"iana","extensions":["hpgl"]},"application/vnd.hp-hpid":{"source":"iana","extensions":["hpid"]},"application/vnd.hp-hps":{"source":"iana","extensions":["hps"]},"application/vnd.hp-jlyt":{"source":"iana","extensions":["jlt"]},"application/vnd.hp-pcl":{"source":"iana","extensions":["pcl"]},"application/vnd.hp-pclxl":{"source":"iana","extensions":["pclxl"]},"application/vnd.httphone":{"source":"iana"},"application/vnd.hydrostatix.sof-data":{"source":"iana","extensions":["sfd-hdstx"]},"application/vnd.hyper+json":{"source":"iana","compressible":true},"application/vnd.hyper-item+json":{"source":"iana","compressible":true},"application/vnd.hyperdrive+json":{"source":"iana","compressible":true},"application/vnd.hzn-3d-crossword":{"source":"iana"},"application/vnd.ibm.afplinedata":{"source":"iana"},"application/vnd.ibm.electronic-media":{"source":"iana"},"application/vnd.ibm.minipay":{"source":"iana","extensions":["mpy"]},"application/vnd.ibm.modcap":{"source":"iana","extensions":["afp","listafp","list3820"]},"application/vnd.ibm.rights-management":{"source":"iana","extensions":["irm"]},"application/vnd.ibm.secure-container":{"source":"iana","extensions":["sc"]},"application/vnd.iccprofile":{"source":"iana","extensions":["icc","icm"]},"application/vnd.ieee.1905":{"source":"iana"},"application/vnd.igloader":{"source":"iana","extensions":["igl"]},"application/vnd.imagemeter.folder+zip":{"source":"iana","compressible":false},"application/vnd.imagemeter.image+zip":{"source":"iana","compressible":false},"application/vnd.immervision-ivp":{"source":"iana","extensions":["ivp"]},"application/vnd.immervision-ivu":{"source":"iana","extensions":["ivu"]},"application/vnd.ims.imsccv1p1":{"source":"iana"},"application/vnd.ims.imsccv1p2":{"source":"iana"},"application/vnd.ims.imsccv1p3":{"source":"iana"},"application/vnd.ims.lis.v2.result+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolconsumerprofile+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolproxy+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolproxy.id+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolsettings+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolsettings.simple+json":{"source":"iana","compressible":true},"application/vnd.informedcontrol.rms+xml":{"source":"iana","compressible":true},"application/vnd.informix-visionary":{"source":"iana"},"application/vnd.infotech.project":{"source":"iana"},"application/vnd.infotech.project+xml":{"source":"iana","compressible":true},"application/vnd.innopath.wamp.notification":{"source":"iana"},"application/vnd.insors.igm":{"source":"iana","extensions":["igm"]},"application/vnd.intercon.formnet":{"source":"iana","extensions":["xpw","xpx"]},"application/vnd.intergeo":{"source":"iana","extensions":["i2g"]},"application/vnd.intertrust.digibox":{"source":"iana"},"application/vnd.intertrust.nncp":{"source":"iana"},"application/vnd.intu.qbo":{"source":"iana","extensions":["qbo"]},"application/vnd.intu.qfx":{"source":"iana","extensions":["qfx"]},"application/vnd.iptc.g2.catalogitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.conceptitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.knowledgeitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.newsitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.newsmessage+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.packageitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.planningitem+xml":{"source":"iana","compressible":true},"application/vnd.ipunplugged.rcprofile":{"source":"iana","extensions":["rcprofile"]},"application/vnd.irepository.package+xml":{"source":"iana","compressible":true,"extensions":["irp"]},"application/vnd.is-xpr":{"source":"iana","extensions":["xpr"]},"application/vnd.isac.fcs":{"source":"iana","extensions":["fcs"]},"application/vnd.iso11783-10+zip":{"source":"iana","compressible":false},"application/vnd.jam":{"source":"iana","extensions":["jam"]},"application/vnd.japannet-directory-service":{"source":"iana"},"application/vnd.japannet-jpnstore-wakeup":{"source":"iana"},"application/vnd.japannet-payment-wakeup":{"source":"iana"},"application/vnd.japannet-registration":{"source":"iana"},"application/vnd.japannet-registration-wakeup":{"source":"iana"},"application/vnd.japannet-setstore-wakeup":{"source":"iana"},"application/vnd.japannet-verification":{"source":"iana"},"application/vnd.japannet-verification-wakeup":{"source":"iana"},"application/vnd.jcp.javame.midlet-rms":{"source":"iana","extensions":["rms"]},"application/vnd.jisp":{"source":"iana","extensions":["jisp"]},"application/vnd.joost.joda-archive":{"source":"iana","extensions":["joda"]},"application/vnd.jsk.isdn-ngn":{"source":"iana"},"application/vnd.kahootz":{"source":"iana","extensions":["ktz","ktr"]},"application/vnd.kde.karbon":{"source":"iana","extensions":["karbon"]},"application/vnd.kde.kchart":{"source":"iana","extensions":["chrt"]},"application/vnd.kde.kformula":{"source":"iana","extensions":["kfo"]},"application/vnd.kde.kivio":{"source":"iana","extensions":["flw"]},"application/vnd.kde.kontour":{"source":"iana","extensions":["kon"]},"application/vnd.kde.kpresenter":{"source":"iana","extensions":["kpr","kpt"]},"application/vnd.kde.kspread":{"source":"iana","extensions":["ksp"]},"application/vnd.kde.kword":{"source":"iana","extensions":["kwd","kwt"]},"application/vnd.kenameaapp":{"source":"iana","extensions":["htke"]},"application/vnd.kidspiration":{"source":"iana","extensions":["kia"]},"application/vnd.kinar":{"source":"iana","extensions":["kne","knp"]},"application/vnd.koan":{"source":"iana","extensions":["skp","skd","skt","skm"]},"application/vnd.kodak-descriptor":{"source":"iana","extensions":["sse"]},"application/vnd.las":{"source":"iana"},"application/vnd.las.las+json":{"source":"iana","compressible":true},"application/vnd.las.las+xml":{"source":"iana","compressible":true,"extensions":["lasxml"]},"application/vnd.laszip":{"source":"iana"},"application/vnd.leap+json":{"source":"iana","compressible":true},"application/vnd.liberty-request+xml":{"source":"iana","compressible":true},"application/vnd.llamagraphics.life-balance.desktop":{"source":"iana","extensions":["lbd"]},"application/vnd.llamagraphics.life-balance.exchange+xml":{"source":"iana","compressible":true,"extensions":["lbe"]},"application/vnd.logipipe.circuit+zip":{"source":"iana","compressible":false},"application/vnd.loom":{"source":"iana"},"application/vnd.lotus-1-2-3":{"source":"iana","extensions":["123"]},"application/vnd.lotus-approach":{"source":"iana","extensions":["apr"]},"application/vnd.lotus-freelance":{"source":"iana","extensions":["pre"]},"application/vnd.lotus-notes":{"source":"iana","extensions":["nsf"]},"application/vnd.lotus-organizer":{"source":"iana","extensions":["org"]},"application/vnd.lotus-screencam":{"source":"iana","extensions":["scm"]},"application/vnd.lotus-wordpro":{"source":"iana","extensions":["lwp"]},"application/vnd.macports.portpkg":{"source":"iana","extensions":["portpkg"]},"application/vnd.mapbox-vector-tile":{"source":"iana","extensions":["mvt"]},"application/vnd.marlin.drm.actiontoken+xml":{"source":"iana","compressible":true},"application/vnd.marlin.drm.conftoken+xml":{"source":"iana","compressible":true},"application/vnd.marlin.drm.license+xml":{"source":"iana","compressible":true},"application/vnd.marlin.drm.mdcf":{"source":"iana"},"application/vnd.mason+json":{"source":"iana","compressible":true},"application/vnd.maxar.archive.3tz+zip":{"source":"iana","compressible":false},"application/vnd.maxmind.maxmind-db":{"source":"iana"},"application/vnd.mcd":{"source":"iana","extensions":["mcd"]},"application/vnd.medcalcdata":{"source":"iana","extensions":["mc1"]},"application/vnd.mediastation.cdkey":{"source":"iana","extensions":["cdkey"]},"application/vnd.meridian-slingshot":{"source":"iana"},"application/vnd.mfer":{"source":"iana","extensions":["mwf"]},"application/vnd.mfmp":{"source":"iana","extensions":["mfm"]},"application/vnd.micro+json":{"source":"iana","compressible":true},"application/vnd.micrografx.flo":{"source":"iana","extensions":["flo"]},"application/vnd.micrografx.igx":{"source":"iana","extensions":["igx"]},"application/vnd.microsoft.portable-executable":{"source":"iana"},"application/vnd.microsoft.windows.thumbnail-cache":{"source":"iana"},"application/vnd.miele+json":{"source":"iana","compressible":true},"application/vnd.mif":{"source":"iana","extensions":["mif"]},"application/vnd.minisoft-hp3000-save":{"source":"iana"},"application/vnd.mitsubishi.misty-guard.trustweb":{"source":"iana"},"application/vnd.mobius.daf":{"source":"iana","extensions":["daf"]},"application/vnd.mobius.dis":{"source":"iana","extensions":["dis"]},"application/vnd.mobius.mbk":{"source":"iana","extensions":["mbk"]},"application/vnd.mobius.mqy":{"source":"iana","extensions":["mqy"]},"application/vnd.mobius.msl":{"source":"iana","extensions":["msl"]},"application/vnd.mobius.plc":{"source":"iana","extensions":["plc"]},"application/vnd.mobius.txf":{"source":"iana","extensions":["txf"]},"application/vnd.mophun.application":{"source":"iana","extensions":["mpn"]},"application/vnd.mophun.certificate":{"source":"iana","extensions":["mpc"]},"application/vnd.motorola.flexsuite":{"source":"iana"},"application/vnd.motorola.flexsuite.adsi":{"source":"iana"},"application/vnd.motorola.flexsuite.fis":{"source":"iana"},"application/vnd.motorola.flexsuite.gotap":{"source":"iana"},"application/vnd.motorola.flexsuite.kmr":{"source":"iana"},"application/vnd.motorola.flexsuite.ttc":{"source":"iana"},"application/vnd.motorola.flexsuite.wem":{"source":"iana"},"application/vnd.motorola.iprm":{"source":"iana"},"application/vnd.mozilla.xul+xml":{"source":"iana","compressible":true,"extensions":["xul"]},"application/vnd.ms-3mfdocument":{"source":"iana"},"application/vnd.ms-artgalry":{"source":"iana","extensions":["cil"]},"application/vnd.ms-asf":{"source":"iana"},"application/vnd.ms-cab-compressed":{"source":"iana","extensions":["cab"]},"application/vnd.ms-color.iccprofile":{"source":"apache"},"application/vnd.ms-excel":{"source":"iana","compressible":false,"extensions":["xls","xlm","xla","xlc","xlt","xlw"]},"application/vnd.ms-excel.addin.macroenabled.12":{"source":"iana","extensions":["xlam"]},"application/vnd.ms-excel.sheet.binary.macroenabled.12":{"source":"iana","extensions":["xlsb"]},"application/vnd.ms-excel.sheet.macroenabled.12":{"source":"iana","extensions":["xlsm"]},"application/vnd.ms-excel.template.macroenabled.12":{"source":"iana","extensions":["xltm"]},"application/vnd.ms-fontobject":{"source":"iana","compressible":true,"extensions":["eot"]},"application/vnd.ms-htmlhelp":{"source":"iana","extensions":["chm"]},"application/vnd.ms-ims":{"source":"iana","extensions":["ims"]},"application/vnd.ms-lrm":{"source":"iana","extensions":["lrm"]},"application/vnd.ms-office.activex+xml":{"source":"iana","compressible":true},"application/vnd.ms-officetheme":{"source":"iana","extensions":["thmx"]},"application/vnd.ms-opentype":{"source":"apache","compressible":true},"application/vnd.ms-outlook":{"compressible":false,"extensions":["msg"]},"application/vnd.ms-package.obfuscated-opentype":{"source":"apache"},"application/vnd.ms-pki.seccat":{"source":"apache","extensions":["cat"]},"application/vnd.ms-pki.stl":{"source":"apache","extensions":["stl"]},"application/vnd.ms-playready.initiator+xml":{"source":"iana","compressible":true},"application/vnd.ms-powerpoint":{"source":"iana","compressible":false,"extensions":["ppt","pps","pot"]},"application/vnd.ms-powerpoint.addin.macroenabled.12":{"source":"iana","extensions":["ppam"]},"application/vnd.ms-powerpoint.presentation.macroenabled.12":{"source":"iana","extensions":["pptm"]},"application/vnd.ms-powerpoint.slide.macroenabled.12":{"source":"iana","extensions":["sldm"]},"application/vnd.ms-powerpoint.slideshow.macroenabled.12":{"source":"iana","extensions":["ppsm"]},"application/vnd.ms-powerpoint.template.macroenabled.12":{"source":"iana","extensions":["potm"]},"application/vnd.ms-printdevicecapabilities+xml":{"source":"iana","compressible":true},"application/vnd.ms-printing.printticket+xml":{"source":"apache","compressible":true},"application/vnd.ms-printschematicket+xml":{"source":"iana","compressible":true},"application/vnd.ms-project":{"source":"iana","extensions":["mpp","mpt"]},"application/vnd.ms-tnef":{"source":"iana"},"application/vnd.ms-windows.devicepairing":{"source":"iana"},"application/vnd.ms-windows.nwprinting.oob":{"source":"iana"},"application/vnd.ms-windows.printerpairing":{"source":"iana"},"application/vnd.ms-windows.wsd.oob":{"source":"iana"},"application/vnd.ms-wmdrm.lic-chlg-req":{"source":"iana"},"application/vnd.ms-wmdrm.lic-resp":{"source":"iana"},"application/vnd.ms-wmdrm.meter-chlg-req":{"source":"iana"},"application/vnd.ms-wmdrm.meter-resp":{"source":"iana"},"application/vnd.ms-word.document.macroenabled.12":{"source":"iana","extensions":["docm"]},"application/vnd.ms-word.template.macroenabled.12":{"source":"iana","extensions":["dotm"]},"application/vnd.ms-works":{"source":"iana","extensions":["wps","wks","wcm","wdb"]},"application/vnd.ms-wpl":{"source":"iana","extensions":["wpl"]},"application/vnd.ms-xpsdocument":{"source":"iana","compressible":false,"extensions":["xps"]},"application/vnd.msa-disk-image":{"source":"iana"},"application/vnd.mseq":{"source":"iana","extensions":["mseq"]},"application/vnd.msign":{"source":"iana"},"application/vnd.multiad.creator":{"source":"iana"},"application/vnd.multiad.creator.cif":{"source":"iana"},"application/vnd.music-niff":{"source":"iana"},"application/vnd.musician":{"source":"iana","extensions":["mus"]},"application/vnd.muvee.style":{"source":"iana","extensions":["msty"]},"application/vnd.mynfc":{"source":"iana","extensions":["taglet"]},"application/vnd.nacamar.ybrid+json":{"source":"iana","compressible":true},"application/vnd.ncd.control":{"source":"iana"},"application/vnd.ncd.reference":{"source":"iana"},"application/vnd.nearst.inv+json":{"source":"iana","compressible":true},"application/vnd.nebumind.line":{"source":"iana"},"application/vnd.nervana":{"source":"iana"},"application/vnd.netfpx":{"source":"iana"},"application/vnd.neurolanguage.nlu":{"source":"iana","extensions":["nlu"]},"application/vnd.nimn":{"source":"iana"},"application/vnd.nintendo.nitro.rom":{"source":"iana"},"application/vnd.nintendo.snes.rom":{"source":"iana"},"application/vnd.nitf":{"source":"iana","extensions":["ntf","nitf"]},"application/vnd.noblenet-directory":{"source":"iana","extensions":["nnd"]},"application/vnd.noblenet-sealer":{"source":"iana","extensions":["nns"]},"application/vnd.noblenet-web":{"source":"iana","extensions":["nnw"]},"application/vnd.nokia.catalogs":{"source":"iana"},"application/vnd.nokia.conml+wbxml":{"source":"iana"},"application/vnd.nokia.conml+xml":{"source":"iana","compressible":true},"application/vnd.nokia.iptv.config+xml":{"source":"iana","compressible":true},"application/vnd.nokia.isds-radio-presets":{"source":"iana"},"application/vnd.nokia.landmark+wbxml":{"source":"iana"},"application/vnd.nokia.landmark+xml":{"source":"iana","compressible":true},"application/vnd.nokia.landmarkcollection+xml":{"source":"iana","compressible":true},"application/vnd.nokia.n-gage.ac+xml":{"source":"iana","compressible":true,"extensions":["ac"]},"application/vnd.nokia.n-gage.data":{"source":"iana","extensions":["ngdat"]},"application/vnd.nokia.n-gage.symbian.install":{"source":"iana","extensions":["n-gage"]},"application/vnd.nokia.ncd":{"source":"iana"},"application/vnd.nokia.pcd+wbxml":{"source":"iana"},"application/vnd.nokia.pcd+xml":{"source":"iana","compressible":true},"application/vnd.nokia.radio-preset":{"source":"iana","extensions":["rpst"]},"application/vnd.nokia.radio-presets":{"source":"iana","extensions":["rpss"]},"application/vnd.novadigm.edm":{"source":"iana","extensions":["edm"]},"application/vnd.novadigm.edx":{"source":"iana","extensions":["edx"]},"application/vnd.novadigm.ext":{"source":"iana","extensions":["ext"]},"application/vnd.ntt-local.content-share":{"source":"iana"},"application/vnd.ntt-local.file-transfer":{"source":"iana"},"application/vnd.ntt-local.ogw_remote-access":{"source":"iana"},"application/vnd.ntt-local.sip-ta_remote":{"source":"iana"},"application/vnd.ntt-local.sip-ta_tcp_stream":{"source":"iana"},"application/vnd.oasis.opendocument.chart":{"source":"iana","extensions":["odc"]},"application/vnd.oasis.opendocument.chart-template":{"source":"iana","extensions":["otc"]},"application/vnd.oasis.opendocument.database":{"source":"iana","extensions":["odb"]},"application/vnd.oasis.opendocument.formula":{"source":"iana","extensions":["odf"]},"application/vnd.oasis.opendocument.formula-template":{"source":"iana","extensions":["odft"]},"application/vnd.oasis.opendocument.graphics":{"source":"iana","compressible":false,"extensions":["odg"]},"application/vnd.oasis.opendocument.graphics-template":{"source":"iana","extensions":["otg"]},"application/vnd.oasis.opendocument.image":{"source":"iana","extensions":["odi"]},"application/vnd.oasis.opendocument.image-template":{"source":"iana","extensions":["oti"]},"application/vnd.oasis.opendocument.presentation":{"source":"iana","compressible":false,"extensions":["odp"]},"application/vnd.oasis.opendocument.presentation-template":{"source":"iana","extensions":["otp"]},"application/vnd.oasis.opendocument.spreadsheet":{"source":"iana","compressible":false,"extensions":["ods"]},"application/vnd.oasis.opendocument.spreadsheet-template":{"source":"iana","extensions":["ots"]},"application/vnd.oasis.opendocument.text":{"source":"iana","compressible":false,"extensions":["odt"]},"application/vnd.oasis.opendocument.text-master":{"source":"iana","extensions":["odm"]},"application/vnd.oasis.opendocument.text-template":{"source":"iana","extensions":["ott"]},"application/vnd.oasis.opendocument.text-web":{"source":"iana","extensions":["oth"]},"application/vnd.obn":{"source":"iana"},"application/vnd.ocf+cbor":{"source":"iana"},"application/vnd.oci.image.manifest.v1+json":{"source":"iana","compressible":true},"application/vnd.oftn.l10n+json":{"source":"iana","compressible":true},"application/vnd.oipf.contentaccessdownload+xml":{"source":"iana","compressible":true},"application/vnd.oipf.contentaccessstreaming+xml":{"source":"iana","compressible":true},"application/vnd.oipf.cspg-hexbinary":{"source":"iana"},"application/vnd.oipf.dae.svg+xml":{"source":"iana","compressible":true},"application/vnd.oipf.dae.xhtml+xml":{"source":"iana","compressible":true},"application/vnd.oipf.mippvcontrolmessage+xml":{"source":"iana","compressible":true},"application/vnd.oipf.pae.gem":{"source":"iana"},"application/vnd.oipf.spdiscovery+xml":{"source":"iana","compressible":true},"application/vnd.oipf.spdlist+xml":{"source":"iana","compressible":true},"application/vnd.oipf.ueprofile+xml":{"source":"iana","compressible":true},"application/vnd.oipf.userprofile+xml":{"source":"iana","compressible":true},"application/vnd.olpc-sugar":{"source":"iana","extensions":["xo"]},"application/vnd.oma-scws-config":{"source":"iana"},"application/vnd.oma-scws-http-request":{"source":"iana"},"application/vnd.oma-scws-http-response":{"source":"iana"},"application/vnd.oma.bcast.associated-procedure-parameter+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.drm-trigger+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.imd+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.ltkm":{"source":"iana"},"application/vnd.oma.bcast.notification+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.provisioningtrigger":{"source":"iana"},"application/vnd.oma.bcast.sgboot":{"source":"iana"},"application/vnd.oma.bcast.sgdd+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.sgdu":{"source":"iana"},"application/vnd.oma.bcast.simple-symbol-container":{"source":"iana"},"application/vnd.oma.bcast.smartcard-trigger+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.sprov+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.stkm":{"source":"iana"},"application/vnd.oma.cab-address-book+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-feature-handler+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-pcc+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-subs-invite+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-user-prefs+xml":{"source":"iana","compressible":true},"application/vnd.oma.dcd":{"source":"iana"},"application/vnd.oma.dcdc":{"source":"iana"},"application/vnd.oma.dd2+xml":{"source":"iana","compressible":true,"extensions":["dd2"]},"application/vnd.oma.drm.risd+xml":{"source":"iana","compressible":true},"application/vnd.oma.group-usage-list+xml":{"source":"iana","compressible":true},"application/vnd.oma.lwm2m+cbor":{"source":"iana"},"application/vnd.oma.lwm2m+json":{"source":"iana","compressible":true},"application/vnd.oma.lwm2m+tlv":{"source":"iana"},"application/vnd.oma.pal+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.detailed-progress-report+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.final-report+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.groups+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.invocation-descriptor+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.optimized-progress-report+xml":{"source":"iana","compressible":true},"application/vnd.oma.push":{"source":"iana"},"application/vnd.oma.scidm.messages+xml":{"source":"iana","compressible":true},"application/vnd.oma.xcap-directory+xml":{"source":"iana","compressible":true},"application/vnd.omads-email+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.omads-file+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.omads-folder+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.omaloc-supl-init":{"source":"iana"},"application/vnd.onepager":{"source":"iana"},"application/vnd.onepagertamp":{"source":"iana"},"application/vnd.onepagertamx":{"source":"iana"},"application/vnd.onepagertat":{"source":"iana"},"application/vnd.onepagertatp":{"source":"iana"},"application/vnd.onepagertatx":{"source":"iana"},"application/vnd.openblox.game+xml":{"source":"iana","compressible":true,"extensions":["obgx"]},"application/vnd.openblox.game-binary":{"source":"iana"},"application/vnd.openeye.oeb":{"source":"iana"},"application/vnd.openofficeorg.extension":{"source":"apache","extensions":["oxt"]},"application/vnd.openstreetmap.data+xml":{"source":"iana","compressible":true,"extensions":["osm"]},"application/vnd.opentimestamps.ots":{"source":"iana"},"application/vnd.openxmlformats-officedocument.custom-properties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.customxmlproperties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawing+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.chart+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramcolors+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramdata+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramlayout+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramstyle+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.extended-properties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.commentauthors+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.comments+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.handoutmaster+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.notesmaster+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.notesslide+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.presentation":{"source":"iana","compressible":false,"extensions":["pptx"]},"application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.presprops+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slide":{"source":"iana","extensions":["sldx"]},"application/vnd.openxmlformats-officedocument.presentationml.slide+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slidelayout+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slidemaster+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slideshow":{"source":"iana","extensions":["ppsx"]},"application/vnd.openxmlformats-officedocument.presentationml.slideshow.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slideupdateinfo+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.tablestyles+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.tags+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.template":{"source":"iana","extensions":["potx"]},"application/vnd.openxmlformats-officedocument.presentationml.template.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.viewprops+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.calcchain+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.connections+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.dialogsheet+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.externallink+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotcachedefinition+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotcacherecords+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.pivottable+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.querytable+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.revisionheaders+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.revisionlog+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedstrings+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":{"source":"iana","compressible":false,"extensions":["xlsx"]},"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.sheetmetadata+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.tablesinglecells+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.template":{"source":"iana","extensions":["xltx"]},"application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.usernames+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.volatiledependencies+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.theme+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.themeoverride+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.vmldrawing":{"source":"iana"},"application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.document":{"source":"iana","compressible":false,"extensions":["docx"]},"application/vnd.openxmlformats-officedocument.wordprocessingml.document.glossary+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.fonttable+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.template":{"source":"iana","extensions":["dotx"]},"application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.websettings+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-package.core-properties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-package.digital-signature-xmlsignature+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-package.relationships+xml":{"source":"iana","compressible":true},"application/vnd.oracle.resource+json":{"source":"iana","compressible":true},"application/vnd.orange.indata":{"source":"iana"},"application/vnd.osa.netdeploy":{"source":"iana"},"application/vnd.osgeo.mapguide.package":{"source":"iana","extensions":["mgp"]},"application/vnd.osgi.bundle":{"source":"iana"},"application/vnd.osgi.dp":{"source":"iana","extensions":["dp"]},"application/vnd.osgi.subsystem":{"source":"iana","extensions":["esa"]},"application/vnd.otps.ct-kip+xml":{"source":"iana","compressible":true},"application/vnd.oxli.countgraph":{"source":"iana"},"application/vnd.pagerduty+json":{"source":"iana","compressible":true},"application/vnd.palm":{"source":"iana","extensions":["pdb","pqa","oprc"]},"application/vnd.panoply":{"source":"iana"},"application/vnd.paos.xml":{"source":"iana"},"application/vnd.patentdive":{"source":"iana"},"application/vnd.patientecommsdoc":{"source":"iana"},"application/vnd.pawaafile":{"source":"iana","extensions":["paw"]},"application/vnd.pcos":{"source":"iana"},"application/vnd.pg.format":{"source":"iana","extensions":["str"]},"application/vnd.pg.osasli":{"source":"iana","extensions":["ei6"]},"application/vnd.piaccess.application-licence":{"source":"iana"},"application/vnd.picsel":{"source":"iana","extensions":["efif"]},"application/vnd.pmi.widget":{"source":"iana","extensions":["wg"]},"application/vnd.poc.group-advertisement+xml":{"source":"iana","compressible":true},"application/vnd.pocketlearn":{"source":"iana","extensions":["plf"]},"application/vnd.powerbuilder6":{"source":"iana","extensions":["pbd"]},"application/vnd.powerbuilder6-s":{"source":"iana"},"application/vnd.powerbuilder7":{"source":"iana"},"application/vnd.powerbuilder7-s":{"source":"iana"},"application/vnd.powerbuilder75":{"source":"iana"},"application/vnd.powerbuilder75-s":{"source":"iana"},"application/vnd.preminet":{"source":"iana"},"application/vnd.previewsystems.box":{"source":"iana","extensions":["box"]},"application/vnd.proteus.magazine":{"source":"iana","extensions":["mgz"]},"application/vnd.psfs":{"source":"iana"},"application/vnd.publishare-delta-tree":{"source":"iana","extensions":["qps"]},"application/vnd.pvi.ptid1":{"source":"iana","extensions":["ptid"]},"application/vnd.pwg-multiplexed":{"source":"iana"},"application/vnd.pwg-xhtml-print+xml":{"source":"iana","compressible":true},"application/vnd.qualcomm.brew-app-res":{"source":"iana"},"application/vnd.quarantainenet":{"source":"iana"},"application/vnd.quark.quarkxpress":{"source":"iana","extensions":["qxd","qxt","qwd","qwt","qxl","qxb"]},"application/vnd.quobject-quoxdocument":{"source":"iana"},"application/vnd.radisys.moml+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-conf+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-conn+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-dialog+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-stream+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-conf+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-base+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-fax-detect+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-fax-sendrecv+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-group+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-speech+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-transform+xml":{"source":"iana","compressible":true},"application/vnd.rainstor.data":{"source":"iana"},"application/vnd.rapid":{"source":"iana"},"application/vnd.rar":{"source":"iana","extensions":["rar"]},"application/vnd.realvnc.bed":{"source":"iana","extensions":["bed"]},"application/vnd.recordare.musicxml":{"source":"iana","extensions":["mxl"]},"application/vnd.recordare.musicxml+xml":{"source":"iana","compressible":true,"extensions":["musicxml"]},"application/vnd.renlearn.rlprint":{"source":"iana"},"application/vnd.resilient.logic":{"source":"iana"},"application/vnd.restful+json":{"source":"iana","compressible":true},"application/vnd.rig.cryptonote":{"source":"iana","extensions":["cryptonote"]},"application/vnd.rim.cod":{"source":"apache","extensions":["cod"]},"application/vnd.rn-realmedia":{"source":"apache","extensions":["rm"]},"application/vnd.rn-realmedia-vbr":{"source":"apache","extensions":["rmvb"]},"application/vnd.route66.link66+xml":{"source":"iana","compressible":true,"extensions":["link66"]},"application/vnd.rs-274x":{"source":"iana"},"application/vnd.ruckus.download":{"source":"iana"},"application/vnd.s3sms":{"source":"iana"},"application/vnd.sailingtracker.track":{"source":"iana","extensions":["st"]},"application/vnd.sar":{"source":"iana"},"application/vnd.sbm.cid":{"source":"iana"},"application/vnd.sbm.mid2":{"source":"iana"},"application/vnd.scribus":{"source":"iana"},"application/vnd.sealed.3df":{"source":"iana"},"application/vnd.sealed.csf":{"source":"iana"},"application/vnd.sealed.doc":{"source":"iana"},"application/vnd.sealed.eml":{"source":"iana"},"application/vnd.sealed.mht":{"source":"iana"},"application/vnd.sealed.net":{"source":"iana"},"application/vnd.sealed.ppt":{"source":"iana"},"application/vnd.sealed.tiff":{"source":"iana"},"application/vnd.sealed.xls":{"source":"iana"},"application/vnd.sealedmedia.softseal.html":{"source":"iana"},"application/vnd.sealedmedia.softseal.pdf":{"source":"iana"},"application/vnd.seemail":{"source":"iana","extensions":["see"]},"application/vnd.seis+json":{"source":"iana","compressible":true},"application/vnd.sema":{"source":"iana","extensions":["sema"]},"application/vnd.semd":{"source":"iana","extensions":["semd"]},"application/vnd.semf":{"source":"iana","extensions":["semf"]},"application/vnd.shade-save-file":{"source":"iana"},"application/vnd.shana.informed.formdata":{"source":"iana","extensions":["ifm"]},"application/vnd.shana.informed.formtemplate":{"source":"iana","extensions":["itp"]},"application/vnd.shana.informed.interchange":{"source":"iana","extensions":["iif"]},"application/vnd.shana.informed.package":{"source":"iana","extensions":["ipk"]},"application/vnd.shootproof+json":{"source":"iana","compressible":true},"application/vnd.shopkick+json":{"source":"iana","compressible":true},"application/vnd.shp":{"source":"iana"},"application/vnd.shx":{"source":"iana"},"application/vnd.sigrok.session":{"source":"iana"},"application/vnd.simtech-mindmapper":{"source":"iana","extensions":["twd","twds"]},"application/vnd.siren+json":{"source":"iana","compressible":true},"application/vnd.smaf":{"source":"iana","extensions":["mmf"]},"application/vnd.smart.notebook":{"source":"iana"},"application/vnd.smart.teacher":{"source":"iana","extensions":["teacher"]},"application/vnd.snesdev-page-table":{"source":"iana"},"application/vnd.software602.filler.form+xml":{"source":"iana","compressible":true,"extensions":["fo"]},"application/vnd.software602.filler.form-xml-zip":{"source":"iana"},"application/vnd.solent.sdkm+xml":{"source":"iana","compressible":true,"extensions":["sdkm","sdkd"]},"application/vnd.spotfire.dxp":{"source":"iana","extensions":["dxp"]},"application/vnd.spotfire.sfs":{"source":"iana","extensions":["sfs"]},"application/vnd.sqlite3":{"source":"iana"},"application/vnd.sss-cod":{"source":"iana"},"application/vnd.sss-dtf":{"source":"iana"},"application/vnd.sss-ntf":{"source":"iana"},"application/vnd.stardivision.calc":{"source":"apache","extensions":["sdc"]},"application/vnd.stardivision.draw":{"source":"apache","extensions":["sda"]},"application/vnd.stardivision.impress":{"source":"apache","extensions":["sdd"]},"application/vnd.stardivision.math":{"source":"apache","extensions":["smf"]},"application/vnd.stardivision.writer":{"source":"apache","extensions":["sdw","vor"]},"application/vnd.stardivision.writer-global":{"source":"apache","extensions":["sgl"]},"application/vnd.stepmania.package":{"source":"iana","extensions":["smzip"]},"application/vnd.stepmania.stepchart":{"source":"iana","extensions":["sm"]},"application/vnd.street-stream":{"source":"iana"},"application/vnd.sun.wadl+xml":{"source":"iana","compressible":true,"extensions":["wadl"]},"application/vnd.sun.xml.calc":{"source":"apache","extensions":["sxc"]},"application/vnd.sun.xml.calc.template":{"source":"apache","extensions":["stc"]},"application/vnd.sun.xml.draw":{"source":"apache","extensions":["sxd"]},"application/vnd.sun.xml.draw.template":{"source":"apache","extensions":["std"]},"application/vnd.sun.xml.impress":{"source":"apache","extensions":["sxi"]},"application/vnd.sun.xml.impress.template":{"source":"apache","extensions":["sti"]},"application/vnd.sun.xml.math":{"source":"apache","extensions":["sxm"]},"application/vnd.sun.xml.writer":{"source":"apache","extensions":["sxw"]},"application/vnd.sun.xml.writer.global":{"source":"apache","extensions":["sxg"]},"application/vnd.sun.xml.writer.template":{"source":"apache","extensions":["stw"]},"application/vnd.sus-calendar":{"source":"iana","extensions":["sus","susp"]},"application/vnd.svd":{"source":"iana","extensions":["svd"]},"application/vnd.swiftview-ics":{"source":"iana"},"application/vnd.sycle+xml":{"source":"iana","compressible":true},"application/vnd.syft+json":{"source":"iana","compressible":true},"application/vnd.symbian.install":{"source":"apache","extensions":["sis","sisx"]},"application/vnd.syncml+xml":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["xsm"]},"application/vnd.syncml.dm+wbxml":{"source":"iana","charset":"UTF-8","extensions":["bdm"]},"application/vnd.syncml.dm+xml":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["xdm"]},"application/vnd.syncml.dm.notification":{"source":"iana"},"application/vnd.syncml.dmddf+wbxml":{"source":"iana"},"application/vnd.syncml.dmddf+xml":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["ddf"]},"application/vnd.syncml.dmtnds+wbxml":{"source":"iana"},"application/vnd.syncml.dmtnds+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.syncml.ds.notification":{"source":"iana"},"application/vnd.tableschema+json":{"source":"iana","compressible":true},"application/vnd.tao.intent-module-archive":{"source":"iana","extensions":["tao"]},"application/vnd.tcpdump.pcap":{"source":"iana","extensions":["pcap","cap","dmp"]},"application/vnd.think-cell.ppttc+json":{"source":"iana","compressible":true},"application/vnd.tmd.mediaflex.api+xml":{"source":"iana","compressible":true},"application/vnd.tml":{"source":"iana"},"application/vnd.tmobile-livetv":{"source":"iana","extensions":["tmo"]},"application/vnd.tri.onesource":{"source":"iana"},"application/vnd.trid.tpt":{"source":"iana","extensions":["tpt"]},"application/vnd.triscape.mxs":{"source":"iana","extensions":["mxs"]},"application/vnd.trueapp":{"source":"iana","extensions":["tra"]},"application/vnd.truedoc":{"source":"iana"},"application/vnd.ubisoft.webplayer":{"source":"iana"},"application/vnd.ufdl":{"source":"iana","extensions":["ufd","ufdl"]},"application/vnd.uiq.theme":{"source":"iana","extensions":["utz"]},"application/vnd.umajin":{"source":"iana","extensions":["umj"]},"application/vnd.unity":{"source":"iana","extensions":["unityweb"]},"application/vnd.uoml+xml":{"source":"iana","compressible":true,"extensions":["uoml"]},"application/vnd.uplanet.alert":{"source":"iana"},"application/vnd.uplanet.alert-wbxml":{"source":"iana"},"application/vnd.uplanet.bearer-choice":{"source":"iana"},"application/vnd.uplanet.bearer-choice-wbxml":{"source":"iana"},"application/vnd.uplanet.cacheop":{"source":"iana"},"application/vnd.uplanet.cacheop-wbxml":{"source":"iana"},"application/vnd.uplanet.channel":{"source":"iana"},"application/vnd.uplanet.channel-wbxml":{"source":"iana"},"application/vnd.uplanet.list":{"source":"iana"},"application/vnd.uplanet.list-wbxml":{"source":"iana"},"application/vnd.uplanet.listcmd":{"source":"iana"},"application/vnd.uplanet.listcmd-wbxml":{"source":"iana"},"application/vnd.uplanet.signal":{"source":"iana"},"application/vnd.uri-map":{"source":"iana"},"application/vnd.valve.source.material":{"source":"iana"},"application/vnd.vcx":{"source":"iana","extensions":["vcx"]},"application/vnd.vd-study":{"source":"iana"},"application/vnd.vectorworks":{"source":"iana"},"application/vnd.vel+json":{"source":"iana","compressible":true},"application/vnd.verimatrix.vcas":{"source":"iana"},"application/vnd.veritone.aion+json":{"source":"iana","compressible":true},"application/vnd.veryant.thin":{"source":"iana"},"application/vnd.ves.encrypted":{"source":"iana"},"application/vnd.vidsoft.vidconference":{"source":"iana"},"application/vnd.visio":{"source":"iana","extensions":["vsd","vst","vss","vsw"]},"application/vnd.visionary":{"source":"iana","extensions":["vis"]},"application/vnd.vividence.scriptfile":{"source":"iana"},"application/vnd.vsf":{"source":"iana","extensions":["vsf"]},"application/vnd.wap.sic":{"source":"iana"},"application/vnd.wap.slc":{"source":"iana"},"application/vnd.wap.wbxml":{"source":"iana","charset":"UTF-8","extensions":["wbxml"]},"application/vnd.wap.wmlc":{"source":"iana","extensions":["wmlc"]},"application/vnd.wap.wmlscriptc":{"source":"iana","extensions":["wmlsc"]},"application/vnd.webturbo":{"source":"iana","extensions":["wtb"]},"application/vnd.wfa.dpp":{"source":"iana"},"application/vnd.wfa.p2p":{"source":"iana"},"application/vnd.wfa.wsc":{"source":"iana"},"application/vnd.windows.devicepairing":{"source":"iana"},"application/vnd.wmc":{"source":"iana"},"application/vnd.wmf.bootstrap":{"source":"iana"},"application/vnd.wolfram.mathematica":{"source":"iana"},"application/vnd.wolfram.mathematica.package":{"source":"iana"},"application/vnd.wolfram.player":{"source":"iana","extensions":["nbp"]},"application/vnd.wordperfect":{"source":"iana","extensions":["wpd"]},"application/vnd.wqd":{"source":"iana","extensions":["wqd"]},"application/vnd.wrq-hp3000-labelled":{"source":"iana"},"application/vnd.wt.stf":{"source":"iana","extensions":["stf"]},"application/vnd.wv.csp+wbxml":{"source":"iana"},"application/vnd.wv.csp+xml":{"source":"iana","compressible":true},"application/vnd.wv.ssp+xml":{"source":"iana","compressible":true},"application/vnd.xacml+json":{"source":"iana","compressible":true},"application/vnd.xara":{"source":"iana","extensions":["xar"]},"application/vnd.xfdl":{"source":"iana","extensions":["xfdl"]},"application/vnd.xfdl.webform":{"source":"iana"},"application/vnd.xmi+xml":{"source":"iana","compressible":true},"application/vnd.xmpie.cpkg":{"source":"iana"},"application/vnd.xmpie.dpkg":{"source":"iana"},"application/vnd.xmpie.plan":{"source":"iana"},"application/vnd.xmpie.ppkg":{"source":"iana"},"application/vnd.xmpie.xlim":{"source":"iana"},"application/vnd.yamaha.hv-dic":{"source":"iana","extensions":["hvd"]},"application/vnd.yamaha.hv-script":{"source":"iana","extensions":["hvs"]},"application/vnd.yamaha.hv-voice":{"source":"iana","extensions":["hvp"]},"application/vnd.yamaha.openscoreformat":{"source":"iana","extensions":["osf"]},"application/vnd.yamaha.openscoreformat.osfpvg+xml":{"source":"iana","compressible":true,"extensions":["osfpvg"]},"application/vnd.yamaha.remote-setup":{"source":"iana"},"application/vnd.yamaha.smaf-audio":{"source":"iana","extensions":["saf"]},"application/vnd.yamaha.smaf-phrase":{"source":"iana","extensions":["spf"]},"application/vnd.yamaha.through-ngn":{"source":"iana"},"application/vnd.yamaha.tunnel-udpencap":{"source":"iana"},"application/vnd.yaoweme":{"source":"iana"},"application/vnd.yellowriver-custom-menu":{"source":"iana","extensions":["cmp"]},"application/vnd.youtube.yt":{"source":"iana"},"application/vnd.zul":{"source":"iana","extensions":["zir","zirz"]},"application/vnd.zzazz.deck+xml":{"source":"iana","compressible":true,"extensions":["zaz"]},"application/voicexml+xml":{"source":"iana","compressible":true,"extensions":["vxml"]},"application/voucher-cms+json":{"source":"iana","compressible":true},"application/vq-rtcpxr":{"source":"iana"},"application/wasm":{"source":"iana","compressible":true,"extensions":["wasm"]},"application/watcherinfo+xml":{"source":"iana","compressible":true,"extensions":["wif"]},"application/webpush-options+json":{"source":"iana","compressible":true},"application/whoispp-query":{"source":"iana"},"application/whoispp-response":{"source":"iana"},"application/widget":{"source":"iana","extensions":["wgt"]},"application/winhlp":{"source":"apache","extensions":["hlp"]},"application/wita":{"source":"iana"},"application/wordperfect5.1":{"source":"iana"},"application/wsdl+xml":{"source":"iana","compressible":true,"extensions":["wsdl"]},"application/wspolicy+xml":{"source":"iana","compressible":true,"extensions":["wspolicy"]},"application/x-7z-compressed":{"source":"apache","compressible":false,"extensions":["7z"]},"application/x-abiword":{"source":"apache","extensions":["abw"]},"application/x-ace-compressed":{"source":"apache","extensions":["ace"]},"application/x-amf":{"source":"apache"},"application/x-apple-diskimage":{"source":"apache","extensions":["dmg"]},"application/x-arj":{"compressible":false,"extensions":["arj"]},"application/x-authorware-bin":{"source":"apache","extensions":["aab","x32","u32","vox"]},"application/x-authorware-map":{"source":"apache","extensions":["aam"]},"application/x-authorware-seg":{"source":"apache","extensions":["aas"]},"application/x-bcpio":{"source":"apache","extensions":["bcpio"]},"application/x-bdoc":{"compressible":false,"extensions":["bdoc"]},"application/x-bittorrent":{"source":"apache","extensions":["torrent"]},"application/x-blorb":{"source":"apache","extensions":["blb","blorb"]},"application/x-bzip":{"source":"apache","compressible":false,"extensions":["bz"]},"application/x-bzip2":{"source":"apache","compressible":false,"extensions":["bz2","boz"]},"application/x-cbr":{"source":"apache","extensions":["cbr","cba","cbt","cbz","cb7"]},"application/x-cdlink":{"source":"apache","extensions":["vcd"]},"application/x-cfs-compressed":{"source":"apache","extensions":["cfs"]},"application/x-chat":{"source":"apache","extensions":["chat"]},"application/x-chess-pgn":{"source":"apache","extensions":["pgn"]},"application/x-chrome-extension":{"extensions":["crx"]},"application/x-cocoa":{"source":"nginx","extensions":["cco"]},"application/x-compress":{"source":"apache"},"application/x-conference":{"source":"apache","extensions":["nsc"]},"application/x-cpio":{"source":"apache","extensions":["cpio"]},"application/x-csh":{"source":"apache","extensions":["csh"]},"application/x-deb":{"compressible":false},"application/x-debian-package":{"source":"apache","extensions":["deb","udeb"]},"application/x-dgc-compressed":{"source":"apache","extensions":["dgc"]},"application/x-director":{"source":"apache","extensions":["dir","dcr","dxr","cst","cct","cxt","w3d","fgd","swa"]},"application/x-doom":{"source":"apache","extensions":["wad"]},"application/x-dtbncx+xml":{"source":"apache","compressible":true,"extensions":["ncx"]},"application/x-dtbook+xml":{"source":"apache","compressible":true,"extensions":["dtb"]},"application/x-dtbresource+xml":{"source":"apache","compressible":true,"extensions":["res"]},"application/x-dvi":{"source":"apache","compressible":false,"extensions":["dvi"]},"application/x-envoy":{"source":"apache","extensions":["evy"]},"application/x-eva":{"source":"apache","extensions":["eva"]},"application/x-font-bdf":{"source":"apache","extensions":["bdf"]},"application/x-font-dos":{"source":"apache"},"application/x-font-framemaker":{"source":"apache"},"application/x-font-ghostscript":{"source":"apache","extensions":["gsf"]},"application/x-font-libgrx":{"source":"apache"},"application/x-font-linux-psf":{"source":"apache","extensions":["psf"]},"application/x-font-pcf":{"source":"apache","extensions":["pcf"]},"application/x-font-snf":{"source":"apache","extensions":["snf"]},"application/x-font-speedo":{"source":"apache"},"application/x-font-sunos-news":{"source":"apache"},"application/x-font-type1":{"source":"apache","extensions":["pfa","pfb","pfm","afm"]},"application/x-font-vfont":{"source":"apache"},"application/x-freearc":{"source":"apache","extensions":["arc"]},"application/x-futuresplash":{"source":"apache","extensions":["spl"]},"application/x-gca-compressed":{"source":"apache","extensions":["gca"]},"application/x-glulx":{"source":"apache","extensions":["ulx"]},"application/x-gnumeric":{"source":"apache","extensions":["gnumeric"]},"application/x-gramps-xml":{"source":"apache","extensions":["gramps"]},"application/x-gtar":{"source":"apache","extensions":["gtar"]},"application/x-gzip":{"source":"apache"},"application/x-hdf":{"source":"apache","extensions":["hdf"]},"application/x-httpd-php":{"compressible":true,"extensions":["php"]},"application/x-install-instructions":{"source":"apache","extensions":["install"]},"application/x-iso9660-image":{"source":"apache","extensions":["iso"]},"application/x-iwork-keynote-sffkey":{"extensions":["key"]},"application/x-iwork-numbers-sffnumbers":{"extensions":["numbers"]},"application/x-iwork-pages-sffpages":{"extensions":["pages"]},"application/x-java-archive-diff":{"source":"nginx","extensions":["jardiff"]},"application/x-java-jnlp-file":{"source":"apache","compressible":false,"extensions":["jnlp"]},"application/x-javascript":{"compressible":true},"application/x-keepass2":{"extensions":["kdbx"]},"application/x-latex":{"source":"apache","compressible":false,"extensions":["latex"]},"application/x-lua-bytecode":{"extensions":["luac"]},"application/x-lzh-compressed":{"source":"apache","extensions":["lzh","lha"]},"application/x-makeself":{"source":"nginx","extensions":["run"]},"application/x-mie":{"source":"apache","extensions":["mie"]},"application/x-mobipocket-ebook":{"source":"apache","extensions":["prc","mobi"]},"application/x-mpegurl":{"compressible":false},"application/x-ms-application":{"source":"apache","extensions":["application"]},"application/x-ms-shortcut":{"source":"apache","extensions":["lnk"]},"application/x-ms-wmd":{"source":"apache","extensions":["wmd"]},"application/x-ms-wmz":{"source":"apache","extensions":["wmz"]},"application/x-ms-xbap":{"source":"apache","extensions":["xbap"]},"application/x-msaccess":{"source":"apache","extensions":["mdb"]},"application/x-msbinder":{"source":"apache","extensions":["obd"]},"application/x-mscardfile":{"source":"apache","extensions":["crd"]},"application/x-msclip":{"source":"apache","extensions":["clp"]},"application/x-msdos-program":{"extensions":["exe"]},"application/x-msdownload":{"source":"apache","extensions":["exe","dll","com","bat","msi"]},"application/x-msmediaview":{"source":"apache","extensions":["mvb","m13","m14"]},"application/x-msmetafile":{"source":"apache","extensions":["wmf","wmz","emf","emz"]},"application/x-msmoney":{"source":"apache","extensions":["mny"]},"application/x-mspublisher":{"source":"apache","extensions":["pub"]},"application/x-msschedule":{"source":"apache","extensions":["scd"]},"application/x-msterminal":{"source":"apache","extensions":["trm"]},"application/x-mswrite":{"source":"apache","extensions":["wri"]},"application/x-netcdf":{"source":"apache","extensions":["nc","cdf"]},"application/x-ns-proxy-autoconfig":{"compressible":true,"extensions":["pac"]},"application/x-nzb":{"source":"apache","extensions":["nzb"]},"application/x-perl":{"source":"nginx","extensions":["pl","pm"]},"application/x-pilot":{"source":"nginx","extensions":["prc","pdb"]},"application/x-pkcs12":{"source":"apache","compressible":false,"extensions":["p12","pfx"]},"application/x-pkcs7-certificates":{"source":"apache","extensions":["p7b","spc"]},"application/x-pkcs7-certreqresp":{"source":"apache","extensions":["p7r"]},"application/x-pki-message":{"source":"iana"},"application/x-rar-compressed":{"source":"apache","compressible":false,"extensions":["rar"]},"application/x-redhat-package-manager":{"source":"nginx","extensions":["rpm"]},"application/x-research-info-systems":{"source":"apache","extensions":["ris"]},"application/x-sea":{"source":"nginx","extensions":["sea"]},"application/x-sh":{"source":"apache","compressible":true,"extensions":["sh"]},"application/x-shar":{"source":"apache","extensions":["shar"]},"application/x-shockwave-flash":{"source":"apache","compressible":false,"extensions":["swf"]},"application/x-silverlight-app":{"source":"apache","extensions":["xap"]},"application/x-sql":{"source":"apache","extensions":["sql"]},"application/x-stuffit":{"source":"apache","compressible":false,"extensions":["sit"]},"application/x-stuffitx":{"source":"apache","extensions":["sitx"]},"application/x-subrip":{"source":"apache","extensions":["srt"]},"application/x-sv4cpio":{"source":"apache","extensions":["sv4cpio"]},"application/x-sv4crc":{"source":"apache","extensions":["sv4crc"]},"application/x-t3vm-image":{"source":"apache","extensions":["t3"]},"application/x-tads":{"source":"apache","extensions":["gam"]},"application/x-tar":{"source":"apache","compressible":true,"extensions":["tar"]},"application/x-tcl":{"source":"apache","extensions":["tcl","tk"]},"application/x-tex":{"source":"apache","extensions":["tex"]},"application/x-tex-tfm":{"source":"apache","extensions":["tfm"]},"application/x-texinfo":{"source":"apache","extensions":["texinfo","texi"]},"application/x-tgif":{"source":"apache","extensions":["obj"]},"application/x-ustar":{"source":"apache","extensions":["ustar"]},"application/x-virtualbox-hdd":{"compressible":true,"extensions":["hdd"]},"application/x-virtualbox-ova":{"compressible":true,"extensions":["ova"]},"application/x-virtualbox-ovf":{"compressible":true,"extensions":["ovf"]},"application/x-virtualbox-vbox":{"compressible":true,"extensions":["vbox"]},"application/x-virtualbox-vbox-extpack":{"compressible":false,"extensions":["vbox-extpack"]},"application/x-virtualbox-vdi":{"compressible":true,"extensions":["vdi"]},"application/x-virtualbox-vhd":{"compressible":true,"extensions":["vhd"]},"application/x-virtualbox-vmdk":{"compressible":true,"extensions":["vmdk"]},"application/x-wais-source":{"source":"apache","extensions":["src"]},"application/x-web-app-manifest+json":{"compressible":true,"extensions":["webapp"]},"application/x-www-form-urlencoded":{"source":"iana","compressible":true},"application/x-x509-ca-cert":{"source":"iana","extensions":["der","crt","pem"]},"application/x-x509-ca-ra-cert":{"source":"iana"},"application/x-x509-next-ca-cert":{"source":"iana"},"application/x-xfig":{"source":"apache","extensions":["fig"]},"application/x-xliff+xml":{"source":"apache","compressible":true,"extensions":["xlf"]},"application/x-xpinstall":{"source":"apache","compressible":false,"extensions":["xpi"]},"application/x-xz":{"source":"apache","extensions":["xz"]},"application/x-zmachine":{"source":"apache","extensions":["z1","z2","z3","z4","z5","z6","z7","z8"]},"application/x400-bp":{"source":"iana"},"application/xacml+xml":{"source":"iana","compressible":true},"application/xaml+xml":{"source":"apache","compressible":true,"extensions":["xaml"]},"application/xcap-att+xml":{"source":"iana","compressible":true,"extensions":["xav"]},"application/xcap-caps+xml":{"source":"iana","compressible":true,"extensions":["xca"]},"application/xcap-diff+xml":{"source":"iana","compressible":true,"extensions":["xdf"]},"application/xcap-el+xml":{"source":"iana","compressible":true,"extensions":["xel"]},"application/xcap-error+xml":{"source":"iana","compressible":true},"application/xcap-ns+xml":{"source":"iana","compressible":true,"extensions":["xns"]},"application/xcon-conference-info+xml":{"source":"iana","compressible":true},"application/xcon-conference-info-diff+xml":{"source":"iana","compressible":true},"application/xenc+xml":{"source":"iana","compressible":true,"extensions":["xenc"]},"application/xhtml+xml":{"source":"iana","compressible":true,"extensions":["xhtml","xht"]},"application/xhtml-voice+xml":{"source":"apache","compressible":true},"application/xliff+xml":{"source":"iana","compressible":true,"extensions":["xlf"]},"application/xml":{"source":"iana","compressible":true,"extensions":["xml","xsl","xsd","rng"]},"application/xml-dtd":{"source":"iana","compressible":true,"extensions":["dtd"]},"application/xml-external-parsed-entity":{"source":"iana"},"application/xml-patch+xml":{"source":"iana","compressible":true},"application/xmpp+xml":{"source":"iana","compressible":true},"application/xop+xml":{"source":"iana","compressible":true,"extensions":["xop"]},"application/xproc+xml":{"source":"apache","compressible":true,"extensions":["xpl"]},"application/xslt+xml":{"source":"iana","compressible":true,"extensions":["xsl","xslt"]},"application/xspf+xml":{"source":"apache","compressible":true,"extensions":["xspf"]},"application/xv+xml":{"source":"iana","compressible":true,"extensions":["mxml","xhvml","xvml","xvm"]},"application/yang":{"source":"iana","extensions":["yang"]},"application/yang-data+json":{"source":"iana","compressible":true},"application/yang-data+xml":{"source":"iana","compressible":true},"application/yang-patch+json":{"source":"iana","compressible":true},"application/yang-patch+xml":{"source":"iana","compressible":true},"application/yin+xml":{"source":"iana","compressible":true,"extensions":["yin"]},"application/zip":{"source":"iana","compressible":false,"extensions":["zip"]},"application/zlib":{"source":"iana"},"application/zstd":{"source":"iana"},"audio/1d-interleaved-parityfec":{"source":"iana"},"audio/32kadpcm":{"source":"iana"},"audio/3gpp":{"source":"iana","compressible":false,"extensions":["3gpp"]},"audio/3gpp2":{"source":"iana"},"audio/aac":{"source":"iana"},"audio/ac3":{"source":"iana"},"audio/adpcm":{"source":"apache","extensions":["adp"]},"audio/amr":{"source":"iana","extensions":["amr"]},"audio/amr-wb":{"source":"iana"},"audio/amr-wb+":{"source":"iana"},"audio/aptx":{"source":"iana"},"audio/asc":{"source":"iana"},"audio/atrac-advanced-lossless":{"source":"iana"},"audio/atrac-x":{"source":"iana"},"audio/atrac3":{"source":"iana"},"audio/basic":{"source":"iana","compressible":false,"extensions":["au","snd"]},"audio/bv16":{"source":"iana"},"audio/bv32":{"source":"iana"},"audio/clearmode":{"source":"iana"},"audio/cn":{"source":"iana"},"audio/dat12":{"source":"iana"},"audio/dls":{"source":"iana"},"audio/dsr-es201108":{"source":"iana"},"audio/dsr-es202050":{"source":"iana"},"audio/dsr-es202211":{"source":"iana"},"audio/dsr-es202212":{"source":"iana"},"audio/dv":{"source":"iana"},"audio/dvi4":{"source":"iana"},"audio/eac3":{"source":"iana"},"audio/encaprtp":{"source":"iana"},"audio/evrc":{"source":"iana"},"audio/evrc-qcp":{"source":"iana"},"audio/evrc0":{"source":"iana"},"audio/evrc1":{"source":"iana"},"audio/evrcb":{"source":"iana"},"audio/evrcb0":{"source":"iana"},"audio/evrcb1":{"source":"iana"},"audio/evrcnw":{"source":"iana"},"audio/evrcnw0":{"source":"iana"},"audio/evrcnw1":{"source":"iana"},"audio/evrcwb":{"source":"iana"},"audio/evrcwb0":{"source":"iana"},"audio/evrcwb1":{"source":"iana"},"audio/evs":{"source":"iana"},"audio/flexfec":{"source":"iana"},"audio/fwdred":{"source":"iana"},"audio/g711-0":{"source":"iana"},"audio/g719":{"source":"iana"},"audio/g722":{"source":"iana"},"audio/g7221":{"source":"iana"},"audio/g723":{"source":"iana"},"audio/g726-16":{"source":"iana"},"audio/g726-24":{"source":"iana"},"audio/g726-32":{"source":"iana"},"audio/g726-40":{"source":"iana"},"audio/g728":{"source":"iana"},"audio/g729":{"source":"iana"},"audio/g7291":{"source":"iana"},"audio/g729d":{"source":"iana"},"audio/g729e":{"source":"iana"},"audio/gsm":{"source":"iana"},"audio/gsm-efr":{"source":"iana"},"audio/gsm-hr-08":{"source":"iana"},"audio/ilbc":{"source":"iana"},"audio/ip-mr_v2.5":{"source":"iana"},"audio/isac":{"source":"apache"},"audio/l16":{"source":"iana"},"audio/l20":{"source":"iana"},"audio/l24":{"source":"iana","compressible":false},"audio/l8":{"source":"iana"},"audio/lpc":{"source":"iana"},"audio/melp":{"source":"iana"},"audio/melp1200":{"source":"iana"},"audio/melp2400":{"source":"iana"},"audio/melp600":{"source":"iana"},"audio/mhas":{"source":"iana"},"audio/midi":{"source":"apache","extensions":["mid","midi","kar","rmi"]},"audio/mobile-xmf":{"source":"iana","extensions":["mxmf"]},"audio/mp3":{"compressible":false,"extensions":["mp3"]},"audio/mp4":{"source":"iana","compressible":false,"extensions":["m4a","mp4a"]},"audio/mp4a-latm":{"source":"iana"},"audio/mpa":{"source":"iana"},"audio/mpa-robust":{"source":"iana"},"audio/mpeg":{"source":"iana","compressible":false,"extensions":["mpga","mp2","mp2a","mp3","m2a","m3a"]},"audio/mpeg4-generic":{"source":"iana"},"audio/musepack":{"source":"apache"},"audio/ogg":{"source":"iana","compressible":false,"extensions":["oga","ogg","spx","opus"]},"audio/opus":{"source":"iana"},"audio/parityfec":{"source":"iana"},"audio/pcma":{"source":"iana"},"audio/pcma-wb":{"source":"iana"},"audio/pcmu":{"source":"iana"},"audio/pcmu-wb":{"source":"iana"},"audio/prs.sid":{"source":"iana"},"audio/qcelp":{"source":"iana"},"audio/raptorfec":{"source":"iana"},"audio/red":{"source":"iana"},"audio/rtp-enc-aescm128":{"source":"iana"},"audio/rtp-midi":{"source":"iana"},"audio/rtploopback":{"source":"iana"},"audio/rtx":{"source":"iana"},"audio/s3m":{"source":"apache","extensions":["s3m"]},"audio/scip":{"source":"iana"},"audio/silk":{"source":"apache","extensions":["sil"]},"audio/smv":{"source":"iana"},"audio/smv-qcp":{"source":"iana"},"audio/smv0":{"source":"iana"},"audio/sofa":{"source":"iana"},"audio/sp-midi":{"source":"iana"},"audio/speex":{"source":"iana"},"audio/t140c":{"source":"iana"},"audio/t38":{"source":"iana"},"audio/telephone-event":{"source":"iana"},"audio/tetra_acelp":{"source":"iana"},"audio/tetra_acelp_bb":{"source":"iana"},"audio/tone":{"source":"iana"},"audio/tsvcis":{"source":"iana"},"audio/uemclip":{"source":"iana"},"audio/ulpfec":{"source":"iana"},"audio/usac":{"source":"iana"},"audio/vdvi":{"source":"iana"},"audio/vmr-wb":{"source":"iana"},"audio/vnd.3gpp.iufp":{"source":"iana"},"audio/vnd.4sb":{"source":"iana"},"audio/vnd.audiokoz":{"source":"iana"},"audio/vnd.celp":{"source":"iana"},"audio/vnd.cisco.nse":{"source":"iana"},"audio/vnd.cmles.radio-events":{"source":"iana"},"audio/vnd.cns.anp1":{"source":"iana"},"audio/vnd.cns.inf1":{"source":"iana"},"audio/vnd.dece.audio":{"source":"iana","extensions":["uva","uvva"]},"audio/vnd.digital-winds":{"source":"iana","extensions":["eol"]},"audio/vnd.dlna.adts":{"source":"iana"},"audio/vnd.dolby.heaac.1":{"source":"iana"},"audio/vnd.dolby.heaac.2":{"source":"iana"},"audio/vnd.dolby.mlp":{"source":"iana"},"audio/vnd.dolby.mps":{"source":"iana"},"audio/vnd.dolby.pl2":{"source":"iana"},"audio/vnd.dolby.pl2x":{"source":"iana"},"audio/vnd.dolby.pl2z":{"source":"iana"},"audio/vnd.dolby.pulse.1":{"source":"iana"},"audio/vnd.dra":{"source":"iana","extensions":["dra"]},"audio/vnd.dts":{"source":"iana","extensions":["dts"]},"audio/vnd.dts.hd":{"source":"iana","extensions":["dtshd"]},"audio/vnd.dts.uhd":{"source":"iana"},"audio/vnd.dvb.file":{"source":"iana"},"audio/vnd.everad.plj":{"source":"iana"},"audio/vnd.hns.audio":{"source":"iana"},"audio/vnd.lucent.voice":{"source":"iana","extensions":["lvp"]},"audio/vnd.ms-playready.media.pya":{"source":"iana","extensions":["pya"]},"audio/vnd.nokia.mobile-xmf":{"source":"iana"},"audio/vnd.nortel.vbk":{"source":"iana"},"audio/vnd.nuera.ecelp4800":{"source":"iana","extensions":["ecelp4800"]},"audio/vnd.nuera.ecelp7470":{"source":"iana","extensions":["ecelp7470"]},"audio/vnd.nuera.ecelp9600":{"source":"iana","extensions":["ecelp9600"]},"audio/vnd.octel.sbc":{"source":"iana"},"audio/vnd.presonus.multitrack":{"source":"iana"},"audio/vnd.qcelp":{"source":"iana"},"audio/vnd.rhetorex.32kadpcm":{"source":"iana"},"audio/vnd.rip":{"source":"iana","extensions":["rip"]},"audio/vnd.rn-realaudio":{"compressible":false},"audio/vnd.sealedmedia.softseal.mpeg":{"source":"iana"},"audio/vnd.vmx.cvsd":{"source":"iana"},"audio/vnd.wave":{"compressible":false},"audio/vorbis":{"source":"iana","compressible":false},"audio/vorbis-config":{"source":"iana"},"audio/wav":{"compressible":false,"extensions":["wav"]},"audio/wave":{"compressible":false,"extensions":["wav"]},"audio/webm":{"source":"apache","compressible":false,"extensions":["weba"]},"audio/x-aac":{"source":"apache","compressible":false,"extensions":["aac"]},"audio/x-aiff":{"source":"apache","extensions":["aif","aiff","aifc"]},"audio/x-caf":{"source":"apache","compressible":false,"extensions":["caf"]},"audio/x-flac":{"source":"apache","extensions":["flac"]},"audio/x-m4a":{"source":"nginx","extensions":["m4a"]},"audio/x-matroska":{"source":"apache","extensions":["mka"]},"audio/x-mpegurl":{"source":"apache","extensions":["m3u"]},"audio/x-ms-wax":{"source":"apache","extensions":["wax"]},"audio/x-ms-wma":{"source":"apache","extensions":["wma"]},"audio/x-pn-realaudio":{"source":"apache","extensions":["ram","ra"]},"audio/x-pn-realaudio-plugin":{"source":"apache","extensions":["rmp"]},"audio/x-realaudio":{"source":"nginx","extensions":["ra"]},"audio/x-tta":{"source":"apache"},"audio/x-wav":{"source":"apache","extensions":["wav"]},"audio/xm":{"source":"apache","extensions":["xm"]},"chemical/x-cdx":{"source":"apache","extensions":["cdx"]},"chemical/x-cif":{"source":"apache","extensions":["cif"]},"chemical/x-cmdf":{"source":"apache","extensions":["cmdf"]},"chemical/x-cml":{"source":"apache","extensions":["cml"]},"chemical/x-csml":{"source":"apache","extensions":["csml"]},"chemical/x-pdb":{"source":"apache"},"chemical/x-xyz":{"source":"apache","extensions":["xyz"]},"font/collection":{"source":"iana","extensions":["ttc"]},"font/otf":{"source":"iana","compressible":true,"extensions":["otf"]},"font/sfnt":{"source":"iana"},"font/ttf":{"source":"iana","compressible":true,"extensions":["ttf"]},"font/woff":{"source":"iana","extensions":["woff"]},"font/woff2":{"source":"iana","extensions":["woff2"]},"image/aces":{"source":"iana","extensions":["exr"]},"image/apng":{"compressible":false,"extensions":["apng"]},"image/avci":{"source":"iana","extensions":["avci"]},"image/avcs":{"source":"iana","extensions":["avcs"]},"image/avif":{"source":"iana","compressible":false,"extensions":["avif"]},"image/bmp":{"source":"iana","compressible":true,"extensions":["bmp"]},"image/cgm":{"source":"iana","extensions":["cgm"]},"image/dicom-rle":{"source":"iana","extensions":["drle"]},"image/emf":{"source":"iana","extensions":["emf"]},"image/fits":{"source":"iana","extensions":["fits"]},"image/g3fax":{"source":"iana","extensions":["g3"]},"image/gif":{"source":"iana","compressible":false,"extensions":["gif"]},"image/heic":{"source":"iana","extensions":["heic"]},"image/heic-sequence":{"source":"iana","extensions":["heics"]},"image/heif":{"source":"iana","extensions":["heif"]},"image/heif-sequence":{"source":"iana","extensions":["heifs"]},"image/hej2k":{"source":"iana","extensions":["hej2"]},"image/hsj2":{"source":"iana","extensions":["hsj2"]},"image/ief":{"source":"iana","extensions":["ief"]},"image/jls":{"source":"iana","extensions":["jls"]},"image/jp2":{"source":"iana","compressible":false,"extensions":["jp2","jpg2"]},"image/jpeg":{"source":"iana","compressible":false,"extensions":["jpeg","jpg","jpe"]},"image/jph":{"source":"iana","extensions":["jph"]},"image/jphc":{"source":"iana","extensions":["jhc"]},"image/jpm":{"source":"iana","compressible":false,"extensions":["jpm"]},"image/jpx":{"source":"iana","compressible":false,"extensions":["jpx","jpf"]},"image/jxr":{"source":"iana","extensions":["jxr"]},"image/jxra":{"source":"iana","extensions":["jxra"]},"image/jxrs":{"source":"iana","extensions":["jxrs"]},"image/jxs":{"source":"iana","extensions":["jxs"]},"image/jxsc":{"source":"iana","extensions":["jxsc"]},"image/jxsi":{"source":"iana","extensions":["jxsi"]},"image/jxss":{"source":"iana","extensions":["jxss"]},"image/ktx":{"source":"iana","extensions":["ktx"]},"image/ktx2":{"source":"iana","extensions":["ktx2"]},"image/naplps":{"source":"iana"},"image/pjpeg":{"compressible":false},"image/png":{"source":"iana","compressible":false,"extensions":["png"]},"image/prs.btif":{"source":"iana","extensions":["btif"]},"image/prs.pti":{"source":"iana","extensions":["pti"]},"image/pwg-raster":{"source":"iana"},"image/sgi":{"source":"apache","extensions":["sgi"]},"image/svg+xml":{"source":"iana","compressible":true,"extensions":["svg","svgz"]},"image/t38":{"source":"iana","extensions":["t38"]},"image/tiff":{"source":"iana","compressible":false,"extensions":["tif","tiff"]},"image/tiff-fx":{"source":"iana","extensions":["tfx"]},"image/vnd.adobe.photoshop":{"source":"iana","compressible":true,"extensions":["psd"]},"image/vnd.airzip.accelerator.azv":{"source":"iana","extensions":["azv"]},"image/vnd.cns.inf2":{"source":"iana"},"image/vnd.dece.graphic":{"source":"iana","extensions":["uvi","uvvi","uvg","uvvg"]},"image/vnd.djvu":{"source":"iana","extensions":["djvu","djv"]},"image/vnd.dvb.subtitle":{"source":"iana","extensions":["sub"]},"image/vnd.dwg":{"source":"iana","extensions":["dwg"]},"image/vnd.dxf":{"source":"iana","extensions":["dxf"]},"image/vnd.fastbidsheet":{"source":"iana","extensions":["fbs"]},"image/vnd.fpx":{"source":"iana","extensions":["fpx"]},"image/vnd.fst":{"source":"iana","extensions":["fst"]},"image/vnd.fujixerox.edmics-mmr":{"source":"iana","extensions":["mmr"]},"image/vnd.fujixerox.edmics-rlc":{"source":"iana","extensions":["rlc"]},"image/vnd.globalgraphics.pgb":{"source":"iana"},"image/vnd.microsoft.icon":{"source":"iana","compressible":true,"extensions":["ico"]},"image/vnd.mix":{"source":"iana"},"image/vnd.mozilla.apng":{"source":"iana"},"image/vnd.ms-dds":{"compressible":true,"extensions":["dds"]},"image/vnd.ms-modi":{"source":"iana","extensions":["mdi"]},"image/vnd.ms-photo":{"source":"apache","extensions":["wdp"]},"image/vnd.net-fpx":{"source":"iana","extensions":["npx"]},"image/vnd.pco.b16":{"source":"iana","extensions":["b16"]},"image/vnd.radiance":{"source":"iana"},"image/vnd.sealed.png":{"source":"iana"},"image/vnd.sealedmedia.softseal.gif":{"source":"iana"},"image/vnd.sealedmedia.softseal.jpg":{"source":"iana"},"image/vnd.svf":{"source":"iana"},"image/vnd.tencent.tap":{"source":"iana","extensions":["tap"]},"image/vnd.valve.source.texture":{"source":"iana","extensions":["vtf"]},"image/vnd.wap.wbmp":{"source":"iana","extensions":["wbmp"]},"image/vnd.xiff":{"source":"iana","extensions":["xif"]},"image/vnd.zbrush.pcx":{"source":"iana","extensions":["pcx"]},"image/webp":{"source":"apache","extensions":["webp"]},"image/wmf":{"source":"iana","extensions":["wmf"]},"image/x-3ds":{"source":"apache","extensions":["3ds"]},"image/x-cmu-raster":{"source":"apache","extensions":["ras"]},"image/x-cmx":{"source":"apache","extensions":["cmx"]},"image/x-freehand":{"source":"apache","extensions":["fh","fhc","fh4","fh5","fh7"]},"image/x-icon":{"source":"apache","compressible":true,"extensions":["ico"]},"image/x-jng":{"source":"nginx","extensions":["jng"]},"image/x-mrsid-image":{"source":"apache","extensions":["sid"]},"image/x-ms-bmp":{"source":"nginx","compressible":true,"extensions":["bmp"]},"image/x-pcx":{"source":"apache","extensions":["pcx"]},"image/x-pict":{"source":"apache","extensions":["pic","pct"]},"image/x-portable-anymap":{"source":"apache","extensions":["pnm"]},"image/x-portable-bitmap":{"source":"apache","extensions":["pbm"]},"image/x-portable-graymap":{"source":"apache","extensions":["pgm"]},"image/x-portable-pixmap":{"source":"apache","extensions":["ppm"]},"image/x-rgb":{"source":"apache","extensions":["rgb"]},"image/x-tga":{"source":"apache","extensions":["tga"]},"image/x-xbitmap":{"source":"apache","extensions":["xbm"]},"image/x-xcf":{"compressible":false},"image/x-xpixmap":{"source":"apache","extensions":["xpm"]},"image/x-xwindowdump":{"source":"apache","extensions":["xwd"]},"message/cpim":{"source":"iana"},"message/delivery-status":{"source":"iana"},"message/disposition-notification":{"source":"iana","extensions":["disposition-notification"]},"message/external-body":{"source":"iana"},"message/feedback-report":{"source":"iana"},"message/global":{"source":"iana","extensions":["u8msg"]},"message/global-delivery-status":{"source":"iana","extensions":["u8dsn"]},"message/global-disposition-notification":{"source":"iana","extensions":["u8mdn"]},"message/global-headers":{"source":"iana","extensions":["u8hdr"]},"message/http":{"source":"iana","compressible":false},"message/imdn+xml":{"source":"iana","compressible":true},"message/news":{"source":"iana"},"message/partial":{"source":"iana","compressible":false},"message/rfc822":{"source":"iana","compressible":true,"extensions":["eml","mime"]},"message/s-http":{"source":"iana"},"message/sip":{"source":"iana"},"message/sipfrag":{"source":"iana"},"message/tracking-status":{"source":"iana"},"message/vnd.si.simp":{"source":"iana"},"message/vnd.wfa.wsc":{"source":"iana","extensions":["wsc"]},"model/3mf":{"source":"iana","extensions":["3mf"]},"model/e57":{"source":"iana"},"model/gltf+json":{"source":"iana","compressible":true,"extensions":["gltf"]},"model/gltf-binary":{"source":"iana","compressible":true,"extensions":["glb"]},"model/iges":{"source":"iana","compressible":false,"extensions":["igs","iges"]},"model/mesh":{"source":"iana","compressible":false,"extensions":["msh","mesh","silo"]},"model/mtl":{"source":"iana","extensions":["mtl"]},"model/obj":{"source":"iana","extensions":["obj"]},"model/step":{"source":"iana"},"model/step+xml":{"source":"iana","compressible":true,"extensions":["stpx"]},"model/step+zip":{"source":"iana","compressible":false,"extensions":["stpz"]},"model/step-xml+zip":{"source":"iana","compressible":false,"extensions":["stpxz"]},"model/stl":{"source":"iana","extensions":["stl"]},"model/vnd.collada+xml":{"source":"iana","compressible":true,"extensions":["dae"]},"model/vnd.dwf":{"source":"iana","extensions":["dwf"]},"model/vnd.flatland.3dml":{"source":"iana"},"model/vnd.gdl":{"source":"iana","extensions":["gdl"]},"model/vnd.gs-gdl":{"source":"apache"},"model/vnd.gs.gdl":{"source":"iana"},"model/vnd.gtw":{"source":"iana","extensions":["gtw"]},"model/vnd.moml+xml":{"source":"iana","compressible":true},"model/vnd.mts":{"source":"iana","extensions":["mts"]},"model/vnd.opengex":{"source":"iana","extensions":["ogex"]},"model/vnd.parasolid.transmit.binary":{"source":"iana","extensions":["x_b"]},"model/vnd.parasolid.transmit.text":{"source":"iana","extensions":["x_t"]},"model/vnd.pytha.pyox":{"source":"iana"},"model/vnd.rosette.annotated-data-model":{"source":"iana"},"model/vnd.sap.vds":{"source":"iana","extensions":["vds"]},"model/vnd.usdz+zip":{"source":"iana","compressible":false,"extensions":["usdz"]},"model/vnd.valve.source.compiled-map":{"source":"iana","extensions":["bsp"]},"model/vnd.vtu":{"source":"iana","extensions":["vtu"]},"model/vrml":{"source":"iana","compressible":false,"extensions":["wrl","vrml"]},"model/x3d+binary":{"source":"apache","compressible":false,"extensions":["x3db","x3dbz"]},"model/x3d+fastinfoset":{"source":"iana","extensions":["x3db"]},"model/x3d+vrml":{"source":"apache","compressible":false,"extensions":["x3dv","x3dvz"]},"model/x3d+xml":{"source":"iana","compressible":true,"extensions":["x3d","x3dz"]},"model/x3d-vrml":{"source":"iana","extensions":["x3dv"]},"multipart/alternative":{"source":"iana","compressible":false},"multipart/appledouble":{"source":"iana"},"multipart/byteranges":{"source":"iana"},"multipart/digest":{"source":"iana"},"multipart/encrypted":{"source":"iana","compressible":false},"multipart/form-data":{"source":"iana","compressible":false},"multipart/header-set":{"source":"iana"},"multipart/mixed":{"source":"iana"},"multipart/multilingual":{"source":"iana"},"multipart/parallel":{"source":"iana"},"multipart/related":{"source":"iana","compressible":false},"multipart/report":{"source":"iana"},"multipart/signed":{"source":"iana","compressible":false},"multipart/vnd.bint.med-plus":{"source":"iana"},"multipart/voice-message":{"source":"iana"},"multipart/x-mixed-replace":{"source":"iana"},"text/1d-interleaved-parityfec":{"source":"iana"},"text/cache-manifest":{"source":"iana","compressible":true,"extensions":["appcache","manifest"]},"text/calendar":{"source":"iana","extensions":["ics","ifb"]},"text/calender":{"compressible":true},"text/cmd":{"compressible":true},"text/coffeescript":{"extensions":["coffee","litcoffee"]},"text/cql":{"source":"iana"},"text/cql-expression":{"source":"iana"},"text/cql-identifier":{"source":"iana"},"text/css":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["css"]},"text/csv":{"source":"iana","compressible":true,"extensions":["csv"]},"text/csv-schema":{"source":"iana"},"text/directory":{"source":"iana"},"text/dns":{"source":"iana"},"text/ecmascript":{"source":"iana"},"text/encaprtp":{"source":"iana"},"text/enriched":{"source":"iana"},"text/fhirpath":{"source":"iana"},"text/flexfec":{"source":"iana"},"text/fwdred":{"source":"iana"},"text/gff3":{"source":"iana"},"text/grammar-ref-list":{"source":"iana"},"text/html":{"source":"iana","compressible":true,"extensions":["html","htm","shtml"]},"text/jade":{"extensions":["jade"]},"text/javascript":{"source":"iana","compressible":true},"text/jcr-cnd":{"source":"iana"},"text/jsx":{"compressible":true,"extensions":["jsx"]},"text/less":{"compressible":true,"extensions":["less"]},"text/markdown":{"source":"iana","compressible":true,"extensions":["markdown","md"]},"text/mathml":{"source":"nginx","extensions":["mml"]},"text/mdx":{"compressible":true,"extensions":["mdx"]},"text/mizar":{"source":"iana"},"text/n3":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["n3"]},"text/parameters":{"source":"iana","charset":"UTF-8"},"text/parityfec":{"source":"iana"},"text/plain":{"source":"iana","compressible":true,"extensions":["txt","text","conf","def","list","log","in","ini"]},"text/provenance-notation":{"source":"iana","charset":"UTF-8"},"text/prs.fallenstein.rst":{"source":"iana"},"text/prs.lines.tag":{"source":"iana","extensions":["dsc"]},"text/prs.prop.logic":{"source":"iana"},"text/raptorfec":{"source":"iana"},"text/red":{"source":"iana"},"text/rfc822-headers":{"source":"iana"},"text/richtext":{"source":"iana","compressible":true,"extensions":["rtx"]},"text/rtf":{"source":"iana","compressible":true,"extensions":["rtf"]},"text/rtp-enc-aescm128":{"source":"iana"},"text/rtploopback":{"source":"iana"},"text/rtx":{"source":"iana"},"text/sgml":{"source":"iana","extensions":["sgml","sgm"]},"text/shaclc":{"source":"iana"},"text/shex":{"source":"iana","extensions":["shex"]},"text/slim":{"extensions":["slim","slm"]},"text/spdx":{"source":"iana","extensions":["spdx"]},"text/strings":{"source":"iana"},"text/stylus":{"extensions":["stylus","styl"]},"text/t140":{"source":"iana"},"text/tab-separated-values":{"source":"iana","compressible":true,"extensions":["tsv"]},"text/troff":{"source":"iana","extensions":["t","tr","roff","man","me","ms"]},"text/turtle":{"source":"iana","charset":"UTF-8","extensions":["ttl"]},"text/ulpfec":{"source":"iana"},"text/uri-list":{"source":"iana","compressible":true,"extensions":["uri","uris","urls"]},"text/vcard":{"source":"iana","compressible":true,"extensions":["vcard"]},"text/vnd.a":{"source":"iana"},"text/vnd.abc":{"source":"iana"},"text/vnd.ascii-art":{"source":"iana"},"text/vnd.curl":{"source":"iana","extensions":["curl"]},"text/vnd.curl.dcurl":{"source":"apache","extensions":["dcurl"]},"text/vnd.curl.mcurl":{"source":"apache","extensions":["mcurl"]},"text/vnd.curl.scurl":{"source":"apache","extensions":["scurl"]},"text/vnd.debian.copyright":{"source":"iana","charset":"UTF-8"},"text/vnd.dmclientscript":{"source":"iana"},"text/vnd.dvb.subtitle":{"source":"iana","extensions":["sub"]},"text/vnd.esmertec.theme-descriptor":{"source":"iana","charset":"UTF-8"},"text/vnd.familysearch.gedcom":{"source":"iana","extensions":["ged"]},"text/vnd.ficlab.flt":{"source":"iana"},"text/vnd.fly":{"source":"iana","extensions":["fly"]},"text/vnd.fmi.flexstor":{"source":"iana","extensions":["flx"]},"text/vnd.gml":{"source":"iana"},"text/vnd.graphviz":{"source":"iana","extensions":["gv"]},"text/vnd.hans":{"source":"iana"},"text/vnd.hgl":{"source":"iana"},"text/vnd.in3d.3dml":{"source":"iana","extensions":["3dml"]},"text/vnd.in3d.spot":{"source":"iana","extensions":["spot"]},"text/vnd.iptc.newsml":{"source":"iana"},"text/vnd.iptc.nitf":{"source":"iana"},"text/vnd.latex-z":{"source":"iana"},"text/vnd.motorola.reflex":{"source":"iana"},"text/vnd.ms-mediapackage":{"source":"iana"},"text/vnd.net2phone.commcenter.command":{"source":"iana"},"text/vnd.radisys.msml-basic-layout":{"source":"iana"},"text/vnd.senx.warpscript":{"source":"iana"},"text/vnd.si.uricatalogue":{"source":"iana"},"text/vnd.sosi":{"source":"iana"},"text/vnd.sun.j2me.app-descriptor":{"source":"iana","charset":"UTF-8","extensions":["jad"]},"text/vnd.trolltech.linguist":{"source":"iana","charset":"UTF-8"},"text/vnd.wap.si":{"source":"iana"},"text/vnd.wap.sl":{"source":"iana"},"text/vnd.wap.wml":{"source":"iana","extensions":["wml"]},"text/vnd.wap.wmlscript":{"source":"iana","extensions":["wmls"]},"text/vtt":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["vtt"]},"text/x-asm":{"source":"apache","extensions":["s","asm"]},"text/x-c":{"source":"apache","extensions":["c","cc","cxx","cpp","h","hh","dic"]},"text/x-component":{"source":"nginx","extensions":["htc"]},"text/x-fortran":{"source":"apache","extensions":["f","for","f77","f90"]},"text/x-gwt-rpc":{"compressible":true},"text/x-handlebars-template":{"extensions":["hbs"]},"text/x-java-source":{"source":"apache","extensions":["java"]},"text/x-jquery-tmpl":{"compressible":true},"text/x-lua":{"extensions":["lua"]},"text/x-markdown":{"compressible":true,"extensions":["mkd"]},"text/x-nfo":{"source":"apache","extensions":["nfo"]},"text/x-opml":{"source":"apache","extensions":["opml"]},"text/x-org":{"compressible":true,"extensions":["org"]},"text/x-pascal":{"source":"apache","extensions":["p","pas"]},"text/x-processing":{"compressible":true,"extensions":["pde"]},"text/x-sass":{"extensions":["sass"]},"text/x-scss":{"extensions":["scss"]},"text/x-setext":{"source":"apache","extensions":["etx"]},"text/x-sfv":{"source":"apache","extensions":["sfv"]},"text/x-suse-ymp":{"compressible":true,"extensions":["ymp"]},"text/x-uuencode":{"source":"apache","extensions":["uu"]},"text/x-vcalendar":{"source":"apache","extensions":["vcs"]},"text/x-vcard":{"source":"apache","extensions":["vcf"]},"text/xml":{"source":"iana","compressible":true,"extensions":["xml"]},"text/xml-external-parsed-entity":{"source":"iana"},"text/yaml":{"compressible":true,"extensions":["yaml","yml"]},"video/1d-interleaved-parityfec":{"source":"iana"},"video/3gpp":{"source":"iana","extensions":["3gp","3gpp"]},"video/3gpp-tt":{"source":"iana"},"video/3gpp2":{"source":"iana","extensions":["3g2"]},"video/av1":{"source":"iana"},"video/bmpeg":{"source":"iana"},"video/bt656":{"source":"iana"},"video/celb":{"source":"iana"},"video/dv":{"source":"iana"},"video/encaprtp":{"source":"iana"},"video/ffv1":{"source":"iana"},"video/flexfec":{"source":"iana"},"video/h261":{"source":"iana","extensions":["h261"]},"video/h263":{"source":"iana","extensions":["h263"]},"video/h263-1998":{"source":"iana"},"video/h263-2000":{"source":"iana"},"video/h264":{"source":"iana","extensions":["h264"]},"video/h264-rcdo":{"source":"iana"},"video/h264-svc":{"source":"iana"},"video/h265":{"source":"iana"},"video/iso.segment":{"source":"iana","extensions":["m4s"]},"video/jpeg":{"source":"iana","extensions":["jpgv"]},"video/jpeg2000":{"source":"iana"},"video/jpm":{"source":"apache","extensions":["jpm","jpgm"]},"video/jxsv":{"source":"iana"},"video/mj2":{"source":"iana","extensions":["mj2","mjp2"]},"video/mp1s":{"source":"iana"},"video/mp2p":{"source":"iana"},"video/mp2t":{"source":"iana","extensions":["ts"]},"video/mp4":{"source":"iana","compressible":false,"extensions":["mp4","mp4v","mpg4"]},"video/mp4v-es":{"source":"iana"},"video/mpeg":{"source":"iana","compressible":false,"extensions":["mpeg","mpg","mpe","m1v","m2v"]},"video/mpeg4-generic":{"source":"iana"},"video/mpv":{"source":"iana"},"video/nv":{"source":"iana"},"video/ogg":{"source":"iana","compressible":false,"extensions":["ogv"]},"video/parityfec":{"source":"iana"},"video/pointer":{"source":"iana"},"video/quicktime":{"source":"iana","compressible":false,"extensions":["qt","mov"]},"video/raptorfec":{"source":"iana"},"video/raw":{"source":"iana"},"video/rtp-enc-aescm128":{"source":"iana"},"video/rtploopback":{"source":"iana"},"video/rtx":{"source":"iana"},"video/scip":{"source":"iana"},"video/smpte291":{"source":"iana"},"video/smpte292m":{"source":"iana"},"video/ulpfec":{"source":"iana"},"video/vc1":{"source":"iana"},"video/vc2":{"source":"iana"},"video/vnd.cctv":{"source":"iana"},"video/vnd.dece.hd":{"source":"iana","extensions":["uvh","uvvh"]},"video/vnd.dece.mobile":{"source":"iana","extensions":["uvm","uvvm"]},"video/vnd.dece.mp4":{"source":"iana"},"video/vnd.dece.pd":{"source":"iana","extensions":["uvp","uvvp"]},"video/vnd.dece.sd":{"source":"iana","extensions":["uvs","uvvs"]},"video/vnd.dece.video":{"source":"iana","extensions":["uvv","uvvv"]},"video/vnd.directv.mpeg":{"source":"iana"},"video/vnd.directv.mpeg-tts":{"source":"iana"},"video/vnd.dlna.mpeg-tts":{"source":"iana"},"video/vnd.dvb.file":{"source":"iana","extensions":["dvb"]},"video/vnd.fvt":{"source":"iana","extensions":["fvt"]},"video/vnd.hns.video":{"source":"iana"},"video/vnd.iptvforum.1dparityfec-1010":{"source":"iana"},"video/vnd.iptvforum.1dparityfec-2005":{"source":"iana"},"video/vnd.iptvforum.2dparityfec-1010":{"source":"iana"},"video/vnd.iptvforum.2dparityfec-2005":{"source":"iana"},"video/vnd.iptvforum.ttsavc":{"source":"iana"},"video/vnd.iptvforum.ttsmpeg2":{"source":"iana"},"video/vnd.motorola.video":{"source":"iana"},"video/vnd.motorola.videop":{"source":"iana"},"video/vnd.mpegurl":{"source":"iana","extensions":["mxu","m4u"]},"video/vnd.ms-playready.media.pyv":{"source":"iana","extensions":["pyv"]},"video/vnd.nokia.interleaved-multimedia":{"source":"iana"},"video/vnd.nokia.mp4vr":{"source":"iana"},"video/vnd.nokia.videovoip":{"source":"iana"},"video/vnd.objectvideo":{"source":"iana"},"video/vnd.radgamettools.bink":{"source":"iana"},"video/vnd.radgamettools.smacker":{"source":"iana"},"video/vnd.sealed.mpeg1":{"source":"iana"},"video/vnd.sealed.mpeg4":{"source":"iana"},"video/vnd.sealed.swf":{"source":"iana"},"video/vnd.sealedmedia.softseal.mov":{"source":"iana"},"video/vnd.uvvu.mp4":{"source":"iana","extensions":["uvu","uvvu"]},"video/vnd.vivo":{"source":"iana","extensions":["viv"]},"video/vnd.youtube.yt":{"source":"iana"},"video/vp8":{"source":"iana"},"video/vp9":{"source":"iana"},"video/webm":{"source":"apache","compressible":false,"extensions":["webm"]},"video/x-f4v":{"source":"apache","extensions":["f4v"]},"video/x-fli":{"source":"apache","extensions":["fli"]},"video/x-flv":{"source":"apache","compressible":false,"extensions":["flv"]},"video/x-m4v":{"source":"apache","extensions":["m4v"]},"video/x-matroska":{"source":"apache","compressible":false,"extensions":["mkv","mk3d","mks"]},"video/x-mng":{"source":"apache","extensions":["mng"]},"video/x-ms-asf":{"source":"apache","extensions":["asf","asx"]},"video/x-ms-vob":{"source":"apache","extensions":["vob"]},"video/x-ms-wm":{"source":"apache","extensions":["wm"]},"video/x-ms-wmv":{"source":"apache","compressible":false,"extensions":["wmv"]},"video/x-ms-wmx":{"source":"apache","extensions":["wmx"]},"video/x-ms-wvx":{"source":"apache","extensions":["wvx"]},"video/x-msvideo":{"source":"apache","extensions":["avi"]},"video/x-sgi-movie":{"source":"apache","extensions":["movie"]},"video/x-smv":{"source":"apache","extensions":["smv"]},"x-conference/x-cooltalk":{"source":"apache","extensions":["ice"]},"x-shader/x-fragment":{"compressible":true},"x-shader/x-vertex":{"compressible":true}}');
+
+/***/ }
+
+/******/ });
+/************************************************************************/
+/******/ // The module cache
+/******/ const __webpack_module_cache__ = {};
+/******/ 
+/******/ // The require function
+/******/ function __webpack_require__(moduleId) {
+/******/ 	// Check if module is in cache
+/******/ 	const cachedModule = __webpack_module_cache__[moduleId];
+/******/ 	if (cachedModule !== undefined) {
+/******/ 		return cachedModule.exports;
+/******/ 	}
+/******/ 	// Create a new module (and put it into the cache)
+/******/ 	const module = __webpack_module_cache__[moduleId] = {
+/******/ 		id: moduleId,
+/******/ 		loaded: false,
+/******/ 		exports: {}
+/******/ 	};
+/******/ 
+/******/ 	// Execute the module function
+/******/ 	__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 
+/******/ 	// Flag the module as loaded
+/******/ 	module.loaded = true;
+/******/ 
+/******/ 	// Return the exports of the module
+/******/ 	return module.exports;
+/******/ }
+/******/ 
+/************************************************************************/
+/******/ /* webpack/runtime/compat get default export */
+/******/ // getDefaultExport function for compatibility with non-harmony modules
+/******/ __webpack_require__.n = (module) => {
+/******/ 	const getter = module && module.__esModule ?
+/******/ 		() => (module['default']) :
+/******/ 		() => (module);
+/******/ 	__webpack_require__.d(getter, { a: getter });
+/******/ 	return getter;
+/******/ };
+/******/ 
+/******/ /* webpack/runtime/concatenation wrap */
+/******/ // wrap a concatenated module body as a lazy, memoized accessor; mod is
+/******/ // set before the body runs so re-entrant calls (require cycles) observe
+/******/ // the partial exports like Node.js
+/******/ __webpack_require__.cw = (body) => {
+/******/ 	var mod;
+/******/ 	return () => {
+/******/ 		if (body) {
+/******/ 			var fn = body;
+/******/ 			body = 0;
+/******/ 			mod = { exports: {} };
+/******/ 			fn.call(mod.exports, mod, mod.exports);
+/******/ 		}
+/******/ 		return mod.exports;
+/******/ 	};
+/******/ };
+/******/ 
+/******/ /* webpack/runtime/define property getters */
+/******/ // define getter/value functions for harmony exports
+/******/ __webpack_require__.d = (exports, definition) => {
+/******/ 	for(var key in definition) {
+/******/ 		if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 			Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 		}
+/******/ 	}
+/******/ };
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ __webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop));
+/******/ 
+/******/ /* webpack/runtime/node module decorator */
+/******/ __webpack_require__.nmd = (module) => {
+/******/ 	module.paths = [];
+/******/ 	if (!module.children) module.children = [];
+/******/ 	return module;
+/******/ };
+/******/ 
+/************************************************************************/
+
+// EXTERNAL MODULE: ./node_modules/.pnpm/accepts@1.3.8/node_modules/accepts/index.js
+var accepts_namespaceFn = () => {
+	return __webpack_require__(9);
+};
+
+// EXTERNAL MODULE: ./node_modules/.pnpm/base64id@2.0.0/node_modules/base64id/lib/base64id.js
+var lib_base64id_namespaceFn = () => {
+	return __webpack_require__(821);
+};
+
+// EXTERNAL MODULE: ./node_modules/.pnpm/bufferutil@4.1.0/node_modules/bufferutil/fallback.js
+var fallback_namespaceFn = () => {
+	return __webpack_require__(554);
+};
+
+// MODULE: ./node_modules/.pnpm/bufferutil@4.1.0/node_modules/bufferutil/index.js
+var bufferutil_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
+
+
+try {
+  module.exports = (node_gyp_build_namespaceFn())(__webpack_dirname__);
+} catch (e) {
+  module.exports = (fallback_namespaceFn());
+}
+
+});
+
+// MODULE: ./node_modules/.pnpm/cookie@0.7.2/node_modules/cookie/index.js
+var cookie_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
+var __webpack_unused_export__;
+/*!
+ * cookie
+ * Copyright(c) 2012-2014 Roman Shtylman
+ * Copyright(c) 2015 Douglas Christopher Wilson
+ * MIT Licensed
+ */
+
+
+
+/**
+ * Module exports.
+ * @public
+ */
+
+__webpack_unused_export__ = parse;
+exports.serialize = serialize;
+
+/**
+ * Module variables.
+ * @private
+ */
+
+var __toString = Object.prototype.toString
+var __hasOwnProperty = Object.prototype.hasOwnProperty
+
+/**
+ * RegExp to match cookie-name in RFC 6265 sec 4.1.1
+ * This refers out to the obsoleted definition of token in RFC 2616 sec 2.2
+ * which has been replaced by the token definition in RFC 7230 appendix B.
+ *
+ * cookie-name       = token
+ * token             = 1*tchar
+ * tchar             = "!" / "#" / "$" / "%" / "&" / "'" /
+ *                     "*" / "+" / "-" / "." / "^" / "_" /
+ *                     "`" / "|" / "~" / DIGIT / ALPHA
+ */
+
+var cookieNameRegExp = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+
+/**
+ * RegExp to match cookie-value in RFC 6265 sec 4.1.1
+ *
+ * cookie-value      = *cookie-octet / ( DQUOTE *cookie-octet DQUOTE )
+ * cookie-octet      = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E
+ *                     ; US-ASCII characters excluding CTLs,
+ *                     ; whitespace DQUOTE, comma, semicolon,
+ *                     ; and backslash
+ */
+
+var cookieValueRegExp = /^("?)[\u0021\u0023-\u002B\u002D-\u003A\u003C-\u005B\u005D-\u007E]*\1$/;
+
+/**
+ * RegExp to match domain-value in RFC 6265 sec 4.1.1
+ *
+ * domain-value      = <subdomain>
+ *                     ; defined in [RFC1034], Section 3.5, as
+ *                     ; enhanced by [RFC1123], Section 2.1
+ * <subdomain>       = <label> | <subdomain> "." <label>
+ * <label>           = <let-dig> [ [ <ldh-str> ] <let-dig> ]
+ *                     Labels must be 63 characters or less.
+ *                     'let-dig' not 'letter' in the first char, per RFC1123
+ * <ldh-str>         = <let-dig-hyp> | <let-dig-hyp> <ldh-str>
+ * <let-dig-hyp>     = <let-dig> | "-"
+ * <let-dig>         = <letter> | <digit>
+ * <letter>          = any one of the 52 alphabetic characters A through Z in
+ *                     upper case and a through z in lower case
+ * <digit>           = any one of the ten digits 0 through 9
+ *
+ * Keep support for leading dot: https://github.com/jshttp/cookie/issues/173
+ *
+ * > (Note that a leading %x2E ("."), if present, is ignored even though that
+ * character is not permitted, but a trailing %x2E ("."), if present, will
+ * cause the user agent to ignore the attribute.)
+ */
+
+var domainValueRegExp = /^([.]?[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)([.][a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/i;
+
+/**
+ * RegExp to match path-value in RFC 6265 sec 4.1.1
+ *
+ * path-value        = <any CHAR except CTLs or ";">
+ * CHAR              = %x01-7F
+ *                     ; defined in RFC 5234 appendix B.1
+ */
+
+var pathValueRegExp = /^[\u0020-\u003A\u003D-\u007E]*$/;
+
+/**
+ * Parse a cookie header.
+ *
+ * Parse the given cookie header string into an object
+ * The object has the various cookies as keys(names) => values
+ *
+ * @param {string} str
+ * @param {object} [opt]
+ * @return {object}
+ * @public
+ */
+
+function parse(str, opt) {
+  if (typeof str !== 'string') {
+    throw new TypeError('argument str must be a string');
+  }
+
+  var obj = {};
+  var len = str.length;
+  // RFC 6265 sec 4.1.1, RFC 2616 2.2 defines a cookie name consists of one char minimum, plus '='.
+  if (len < 2) return obj;
+
+  var dec = (opt && opt.decode) || decode;
+  var index = 0;
+  var eqIdx = 0;
+  var endIdx = 0;
+
+  do {
+    eqIdx = str.indexOf('=', index);
+    if (eqIdx === -1) break; // No more cookie pairs.
+
+    endIdx = str.indexOf(';', index);
+
+    if (endIdx === -1) {
+      endIdx = len;
+    } else if (eqIdx > endIdx) {
+      // backtrack on prior semicolon
+      index = str.lastIndexOf(';', eqIdx - 1) + 1;
+      continue;
+    }
+
+    var keyStartIdx = startIndex(str, index, eqIdx);
+    var keyEndIdx = endIndex(str, eqIdx, keyStartIdx);
+    var key = str.slice(keyStartIdx, keyEndIdx);
+
+    // only assign once
+    if (!__hasOwnProperty.call(obj, key)) {
+      var valStartIdx = startIndex(str, eqIdx + 1, endIdx);
+      var valEndIdx = endIndex(str, endIdx, valStartIdx);
+
+      if (str.charCodeAt(valStartIdx) === 0x22 /* " */ && str.charCodeAt(valEndIdx - 1) === 0x22 /* " */) {
+        valStartIdx++;
+        valEndIdx--;
+      }
+
+      var val = str.slice(valStartIdx, valEndIdx);
+      obj[key] = tryDecode(val, dec);
+    }
+
+    index = endIdx + 1
+  } while (index < len);
+
+  return obj;
+}
+
+function startIndex(str, index, max) {
+  do {
+    var code = str.charCodeAt(index);
+    if (code !== 0x20 /*   */ && code !== 0x09 /* \t */) return index;
+  } while (++index < max);
+  return max;
+}
+
+function endIndex(str, index, min) {
+  while (index > min) {
+    var code = str.charCodeAt(--index);
+    if (code !== 0x20 /*   */ && code !== 0x09 /* \t */) return index + 1;
+  }
+  return min;
+}
+
+/**
+ * Serialize data into a cookie header.
+ *
+ * Serialize a name value pair into a cookie string suitable for
+ * http headers. An optional options object specifies cookie parameters.
+ *
+ * serialize('foo', 'bar', { httpOnly: true })
+ *   => "foo=bar; httpOnly"
+ *
+ * @param {string} name
+ * @param {string} val
+ * @param {object} [opt]
+ * @return {string}
+ * @public
+ */
+
+function serialize(name, val, opt) {
+  var enc = (opt && opt.encode) || encodeURIComponent;
+
+  if (typeof enc !== 'function') {
+    throw new TypeError('option encode is invalid');
+  }
+
+  if (!cookieNameRegExp.test(name)) {
+    throw new TypeError('argument name is invalid');
+  }
+
+  var value = enc(val);
+
+  if (!cookieValueRegExp.test(value)) {
+    throw new TypeError('argument val is invalid');
+  }
+
+  var str = name + '=' + value;
+  if (!opt) return str;
+
+  if (null != opt.maxAge) {
+    var maxAge = Math.floor(opt.maxAge);
+
+    if (!isFinite(maxAge)) {
+      throw new TypeError('option maxAge is invalid')
+    }
+
+    str += '; Max-Age=' + maxAge;
+  }
+
+  if (opt.domain) {
+    if (!domainValueRegExp.test(opt.domain)) {
+      throw new TypeError('option domain is invalid');
+    }
+
+    str += '; Domain=' + opt.domain;
+  }
+
+  if (opt.path) {
+    if (!pathValueRegExp.test(opt.path)) {
+      throw new TypeError('option path is invalid');
+    }
+
+    str += '; Path=' + opt.path;
+  }
+
+  if (opt.expires) {
+    var expires = opt.expires
+
+    if (!isDate(expires) || isNaN(expires.valueOf())) {
+      throw new TypeError('option expires is invalid');
+    }
+
+    str += '; Expires=' + expires.toUTCString()
+  }
+
+  if (opt.httpOnly) {
+    str += '; HttpOnly';
+  }
+
+  if (opt.secure) {
+    str += '; Secure';
+  }
+
+  if (opt.partitioned) {
+    str += '; Partitioned'
+  }
+
+  if (opt.priority) {
+    var priority = typeof opt.priority === 'string'
+      ? opt.priority.toLowerCase() : opt.priority;
+
+    switch (priority) {
+      case 'low':
+        str += '; Priority=Low'
+        break
+      case 'medium':
+        str += '; Priority=Medium'
+        break
+      case 'high':
+        str += '; Priority=High'
+        break
+      default:
+        throw new TypeError('option priority is invalid')
+    }
+  }
+
+  if (opt.sameSite) {
+    var sameSite = typeof opt.sameSite === 'string'
+      ? opt.sameSite.toLowerCase() : opt.sameSite;
+
+    switch (sameSite) {
+      case true:
+        str += '; SameSite=Strict';
+        break;
+      case 'lax':
+        str += '; SameSite=Lax';
+        break;
+      case 'strict':
+        str += '; SameSite=Strict';
+        break;
+      case 'none':
+        str += '; SameSite=None';
+        break;
+      default:
+        throw new TypeError('option sameSite is invalid');
+    }
+  }
+
+  return str;
+}
+
+/**
+ * URL-decode string value. Optimized to skip native call when no %.
+ *
+ * @param {string} str
+ * @returns {string}
+ */
+
+function decode (str) {
+  return str.indexOf('%') !== -1
+    ? decodeURIComponent(str)
+    : str
+}
+
+/**
+ * Determine if value is a Date.
+ *
+ * @param {*} val
+ * @private
+ */
+
+function isDate (val) {
+  return __toString.call(val) === '[object Date]';
+}
+
+/**
+ * Try decoding a string using a decoding function.
+ *
+ * @param {string} str
+ * @param {function} decode
+ * @private
+ */
+
+function tryDecode(str, decode) {
+  try {
+    return decode(str);
+  } catch (e) {
+    return str;
+  }
+}
+
+});
+
+// EXTERNAL MODULE: ./node_modules/.pnpm/cors@2.8.6/node_modules/cors/lib/index.js
+var lib_namespaceFn = () => {
+	return __webpack_require__(941);
+};
+
+// EXTERNAL MODULE: ./node_modules/.pnpm/debug@4.4.3/node_modules/debug/src/index.js
+var src_namespaceFn = () => {
+	return __webpack_require__(181);
+};
+
+// EXTERNAL MODULE: ./node_modules/.pnpm/node-gyp-build@4.8.4/node_modules/node-gyp-build/index.js
+var node_gyp_build_namespaceFn = () => {
+	return __webpack_require__(173);
+};
+
+// MODULE: ./node_modules/.pnpm/socket.io-adapter@2.5.8_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io-adapter/dist/cluster-adapter.js
+var cluster_adapter_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 var __rest = (this && this.__rest) || function (s, e) {
     var t = {};
@@ -21140,9 +22355,9 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClusterAdapterWithHeartbeat = exports.ClusterAdapter = exports.MessageType = void 0;
-const in_memory_adapter_1 = __webpack_require__(9402);
-const debug_1 = __webpack_require__(7181);
-const crypto_1 = __webpack_require__(6982);
+const in_memory_adapter_1 = (in_memory_adapter_namespaceFn());
+const debug_1 = (src_namespaceFn());
+const crypto_1 = (external_crypto_namespaceFn());
 const debug = (0, debug_1.debug)("socket.io-adapter");
 const EMITTER_UID = "emitter";
 const DEFAULT_TIMEOUT = 5000;
@@ -21805,12 +23020,10 @@ class ClusterAdapterWithHeartbeat extends ClusterAdapter {
 }
 exports.ClusterAdapterWithHeartbeat = ClusterAdapterWithHeartbeat;
 
+});
 
-/***/ },
-
-/***/ 8041
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/socket.io-adapter@2.5.8_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io-adapter/dist/contrib/yeast.js
+var yeast_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 // imported from https://github.com/unshiftio/yeast
 
@@ -21867,19 +23080,17 @@ function yeast() {
 for (; i < length; i++)
     map[alphabet[i]] = i;
 
+});
 
-/***/ },
-
-/***/ 9402
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/socket.io-adapter@2.5.8_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io-adapter/dist/in-memory-adapter.js
+var in_memory_adapter_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SessionAwareAdapter = exports.Adapter = void 0;
-const events_1 = __webpack_require__(4434);
-const yeast_1 = __webpack_require__(8041);
-const WebSocket = __webpack_require__(850);
+const events_1 = (external_events_namespaceFn());
+const yeast_1 = (yeast_namespaceFn());
+const WebSocket = (ws_namespaceFn());
 // @ts-expect-error
 const canPreComputeFrame = typeof ((_a = WebSocket === null || WebSocket === void 0 ? void 0 : WebSocket.Sender) === null || _a === void 0 ? void 0 : _a.frame) === "function";
 class Adapter extends events_1.EventEmitter {
@@ -22270,255 +23481,43 @@ function shouldIncludePacket(sessionRooms, opts) {
     return included && notExcluded;
 }
 
+});
 
-/***/ },
-
-/***/ 6913
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/socket.io-adapter@2.5.8_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io-adapter/dist/index.js
+var socket_io_adapter_dist_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
 __webpack_unused_export__ = __webpack_unused_export__ = __webpack_unused_export__ = exports.SessionAwareAdapter = exports.Adapter = void 0;
-var in_memory_adapter_1 = __webpack_require__(9402);
+var in_memory_adapter_1 = (in_memory_adapter_namespaceFn());
 Object.defineProperty(exports, "Adapter", ({ enumerable: true, get: function () { return in_memory_adapter_1.Adapter; } }));
 Object.defineProperty(exports, "SessionAwareAdapter", ({ enumerable: true, get: function () { return in_memory_adapter_1.SessionAwareAdapter; } }));
-var cluster_adapter_1 = __webpack_require__(4493);
+var cluster_adapter_1 = (cluster_adapter_namespaceFn());
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return cluster_adapter_1.ClusterAdapter; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return cluster_adapter_1.ClusterAdapterWithHeartbeat; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return cluster_adapter_1.MessageType; } });
 
+});
 
-/***/ },
-
-/***/ 9478
-(module, __unused_webpack_exports, __webpack_require__) {
-
-
-const os = __webpack_require__(857);
-const tty = __webpack_require__(2018);
-const hasFlag = __webpack_require__(1533);
-
-const {env} = process;
-
-let forceColor;
-if (hasFlag('no-color') ||
-	hasFlag('no-colors') ||
-	hasFlag('color=false') ||
-	hasFlag('color=never')) {
-	forceColor = 0;
-} else if (hasFlag('color') ||
-	hasFlag('colors') ||
-	hasFlag('color=true') ||
-	hasFlag('color=always')) {
-	forceColor = 1;
-}
-
-if ('FORCE_COLOR' in env) {
-	if (env.FORCE_COLOR === 'true') {
-		forceColor = 1;
-	} else if (env.FORCE_COLOR === 'false') {
-		forceColor = 0;
-	} else {
-		forceColor = env.FORCE_COLOR.length === 0 ? 1 : Math.min(parseInt(env.FORCE_COLOR, 10), 3);
-	}
-}
-
-function translateLevel(level) {
-	if (level === 0) {
-		return false;
-	}
-
-	return {
-		level,
-		hasBasic: true,
-		has256: level >= 2,
-		has16m: level >= 3
-	};
-}
-
-function supportsColor(haveStream, streamIsTTY) {
-	if (forceColor === 0) {
-		return 0;
-	}
-
-	if (hasFlag('color=16m') ||
-		hasFlag('color=full') ||
-		hasFlag('color=truecolor')) {
-		return 3;
-	}
-
-	if (hasFlag('color=256')) {
-		return 2;
-	}
-
-	if (haveStream && !streamIsTTY && forceColor === undefined) {
-		return 0;
-	}
-
-	const min = forceColor || 0;
-
-	if (env.TERM === 'dumb') {
-		return min;
-	}
-
-	if (process.platform === 'win32') {
-		// Windows 10 build 10586 is the first Windows release that supports 256 colors.
-		// Windows 10 build 14931 is the first release that supports 16m/TrueColor.
-		const osRelease = os.release().split('.');
-		if (
-			Number(osRelease[0]) >= 10 &&
-			Number(osRelease[2]) >= 10586
-		) {
-			return Number(osRelease[2]) >= 14931 ? 3 : 2;
-		}
-
-		return 1;
-	}
-
-	if ('CI' in env) {
-		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI', 'GITHUB_ACTIONS', 'BUILDKITE'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
-			return 1;
-		}
-
-		return min;
-	}
-
-	if ('TEAMCITY_VERSION' in env) {
-		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
-	}
-
-	if (env.COLORTERM === 'truecolor') {
-		return 3;
-	}
-
-	if ('TERM_PROGRAM' in env) {
-		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
-
-		switch (env.TERM_PROGRAM) {
-			case 'iTerm.app':
-				return version >= 3 ? 3 : 2;
-			case 'Apple_Terminal':
-				return 2;
-			// No default
-		}
-	}
-
-	if (/-256(color)?$/i.test(env.TERM)) {
-		return 2;
-	}
-
-	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
-		return 1;
-	}
-
-	if ('COLORTERM' in env) {
-		return 1;
-	}
-
-	return min;
-}
-
-function getSupportLevel(stream) {
-	const level = supportsColor(stream, stream && stream.isTTY);
-	return translateLevel(level);
-}
-
-module.exports = {
-	supportsColor: getSupportLevel,
-	stdout: translateLevel(supportsColor(true, tty.isatty(1))),
-	stderr: translateLevel(supportsColor(true, tty.isatty(2)))
+// EXTERNAL MODULE: ./node_modules/.pnpm/utf-8-validate@6.0.6/node_modules/utf-8-validate/fallback.js
+var utf_8_validate_fallback_namespaceFn = () => {
+	return __webpack_require__(143);
 };
 
-
-/***/ },
-
-/***/ 143
-(module) {
-
-
-
-/**
- * Checks if a given buffer contains only correct UTF-8.
- * Ported from https://www.cl.cam.ac.uk/%7Emgk25/ucs/utf8_check.c by
- * Markus Kuhn.
- *
- * @param {Buffer} buf The buffer to check
- * @return {Boolean} `true` if `buf` contains only correct UTF-8, else `false`
- * @public
- */
-function isValidUTF8(buf) {
-  const len = buf.length;
-  let i = 0;
-
-  while (i < len) {
-    if ((buf[i] & 0x80) === 0x00) {  // 0xxxxxxx
-      i++;
-    } else if ((buf[i] & 0xe0) === 0xc0) {  // 110xxxxx 10xxxxxx
-      if (
-        i + 1 === len ||
-        (buf[i + 1] & 0xc0) !== 0x80 ||
-        (buf[i] & 0xfe) === 0xc0  // overlong
-      ) {
-        return false;
-      }
-
-      i += 2;
-    } else if ((buf[i] & 0xf0) === 0xe0) {  // 1110xxxx 10xxxxxx 10xxxxxx
-      if (
-        i + 2 >= len ||
-        (buf[i + 1] & 0xc0) !== 0x80 ||
-        (buf[i + 2] & 0xc0) !== 0x80 ||
-        buf[i] === 0xe0 && (buf[i + 1] & 0xe0) === 0x80 ||  // overlong
-        buf[i] === 0xed && (buf[i + 1] & 0xe0) === 0xa0  // surrogate (U+D800 - U+DFFF)
-      ) {
-        return false;
-      }
-
-      i += 3;
-    } else if ((buf[i] & 0xf8) === 0xf0) {  // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-      if (
-        i + 3 >= len ||
-        (buf[i + 1] & 0xc0) !== 0x80 ||
-        (buf[i + 2] & 0xc0) !== 0x80 ||
-        (buf[i + 3] & 0xc0) !== 0x80 ||
-        buf[i] === 0xf0 && (buf[i + 1] & 0xf0) === 0x80 ||  // overlong
-        buf[i] === 0xf4 && buf[i + 1] > 0x8f || buf[i] > 0xf4  // > U+10FFFF
-      ) {
-        return false;
-      }
-
-      i += 4;
-    } else {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-module.exports = isValidUTF8;
-
-
-/***/ },
-
-/***/ 5305
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/utf-8-validate@6.0.6/node_modules/utf-8-validate/index.js
+var utf_8_validate_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 try {
-  module.exports = __webpack_require__(5173)(__webpack_dirname__);
+  module.exports = (node_gyp_build_namespaceFn())(__webpack_dirname__);
 } catch (e) {
-  module.exports = __webpack_require__(143);
+  module.exports = (utf_8_validate_fallback_namespaceFn());
 }
 
+});
 
-/***/ },
-
-/***/ 327
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/uuid-random@1.3.2/node_modules/uuid-random/index.js
+var uuid_random_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 (function(){
@@ -22566,7 +23565,7 @@ try {
   }
 
   if (true) {
-    crypt0 = crypt0 || __webpack_require__(6982);
+    crypt0 = crypt0 || (external_crypto_namespaceFn());
     module.exports = uuid;
   } else // removed by dead control flow
 {}
@@ -22635,178 +23634,20 @@ try {
 
 })();
 
+});
 
-/***/ },
-
-/***/ 4795
-(module) {
-
-/*!
- * vary
- * Copyright(c) 2014-2017 Douglas Christopher Wilson
- * MIT Licensed
- */
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/index.js
+var ws_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-
-/**
- * Module exports.
- */
-
-module.exports = vary
-module.exports.append = append
-
-/**
- * RegExp to match field-name in RFC 7230 sec 3.2
- *
- * field-name    = token
- * token         = 1*tchar
- * tchar         = "!" / "#" / "$" / "%" / "&" / "'" / "*"
- *               / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~"
- *               / DIGIT / ALPHA
- *               ; any VCHAR, except delimiters
- */
-
-var FIELD_NAME_REGEXP = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/
-
-/**
- * Append a field to a vary header.
- *
- * @param {String} header
- * @param {String|Array} field
- * @return {String}
- * @public
- */
-
-function append (header, field) {
-  if (typeof header !== 'string') {
-    throw new TypeError('header argument is required')
-  }
-
-  if (!field) {
-    throw new TypeError('field argument is required')
-  }
-
-  // get fields array
-  var fields = !Array.isArray(field)
-    ? parse(String(field))
-    : field
-
-  // assert on invalid field names
-  for (var j = 0; j < fields.length; j++) {
-    if (!FIELD_NAME_REGEXP.test(fields[j])) {
-      throw new TypeError('field argument contains an invalid header name')
-    }
-  }
-
-  // existing, unspecified vary
-  if (header === '*') {
-    return header
-  }
-
-  // enumerate current values
-  var val = header
-  var vals = parse(header.toLowerCase())
-
-  // unspecified vary
-  if (fields.indexOf('*') !== -1 || vals.indexOf('*') !== -1) {
-    return '*'
-  }
-
-  for (var i = 0; i < fields.length; i++) {
-    var fld = fields[i].toLowerCase()
-
-    // append value (case-preserving)
-    if (vals.indexOf(fld) === -1) {
-      vals.push(fld)
-      val = val
-        ? val + ', ' + fields[i]
-        : fields[i]
-    }
-  }
-
-  return val
-}
-
-/**
- * Parse a vary header into an array.
- *
- * @param {String} header
- * @return {Array}
- * @private
- */
-
-function parse (header) {
-  var end = 0
-  var list = []
-  var start = 0
-
-  // gather tokens
-  for (var i = 0, len = header.length; i < len; i++) {
-    switch (header.charCodeAt(i)) {
-      case 0x20: /*   */
-        if (start === end) {
-          start = end = i + 1
-        }
-        break
-      case 0x2c: /* , */
-        list.push(header.substring(start, end))
-        start = end = i + 1
-        break
-      default:
-        end = i + 1
-        break
-    }
-  }
-
-  // final token
-  list.push(header.substring(start, end))
-
-  return list
-}
-
-/**
- * Mark that a request is varied on a header field.
- *
- * @param {Object} res
- * @param {String|Array} field
- * @public
- */
-
-function vary (res, field) {
-  if (!res || !res.getHeader || !res.setHeader) {
-    // quack quack
-    throw new TypeError('res argument is required')
-  }
-
-  // get existing header
-  var val = res.getHeader('Vary') || ''
-  var header = Array.isArray(val)
-    ? val.join(', ')
-    : String(val)
-
-  // set new header
-  if ((val = append(header, field))) {
-    res.setHeader('Vary', val)
-  }
-}
-
-
-/***/ },
-
-/***/ 850
-(module, __unused_webpack_exports, __webpack_require__) {
-
-
-
-const createWebSocketStream = __webpack_require__(8820);
-const extension = __webpack_require__(6943);
-const PerMessageDeflate = __webpack_require__(7808);
-const Receiver = __webpack_require__(7269);
-const Sender = __webpack_require__(5621);
-const subprotocol = __webpack_require__(5356);
-const WebSocket = __webpack_require__(6161);
-const WebSocketServer = __webpack_require__(2409);
+const createWebSocketStream = (stream_namespaceFn());
+const extension = (extension_namespaceFn());
+const PerMessageDeflate = (permessage_deflate_namespaceFn());
+const Receiver = (receiver_namespaceFn());
+const Sender = (sender_namespaceFn());
+const subprotocol = (subprotocol_namespaceFn());
+const WebSocket = (lib_websocket_namespaceFn());
+const WebSocketServer = (websocket_server_namespaceFn());
 
 WebSocket.createWebSocketStream = createWebSocketStream;
 WebSocket.extension = extension;
@@ -22820,15 +23661,13 @@ WebSocket.WebSocketServer = WebSocketServer;
 
 module.exports = WebSocket;
 
+});
 
-/***/ },
-
-/***/ 3507
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/buffer-util.js
+var buffer_util_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-const { EMPTY_BUFFER } = __webpack_require__(1287);
+const { EMPTY_BUFFER } = (constants_namespaceFn());
 
 const FastBuffer = Buffer[Symbol.species];
 
@@ -22942,7 +23781,7 @@ module.exports = {
 /* istanbul ignore else  */
 if (!process.env.WS_NO_BUFFER_UTIL) {
   try {
-    const bufferUtil = __webpack_require__(6498);
+    const bufferUtil = (bufferutil_namespaceFn());
 
     module.exports.mask = function (source, mask, output, offset, length) {
       if (length < 48) _mask(source, mask, output, offset, length);
@@ -22958,12 +23797,10 @@ if (!process.env.WS_NO_BUFFER_UTIL) {
   }
 }
 
+});
 
-/***/ },
-
-/***/ 1287
-(module) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/constants.js
+var constants_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 const BINARY_TYPES = ['nodebuffer', 'arraybuffer', 'fragments'];
@@ -22984,15 +23821,13 @@ module.exports = {
   NOOP: () => {}
 };
 
+});
 
-/***/ },
-
-/***/ 1426
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/event-target.js
+var event_target_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-const { kForOnEventAttribute, kListener } = __webpack_require__(1287);
+const { kForOnEventAttribute, kListener } = (constants_namespaceFn());
 
 const kCode = Symbol('kCode');
 const kData = Symbol('kData');
@@ -23260,11 +24095,11 @@ const EventTarget = {
 };
 
 module.exports = {
-  CloseEvent,
-  ErrorEvent,
-  Event,
+  ...void (CloseEvent),
+  ...void (ErrorEvent),
+  ...void (Event),
   EventTarget,
-  MessageEvent
+  ...void (MessageEvent)
 };
 
 /**
@@ -23283,15 +24118,13 @@ function callListener(listener, thisArg, event) {
   }
 }
 
+});
 
-/***/ },
-
-/***/ 6943
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/extension.js
+var extension_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-const { tokenChars } = __webpack_require__(6575);
+const { tokenChars } = (validation_namespaceFn());
 
 /**
  * Adds an offer to the map of extension offers or a parameter to the map of
@@ -23493,81 +24326,22 @@ function format(extensions) {
 
 module.exports = { format, parse };
 
+});
 
-/***/ },
+// EXTERNAL MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/limiter.js
+var limiter_namespaceFn = () => {
+	return __webpack_require__(231);
+};
 
-/***/ 838
-(module) {
-
-
-
-const kDone = Symbol('kDone');
-const kRun = Symbol('kRun');
-
-/**
- * A very simple job queue with adjustable concurrency. Adapted from
- * https://github.com/STRML/async-limiter
- */
-class Limiter {
-  /**
-   * Creates a new `Limiter`.
-   *
-   * @param {Number} [concurrency=Infinity] The maximum number of jobs allowed
-   *     to run concurrently
-   */
-  constructor(concurrency) {
-    this[kDone] = () => {
-      this.pending--;
-      this[kRun]();
-    };
-    this.concurrency = concurrency || Infinity;
-    this.jobs = [];
-    this.pending = 0;
-  }
-
-  /**
-   * Adds a job to the queue.
-   *
-   * @param {Function} job The job to run
-   * @public
-   */
-  add(job) {
-    this.jobs.push(job);
-    this[kRun]();
-  }
-
-  /**
-   * Removes a job from the queue and runs it if possible.
-   *
-   * @private
-   */
-  [kRun]() {
-    if (this.pending === this.concurrency) return;
-
-    if (this.jobs.length) {
-      const job = this.jobs.shift();
-
-      this.pending++;
-      job(this[kDone]);
-    }
-  }
-}
-
-module.exports = Limiter;
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/permessage-deflate.js
+var permessage_deflate_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-/***/ },
+const zlib = (external_zlib_namespaceFn());
 
-/***/ 7808
-(module, __unused_webpack_exports, __webpack_require__) {
-
-
-
-const zlib = __webpack_require__(3106);
-
-const bufferUtil = __webpack_require__(3507);
-const Limiter = __webpack_require__(838);
-const { kStatusCode } = __webpack_require__(1287);
+const bufferUtil = (buffer_util_namespaceFn());
+const Limiter = (limiter_namespaceFn());
+const { kStatusCode } = (constants_namespaceFn());
 
 const FastBuffer = Buffer[Symbol.species];
 const TRAILER = Buffer.from([0x00, 0x00, 0xff, 0xff]);
@@ -23730,7 +24504,9 @@ class PerMessageDeflate {
             (typeof opts.serverMaxWindowBits === 'number' &&
               opts.serverMaxWindowBits > params.server_max_window_bits))) ||
         (typeof opts.clientMaxWindowBits === 'number' &&
-          !params.client_max_window_bits)
+          (typeof params.client_max_window_bits === 'number'
+            ? opts.clientMaxWindowBits > params.client_max_window_bits
+            : !params.client_max_window_bits))
       ) {
         return false;
       }
@@ -24090,25 +24866,23 @@ function inflateOnError(err) {
   this[kCallback](err);
 }
 
+});
 
-/***/ },
-
-/***/ 7269
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/receiver.js
+var receiver_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-const { Writable } = __webpack_require__(2203);
+const { Writable } = (external_stream_namespaceFn());
 
-const PerMessageDeflate = __webpack_require__(7808);
+const PerMessageDeflate = (permessage_deflate_namespaceFn());
 const {
   BINARY_TYPES,
   EMPTY_BUFFER,
   kStatusCode,
   kWebSocket
-} = __webpack_require__(1287);
-const { concat, toArrayBuffer, unmask } = __webpack_require__(3507);
-const { isValidStatusCode, isValidUTF8 } = __webpack_require__(6575);
+} = (constants_namespaceFn());
+const { concat, toArrayBuffer, unmask } = (buffer_util_namespaceFn());
+const { isValidStatusCode, isValidUTF8 } = (validation_namespaceFn());
 
 const FastBuffer = Buffer[Symbol.species];
 
@@ -24175,6 +24949,7 @@ class Receiver extends Writable {
 
     this._totalPayloadLength = 0;
     this._messageLength = 0;
+    this._numFragments = 0;
     this._fragments = [];
 
     this._errored = false;
@@ -24598,6 +25373,19 @@ class Receiver extends Writable {
       return;
     }
 
+    if (this._maxFragments > 0 && ++this._numFragments > this._maxFragments) {
+      const error = this.createError(
+        RangeError,
+        'Too many message fragments',
+        false,
+        1008,
+        'WS_ERR_TOO_MANY_BUFFERED_PARTS'
+      );
+
+      cb(error);
+      return;
+    }
+
     if (this._compressed) {
       this._state = INFLATING;
       this.decompress(data, cb);
@@ -24605,22 +25393,6 @@ class Receiver extends Writable {
     }
 
     if (data.length) {
-      if (
-        this._maxFragments > 0 &&
-        this._fragments.length >= this._maxFragments
-      ) {
-        const error = this.createError(
-          RangeError,
-          'Too many message fragments',
-          false,
-          1008,
-          'WS_ERR_TOO_MANY_BUFFERED_PARTS'
-        );
-
-        cb(error);
-        return;
-      }
-
       //
       // This message is not compressed so its length is the sum of the payload
       // length of all fragments.
@@ -24660,22 +25432,6 @@ class Receiver extends Writable {
           return;
         }
 
-        if (
-          this._maxFragments > 0 &&
-          this._fragments.length >= this._maxFragments
-        ) {
-          const error = this.createError(
-            RangeError,
-            'Too many message fragments',
-            false,
-            1008,
-            'WS_ERR_TOO_MANY_BUFFERED_PARTS'
-          );
-
-          cb(error);
-          return;
-        }
-
         this._fragments.push(buf);
       }
 
@@ -24702,6 +25458,7 @@ class Receiver extends Writable {
     this._totalPayloadLength = 0;
     this._messageLength = 0;
     this._fragmented = 0;
+    this._numFragments = 0;
     this._fragments = [];
 
     if (this._opcode === 2) {
@@ -24857,26 +25614,24 @@ class Receiver extends Writable {
 
 module.exports = Receiver;
 
+});
 
-/***/ },
-
-/***/ 5621
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/sender.js
+var sender_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^Duplex" }] */
 
 
 
-const { Duplex } = __webpack_require__(2203);
-const { randomFillSync } = __webpack_require__(6982);
+const { Duplex } = (external_stream_namespaceFn());
+const { randomFillSync } = (external_crypto_namespaceFn());
 const {
   types: { isUint8Array }
-} = __webpack_require__(9023);
+} = (external_util_namespaceFn());
 
-const PerMessageDeflate = __webpack_require__(7808);
-const { EMPTY_BUFFER, kWebSocket, NOOP } = __webpack_require__(1287);
-const { isBlob, isValidStatusCode } = __webpack_require__(6575);
-const { mask: applyMask, toBuffer } = __webpack_require__(3507);
+const PerMessageDeflate = (permessage_deflate_namespaceFn());
+const { EMPTY_BUFFER, kWebSocket, NOOP } = (constants_namespaceFn());
+const { isBlob, isValidStatusCode } = (validation_namespaceFn());
+const { mask: applyMask, toBuffer } = (buffer_util_namespaceFn());
 
 const kByteLength = Symbol('kByteLength');
 const maskBuffer = Buffer.alloc(4);
@@ -25471,17 +26226,15 @@ function onError(sender, err, cb) {
   sender.onerror(err);
 }
 
+});
 
-/***/ },
-
-/***/ 8820
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/stream.js
+var stream_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^WebSocket$" }] */
 
 
-const WebSocket = __webpack_require__(6161);
-const { Duplex } = __webpack_require__(2203);
+const WebSocket = (lib_websocket_namespaceFn());
+const { Duplex } = (external_stream_namespaceFn());
 
 /**
  * Emits the `'close'` event on a stream.
@@ -25639,15 +26392,13 @@ function createWebSocketStream(ws, options) {
 
 module.exports = createWebSocketStream;
 
+});
 
-/***/ },
-
-/***/ 5356
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/subprotocol.js
+var subprotocol_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-const { tokenChars } = __webpack_require__(6575);
+const { tokenChars } = (validation_namespaceFn());
 
 /**
  * Parses the `Sec-WebSocket-Protocol` header into a set of subprotocol names.
@@ -25708,17 +26459,15 @@ function parse(header) {
 
 module.exports = { parse };
 
+});
 
-/***/ },
-
-/***/ 6575
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/validation.js
+var validation_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-const { isUtf8 } = __webpack_require__(181);
+const { isUtf8 } = (external_buffer_namespaceFn());
 
-const { hasBlob } = __webpack_require__(1287);
+const { hasBlob } = (constants_namespaceFn());
 
 //
 // Allowed token characters:
@@ -25857,7 +26606,7 @@ if (isUtf8) {
   };
 } /* istanbul ignore else  */ else if (!process.env.WS_NO_UTF_8_VALIDATE) {
   try {
-    const isValidUTF8 = __webpack_require__(5305);
+    const isValidUTF8 = (utf_8_validate_namespaceFn());
 
     module.exports.isValidUTF8 = function (buf) {
       return buf.length < 32 ? _isValidUTF8(buf) : isValidUTF8(buf);
@@ -25867,26 +26616,24 @@ if (isUtf8) {
   }
 }
 
+});
 
-/***/ },
-
-/***/ 2409
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/websocket-server.js
+var websocket_server_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^Duplex$", "caughtErrors": "none" }] */
 
 
 
-const EventEmitter = __webpack_require__(4434);
-const http = __webpack_require__(8611);
-const { Duplex } = __webpack_require__(2203);
-const { createHash } = __webpack_require__(6982);
+const EventEmitter = (external_events_namespaceFn());
+const http = (external_http_namespaceFn());
+const { Duplex } = (external_stream_namespaceFn());
+const { createHash } = (external_crypto_namespaceFn());
 
-const extension = __webpack_require__(6943);
-const PerMessageDeflate = __webpack_require__(7808);
-const subprotocol = __webpack_require__(5356);
-const WebSocket = __webpack_require__(6161);
-const { CLOSE_TIMEOUT, GUID, kWebSocket } = __webpack_require__(1287);
+const extension = (extension_namespaceFn());
+const PerMessageDeflate = (permessage_deflate_namespaceFn());
+const subprotocol = (subprotocol_namespaceFn());
+const WebSocket = (lib_websocket_namespaceFn());
+const { CLOSE_TIMEOUT, GUID, kWebSocket } = (constants_namespaceFn());
 
 const keyRegex = /^[+/0-9A-Za-z]{22}==$/;
 
@@ -25918,9 +26665,9 @@ class WebSocketServer extends EventEmitter {
    *     called
    * @param {Function} [options.handleProtocols] A hook to handle protocols
    * @param {String} [options.host] The hostname where to bind the server
-   * @param {Number} [options.maxBufferedChunks=1048576] The maximum number of
+   * @param {Number} [options.maxBufferedChunks=262144] The maximum number of
    *     buffered data chunks
-   * @param {Number} [options.maxFragments=131072] The maximum number of message
+   * @param {Number} [options.maxFragments=16384] The maximum number of message
    *     fragments
    * @param {Number} [options.maxPayload=104857600] The maximum allowed message
    *     size
@@ -25944,8 +26691,8 @@ class WebSocketServer extends EventEmitter {
     options = {
       allowSynchronousEvents: true,
       autoPong: true,
-      maxBufferedChunks: 1024 * 1024,
-      maxFragments: 128 * 1024,
+      maxBufferedChunks: 256 * 1024,
+      maxFragments: 16 * 1024,
       maxPayload: 100 * 1024 * 1024,
       skipUTF8Validation: false,
       perMessageDeflate: false,
@@ -26436,29 +27183,27 @@ function abortHandshakeOrEmitwsClientError(
   }
 }
 
+});
 
-/***/ },
-
-/***/ 6161
-(module, __unused_webpack_exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/ws@8.21.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/ws/lib/websocket.js
+var lib_websocket_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^Duplex|Readable$", "caughtErrors": "none" }] */
 
 
 
-const EventEmitter = __webpack_require__(4434);
-const https = __webpack_require__(5692);
-const http = __webpack_require__(8611);
-const net = __webpack_require__(9278);
-const tls = __webpack_require__(4756);
-const { randomBytes, createHash } = __webpack_require__(6982);
-const { Duplex, Readable } = __webpack_require__(2203);
-const { URL } = __webpack_require__(7016);
+const EventEmitter = (external_events_namespaceFn());
+const https = (external_https_namespaceFn());
+const http = (external_http_namespaceFn());
+const net = (external_net_namespaceFn());
+const tls = (external_tls_namespaceFn());
+const { randomBytes, createHash } = (external_crypto_namespaceFn());
+const { Duplex, Readable } = (external_stream_namespaceFn());
+const { URL } = (external_url_namespaceFn());
 
-const PerMessageDeflate = __webpack_require__(7808);
-const Receiver = __webpack_require__(7269);
-const Sender = __webpack_require__(5621);
-const { isBlob } = __webpack_require__(6575);
+const PerMessageDeflate = (permessage_deflate_namespaceFn());
+const Receiver = (receiver_namespaceFn());
+const Sender = (sender_namespaceFn());
+const { isBlob } = (validation_namespaceFn());
 
 const {
   BINARY_TYPES,
@@ -26470,12 +27215,12 @@ const {
   kStatusCode,
   kWebSocket,
   NOOP
-} = __webpack_require__(1287);
+} = (constants_namespaceFn());
 const {
   EventTarget: { addEventListener, removeEventListener }
-} = __webpack_require__(1426);
-const { format, parse } = __webpack_require__(6943);
-const { toBuffer } = __webpack_require__(3507);
+} = (event_target_namespaceFn());
+const { format, parse } = (extension_namespaceFn());
+const { toBuffer } = (buffer_util_namespaceFn());
 
 const kAborted = Symbol('kAborted');
 const protocolVersions = [8, 13];
@@ -27090,9 +27835,9 @@ module.exports = WebSocket;
  *     masking key
  * @param {Number} [options.handshakeTimeout] Timeout in milliseconds for the
  *     handshake request
- * @param {Number} [options.maxBufferedChunks=1048576] The maximum number of
+ * @param {Number} [options.maxBufferedChunks=262144] The maximum number of
  *     buffered data chunks
- * @param {Number} [options.maxFragments=131072] The maximum number of message
+ * @param {Number} [options.maxFragments=16384] The maximum number of message
  *     fragments
  * @param {Number} [options.maxPayload=104857600] The maximum allowed message
  *     size
@@ -27114,8 +27859,8 @@ function initAsClient(websocket, address, protocols, options) {
     autoPong: true,
     closeTimeout: CLOSE_TIMEOUT,
     protocolVersion: protocolVersions[1],
-    maxBufferedChunks: 1024 * 1024,
-    maxFragments: 128 * 1024,
+    maxBufferedChunks: 256 * 1024,
+    maxFragments: 16 * 1024,
     maxPayload: 100 * 1024 * 1024,
     skipUTF8Validation: false,
     perMessageDeflate: true,
@@ -27850,138 +28595,90 @@ function socketOnError() {
   }
 }
 
+});
 
-/***/ },
-
-/***/ 181
-(module) {
-
+// MODULE: external "buffer"
+var external_buffer_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("buffer");
+});
 
-/***/ },
+// EXTERNAL MODULE: external "crypto"
+var external_crypto_namespaceFn = () => {
+	return __webpack_require__(982);
+};
 
-/***/ 6982
-(module) {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire_require("crypto");
-
-/***/ },
-
-/***/ 4434
-(module) {
-
+// MODULE: external "events"
+var external_events_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("events");
+});
 
-/***/ },
+// EXTERNAL MODULE: external "fs"
+var external_fs_namespaceFn = () => {
+	return __webpack_require__(896);
+};
 
-/***/ 9896
-(module) {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire_require("fs");
-
-/***/ },
-
-/***/ 8611
-(module) {
-
+// MODULE: external "http"
+var external_http_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("http");
+});
 
-/***/ },
-
-/***/ 5692
-(module) {
-
+// MODULE: external "https"
+var external_https_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("https");
+});
 
-/***/ },
-
-/***/ 9278
-(module) {
-
+// MODULE: external "net"
+var external_net_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("net");
+});
 
-/***/ },
+// EXTERNAL MODULE: external "path"
+var external_path_namespaceFn = () => {
+	return __webpack_require__(928);
+};
 
-/***/ 857
-(module) {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire_require("os");
-
-/***/ },
-
-/***/ 6928
-(module) {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire_require("path");
-
-/***/ },
-
-/***/ 932
-(module) {
-
+// MODULE: external "process"
+var external_process_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("process");
+});
 
-/***/ },
+// EXTERNAL MODULE: external "querystring"
+var external_querystring_namespaceFn = () => {
+	return __webpack_require__(480);
+};
 
-/***/ 3480
-(module) {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire_require("querystring");
-
-/***/ },
-
-/***/ 2203
-(module) {
-
+// MODULE: external "stream"
+var external_stream_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("stream");
+});
 
-/***/ },
-
-/***/ 3557
-(module) {
-
+// MODULE: external "timers"
+var external_timers_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("timers");
+});
 
-/***/ },
-
-/***/ 4756
-(module) {
-
+// MODULE: external "tls"
+var external_tls_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("tls");
+});
 
-/***/ },
-
-/***/ 2018
-(module) {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire_require("tty");
-
-/***/ },
-
-/***/ 7016
-(module) {
-
+// MODULE: external "url"
+var external_url_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("url");
+});
 
-/***/ },
+// EXTERNAL MODULE: external "util"
+var external_util_namespaceFn = () => {
+	return __webpack_require__(23);
+};
 
-/***/ 9023
-(module) {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire_require("util");
-
-/***/ },
-
-/***/ 3106
-(module) {
-
+// MODULE: external "zlib"
+var external_zlib_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 module.exports = __WEBPACK_EXTERNAL_createRequire_require("zlib");
+});
 
-/***/ },
-
-/***/ 7758
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/engine.io-parser@5.2.3/node_modules/engine.io-parser/build/cjs/commons.js
+var commons_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
@@ -28003,17 +28700,15 @@ Object.keys(PACKET_TYPES).forEach((key) => {
 const ERROR_PACKET = { type: "error", data: "parser error" };
 exports.ERROR_PACKET = ERROR_PACKET;
 
+});
 
-/***/ },
-
-/***/ 5552
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/engine.io-parser@5.2.3/node_modules/engine.io-parser/build/cjs/decodePacket.js
+var decodePacket_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
 exports.decodePacket = void 0;
-const commons_js_1 = __webpack_require__(7758);
+const commons_js_1 = (commons_namespaceFn());
 const decodePacket = (encodedPacket, binaryType) => {
     if (typeof encodedPacket !== "string") {
         return {
@@ -28070,18 +28765,16 @@ const mapBinary = (data, binaryType) => {
     }
 };
 
+});
 
-/***/ },
-
-/***/ 2760
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/engine.io-parser@5.2.3/node_modules/engine.io-parser/build/cjs/encodePacket.js
+var encodePacket_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
 exports.encodePacket = void 0;
 exports.encodePacketToBinary = encodePacketToBinary;
-const commons_js_1 = __webpack_require__(7758);
+const commons_js_1 = (commons_namespaceFn());
 const encodePacket = ({ type, data }, supportsBinary, callback) => {
     if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) {
         return callback(supportsBinary ? data : "b" + toBuffer(data, true).toString("base64"));
@@ -28116,22 +28809,20 @@ function encodePacketToBinary(packet, callback) {
     });
 }
 
+});
 
-/***/ },
-
-/***/ 2680
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/engine.io-parser@5.2.3/node_modules/engine.io-parser/build/cjs/index.js
+var cjs_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.decodePayload = exports.decodePacket = exports.encodePayload = exports.encodePacket = exports.protocol = void 0;
 exports.createPacketEncoderStream = createPacketEncoderStream;
 exports.createPacketDecoderStream = createPacketDecoderStream;
-const encodePacket_js_1 = __webpack_require__(2760);
+const encodePacket_js_1 = (encodePacket_namespaceFn());
 Object.defineProperty(exports, "encodePacket", ({ enumerable: true, get: function () { return encodePacket_js_1.encodePacket; } }));
-const decodePacket_js_1 = __webpack_require__(5552);
+const decodePacket_js_1 = (decodePacket_namespaceFn());
 Object.defineProperty(exports, "decodePacket", ({ enumerable: true, get: function () { return decodePacket_js_1.decodePacket; } }));
-const commons_js_1 = __webpack_require__(7758);
+const commons_js_1 = (commons_namespaceFn());
 const SEPARATOR = String.fromCharCode(30); // see https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
 const encodePayload = (packets, callback) => {
     // some packets may be added to the array while encoding, so the initial length must be saved
@@ -28287,32 +28978,159 @@ function createPacketDecoderStream(maxPayload, binaryType) {
 }
 exports.protocol = 4;
 
+});
 
-/***/ },
-
-/***/ 1480
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/contrib/base64id.js
+var base64id_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 
+// imported from https://github.com/faeldt/base64id/blob/af13114809291393846a56eddbb1ac2035ae397c/lib/base64id.js
+/*!
+ * base64id v0.1.0
+ */
 __webpack_unused_export__ = ({ value: true });
-__webpack_unused_export__ = __webpack_unused_export__ = __webpack_unused_export__ = exports.uServer = __webpack_unused_export__ = __webpack_unused_export__ = __webpack_unused_export__ = void 0;
-__webpack_unused_export__ = listen;
+exports.base64id = void 0;
+/**
+ * Module dependencies
+ */
+const crypto = (external_crypto_namespaceFn());
+/**
+ * Constructor
+ */
+var Base64Id = function () { };
+/**
+ * Get random bytes
+ *
+ * Uses a buffer if available, falls back to crypto.randomBytes
+ */
+Base64Id.prototype.getRandomBytes = function (bytes) {
+    var BUFFER_SIZE = 4096;
+    var self = this;
+    bytes = bytes || 12;
+    if (bytes > BUFFER_SIZE) {
+        return crypto.randomBytes(bytes);
+    }
+    // var bytesInBuffer = parseInt(BUFFER_SIZE / bytes);
+    // var threshold = parseInt(bytesInBuffer * 0.85);
+    var bytesInBuffer = Math.floor(BUFFER_SIZE / bytes);
+    var threshold = Math.floor(bytesInBuffer * 0.85);
+    if (!threshold) {
+        return crypto.randomBytes(bytes);
+    }
+    if (this.bytesBufferIndex == null) {
+        this.bytesBufferIndex = -1;
+    }
+    if (this.bytesBufferIndex == bytesInBuffer) {
+        this.bytesBuffer = null;
+        this.bytesBufferIndex = -1;
+    }
+    // No buffered bytes available or index above threshold
+    if (this.bytesBufferIndex == -1 || this.bytesBufferIndex > threshold) {
+        if (!this.isGeneratingBytes) {
+            this.isGeneratingBytes = true;
+            crypto.randomBytes(BUFFER_SIZE, function (err, bytes) {
+                self.bytesBuffer = bytes;
+                self.bytesBufferIndex = 0;
+                self.isGeneratingBytes = false;
+            });
+        }
+        // Fall back to sync call when no buffered bytes are available
+        if (this.bytesBufferIndex == -1) {
+            return crypto.randomBytes(bytes);
+        }
+    }
+    var result = this.bytesBuffer.slice(bytes * this.bytesBufferIndex, bytes * (this.bytesBufferIndex + 1));
+    this.bytesBufferIndex++;
+    return result;
+};
+/**
+ * Generates a base64 id
+ *
+ * (Original version from socket.io <http://socket.io>)
+ */
+Base64Id.prototype.generateId = function () {
+    var rand = Buffer.alloc(15); // multiple of 3 for base64
+    if (!rand.writeInt32BE) {
+        return (Math.abs((Math.random() * Math.random() * Date.now()) | 0).toString() +
+            Math.abs((Math.random() * Math.random() * Date.now()) | 0).toString());
+    }
+    this.sequenceNumber = (this.sequenceNumber + 1) | 0;
+    rand.writeInt32BE(this.sequenceNumber, 11);
+    if (crypto.randomBytes) {
+        this.getRandomBytes(12).copy(rand);
+    }
+    else {
+        // not secure for node 0.4
+        [0, 4, 8].forEach(function (i) {
+            rand.writeInt32BE((Math.random() * Math.pow(2, 32)) | 0, i);
+        });
+    }
+    return rand.toString("base64").replace(/\//g, "_").replace(/\+/g, "-");
+};
+/**
+ * Export
+ */
+exports.base64id = new Base64Id();
+
+});
+
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/engine.io.js
+var engine_io_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.protocol = exports.Transport = exports.Socket = exports.uServer = exports.parser = exports.transports = exports.Server = void 0;
+exports.listen = listen;
 exports.attach = attach;
-const http_1 = __webpack_require__(8611);
-const server_1 = __webpack_require__(3545);
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return server_1.Server; } });
-const index_1 = __webpack_require__(1667);
-__webpack_unused_export__ = index_1.default;
-const parser = __webpack_require__(2680);
-__webpack_unused_export__ = parser;
-var userver_1 = __webpack_require__(2196);
+const http_1 = (external_http_namespaceFn());
+const server_1 = (server_namespaceFn());
+Object.defineProperty(exports, "Server", ({ enumerable: true, get: function () { return server_1.Server; } }));
+const index_1 = __importDefault((transports_namespaceFn()));
+exports.transports = index_1.default;
+const parser = __importStar((cjs_namespaceFn()));
+exports.parser = parser;
+var userver_1 = (userver_namespaceFn());
 Object.defineProperty(exports, "uServer", ({ enumerable: true, get: function () { return userver_1.uServer; } }));
-var socket_1 = __webpack_require__(8711);
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return socket_1.Socket; } });
-var transport_1 = __webpack_require__(233);
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return transport_1.Transport; } });
-__webpack_unused_export__ = parser.protocol;
+var socket_1 = (socket_namespaceFn());
+Object.defineProperty(exports, "Socket", ({ enumerable: true, get: function () { return socket_1.Socket; } }));
+var transport_1 = (transport_namespaceFn());
+Object.defineProperty(exports, "Transport", ({ enumerable: true, get: function () { return transport_1.Transport; } }));
+exports.protocol = parser.protocol;
 /**
  * Creates an http.Server exclusively used for WS upgrades, and starts listening.
  *
@@ -28349,650 +29167,31 @@ function attach(server, options) {
     return engine;
 }
 
+});
 
-/***/ },
+// EXTERNAL MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/parser-v3/index.js
+var parser_v3_namespaceFn = () => {
+	return __webpack_require__(856);
+};
 
-/***/ 5750
-(__unused_webpack_module, exports, __webpack_require__) {
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/server.js
+var server_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-
-// imported from https://github.com/socketio/engine.io-parser/tree/2.2.x
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.packets = exports.protocol = void 0;
-exports.encodePacket = encodePacket;
-exports.encodeBase64Packet = encodeBase64Packet;
-exports.decodePacket = decodePacket;
-exports.decodeBase64Packet = decodeBase64Packet;
-exports.encodePayload = encodePayload;
-exports.decodePayload = decodePayload;
-exports.encodePayloadAsBinary = encodePayloadAsBinary;
-exports.decodePayloadAsBinary = decodePayloadAsBinary;
-/**
- * Module dependencies.
- */
-var utf8 = __webpack_require__(8423);
-/**
- * Current protocol version.
- */
-exports.protocol = 3;
-const hasBinary = (packets) => {
-    for (const packet of packets) {
-        if (packet.data instanceof ArrayBuffer || ArrayBuffer.isView(packet.data)) {
-            return true;
-        }
-    }
-    return false;
-};
-/**
- * Packet types.
- */
-exports.packets = {
-    open: 0 // non-ws
-    ,
-    close: 1 // non-ws
-    ,
-    ping: 2,
-    pong: 3,
-    message: 4,
-    upgrade: 5,
-    noop: 6
-};
-var packetslist = Object.keys(exports.packets);
-/**
- * Premade error packet.
- */
-var err = { type: 'error', data: 'parser error' };
-const EMPTY_BUFFER = Buffer.concat([]);
-/**
- * Encodes a packet.
- *
- *     <packet type id> [ <data> ]
- *
- * Example:
- *
- *     5hello world
- *     3
- *     4
- *
- * Binary is encoded in an identical principle
- *
- * @api private
- */
-function encodePacket(packet, supportsBinary, utf8encode, callback) {
-    if (typeof supportsBinary === 'function') {
-        callback = supportsBinary;
-        supportsBinary = null;
-    }
-    if (typeof utf8encode === 'function') {
-        callback = utf8encode;
-        utf8encode = null;
-    }
-    if (Buffer.isBuffer(packet.data)) {
-        return encodeBuffer(packet, supportsBinary, callback);
-    }
-    else if (packet.data && (packet.data.buffer || packet.data) instanceof ArrayBuffer) {
-        return encodeBuffer({ type: packet.type, data: arrayBufferToBuffer(packet.data) }, supportsBinary, callback);
-    }
-    // Sending data as a utf-8 string
-    var encoded = exports.packets[packet.type];
-    // data fragment is optional
-    if (undefined !== packet.data) {
-        encoded += utf8encode ? utf8.encode(String(packet.data), { strict: false }) : String(packet.data);
-    }
-    return callback('' + encoded);
-}
-/**
- * Encode Buffer data
- */
-function encodeBuffer(packet, supportsBinary, callback) {
-    if (!supportsBinary) {
-        return encodeBase64Packet(packet, callback);
-    }
-    var data = packet.data;
-    var typeBuffer = Buffer.allocUnsafe(1);
-    typeBuffer[0] = exports.packets[packet.type];
-    return callback(Buffer.concat([typeBuffer, data]));
-}
-/**
- * Encodes a packet with binary data in a base64 string
- *
- * @param {Object} packet, has `type` and `data`
- * @return {String} base64 encoded message
- */
-function encodeBase64Packet(packet, callback) {
-    var data = Buffer.isBuffer(packet.data) ? packet.data : arrayBufferToBuffer(packet.data);
-    var message = 'b' + exports.packets[packet.type];
-    message += data.toString('base64');
-    return callback(message);
-}
-;
-/**
- * Decodes a packet. Data also available as an ArrayBuffer if requested.
- *
- * @return {import('engine.io-parser').Packet} with `type` and `data` (if any)
- * @api private
- */
-function decodePacket(data, binaryType, utf8decode) {
-    if (data === undefined) {
-        return err;
-    }
-    let type;
-    // String data
-    if (typeof data === 'string') {
-        type = data.charAt(0);
-        if (type === 'b') {
-            return decodeBase64Packet(data.slice(1), binaryType);
-        }
-        if (utf8decode) {
-            data = tryDecode(data);
-            if (data === false) {
-                return err;
-            }
-        }
-        // @ts-expect-error
-        if (Number(type) != type || !packetslist[type]) {
-            return err;
-        }
-        if (data.length > 1) {
-            return { type: packetslist[type], data: data.slice(1) };
-        }
-        else {
-            return { type: packetslist[type] };
-        }
-    }
-    // Binary data
-    if (binaryType === 'arraybuffer') {
-        // wrap Buffer/ArrayBuffer data into an Uint8Array
-        var intArray = new Uint8Array(data);
-        type = intArray[0];
-        return { type: packetslist[type], data: intArray.buffer.slice(1) };
-    }
-    if (data instanceof ArrayBuffer) {
-        data = arrayBufferToBuffer(data);
-    }
-    type = data[0];
-    return { type: packetslist[type], data: data.slice(1) };
-}
-;
-function tryDecode(data) {
-    try {
-        data = utf8.decode(data, { strict: false });
-    }
-    catch (e) {
-        return false;
-    }
-    return data;
-}
-/**
- * Decodes a packet encoded in a base64 string.
- *
- * @param {String} base64 encoded message
- * @return {Object} with `type` and `data` (if any)
- */
-function decodeBase64Packet(msg, binaryType) {
-    var type = packetslist[msg.charAt(0)];
-    var data = Buffer.from(msg.slice(1), 'base64');
-    if (binaryType === 'arraybuffer') {
-        var abv = new Uint8Array(data.length);
-        for (var i = 0; i < abv.length; i++) {
-            abv[i] = data[i];
-        }
-        // @ts-ignore
-        data = abv.buffer;
-    }
-    return { type: type, data: data };
-}
-;
-/**
- * Encodes multiple messages (payload).
- *
- *     <length>:data
- *
- * Example:
- *
- *     11:hello world2:hi
- *
- * If any contents are binary, they will be encoded as base64 strings. Base64
- * encoded strings are marked with a b before the length specifier
- *
- * @param {Array} packets
- * @api private
- */
-function encodePayload(packets, supportsBinary, callback) {
-    if (typeof supportsBinary === 'function') {
-        callback = supportsBinary;
-        supportsBinary = null;
-    }
-    if (supportsBinary && hasBinary(packets)) {
-        return encodePayloadAsBinary(packets, callback);
-    }
-    if (!packets.length) {
-        return callback('0:');
-    }
-    function encodeOne(packet, doneCallback) {
-        encodePacket(packet, supportsBinary, false, function (message) {
-            doneCallback(null, setLengthHeader(message));
-        });
-    }
-    map(packets, encodeOne, function (err, results) {
-        return callback(results.join(''));
-    });
-}
-;
-function setLengthHeader(message) {
-    return message.length + ':' + message;
-}
-/**
- * Async array map using after
- */
-function map(ary, each, done) {
-    const results = new Array(ary.length);
-    let count = 0;
-    for (let i = 0; i < ary.length; i++) {
-        each(ary[i], (error, msg) => {
-            results[i] = msg;
-            if (++count === ary.length) {
-                done(null, results);
-            }
-        });
-    }
-}
-/*
- * Decodes data when a payload is maybe expected. Possible binary contents are
- * decoded from their base64 representation
- *
- * @param {String} data, callback method
- * @api public
- */
-function decodePayload(data, binaryType, callback) {
-    if (typeof data !== 'string') {
-        return decodePayloadAsBinary(data, binaryType, callback);
-    }
-    if (typeof binaryType === 'function') {
-        callback = binaryType;
-        binaryType = null;
-    }
-    if (data === '') {
-        // parser error - ignoring payload
-        return callback(err, 0, 1);
-    }
-    var length = '', n, msg, packet;
-    for (var i = 0, l = data.length; i < l; i++) {
-        var chr = data.charAt(i);
-        if (chr !== ':') {
-            length += chr;
-            continue;
-        }
-        // @ts-ignore
-        if (length === '' || (length != (n = Number(length)))) {
-            // parser error - ignoring payload
-            return callback(err, 0, 1);
-        }
-        msg = data.slice(i + 1, i + 1 + n);
-        if (length != msg.length) {
-            // parser error - ignoring payload
-            return callback(err, 0, 1);
-        }
-        if (msg.length) {
-            packet = decodePacket(msg, binaryType, false);
-            if (err.type === packet.type && err.data === packet.data) {
-                // parser error in individual packet - ignoring payload
-                return callback(err, 0, 1);
-            }
-            var more = callback(packet, i + n, l);
-            if (false === more)
-                return;
-        }
-        // advance cursor
-        i += n;
-        length = '';
-    }
-    if (length !== '') {
-        // parser error - ignoring payload
-        return callback(err, 0, 1);
-    }
-}
-;
-/**
- *
- * Converts a buffer to a utf8.js encoded string
- *
- * @api private
- */
-function bufferToString(buffer) {
-    var str = '';
-    for (var i = 0, l = buffer.length; i < l; i++) {
-        str += String.fromCharCode(buffer[i]);
-    }
-    return str;
-}
-/**
- *
- * Converts a utf8.js encoded string to a buffer
- *
- * @api private
- */
-function stringToBuffer(string) {
-    var buf = Buffer.allocUnsafe(string.length);
-    for (var i = 0, l = string.length; i < l; i++) {
-        buf.writeUInt8(string.charCodeAt(i), i);
-    }
-    return buf;
-}
-/**
- *
- * Converts an ArrayBuffer to a Buffer
- *
- * @api private
- */
-function arrayBufferToBuffer(data) {
-    // data is either an ArrayBuffer or ArrayBufferView.
-    var length = data.byteLength || data.length;
-    var offset = data.byteOffset || 0;
-    return Buffer.from(data.buffer || data, offset, length);
-}
-/**
- * Encodes multiple messages (payload) as binary.
- *
- * <1 = binary, 0 = string><number from 0-9><number from 0-9>[...]<number
- * 255><data>
- *
- * Example:
- * 1 3 255 1 2 3, if the binary contents are interpreted as 8 bit integers
- *
- * @param {Array} packets
- * @return {Buffer} encoded payload
- * @api private
- */
-function encodePayloadAsBinary(packets, callback) {
-    if (!packets.length) {
-        return callback(EMPTY_BUFFER);
-    }
-    map(packets, encodeOneBinaryPacket, function (err, results) {
-        return callback(Buffer.concat(results));
-    });
-}
-;
-function encodeOneBinaryPacket(p, doneCallback) {
-    function onBinaryPacketEncode(packet) {
-        var encodingLength = '' + packet.length;
-        var sizeBuffer;
-        if (typeof packet === 'string') {
-            sizeBuffer = Buffer.allocUnsafe(encodingLength.length + 2);
-            sizeBuffer[0] = 0; // is a string (not true binary = 0)
-            for (var i = 0; i < encodingLength.length; i++) {
-                sizeBuffer[i + 1] = parseInt(encodingLength[i], 10);
-            }
-            sizeBuffer[sizeBuffer.length - 1] = 255;
-            return doneCallback(null, Buffer.concat([sizeBuffer, stringToBuffer(packet)]));
-        }
-        sizeBuffer = Buffer.allocUnsafe(encodingLength.length + 2);
-        sizeBuffer[0] = 1; // is binary (true binary = 1)
-        for (var i = 0; i < encodingLength.length; i++) {
-            sizeBuffer[i + 1] = parseInt(encodingLength[i], 10);
-        }
-        sizeBuffer[sizeBuffer.length - 1] = 255;
-        doneCallback(null, Buffer.concat([sizeBuffer, packet]));
-    }
-    encodePacket(p, true, true, onBinaryPacketEncode);
-}
-/*
- * Decodes data when a payload is maybe expected. Strings are decoded by
- * interpreting each byte as a key code for entries marked to start with 0. See
- * description of encodePayloadAsBinary
-
- * @param {Buffer} data, callback method
- * @api public
- */
-function decodePayloadAsBinary(data, binaryType, callback) {
-    if (typeof binaryType === 'function') {
-        callback = binaryType;
-        binaryType = null;
-    }
-    var bufferTail = data;
-    var buffers = [];
-    var i;
-    while (bufferTail.length > 0) {
-        var strLen = '';
-        var isString = bufferTail[0] === 0;
-        for (i = 1;; i++) {
-            if (bufferTail[i] === 255)
-                break;
-            // 310 = char length of Number.MAX_VALUE
-            if (strLen.length > 310) {
-                return callback(err, 0, 1);
-            }
-            strLen += '' + bufferTail[i];
-        }
-        bufferTail = bufferTail.slice(strLen.length + 1);
-        var msgLength = parseInt(strLen, 10);
-        var msg = bufferTail.slice(1, msgLength + 1);
-        if (isString)
-            msg = bufferToString(msg);
-        buffers.push(msg);
-        bufferTail = bufferTail.slice(msgLength + 1);
-    }
-    var total = buffers.length;
-    for (i = 0; i < total; i++) {
-        var buffer = buffers[i];
-        callback(decodePacket(buffer, binaryType, true), i, total);
-    }
-}
-;
-
-
-/***/ },
-
-/***/ 8423
-(module) {
-
-/*! https://mths.be/utf8js v2.1.2 by @mathias */
-var stringFromCharCode = String.fromCharCode;
-// Taken from https://mths.be/punycode
-function ucs2decode(string) {
-    var output = [];
-    var counter = 0;
-    var length = string.length;
-    var value;
-    var extra;
-    while (counter < length) {
-        value = string.charCodeAt(counter++);
-        if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
-            // high surrogate, and there is a next character
-            extra = string.charCodeAt(counter++);
-            if ((extra & 0xFC00) == 0xDC00) { // low surrogate
-                output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
-            }
-            else {
-                // unmatched surrogate; only append this code unit, in case the next
-                // code unit is the high surrogate of a surrogate pair
-                output.push(value);
-                counter--;
-            }
-        }
-        else {
-            output.push(value);
-        }
-    }
-    return output;
-}
-// Taken from https://mths.be/punycode
-function ucs2encode(array) {
-    var length = array.length;
-    var index = -1;
-    var value;
-    var output = '';
-    while (++index < length) {
-        value = array[index];
-        if (value > 0xFFFF) {
-            value -= 0x10000;
-            output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
-            value = 0xDC00 | value & 0x3FF;
-        }
-        output += stringFromCharCode(value);
-    }
-    return output;
-}
-function checkScalarValue(codePoint, strict) {
-    if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
-        if (strict) {
-            throw Error('Lone surrogate U+' + codePoint.toString(16).toUpperCase() +
-                ' is not a scalar value');
-        }
-        return false;
-    }
-    return true;
-}
-/*--------------------------------------------------------------------------*/
-function createByte(codePoint, shift) {
-    return stringFromCharCode(((codePoint >> shift) & 0x3F) | 0x80);
-}
-function encodeCodePoint(codePoint, strict) {
-    if ((codePoint & 0xFFFFFF80) == 0) { // 1-byte sequence
-        return stringFromCharCode(codePoint);
-    }
-    var symbol = '';
-    if ((codePoint & 0xFFFFF800) == 0) { // 2-byte sequence
-        symbol = stringFromCharCode(((codePoint >> 6) & 0x1F) | 0xC0);
-    }
-    else if ((codePoint & 0xFFFF0000) == 0) { // 3-byte sequence
-        if (!checkScalarValue(codePoint, strict)) {
-            codePoint = 0xFFFD;
-        }
-        symbol = stringFromCharCode(((codePoint >> 12) & 0x0F) | 0xE0);
-        symbol += createByte(codePoint, 6);
-    }
-    else if ((codePoint & 0xFFE00000) == 0) { // 4-byte sequence
-        symbol = stringFromCharCode(((codePoint >> 18) & 0x07) | 0xF0);
-        symbol += createByte(codePoint, 12);
-        symbol += createByte(codePoint, 6);
-    }
-    symbol += stringFromCharCode((codePoint & 0x3F) | 0x80);
-    return symbol;
-}
-function utf8encode(string, opts) {
-    opts = opts || {};
-    var strict = false !== opts.strict;
-    var codePoints = ucs2decode(string);
-    var length = codePoints.length;
-    var index = -1;
-    var codePoint;
-    var byteString = '';
-    while (++index < length) {
-        codePoint = codePoints[index];
-        byteString += encodeCodePoint(codePoint, strict);
-    }
-    return byteString;
-}
-/*--------------------------------------------------------------------------*/
-function readContinuationByte() {
-    if (byteIndex >= byteCount) {
-        throw Error('Invalid byte index');
-    }
-    var continuationByte = byteArray[byteIndex] & 0xFF;
-    byteIndex++;
-    if ((continuationByte & 0xC0) == 0x80) {
-        return continuationByte & 0x3F;
-    }
-    // If we end up here, it’s not a continuation byte
-    throw Error('Invalid continuation byte');
-}
-function decodeSymbol(strict) {
-    var byte1;
-    var byte2;
-    var byte3;
-    var byte4;
-    var codePoint;
-    if (byteIndex > byteCount) {
-        throw Error('Invalid byte index');
-    }
-    if (byteIndex == byteCount) {
-        return false;
-    }
-    // Read first byte
-    byte1 = byteArray[byteIndex] & 0xFF;
-    byteIndex++;
-    // 1-byte sequence (no continuation bytes)
-    if ((byte1 & 0x80) == 0) {
-        return byte1;
-    }
-    // 2-byte sequence
-    if ((byte1 & 0xE0) == 0xC0) {
-        byte2 = readContinuationByte();
-        codePoint = ((byte1 & 0x1F) << 6) | byte2;
-        if (codePoint >= 0x80) {
-            return codePoint;
-        }
-        else {
-            throw Error('Invalid continuation byte');
-        }
-    }
-    // 3-byte sequence (may include unpaired surrogates)
-    if ((byte1 & 0xF0) == 0xE0) {
-        byte2 = readContinuationByte();
-        byte3 = readContinuationByte();
-        codePoint = ((byte1 & 0x0F) << 12) | (byte2 << 6) | byte3;
-        if (codePoint >= 0x0800) {
-            return checkScalarValue(codePoint, strict) ? codePoint : 0xFFFD;
-        }
-        else {
-            throw Error('Invalid continuation byte');
-        }
-    }
-    // 4-byte sequence
-    if ((byte1 & 0xF8) == 0xF0) {
-        byte2 = readContinuationByte();
-        byte3 = readContinuationByte();
-        byte4 = readContinuationByte();
-        codePoint = ((byte1 & 0x07) << 0x12) | (byte2 << 0x0C) |
-            (byte3 << 0x06) | byte4;
-        if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
-            return codePoint;
-        }
-    }
-    throw Error('Invalid UTF-8 detected');
-}
-var byteArray;
-var byteCount;
-var byteIndex;
-function utf8decode(byteString, opts) {
-    opts = opts || {};
-    var strict = false !== opts.strict;
-    byteArray = ucs2decode(byteString);
-    byteCount = byteArray.length;
-    byteIndex = 0;
-    var codePoints = [];
-    var tmp;
-    while ((tmp = decodeSymbol(strict)) !== false) {
-        codePoints.push(tmp);
-    }
-    return ucs2encode(codePoints);
-}
-module.exports = {
-    version: '2.1.2',
-    encode: utf8encode,
-    decode: utf8decode
-};
-
-
-/***/ },
-
-/***/ 3545
-(__unused_webpack_module, exports, __webpack_require__) {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
 exports.Server = exports.BaseServer = void 0;
-const base64id = __webpack_require__(6821);
-const transports_1 = __webpack_require__(1667);
-const events_1 = __webpack_require__(4434);
-const socket_1 = __webpack_require__(8711);
-const debug_1 = __webpack_require__(7181);
-const cookie_1 = __webpack_require__(4058);
-const ws_1 = __webpack_require__(850);
-const webtransport_1 = __webpack_require__(8616);
-const engine_io_parser_1 = __webpack_require__(2680);
+const base64id_1 = (base64id_namespaceFn());
+const transports_1 = __importDefault((transports_namespaceFn()));
+const events_1 = (external_events_namespaceFn());
+const socket_1 = (socket_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
+const cookie_1 = (cookie_namespaceFn());
+const ws_1 = (ws_namespaceFn());
+const webtransport_1 = (webtransport_namespaceFn());
+const engine_io_parser_1 = (cjs_namespaceFn());
+const objectFromEntries_1 = (objectFromEntries_namespaceFn());
 const debug = (0, debug_1.default)("engine");
 const kResponseHeaders = Symbol("responseHeaders");
 function parseSessionId(data) {
@@ -29007,6 +29206,9 @@ function parseSessionId(data) {
 // Object.hasOwn() was introduced in Node.js 16.9
 function hasOwn(obj, key) {
     return Object.prototype.hasOwnProperty.call(obj, key);
+}
+function computeProtocolRevision(req) {
+    return req._query.EIO === "4" ? 4 : 3; // 3rd revision by default
 }
 class BaseServer extends events_1.EventEmitter {
     /**
@@ -29042,7 +29244,7 @@ class BaseServer extends events_1.EventEmitter {
             }, opts.cookie);
         }
         if (this.opts.cors) {
-            this.use(__webpack_require__(4941)(this.opts.cors));
+            this.use((lib_namespaceFn())(this.opts.cors));
         }
         if (opts.perMessageDeflate) {
             this.opts.perMessageDeflate = Object.assign({
@@ -29110,13 +29312,23 @@ class BaseServer extends events_1.EventEmitter {
                     sid,
                 });
             }
-            const previousTransport = this.clients[sid].transport.name;
+            const client = this.clients[sid];
+            const previousTransport = client.transport.name;
             if (!upgrade && previousTransport !== transport) {
                 debug("bad request: unexpected transport without upgrade");
                 return fn(Server.errors.BAD_REQUEST, {
                     name: "TRANSPORT_MISMATCH",
                     transport,
                     previousTransport,
+                });
+            }
+            const protocol = computeProtocolRevision(req);
+            if (client.protocol !== protocol) {
+                debug("bad request: unexpected protocol version during upgrade");
+                return fn(Server.errors.BAD_REQUEST, {
+                    name: "PROTOCOL_MISMATCH",
+                    protocol,
+                    previousProtocol: client.protocol,
                 });
             }
         }
@@ -29208,7 +29420,7 @@ class BaseServer extends events_1.EventEmitter {
      * @param {IncomingMessage} req - the request object
      */
     generateId(req) {
-        return base64id.generateId();
+        return base64id_1.base64id.generateId();
     }
     /**
      * Handshakes a new client.
@@ -29220,7 +29432,7 @@ class BaseServer extends events_1.EventEmitter {
      * @protected
      */
     async handshake(transportName, req, closeConnection) {
-        const protocol = req._query.EIO === "4" ? 4 : 3; // 3rd revision by default
+        const protocol = computeProtocolRevision(req);
         if (protocol === 3 && !this.opts.allowEIO3) {
             debug("unsupported protocol version");
             this.emit("connection_error", {
@@ -29347,7 +29559,7 @@ class BaseServer extends events_1.EventEmitter {
         if (value.data === undefined) {
             const transport = new webtransport_1.WebTransport(session, stream, reader);
             // note: we cannot use "this.generateId()", because there is no "req" argument
-            const id = base64id.generateId();
+            const id = base64id_1.base64id.generateId();
             debug('handshaking client "%s" (WebTransport)', id);
             const socket = new socket_1.Socket(id, this, transport, null, 4);
             this.clients[id] = socket;
@@ -29487,7 +29699,7 @@ class Server extends BaseServer {
         // try to leverage pre-existing `req._query` (e.g: from connect)
         if (!req._query) {
             const url = new URL(req.url, "https://socket.io");
-            req._query = Object.fromEntries(url.searchParams.entries());
+            req._query = (0, objectFromEntries_1.objectFromEntries)(url.searchParams.entries());
         }
     }
     createTransport(transportName, req) {
@@ -29792,18 +30004,19 @@ function checkInvalidHeaderChar(val) {
     return false;
 }
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/socket.js
+var socket_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 8711
-(__unused_webpack_module, exports, __webpack_require__) {
-
-
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Socket = void 0;
-const events_1 = __webpack_require__(4434);
-const debug_1 = __webpack_require__(7181);
-const timers_1 = __webpack_require__(3557);
+const events_1 = (external_events_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
+const timers_1 = (external_timers_namespaceFn());
 const debug = (0, debug_1.default)("engine:socket");
 class Socket extends events_1.EventEmitter {
     get readyState() {
@@ -29883,6 +30096,7 @@ class Socket extends events_1.EventEmitter {
      * @private
      */
     onPacket(packet) {
+        var _a, _b;
         if ("open" !== this.readyState) {
             return debug("packet received with closed socket");
         }
@@ -29891,23 +30105,23 @@ class Socket extends events_1.EventEmitter {
         this.emit("packet", packet);
         switch (packet.type) {
             case "ping":
-                if (this.transport.protocol !== 3) {
+                if (this.protocol !== 3) {
                     this.onError(new Error("invalid heartbeat direction"));
                     return;
                 }
                 debug("got ping");
-                this.pingTimeoutTimer.refresh();
+                (_a = this.pingTimeoutTimer) === null || _a === void 0 ? void 0 : _a.refresh();
                 this.sendPacket("pong");
                 this.emit("heartbeat");
                 break;
             case "pong":
-                if (this.transport.protocol === 3) {
+                if (this.protocol === 3) {
                     this.onError(new Error("invalid heartbeat direction"));
                     return;
                 }
                 debug("got pong");
                 (0, timers_1.clearTimeout)(this.pingTimeoutTimer);
-                this.pingIntervalTimer.refresh();
+                (_b = this.pingIntervalTimer) === null || _b === void 0 ? void 0 : _b.refresh();
                 this.emit("heartbeat");
                 break;
             case "error":
@@ -30259,19 +30473,53 @@ class Socket extends events_1.EventEmitter {
 }
 exports.Socket = Socket;
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/transport.js
+var transport_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 233
-(__unused_webpack_module, exports, __webpack_require__) {
-
-
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Transport = void 0;
-const events_1 = __webpack_require__(4434);
-const parser_v4 = __webpack_require__(2680);
-const parser_v3 = __webpack_require__(5750);
-const debug_1 = __webpack_require__(7181);
+const events_1 = (external_events_namespaceFn());
+const parser_v4 = __importStar((cjs_namespaceFn()));
+const parser_v3 = __importStar((parser_v3_namespaceFn()));
+const debug_1 = __importDefault((src_namespaceFn()));
 const debug = (0, debug_1.default)("engine:transport");
 function noop() { }
 class Transport extends events_1.EventEmitter {
@@ -30387,36 +30635,33 @@ exports.Transport = Transport;
  */
 Transport.upgradesTo = [];
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/transports-uws/index.js
+var transports_uws_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 5439
-(__unused_webpack_module, exports, __webpack_require__) {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
-const polling_1 = __webpack_require__(6004);
-const websocket_1 = __webpack_require__(6128);
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const polling_1 = (transports_uws_polling_namespaceFn());
+const websocket_1 = (transports_uws_websocket_namespaceFn());
 exports["default"] = {
     polling: polling_1.Polling,
     websocket: websocket_1.WebSocket,
 };
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/transports-uws/polling.js
+var transports_uws_polling_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 6004
-(__unused_webpack_module, exports, __webpack_require__) {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Polling = void 0;
-const transport_1 = __webpack_require__(233);
-const zlib_1 = __webpack_require__(3106);
-const accepts = __webpack_require__(9);
-const debug_1 = __webpack_require__(7181);
+const transport_1 = (transport_namespaceFn());
+const zlib_1 = (external_zlib_namespaceFn());
+const accepts = (accepts_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
 const debug = (0, debug_1.default)("engine:polling");
 const compressionMethods = {
     gzip: zlib_1.createGzip,
@@ -30776,18 +31021,18 @@ class Polling extends transport_1.Transport {
 }
 exports.Polling = Polling;
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/transports-uws/websocket.js
+var transports_uws_websocket_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 6128
-(__unused_webpack_module, exports, __webpack_require__) {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WebSocket = void 0;
-const transport_1 = __webpack_require__(233);
-const debug_1 = __webpack_require__(7181);
+const transport_1 = (transport_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
 const debug = (0, debug_1.default)("engine:ws");
 class WebSocket extends transport_1.Transport {
     /**
@@ -30857,19 +31102,16 @@ class WebSocket extends transport_1.Transport {
 }
 exports.WebSocket = WebSocket;
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/transports/index.js
+var transports_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 1667
-(__unused_webpack_module, exports, __webpack_require__) {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
-const polling_1 = __webpack_require__(5608);
-const polling_jsonp_1 = __webpack_require__(2811);
-const websocket_1 = __webpack_require__(5636);
-const webtransport_1 = __webpack_require__(8616);
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const polling_1 = (polling_namespaceFn());
+const polling_jsonp_1 = (polling_jsonp_namespaceFn());
+const websocket_1 = (websocket_namespaceFn());
+const webtransport_1 = (webtransport_namespaceFn());
 exports["default"] = {
     polling,
     websocket: websocket_1.WebSocket,
@@ -30888,18 +31130,48 @@ function polling(req) {
 }
 polling.upgradesTo = ["websocket", "webtransport"];
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/transports/polling-jsonp.js
+var polling_jsonp_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 2811
-(__unused_webpack_module, exports, __webpack_require__) {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JSONP = void 0;
-const polling_1 = __webpack_require__(5608);
-const qs = __webpack_require__(3480);
+const polling_1 = (polling_namespaceFn());
+const qs = __importStar((external_querystring_namespaceFn()));
 const rDoubleSlashes = /\\\\n/g;
 const rSlashes = /(\\)?\\n/g;
 class JSONP extends polling_1.Polling {
@@ -30937,20 +31209,20 @@ class JSONP extends polling_1.Polling {
 }
 exports.JSONP = JSONP;
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/transports/polling.js
+var polling_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 5608
-(__unused_webpack_module, exports, __webpack_require__) {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Polling = void 0;
-const transport_1 = __webpack_require__(233);
-const zlib_1 = __webpack_require__(3106);
-const accepts = __webpack_require__(9);
-const debug_1 = __webpack_require__(7181);
+const transport_1 = (transport_namespaceFn());
+const zlib_1 = (external_zlib_namespaceFn());
+const accepts = (accepts_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
 const debug = (0, debug_1.default)("engine:polling");
 const compressionMethods = {
     gzip: zlib_1.createGzip,
@@ -31045,33 +31317,42 @@ class Polling extends transport_1.Transport {
         }
         this.dataReq = req;
         this.dataRes = res;
-        let chunks = isBinary ? Buffer.concat([]) : "";
+        const buffers = [];
+        let stringChunks = "";
+        let contentLength = 0;
+        let exceededMaxHttpBufferSize = false;
         const cleanup = () => {
             req.removeListener("data", onData);
             req.removeListener("end", onEnd);
             req.removeListener("close", onClose);
-            this.dataReq = this.dataRes = chunks = null;
+            this.dataReq = this.dataRes = null;
         };
         const onClose = () => {
             cleanup();
             this.onError("data request connection closed prematurely");
         };
-        const onData = (data) => {
-            let contentLength;
-            if (isBinary) {
-                chunks = Buffer.concat([chunks, data]);
-                contentLength = chunks.length;
-            }
-            else {
-                chunks += data;
-                contentLength = Buffer.byteLength(chunks);
-            }
+        const onData = (chunk) => {
+            contentLength += isBinary ? chunk.length : Buffer.byteLength(chunk);
             if (contentLength > this.maxHttpBufferSize) {
+                exceededMaxHttpBufferSize = true;
                 res.writeHead(413).end();
                 cleanup();
+                return;
+            }
+            if (isBinary) {
+                buffers.push(chunk);
+            }
+            else {
+                stringChunks += chunk;
             }
         };
         const onEnd = () => {
+            if (exceededMaxHttpBufferSize) {
+                return;
+            }
+            const chunks = isBinary
+                ? Buffer.concat(buffers, contentLength)
+                : stringChunks;
             this.onData(chunks);
             const headers = {
                 // text/html is required instead of text/plain to avoid an
@@ -31194,36 +31475,31 @@ class Polling extends transport_1.Transport {
             respond(data);
             return;
         }
-        this.compress(data, encoding, (err, data) => {
-            if (err) {
-                this.res.writeHead(500);
-                this.res.end();
-                callback(err);
+        debug("compressing");
+        headers["Content-Encoding"] = encoding;
+        this.res.writeHead(200, this.headers(this.req, headers));
+        const stream = compressionMethods[encoding](this.httpCompression);
+        let isErrored = false;
+        let isDone = false;
+        const done = () => {
+            if (isDone || isErrored) {
                 return;
             }
-            headers["Content-Encoding"] = encoding;
-            respond(data);
+            isDone = true;
+            callback();
+        };
+        stream.on("error", (err) => {
+            isErrored = true;
+            this.res.end();
+            callback(err);
         });
-    }
-    /**
-     * Compresses data.
-     *
-     * @private
-     */
-    compress(data, encoding, callback) {
-        debug("compressing");
-        const buffers = [];
-        let nread = 0;
-        compressionMethods[encoding](this.httpCompression)
-            .on("error", callback)
-            .on("data", function (chunk) {
-            buffers.push(chunk);
-            nread += chunk.length;
-        })
-            .on("end", function () {
-            callback(null, Buffer.concat(buffers, nread));
-        })
-            .end(data);
+        // 'close' also fires after a normal completion, hence the guard: whatever
+        // happens, the write callback must run exactly once so the transport
+        // cleans up its request state and emits 'drain'.
+        this.res.once("finish", done);
+        this.res.once("close", done);
+        stream.pipe(this.res);
+        stream.end(data);
     }
     /**
      * Closes the transport.
@@ -31278,18 +31554,18 @@ class Polling extends transport_1.Transport {
 }
 exports.Polling = Polling;
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/transports/websocket.js
+var websocket_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 5636
-(__unused_webpack_module, exports, __webpack_require__) {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WebSocket = void 0;
-const transport_1 = __webpack_require__(233);
-const debug_1 = __webpack_require__(7181);
+const transport_1 = (transport_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
 const debug = (0, debug_1.default)("engine:ws");
 class WebSocket extends transport_1.Transport {
     /**
@@ -31379,19 +31655,19 @@ class WebSocket extends transport_1.Transport {
 }
 exports.WebSocket = WebSocket;
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/transports/webtransport.js
+var webtransport_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 8616
-(__unused_webpack_module, exports, __webpack_require__) {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WebTransport = void 0;
-const transport_1 = __webpack_require__(233);
-const debug_1 = __webpack_require__(7181);
-const engine_io_parser_1 = __webpack_require__(2680);
+const transport_1 = (transport_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
+const engine_io_parser_1 = (cjs_namespaceFn());
 const debug = (0, debug_1.default)("engine:webtransport");
 /**
  * Reference: https://developer.mozilla.org/en-US/docs/Web/API/WebTransport_API
@@ -31450,18 +31726,19 @@ class WebTransport extends transport_1.Transport {
 }
 exports.WebTransport = WebTransport;
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/userver.js
+var userver_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 2196
-(__unused_webpack_module, exports, __webpack_require__) {
-
-
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.uServer = void 0;
-const debug_1 = __webpack_require__(7181);
-const server_1 = __webpack_require__(3545);
-const transports_uws_1 = __webpack_require__(5439);
+const debug_1 = __importDefault((src_namespaceFn()));
+const server_1 = (server_namespaceFn());
+const transports_uws_1 = __importDefault((transports_uws_namespaceFn()));
 const debug = (0, debug_1.default)("engine:uws");
 /**
  * An Engine.IO server based on the `uWebSockets.js` package.
@@ -31747,18 +32024,35 @@ class ResponseWrapper {
     }
 }
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/engine.io@6.6.10_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/engine.io/build/utils/objectFromEntries.js
+var objectFromEntries_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
+var __webpack_unused_export__;
 
-/***/ 6903
-(__unused_webpack_module, exports, __webpack_require__) {
+__webpack_unused_export__ = ({ value: true });
+exports.objectFromEntries = void 0;
+// polyfill for Node.js < 12
+// reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries
+exports.objectFromEntries = Object.fromEntries ||
+    function fromEntries(entries) {
+        const obj = {};
+        for (const [key, value] of entries) {
+            obj[key] = value;
+        }
+        return obj;
+    };
 
+});
+
+// MODULE: ./node_modules/.pnpm/socket.io-parser@4.2.7/node_modules/socket.io-parser/build/cjs/binary.js
+var cjs_binary_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
 exports.deconstructPacket = deconstructPacket;
 exports.reconstructPacket = reconstructPacket;
-const is_binary_js_1 = __webpack_require__(5618);
+const is_binary_js_1 = (is_binary_namespaceFn());
 /**
  * Replaces every Buffer | ArrayBuffer | Blob | File in packet with a numbered placeholder.
  *
@@ -31774,7 +32068,7 @@ function deconstructPacket(packet) {
     pack.attachments = buffers.length; // number of binary 'attachments'
     return { packet: pack, buffers: buffers };
 }
-function _deconstructPacket(data, buffers) {
+function _deconstructPacket(data, buffers, toJSON) {
     if (!data)
         return data;
     if ((0, is_binary_js_1.isBinary)(data)) {
@@ -31790,6 +32084,9 @@ function _deconstructPacket(data, buffers) {
         return newData;
     }
     else if (typeof data === "object" && !(data instanceof Date)) {
+        if (data.toJSON && typeof data.toJSON === "function" && !toJSON) {
+            return _deconstructPacket(data.toJSON(), buffers, true);
+        }
         const newData = {};
         for (const key in data) {
             if (Object.prototype.hasOwnProperty.call(data, key)) {
@@ -31842,20 +32139,21 @@ function _reconstructPacket(data, buffers) {
     return data;
 }
 
+});
 
-/***/ },
+// MODULE: ./node_modules/.pnpm/socket.io-parser@4.2.7/node_modules/socket.io-parser/build/cjs/index.js
+var build_cjs_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
-/***/ 8580
-(__unused_webpack_module, exports, __webpack_require__) {
-
-
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Decoder = exports.Encoder = exports.PacketType = exports.protocol = void 0;
 exports.isPacketValid = isPacketValid;
-const component_emitter_1 = __webpack_require__(7320);
-const binary_js_1 = __webpack_require__(6903);
-const is_binary_js_1 = __webpack_require__(5618);
-const debug_1 = __webpack_require__(7181); // debug()
+const component_emitter_1 = (esm_namespaceFn());
+const binary_js_1 = (cjs_binary_namespaceFn());
+const is_binary_js_1 = (is_binary_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn())); // debug()
 const debug = (0, debug_1.default)("socket.io-parser"); // debug()
 /**
  * These strings must not be used as event names, as they have a special meaning.
@@ -31992,10 +32290,6 @@ class Decoder extends component_emitter_1.Emitter {
                 packet.type = isBinaryEvent ? PacketType.EVENT : PacketType.ACK;
                 // binary packet's json
                 this.reconstructor = new BinaryReconstructor(packet);
-                // no attachments, labeled binary but no binary data to follow
-                if (packet.attachments === 0) {
-                    super.emitReserved("decoded", packet);
-                }
             }
             else {
                 // non-binary full packet
@@ -32045,7 +32339,7 @@ class Decoder extends component_emitter_1.Emitter {
                 throw new Error("Illegal attachments");
             }
             const n = Number(buf);
-            if (!isInteger(n) || n < 0) {
+            if (!isInteger(n) || n < 1) {
                 throw new Error("Illegal attachments");
             }
             else if (n > this.opts.maxAttachments) {
@@ -32216,12 +32510,10 @@ function isPacketValid(packet) {
         isDataValid(packet.type, packet.data));
 }
 
+});
 
-/***/ },
-
-/***/ 5618
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/socket.io-parser@4.2.7/node_modules/socket.io-parser/build/cjs/is-binary.js
+var is_binary_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
@@ -32278,18 +32570,16 @@ function hasBinary(obj, toJSON) {
     return false;
 }
 
+});
 
-/***/ },
-
-/***/ 1780
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/broadcast-operator.js
+var broadcast_operator_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
 __webpack_unused_export__ = exports.BroadcastOperator = void 0;
-const socket_types_1 = __webpack_require__(5355);
-const socket_io_parser_1 = __webpack_require__(8580);
+const socket_types_1 = (socket_types_namespaceFn());
+const socket_io_parser_1 = (build_cjs_namespaceFn());
 class BroadcastOperator {
     constructor(adapter, rooms = new Set(), exceptRooms = new Set(), flags = {}) {
         this.adapter = adapter;
@@ -32722,20 +33012,18 @@ class RemoteSocket {
 }
 __webpack_unused_export__ = RemoteSocket;
 
+});
 
-/***/ },
-
-/***/ 6941
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/client.js
+var client_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Client = void 0;
-const socket_io_parser_1 = __webpack_require__(8580);
-const debug_1 = __importDefault(__webpack_require__(7181));
+const socket_io_parser_1 = (build_cjs_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
 const debug = (0, debug_1.default)("socket.io:client");
 class Client {
     /**
@@ -33003,12 +33291,10 @@ class Client {
 }
 exports.Client = Client;
 
+});
 
-/***/ },
-
-/***/ 8596
-(module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/index.js
+var socket_io_dist_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -33038,28 +33324,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Namespace = exports.Socket = exports.Server = void 0;
-const http_1 = __importDefault(__webpack_require__(8611));
-const fs_1 = __webpack_require__(9896);
-const zlib_1 = __webpack_require__(3106);
-const accepts = __webpack_require__(9);
-const stream_1 = __webpack_require__(2203);
-const path = __webpack_require__(6928);
-const engine_io_1 = __webpack_require__(1480);
-const client_1 = __webpack_require__(6941);
-const events_1 = __webpack_require__(4434);
-const namespace_1 = __webpack_require__(5219);
+const http_1 = __importDefault((external_http_namespaceFn()));
+const fs_1 = (external_fs_namespaceFn());
+const zlib_1 = (external_zlib_namespaceFn());
+const accepts = (accepts_namespaceFn());
+const stream_1 = (external_stream_namespaceFn());
+const path = (external_path_namespaceFn());
+const engine_io_1 = (engine_io_namespaceFn());
+const client_1 = (client_namespaceFn());
+const events_1 = (external_events_namespaceFn());
+const namespace_1 = (namespace_namespaceFn());
 Object.defineProperty(exports, "Namespace", ({ enumerable: true, get: function () { return namespace_1.Namespace; } }));
-const parent_namespace_1 = __webpack_require__(4576);
-const socket_io_adapter_1 = __webpack_require__(6913);
-const parser = __importStar(__webpack_require__(8580));
-const debug_1 = __importDefault(__webpack_require__(7181));
-const socket_1 = __webpack_require__(1751);
+const parent_namespace_1 = (parent_namespace_namespaceFn());
+const socket_io_adapter_1 = (socket_io_adapter_dist_namespaceFn());
+const parser = __importStar((build_cjs_namespaceFn()));
+const debug_1 = __importDefault((src_namespaceFn()));
+const socket_1 = (dist_socket_namespaceFn());
 Object.defineProperty(exports, "Socket", ({ enumerable: true, get: function () { return socket_1.Socket; } }));
-const typed_events_1 = __webpack_require__(8984);
-const uws_1 = __webpack_require__(7433);
-const cors_1 = __importDefault(__webpack_require__(4941));
+const typed_events_1 = (typed_events_namespaceFn());
+const uws_1 = (uws_namespaceFn());
+const cors_1 = __importDefault((lib_namespaceFn()));
 const debug = (0, debug_1.default)("socket.io:server");
-const clientVersion = (__webpack_require__(4343)/* .version */ .rE);
+const clientVersion = (package_namespaceFn().rE);
 const dotMapRegex = /\.map/;
 /**
  * Represents a Socket.IO server.
@@ -33828,22 +34114,20 @@ module.exports.Server = Server;
 module.exports.Namespace = namespace_1.Namespace;
 module.exports.Socket = socket_1.Socket;
 
+});
 
-/***/ },
-
-/***/ 5219
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/namespace.js
+var namespace_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Namespace = exports.RESERVED_EVENTS = void 0;
-const socket_1 = __webpack_require__(1751);
-const typed_events_1 = __webpack_require__(8984);
-const debug_1 = __importDefault(__webpack_require__(7181));
-const broadcast_operator_1 = __webpack_require__(1780);
+const socket_1 = (dist_socket_namespaceFn());
+const typed_events_1 = (typed_events_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
+const broadcast_operator_1 = (broadcast_operator_namespaceFn());
 const debug = (0, debug_1.default)("socket.io:namespace");
 exports.RESERVED_EVENTS = new Set(["connect", "connection", "new_namespace"]);
 /**
@@ -34419,21 +34703,19 @@ class Namespace extends typed_events_1.StrictEventEmitter {
 }
 exports.Namespace = Namespace;
 
+});
 
-/***/ },
-
-/***/ 4576
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/parent-namespace.js
+var parent_namespace_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ParentNamespace = void 0;
-const namespace_1 = __webpack_require__(5219);
-const socket_io_adapter_1 = __webpack_require__(6913);
-const debug_1 = __importDefault(__webpack_require__(7181));
+const namespace_1 = (namespace_namespaceFn());
+const socket_io_adapter_1 = (socket_io_adapter_dist_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
 const debug = (0, debug_1.default)("socket.io:parent-namespace");
 /**
  * A parent namespace is a special {@link Namespace} that holds a list of child namespaces which were created either
@@ -34514,12 +34796,10 @@ class ParentBroadcastAdapter extends socket_io_adapter_1.Adapter {
     }
 }
 
+});
 
-/***/ },
-
-/***/ 5355
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/socket-types.js
+var socket_types_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
@@ -34533,24 +34813,22 @@ exports.RESERVED_EVENTS = new Set([
     "removeListener",
 ]);
 
+});
 
-/***/ },
-
-/***/ 1751
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/socket.js
+var dist_socket_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Socket = void 0;
-const socket_io_parser_1 = __webpack_require__(8580);
-const debug_1 = __importDefault(__webpack_require__(7181));
-const typed_events_1 = __webpack_require__(8984);
-const base64id_1 = __importDefault(__webpack_require__(6821));
-const broadcast_operator_1 = __webpack_require__(1780);
-const socket_types_1 = __webpack_require__(5355);
+const socket_io_parser_1 = (build_cjs_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
+const typed_events_1 = (typed_events_namespaceFn());
+const base64id_1 = __importDefault((lib_base64id_namespaceFn()));
+const broadcast_operator_1 = (broadcast_operator_namespaceFn());
+const socket_types_1 = (socket_types_namespaceFn());
 const debug = (0, debug_1.default)("socket.io:socket");
 const RECOVERABLE_DISCONNECT_REASONS = new Set([
     "transport error",
@@ -35517,17 +35795,15 @@ class Socket extends typed_events_1.StrictEventEmitter {
 }
 exports.Socket = Socket;
 
+});
 
-/***/ },
-
-/***/ 8984
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/typed-events.js
+var typed_events_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
 exports.StrictEventEmitter = void 0;
-const events_1 = __webpack_require__(4434);
+const events_1 = (external_events_namespaceFn());
 /**
  * Strictly typed version of an `EventEmitter`. A `TypedEventEmitter` takes type
  * parameters for mappings of event names to event data types, and strictly
@@ -35606,12 +35882,10 @@ class StrictEventEmitter extends events_1.EventEmitter {
 }
 exports.StrictEventEmitter = StrictEventEmitter;
 
+});
 
-/***/ },
-
-/***/ 7433
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/uws.js
+var uws_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -35620,9 +35894,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.patchAdapter = patchAdapter;
 exports.restoreAdapter = restoreAdapter;
 exports.serveFile = serveFile;
-const socket_io_adapter_1 = __webpack_require__(6913);
-const fs_1 = __webpack_require__(9896);
-const debug_1 = __importDefault(__webpack_require__(7181));
+const socket_io_adapter_1 = (socket_io_adapter_dist_namespaceFn());
+const fs_1 = (external_fs_namespaceFn());
+const debug_1 = __importDefault((src_namespaceFn()));
 const debug = (0, debug_1.default)("socket.io:adapter-uws");
 const SEPARATOR = "\x1f"; // see https://en.wikipedia.org/wiki/Delimiter#ASCII_delimited_text
 const { addAll, del, broadcast } = socket_io_adapter_1.Adapter.prototype;
@@ -35749,21 +36023,19 @@ function serveFile(res /* : HttpResponse */, filepath) {
         .on("end", destroyReadStream);
 }
 
+});
 
-/***/ },
-
-/***/ 7876
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-collection.js
+var compose_collection_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var Scalar = __webpack_require__(8376);
-var YAMLMap = __webpack_require__(73);
-var YAMLSeq = __webpack_require__(7028);
-var resolveBlockMap = __webpack_require__(3244);
-var resolveBlockSeq = __webpack_require__(6225);
-var resolveFlowCollection = __webpack_require__(9661);
+var identity = (identity_namespaceFn());
+var Scalar = (Scalar_namespaceFn());
+var YAMLMap = (YAMLMap_namespaceFn());
+var YAMLSeq = (YAMLSeq_namespaceFn());
+var resolveBlockMap = (resolve_block_map_namespaceFn());
+var resolveBlockSeq = (resolve_block_seq_namespaceFn());
+var resolveFlowCollection = (resolve_flow_collection_namespaceFn());
 
 function resolveCollection(CN, ctx, token, onError, tagName, tag) {
     const coll = token.type === 'block-map'
@@ -35846,18 +36118,16 @@ function composeCollection(CN, ctx, token, props, onError) {
 
 exports.composeCollection = composeCollection;
 
+});
 
-/***/ },
-
-/***/ 6040
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-doc.js
+var compose_doc_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Document = __webpack_require__(9960);
-var composeNode = __webpack_require__(9724);
-var resolveEnd = __webpack_require__(4915);
-var resolveProps = __webpack_require__(7800);
+var Document = (Document_namespaceFn());
+var composeNode = (compose_node_namespaceFn());
+var resolveEnd = (resolve_end_namespaceFn());
+var resolveProps = (resolve_props_namespaceFn());
 
 function composeDoc(options, directives, { offset, start, value, end }, onError) {
     const opts = Object.assign({ _directives: directives }, options);
@@ -35898,20 +36168,18 @@ function composeDoc(options, directives, { offset, start, value, end }, onError)
 
 exports.composeDoc = composeDoc;
 
+});
 
-/***/ },
-
-/***/ 9724
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-node.js
+var compose_node_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Alias = __webpack_require__(2298);
-var identity = __webpack_require__(6730);
-var composeCollection = __webpack_require__(7876);
-var composeScalar = __webpack_require__(5120);
-var resolveEnd = __webpack_require__(4915);
-var utilEmptyScalarPosition = __webpack_require__(4898);
+var Alias = (Alias_namespaceFn());
+var identity = (identity_namespaceFn());
+var composeCollection = (compose_collection_namespaceFn());
+var composeScalar = (compose_scalar_namespaceFn());
+var resolveEnd = (resolve_end_namespaceFn());
+var utilEmptyScalarPosition = (util_empty_scalar_position_namespaceFn());
 
 const CN = { composeNode, composeEmptyNode };
 function composeNode(ctx, token, props, onError) {
@@ -36017,18 +36285,16 @@ function composeAlias({ options }, { offset, source, end }, onError) {
 exports.composeEmptyNode = composeEmptyNode;
 exports.composeNode = composeNode;
 
+});
 
-/***/ },
-
-/***/ 5120
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-scalar.js
+var compose_scalar_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var Scalar = __webpack_require__(8376);
-var resolveBlockScalar = __webpack_require__(2992);
-var resolveFlowScalar = __webpack_require__(3165);
+var identity = (identity_namespaceFn());
+var Scalar = (Scalar_namespaceFn());
+var resolveBlockScalar = (resolve_block_scalar_namespaceFn());
+var resolveFlowScalar = (resolve_flow_scalar_namespaceFn());
 
 function composeScalar(ctx, token, tagToken, onError) {
     const { value, type, comment, range } = token.type === 'block-scalar'
@@ -36112,21 +36378,19 @@ function findScalarTagByTest({ atKey, directives, schema }, value, token, onErro
 
 exports.composeScalar = composeScalar;
 
+});
 
-/***/ },
-
-/***/ 2545
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/composer.js
+var composer_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var node_process = __webpack_require__(932);
-var directives = __webpack_require__(7087);
-var Document = __webpack_require__(9960);
-var errors = __webpack_require__(3409);
-var identity = __webpack_require__(6730);
-var composeDoc = __webpack_require__(6040);
-var resolveEnd = __webpack_require__(4915);
+var node_process = (external_process_namespaceFn());
+var directives = (directives_namespaceFn());
+var Document = (Document_namespaceFn());
+var errors = (errors_namespaceFn());
+var identity = (identity_namespaceFn());
+var composeDoc = (compose_doc_namespaceFn());
+var resolveEnd = (resolve_end_namespaceFn());
 
 function getErrorPos(src) {
     if (typeof src === 'number')
@@ -36343,20 +36607,18 @@ class Composer {
 
 exports.Composer = Composer;
 
+});
 
-/***/ },
-
-/***/ 3244
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-block-map.js
+var resolve_block_map_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Pair = __webpack_require__(7748);
-var YAMLMap = __webpack_require__(73);
-var resolveProps = __webpack_require__(7800);
-var utilContainsNewline = __webpack_require__(6884);
-var utilFlowIndentCheck = __webpack_require__(7090);
-var utilMapIncludes = __webpack_require__(8388);
+var Pair = (Pair_namespaceFn());
+var YAMLMap = (YAMLMap_namespaceFn());
+var resolveProps = (resolve_props_namespaceFn());
+var utilContainsNewline = (util_contains_newline_namespaceFn());
+var utilFlowIndentCheck = (util_flow_indent_check_namespaceFn());
+var utilMapIncludes = (util_map_includes_namespaceFn());
 
 const startColMsg = 'All mapping items must start at the same column';
 function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError, tag) {
@@ -36467,15 +36729,13 @@ function resolveBlockMap({ composeNode, composeEmptyNode }, ctx, bm, onError, ta
 
 exports.resolveBlockMap = resolveBlockMap;
 
+});
 
-/***/ },
-
-/***/ 2992
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-block-scalar.js
+var resolve_block_scalar_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Scalar = __webpack_require__(8376);
+var Scalar = (Scalar_namespaceFn());
 
 function resolveBlockScalar(ctx, scalar, onError) {
     const start = scalar.offset;
@@ -36674,17 +36934,15 @@ function splitLines(source) {
 
 exports.resolveBlockScalar = resolveBlockScalar;
 
+});
 
-/***/ },
-
-/***/ 6225
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-block-seq.js
+var resolve_block_seq_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var YAMLSeq = __webpack_require__(7028);
-var resolveProps = __webpack_require__(7800);
-var utilFlowIndentCheck = __webpack_require__(7090);
+var YAMLSeq = (YAMLSeq_namespaceFn());
+var resolveProps = (resolve_props_namespaceFn());
+var utilFlowIndentCheck = (util_flow_indent_check_namespaceFn());
 
 function resolveBlockSeq({ composeNode, composeEmptyNode }, ctx, bs, onError, tag) {
     const NodeClass = tag?.nodeClass ?? YAMLSeq.YAMLSeq;
@@ -36732,12 +36990,10 @@ function resolveBlockSeq({ composeNode, composeEmptyNode }, ctx, bs, onError, ta
 
 exports.resolveBlockSeq = resolveBlockSeq;
 
+});
 
-/***/ },
-
-/***/ 4915
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-end.js
+var resolve_end_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 function resolveEnd(end, offset, reqSpace, onError) {
@@ -36778,22 +37034,20 @@ function resolveEnd(end, offset, reqSpace, onError) {
 
 exports.resolveEnd = resolveEnd;
 
+});
 
-/***/ },
-
-/***/ 9661
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-flow-collection.js
+var resolve_flow_collection_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var Pair = __webpack_require__(7748);
-var YAMLMap = __webpack_require__(73);
-var YAMLSeq = __webpack_require__(7028);
-var resolveEnd = __webpack_require__(4915);
-var resolveProps = __webpack_require__(7800);
-var utilContainsNewline = __webpack_require__(6884);
-var utilMapIncludes = __webpack_require__(8388);
+var identity = (identity_namespaceFn());
+var Pair = (Pair_namespaceFn());
+var YAMLMap = (YAMLMap_namespaceFn());
+var YAMLSeq = (YAMLSeq_namespaceFn());
+var resolveEnd = (resolve_end_namespaceFn());
+var resolveProps = (resolve_props_namespaceFn());
+var utilContainsNewline = (util_contains_newline_namespaceFn());
+var utilMapIncludes = (util_map_includes_namespaceFn());
 
 const blockMsg = 'Block collections are not allowed within flow collections';
 const isBlock = (token) => token && (token.type === 'block-map' || token.type === 'block-seq');
@@ -36994,16 +37248,14 @@ function resolveFlowCollection({ composeNode, composeEmptyNode }, ctx, fc, onErr
 
 exports.resolveFlowCollection = resolveFlowCollection;
 
+});
 
-/***/ },
-
-/***/ 3165
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-flow-scalar.js
+var resolve_flow_scalar_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Scalar = __webpack_require__(8376);
-var resolveEnd = __webpack_require__(4915);
+var Scalar = (Scalar_namespaceFn());
+var resolveEnd = (resolve_end_namespaceFn());
 
 function resolveFlowScalar(scalar, strict, onError) {
     const { offset, type, source, end } = scalar;
@@ -37068,46 +37320,47 @@ function plainValue(source, onError) {
     }
     if (badChar)
         onError(0, 'BAD_SCALAR_START', `Plain value cannot start with ${badChar}`);
-    return foldLines(source);
+    return unfoldLines(source);
 }
 function singleQuotedValue(source, onError) {
     if (source[source.length - 1] !== "'" || source.length === 1)
         onError(source.length, 'MISSING_CHAR', "Missing closing 'quote");
-    return foldLines(source.slice(1, -1)).replace(/''/g, "'");
+    return unfoldLines(source.slice(1, -1)).replace(/''/g, "'");
 }
-function foldLines(source) {
-    /**
-     * The negative lookbehind here and in the `re` RegExp is to
-     * prevent causing a polynomial search time in certain cases.
-     *
-     * The try-catch is for Safari, which doesn't support this yet:
-     * https://caniuse.com/js-regexp-lookbehind
-     */
-    let first, line;
-    try {
-        first = new RegExp('(.*?)(?<![ \t])[ \t]*\r?\n', 'sy');
-        line = new RegExp('[ \t]*(.*?)(?:(?<![ \t])[ \t]*)?\r?\n', 'sy');
-    }
-    catch {
-        first = /(.*?)[ \t]*\r?\n/sy;
-        line = /[ \t]*(.*?)[ \t]*\r?\n/sy;
-    }
-    let match = first.exec(source);
+function unfoldLines(source) {
+    const line = /(.*?)\r?\n/sy;
+    let match = line.exec(source);
     if (!match)
         return source;
-    let res = match[1];
+    /**
+     * The negative lookbehinds in these RegExps are to
+     * prevent causing a polynomial search time in certain cases.
+     *
+     * The try-catch is for Safari < 16.4 and other old browsers:
+     * https://caniuse.com/js-regexp-lookbehind
+     */
+    let trimEnd, trimBoth;
+    try {
+        trimEnd = new RegExp('(?<![ \t])[ \t]+$');
+        trimBoth = new RegExp('^[ \t]+|(?<![ \t])[ \t]+$', 'g');
+    }
+    catch {
+        trimEnd = /[ \t]+$/;
+        trimBoth = /^[ \t]+|[ \t]+$/g;
+    }
+    let res = match[1].replace(trimEnd, '');
     let sep = ' ';
-    let pos = first.lastIndex;
-    line.lastIndex = pos;
+    let pos = line.lastIndex;
     while ((match = line.exec(source))) {
-        if (match[1] === '') {
+        const lm = match[1].replace(trimBoth, '');
+        if (lm === '') {
             if (sep === '\n')
                 res += sep;
             else
                 sep = '\n';
         }
         else {
-            res += sep + match[1];
+            res += sep + lm;
             sep = ' ';
         }
         pos = line.lastIndex;
@@ -37228,12 +37481,10 @@ function parseCharCode(source, offset, length, onError) {
 
 exports.resolveFlowScalar = resolveFlowScalar;
 
+});
 
-/***/ },
-
-/***/ 7800
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-props.js
+var resolve_props_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 function resolveProps(tokens, { flow, indicator, next, offset, onError, parentIndent, startOnNewline }) {
@@ -37383,12 +37634,10 @@ function resolveProps(tokens, { flow, indicator, next, offset, onError, parentIn
 
 exports.resolveProps = resolveProps;
 
+});
 
-/***/ },
-
-/***/ 6884
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-contains-newline.js
+var util_contains_newline_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 function containsNewline(key) {
@@ -37426,12 +37675,10 @@ function containsNewline(key) {
 
 exports.containsNewline = containsNewline;
 
+});
 
-/***/ },
-
-/***/ 4898
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-empty-scalar-position.js
+var util_empty_scalar_position_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 function emptyScalarPosition(offset, before, pos) {
@@ -37461,15 +37708,13 @@ function emptyScalarPosition(offset, before, pos) {
 
 exports.emptyScalarPosition = emptyScalarPosition;
 
+});
 
-/***/ },
-
-/***/ 7090
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-flow-indent-check.js
+var util_flow_indent_check_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var utilContainsNewline = __webpack_require__(6884);
+var utilContainsNewline = (util_contains_newline_namespaceFn());
 
 function flowIndentCheck(indent, fc, onError) {
     if (fc?.type === 'flow-collection') {
@@ -37485,15 +37730,13 @@ function flowIndentCheck(indent, fc, onError) {
 
 exports.flowIndentCheck = flowIndentCheck;
 
+});
 
-/***/ },
-
-/***/ 8388
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-map-includes.js
+var util_map_includes_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
+var identity = (identity_namespaceFn());
 
 function mapIncludes(ctx, items, search) {
     const { uniqueKeys } = ctx.options;
@@ -37507,25 +37750,23 @@ function mapIncludes(ctx, items, search) {
 
 exports.mapIncludes = mapIncludes;
 
+});
 
-/***/ },
-
-/***/ 9960
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/Document.js
+var Document_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Alias = __webpack_require__(2298);
-var Collection = __webpack_require__(7580);
-var identity = __webpack_require__(6730);
-var Pair = __webpack_require__(7748);
-var toJS = __webpack_require__(2234);
-var Schema = __webpack_require__(8227);
-var stringifyDocument = __webpack_require__(5966);
-var anchors = __webpack_require__(9531);
-var applyReviver = __webpack_require__(9768);
-var createNode = __webpack_require__(7377);
-var directives = __webpack_require__(7087);
+var Alias = (Alias_namespaceFn());
+var Collection = (Collection_namespaceFn());
+var identity = (identity_namespaceFn());
+var Pair = (Pair_namespaceFn());
+var toJS = (toJS_namespaceFn());
+var Schema = (Schema_namespaceFn());
+var stringifyDocument = (stringifyDocument_namespaceFn());
+var anchors = (anchors_namespaceFn());
+var applyReviver = (applyReviver_namespaceFn());
+var createNode = (createNode_namespaceFn());
+var directives = (directives_namespaceFn());
 
 class Document {
     constructor(value, replacer, options) {
@@ -37851,16 +38092,14 @@ function assertCollection(contents) {
 
 exports.Document = Document;
 
+});
 
-/***/ },
-
-/***/ 9531
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/anchors.js
+var anchors_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var visit = __webpack_require__(7995);
+var identity = (identity_namespaceFn());
+var visit = (visit_namespaceFn());
 
 /**
  * Verify that the input string is a valid anchor.
@@ -37934,12 +38173,10 @@ exports.anchorNames = anchorNames;
 exports.createNodeAnchors = createNodeAnchors;
 exports.findNewAnchor = findNewAnchor;
 
+});
 
-/***/ },
-
-/***/ 9768
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/applyReviver.js
+var applyReviver_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 /**
@@ -37998,17 +38235,15 @@ function applyReviver(reviver, obj, key, val) {
 
 exports.applyReviver = applyReviver;
 
+});
 
-/***/ },
-
-/***/ 7377
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/createNode.js
+var createNode_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Alias = __webpack_require__(2298);
-var identity = __webpack_require__(6730);
-var Scalar = __webpack_require__(8376);
+var Alias = (Alias_namespaceFn());
+var identity = (identity_namespaceFn());
+var Scalar = (Scalar_namespaceFn());
 
 const defaultTagPrefix = 'tag:yaml.org,2002:';
 function findTagObject(value, tagName, tags) {
@@ -38095,16 +38330,14 @@ function createNode(value, tagName, ctx) {
 
 exports.createNode = createNode;
 
+});
 
-/***/ },
-
-/***/ 7087
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/directives.js
+var directives_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var visit = __webpack_require__(7995);
+var identity = (identity_namespaceFn());
+var visit = (visit_namespaceFn());
 
 const escapeChars = {
     '!': '%21',
@@ -38280,12 +38513,10 @@ Directives.defaultTags = { '!!': 'tag:yaml.org,2002:' };
 
 exports.Directives = Directives;
 
+});
 
-/***/ },
-
-/***/ 3409
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/errors.js
+var errors_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 class YAMLError extends Error {
@@ -38349,30 +38580,28 @@ exports.YAMLParseError = YAMLParseError;
 exports.YAMLWarning = YAMLWarning;
 exports.prettifyError = prettifyError;
 
+});
 
-/***/ },
-
-/***/ 2976
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/index.js
+var dist_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var composer = __webpack_require__(2545);
-var Document = __webpack_require__(9960);
-var Schema = __webpack_require__(8227);
-var errors = __webpack_require__(3409);
-var Alias = __webpack_require__(2298);
-var identity = __webpack_require__(6730);
-var Pair = __webpack_require__(7748);
-var Scalar = __webpack_require__(8376);
-var YAMLMap = __webpack_require__(73);
-var YAMLSeq = __webpack_require__(7028);
-var cst = __webpack_require__(9810);
-var lexer = __webpack_require__(7894);
-var lineCounter = __webpack_require__(3813);
-var parser = __webpack_require__(5849);
-var publicApi = __webpack_require__(1094);
-var visit = __webpack_require__(7995);
+var composer = (composer_namespaceFn());
+var Document = (Document_namespaceFn());
+var Schema = (Schema_namespaceFn());
+var errors = (errors_namespaceFn());
+var Alias = (Alias_namespaceFn());
+var identity = (identity_namespaceFn());
+var Pair = (Pair_namespaceFn());
+var Scalar = (Scalar_namespaceFn());
+var YAMLMap = (YAMLMap_namespaceFn());
+var YAMLSeq = (YAMLSeq_namespaceFn());
+var cst = (cst_namespaceFn());
+var lexer = (lexer_namespaceFn());
+var lineCounter = (line_counter_namespaceFn());
+var parser = (parser_namespaceFn());
+var publicApi = (public_api_namespaceFn());
+var visit = (visit_namespaceFn());
 
 
 
@@ -38406,15 +38635,13 @@ exports.stringify = publicApi.stringify;
 exports.visit = visit.visit;
 exports.visitAsync = visit.visitAsync;
 
+});
 
-/***/ },
-
-/***/ 2186
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/log.js
+var log_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var node_process = __webpack_require__(932);
+var node_process = (external_process_namespaceFn());
 
 function debug(logLevel, ...messages) {
     if (logLevel === 'debug')
@@ -38432,19 +38659,17 @@ function warn(logLevel, warning) {
 exports.debug = debug;
 exports.warn = warn;
 
+});
 
-/***/ },
-
-/***/ 2298
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Alias.js
+var Alias_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var anchors = __webpack_require__(9531);
-var visit = __webpack_require__(7995);
-var identity = __webpack_require__(6730);
-var Node = __webpack_require__(5476);
-var toJS = __webpack_require__(2234);
+var anchors = (anchors_namespaceFn());
+var visit = (visit_namespaceFn());
+var identity = (identity_namespaceFn());
+var Node = (Node_namespaceFn());
+var toJS = (toJS_namespaceFn());
 
 class Alias extends Node.NodeBase {
     constructor(source) {
@@ -38485,38 +38710,40 @@ class Alias extends Node.NodeBase {
             if (node.anchor === this.source)
                 found = node;
         }
+        if (found && ctx) {
+            const { anchors, doc, maxAliasCount } = ctx;
+            let data = anchors.get(found);
+            if (!data) {
+                // Resolve anchors for Node.prototype.toJS()
+                toJS.toJS(found, null, ctx);
+                data = anchors.get(found);
+            }
+            /* istanbul ignore if */
+            if (data?.res === undefined) {
+                const msg = 'This should not happen: Alias anchor was not resolved?';
+                throw new ReferenceError(msg);
+            }
+            if (maxAliasCount >= 0) {
+                data.count += 1;
+                if (data.aliasCount === 0)
+                    data.aliasCount = getAliasCount(doc, found, anchors);
+                if (data.count * data.aliasCount > maxAliasCount) {
+                    const msg = 'Excessive alias count indicates a resource exhaustion attack';
+                    throw new ReferenceError(msg);
+                }
+            }
+        }
         return found;
     }
     toJSON(_arg, ctx) {
         if (!ctx)
             return { source: this.source };
-        const { anchors, doc, maxAliasCount } = ctx;
-        const source = this.resolve(doc, ctx);
+        const source = this.resolve(ctx.doc, ctx);
         if (!source) {
             const msg = `Unresolved alias (the anchor must be set before the alias): ${this.source}`;
             throw new ReferenceError(msg);
         }
-        let data = anchors.get(source);
-        if (!data) {
-            // Resolve anchors for Node.prototype.toJS()
-            toJS.toJS(source, null, ctx);
-            data = anchors.get(source);
-        }
-        /* istanbul ignore if */
-        if (data?.res === undefined) {
-            const msg = 'This should not happen: Alias anchor was not resolved?';
-            throw new ReferenceError(msg);
-        }
-        if (maxAliasCount >= 0) {
-            data.count += 1;
-            if (data.aliasCount === 0)
-                data.aliasCount = getAliasCount(doc, source, anchors);
-            if (data.count * data.aliasCount > maxAliasCount) {
-                const msg = 'Excessive alias count indicates a resource exhaustion attack';
-                throw new ReferenceError(msg);
-            }
-        }
-        return data.res;
+        return ctx.anchors.get(source).res;
     }
     toString(ctx, _onComment, _onChompKeep) {
         const src = `*${this.source}`;
@@ -38557,17 +38784,15 @@ function getAliasCount(doc, node, anchors) {
 
 exports.Alias = Alias;
 
+});
 
-/***/ },
-
-/***/ 7580
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Collection.js
+var Collection_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var createNode = __webpack_require__(7377);
-var identity = __webpack_require__(6730);
-var Node = __webpack_require__(5476);
+var createNode = (createNode_namespaceFn());
+var identity = (identity_namespaceFn());
+var Node = (Node_namespaceFn());
 
 function collectionFromPath(schema, path, value) {
     let v = value;
@@ -38715,17 +38940,15 @@ exports.Collection = Collection;
 exports.collectionFromPath = collectionFromPath;
 exports.isEmptyPath = isEmptyPath;
 
+});
 
-/***/ },
-
-/***/ 5476
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Node.js
+var Node_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var applyReviver = __webpack_require__(9768);
-var identity = __webpack_require__(6730);
-var toJS = __webpack_require__(2234);
+var applyReviver = (applyReviver_namespaceFn());
+var identity = (identity_namespaceFn());
+var toJS = (toJS_namespaceFn());
 
 class NodeBase {
     constructor(type) {
@@ -38762,18 +38985,16 @@ class NodeBase {
 
 exports.NodeBase = NodeBase;
 
+});
 
-/***/ },
-
-/***/ 7748
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Pair.js
+var Pair_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var createNode = __webpack_require__(7377);
-var stringifyPair = __webpack_require__(4711);
-var addPairToJSMap = __webpack_require__(3757);
-var identity = __webpack_require__(6730);
+var createNode = (createNode_namespaceFn());
+var stringifyPair = (stringifyPair_namespaceFn());
+var addPairToJSMap = (addPairToJSMap_namespaceFn());
+var identity = (identity_namespaceFn());
 
 function createPair(key, value, ctx) {
     const k = createNode.createNode(key, undefined, ctx);
@@ -38808,17 +39029,15 @@ class Pair {
 exports.Pair = Pair;
 exports.createPair = createPair;
 
+});
 
-/***/ },
-
-/***/ 8376
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Scalar.js
+var Scalar_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var Node = __webpack_require__(5476);
-var toJS = __webpack_require__(2234);
+var identity = (identity_namespaceFn());
+var Node = (Node_namespaceFn());
+var toJS = (toJS_namespaceFn());
 
 const isScalarValue = (value) => !value || (typeof value !== 'function' && typeof value !== 'object');
 class Scalar extends Node.NodeBase {
@@ -38842,20 +39061,18 @@ Scalar.QUOTE_SINGLE = 'QUOTE_SINGLE';
 exports.Scalar = Scalar;
 exports.isScalarValue = isScalarValue;
 
+});
 
-/***/ },
-
-/***/ 73
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/YAMLMap.js
+var YAMLMap_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var stringifyCollection = __webpack_require__(8143);
-var addPairToJSMap = __webpack_require__(3757);
-var Collection = __webpack_require__(7580);
-var identity = __webpack_require__(6730);
-var Pair = __webpack_require__(7748);
-var Scalar = __webpack_require__(8376);
+var stringifyCollection = (stringifyCollection_namespaceFn());
+var addPairToJSMap = (addPairToJSMap_namespaceFn());
+var Collection = (Collection_namespaceFn());
+var identity = (identity_namespaceFn());
+var Pair = (Pair_namespaceFn());
+var Scalar = (Scalar_namespaceFn());
 
 function findPair(items, key) {
     const k = identity.isScalar(key) ? key.value : key;
@@ -38996,20 +39213,18 @@ class YAMLMap extends Collection.Collection {
 exports.YAMLMap = YAMLMap;
 exports.findPair = findPair;
 
+});
 
-/***/ },
-
-/***/ 7028
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/YAMLSeq.js
+var YAMLSeq_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var createNode = __webpack_require__(7377);
-var stringifyCollection = __webpack_require__(8143);
-var Collection = __webpack_require__(7580);
-var identity = __webpack_require__(6730);
-var Scalar = __webpack_require__(8376);
-var toJS = __webpack_require__(2234);
+var createNode = (createNode_namespaceFn());
+var stringifyCollection = (stringifyCollection_namespaceFn());
+var Collection = (Collection_namespaceFn());
+var identity = (identity_namespaceFn());
+var Scalar = (Scalar_namespaceFn());
+var toJS = (toJS_namespaceFn());
 
 class YAMLSeq extends Collection.Collection {
     static get tagName() {
@@ -39118,19 +39333,17 @@ function asItemIndex(key) {
 
 exports.YAMLSeq = YAMLSeq;
 
+});
 
-/***/ },
-
-/***/ 3757
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/addPairToJSMap.js
+var addPairToJSMap_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var log = __webpack_require__(2186);
-var merge = __webpack_require__(8327);
-var stringify = __webpack_require__(6203);
-var identity = __webpack_require__(6730);
-var toJS = __webpack_require__(2234);
+var log = (log_namespaceFn());
+var merge = (merge_namespaceFn());
+var stringify = (stringify_namespaceFn());
+var identity = (identity_namespaceFn());
+var toJS = (toJS_namespaceFn());
 
 function addPairToJSMap(ctx, map, { key, value }) {
     if (identity.isNode(key) && key.addToJSMap)
@@ -39190,12 +39403,10 @@ function stringifyKey(key, jsKey, ctx) {
 
 exports.addPairToJSMap = addPairToJSMap;
 
+});
 
-/***/ },
-
-/***/ 6730
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/identity.js
+var identity_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 const ALIAS = Symbol.for('yaml.alias');
@@ -39250,15 +39461,13 @@ exports.isPair = isPair;
 exports.isScalar = isScalar;
 exports.isSeq = isSeq;
 
+});
 
-/***/ },
-
-/***/ 2234
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/toJS.js
+var toJS_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
+var identity = (identity_namespaceFn());
 
 /**
  * Recursively convert any node or its contents to native JavaScript
@@ -39296,18 +39505,16 @@ function toJS(value, arg, ctx) {
 
 exports.toJS = toJS;
 
+});
 
-/***/ },
-
-/***/ 8215
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst-scalar.js
+var cst_scalar_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var resolveBlockScalar = __webpack_require__(2992);
-var resolveFlowScalar = __webpack_require__(3165);
-var errors = __webpack_require__(3409);
-var stringifyString = __webpack_require__(4286);
+var resolveBlockScalar = (resolve_block_scalar_namespaceFn());
+var resolveFlowScalar = (resolve_flow_scalar_namespaceFn());
+var errors = (errors_namespaceFn());
+var stringifyString = (stringifyString_namespaceFn());
 
 function resolveAsScalar(token, strict = true, onError) {
     if (token) {
@@ -39521,12 +39728,10 @@ exports.createScalarToken = createScalarToken;
 exports.resolveAsScalar = resolveAsScalar;
 exports.setScalarValue = setScalarValue;
 
+});
 
-/***/ },
-
-/***/ 2142
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst-stringify.js
+var cst_stringify_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 /**
@@ -39591,12 +39796,10 @@ function stringifyItem({ start, key, sep, value }) {
 
 exports.stringify = stringify;
 
+});
 
-/***/ },
-
-/***/ 1844
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst-visit.js
+var cst_visit_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 const BREAK = Symbol('break visit');
@@ -39697,17 +39900,15 @@ function _visit(path, item, visitor) {
 
 exports.visit = visit;
 
+});
 
-/***/ },
-
-/***/ 9810
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst.js
+var cst_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var cstScalar = __webpack_require__(8215);
-var cstStringify = __webpack_require__(2142);
-var cstVisit = __webpack_require__(1844);
+var cstScalar = (cst_scalar_namespaceFn());
+var cstStringify = (cst_stringify_namespaceFn());
+var cstVisit = (cst_visit_namespaceFn());
 
 /** The byte order mark */
 const BOM = '\u{FEFF}';
@@ -39816,15 +40017,13 @@ exports.isScalar = isScalar;
 exports.prettyToken = prettyToken;
 exports.tokenType = tokenType;
 
+});
 
-/***/ },
-
-/***/ 7894
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/lexer.js
+var lexer_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var cst = __webpack_require__(9810);
+var cst = (cst_namespaceFn());
 
 /*
 START -> stream
@@ -40546,12 +40745,10 @@ class Lexer {
 
 exports.Lexer = Lexer;
 
+});
 
-/***/ },
-
-/***/ 3813
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/line-counter.js
+var line_counter_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 /**
@@ -40594,17 +40791,15 @@ class LineCounter {
 
 exports.LineCounter = LineCounter;
 
+});
 
-/***/ },
-
-/***/ 5849
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/parser.js
+var parser_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var node_process = __webpack_require__(932);
-var cst = __webpack_require__(9810);
-var lexer = __webpack_require__(7894);
+var node_process = (external_process_namespaceFn());
+var cst = (cst_namespaceFn());
+var lexer = (lexer_namespaceFn());
 
 function includesToken(list, type) {
     for (let i = 0; i < list.length; ++i)
@@ -41581,21 +41776,19 @@ class Parser {
 
 exports.Parser = Parser;
 
+});
 
-/***/ },
-
-/***/ 1094
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/public-api.js
+var public_api_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var composer = __webpack_require__(2545);
-var Document = __webpack_require__(9960);
-var errors = __webpack_require__(3409);
-var log = __webpack_require__(2186);
-var identity = __webpack_require__(6730);
-var lineCounter = __webpack_require__(3813);
-var parser = __webpack_require__(5849);
+var composer = (composer_namespaceFn());
+var Document = (Document_namespaceFn());
+var errors = (errors_namespaceFn());
+var log = (log_namespaceFn());
+var identity = (identity_namespaceFn());
+var lineCounter = (line_counter_namespaceFn());
+var parser = (parser_namespaceFn());
 
 function parseOptions(options) {
     const prettyErrors = options.prettyErrors !== false;
@@ -41695,19 +41888,17 @@ exports.parseAllDocuments = parseAllDocuments;
 exports.parseDocument = parseDocument;
 exports.stringify = stringify;
 
+});
 
-/***/ },
-
-/***/ 8227
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/Schema.js
+var Schema_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var map = __webpack_require__(9988);
-var seq = __webpack_require__(505);
-var string = __webpack_require__(5613);
-var tags = __webpack_require__(7545);
+var identity = (identity_namespaceFn());
+var map = (map_namespaceFn());
+var seq = (seq_namespaceFn());
+var string = (string_namespaceFn());
+var tags = (tags_namespaceFn());
 
 const sortMapEntriesByKey = (a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
 class Schema {
@@ -41741,16 +41932,14 @@ class Schema {
 
 exports.Schema = Schema;
 
+});
 
-/***/ },
-
-/***/ 9988
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/map.js
+var map_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var YAMLMap = __webpack_require__(73);
+var identity = (identity_namespaceFn());
+var YAMLMap = (YAMLMap_namespaceFn());
 
 const map = {
     collection: 'map',
@@ -41767,15 +41956,13 @@ const map = {
 
 exports.map = map;
 
+});
 
-/***/ },
-
-/***/ 5725
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/null.js
+var null_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Scalar = __webpack_require__(8376);
+var Scalar = (Scalar_namespaceFn());
 
 const nullTag = {
     identify: value => value == null,
@@ -41791,16 +41978,14 @@ const nullTag = {
 
 exports.nullTag = nullTag;
 
+});
 
-/***/ },
-
-/***/ 505
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/seq.js
+var seq_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var YAMLSeq = __webpack_require__(7028);
+var identity = (identity_namespaceFn());
+var YAMLSeq = (YAMLSeq_namespaceFn());
 
 const seq = {
     collection: 'seq',
@@ -41817,15 +42002,13 @@ const seq = {
 
 exports.seq = seq;
 
+});
 
-/***/ },
-
-/***/ 5613
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/string.js
+var string_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var stringifyString = __webpack_require__(4286);
+var stringifyString = (stringifyString_namespaceFn());
 
 const string = {
     identify: value => typeof value === 'string',
@@ -41840,15 +42023,13 @@ const string = {
 
 exports.string = string;
 
+});
 
-/***/ },
-
-/***/ 4302
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/bool.js
+var bool_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Scalar = __webpack_require__(8376);
+var Scalar = (Scalar_namespaceFn());
 
 const boolTag = {
     identify: value => typeof value === 'boolean',
@@ -41868,16 +42049,14 @@ const boolTag = {
 
 exports.boolTag = boolTag;
 
+});
 
-/***/ },
-
-/***/ 7878
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/float.js
+var float_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Scalar = __webpack_require__(8376);
-var stringifyNumber = __webpack_require__(4374);
+var Scalar = (Scalar_namespaceFn());
+var stringifyNumber = (stringifyNumber_namespaceFn());
 
 const floatNaN = {
     identify: value => typeof value === 'number',
@@ -41922,15 +42101,13 @@ exports.float = float;
 exports.floatExp = floatExp;
 exports.floatNaN = floatNaN;
 
+});
 
-/***/ },
-
-/***/ 9305
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/int.js
+var int_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var stringifyNumber = __webpack_require__(4374);
+var stringifyNumber = (stringifyNumber_namespaceFn());
 
 const intIdentify = (value) => typeof value === 'bigint' || Number.isInteger(value);
 const intResolve = (str, offset, radix, { intAsBigInt }) => (intAsBigInt ? BigInt(str) : parseInt(str.substring(offset), radix));
@@ -41971,21 +42148,19 @@ exports.int = int;
 exports.intHex = intHex;
 exports.intOct = intOct;
 
+});
 
-/***/ },
-
-/***/ 8537
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/schema.js
+var schema_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var map = __webpack_require__(9988);
-var _null = __webpack_require__(5725);
-var seq = __webpack_require__(505);
-var string = __webpack_require__(5613);
-var bool = __webpack_require__(4302);
-var float = __webpack_require__(7878);
-var int = __webpack_require__(9305);
+var map = (map_namespaceFn());
+var _null = (null_namespaceFn());
+var seq = (seq_namespaceFn());
+var string = (string_namespaceFn());
+var bool = (bool_namespaceFn());
+var float = (float_namespaceFn());
+var int = (int_namespaceFn());
 
 const schema = [
     map.map,
@@ -42003,17 +42178,15 @@ const schema = [
 
 exports.schema = schema;
 
+});
 
-/***/ },
-
-/***/ 7150
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/json/schema.js
+var json_schema_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Scalar = __webpack_require__(8376);
-var map = __webpack_require__(9988);
-var seq = __webpack_require__(505);
+var Scalar = (Scalar_namespaceFn());
+var map = (map_namespaceFn());
+var seq = (seq_namespaceFn());
 
 function intIdentify(value) {
     return typeof value === 'bigint' || Number.isInteger(value);
@@ -42074,30 +42247,28 @@ const schema = [map.map, seq.seq].concat(jsonScalars, jsonError);
 
 exports.schema = schema;
 
+});
 
-/***/ },
-
-/***/ 7545
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/tags.js
+var tags_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var map = __webpack_require__(9988);
-var _null = __webpack_require__(5725);
-var seq = __webpack_require__(505);
-var string = __webpack_require__(5613);
-var bool = __webpack_require__(4302);
-var float = __webpack_require__(7878);
-var int = __webpack_require__(9305);
-var schema = __webpack_require__(8537);
-var schema$1 = __webpack_require__(7150);
-var binary = __webpack_require__(298);
-var merge = __webpack_require__(8327);
-var omap = __webpack_require__(8822);
-var pairs = __webpack_require__(9946);
-var schema$2 = __webpack_require__(3908);
-var set = __webpack_require__(6675);
-var timestamp = __webpack_require__(9859);
+var map = (map_namespaceFn());
+var _null = (null_namespaceFn());
+var seq = (seq_namespaceFn());
+var string = (string_namespaceFn());
+var bool = (bool_namespaceFn());
+var float = (float_namespaceFn());
+var int = (int_namespaceFn());
+var schema = (schema_namespaceFn());
+var schema$1 = (json_schema_namespaceFn());
+var binary = (binary_namespaceFn());
+var merge = (merge_namespaceFn());
+var omap = (omap_namespaceFn());
+var pairs = (pairs_namespaceFn());
+var schema$2 = (yaml_1_1_schema_namespaceFn());
+var set = (set_namespaceFn());
+var timestamp = (timestamp_namespaceFn());
 
 const schemas = new Map([
     ['core', schema.schema],
@@ -42180,17 +42351,15 @@ function getTags(customTags, schemaName, addMergeTag) {
 exports.coreKnownTags = coreKnownTags;
 exports.getTags = getTags;
 
+});
 
-/***/ },
-
-/***/ 298
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/binary.js
+var binary_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var node_buffer = __webpack_require__(181);
-var Scalar = __webpack_require__(8376);
-var stringifyString = __webpack_require__(4286);
+var node_buffer = (external_buffer_namespaceFn());
+var Scalar = (Scalar_namespaceFn());
+var stringifyString = (stringifyString_namespaceFn());
 
 const binary = {
     identify: value => value instanceof Uint8Array, // Buffer inherits from Uint8Array
@@ -42257,15 +42426,13 @@ const binary = {
 
 exports.binary = binary;
 
+});
 
-/***/ },
-
-/***/ 4211
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/bool.js
+var yaml_1_1_bool_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Scalar = __webpack_require__(8376);
+var Scalar = (Scalar_namespaceFn());
 
 function boolStringify({ value, source }, ctx) {
     const boolObj = value ? trueTag : falseTag;
@@ -42293,16 +42460,14 @@ const falseTag = {
 exports.falseTag = falseTag;
 exports.trueTag = trueTag;
 
+});
 
-/***/ },
-
-/***/ 1489
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/float.js
+var yaml_1_1_float_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Scalar = __webpack_require__(8376);
-var stringifyNumber = __webpack_require__(4374);
+var Scalar = (Scalar_namespaceFn());
+var stringifyNumber = (stringifyNumber_namespaceFn());
 
 const floatNaN = {
     identify: value => typeof value === 'number',
@@ -42350,15 +42515,13 @@ exports.float = float;
 exports.floatExp = floatExp;
 exports.floatNaN = floatNaN;
 
+});
 
-/***/ },
-
-/***/ 5566
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/int.js
+var yaml_1_1_int_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var stringifyNumber = __webpack_require__(4374);
+var stringifyNumber = (stringifyNumber_namespaceFn());
 
 const intIdentify = (value) => typeof value === 'bigint' || Number.isInteger(value);
 function intResolve(str, offset, radix, { intAsBigInt }) {
@@ -42433,16 +42596,14 @@ exports.intBin = intBin;
 exports.intHex = intHex;
 exports.intOct = intOct;
 
+});
 
-/***/ },
-
-/***/ 8327
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/merge.js
+var merge_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var Scalar = __webpack_require__(8376);
+var identity = (identity_namespaceFn());
+var Scalar = (Scalar_namespaceFn());
 
 // If the value associated with a merge key is a single mapping node, each of
 // its key/value pairs is inserted into the current mapping, unless the key
@@ -42511,19 +42672,17 @@ exports.addMergeToJSMap = addMergeToJSMap;
 exports.isMergeKey = isMergeKey;
 exports.merge = merge;
 
+});
 
-/***/ },
-
-/***/ 8822
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/omap.js
+var omap_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var toJS = __webpack_require__(2234);
-var YAMLMap = __webpack_require__(73);
-var YAMLSeq = __webpack_require__(7028);
-var pairs = __webpack_require__(9946);
+var identity = (identity_namespaceFn());
+var toJS = (toJS_namespaceFn());
+var YAMLMap = (YAMLMap_namespaceFn());
+var YAMLSeq = (YAMLSeq_namespaceFn());
+var pairs = (pairs_namespaceFn());
 
 class YAMLOMap extends YAMLSeq.YAMLSeq {
     constructor() {
@@ -42595,18 +42754,16 @@ const omap = {
 exports.YAMLOMap = YAMLOMap;
 exports.omap = omap;
 
+});
 
-/***/ },
-
-/***/ 9946
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/pairs.js
+var pairs_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var Pair = __webpack_require__(7748);
-var Scalar = __webpack_require__(8376);
-var YAMLSeq = __webpack_require__(7028);
+var identity = (identity_namespaceFn());
+var Pair = (Pair_namespaceFn());
+var Scalar = (Scalar_namespaceFn());
+var YAMLSeq = (YAMLSeq_namespaceFn());
 
 function resolvePairs(seq, onError) {
     if (identity.isSeq(seq)) {
@@ -42684,27 +42841,25 @@ exports.createPairs = createPairs;
 exports.pairs = pairs;
 exports.resolvePairs = resolvePairs;
 
+});
 
-/***/ },
-
-/***/ 3908
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/schema.js
+var yaml_1_1_schema_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var map = __webpack_require__(9988);
-var _null = __webpack_require__(5725);
-var seq = __webpack_require__(505);
-var string = __webpack_require__(5613);
-var binary = __webpack_require__(298);
-var bool = __webpack_require__(4211);
-var float = __webpack_require__(1489);
-var int = __webpack_require__(5566);
-var merge = __webpack_require__(8327);
-var omap = __webpack_require__(8822);
-var pairs = __webpack_require__(9946);
-var set = __webpack_require__(6675);
-var timestamp = __webpack_require__(9859);
+var map = (map_namespaceFn());
+var _null = (null_namespaceFn());
+var seq = (seq_namespaceFn());
+var string = (string_namespaceFn());
+var binary = (binary_namespaceFn());
+var bool = (yaml_1_1_bool_namespaceFn());
+var float = (yaml_1_1_float_namespaceFn());
+var int = (yaml_1_1_int_namespaceFn());
+var merge = (merge_namespaceFn());
+var omap = (omap_namespaceFn());
+var pairs = (pairs_namespaceFn());
+var set = (set_namespaceFn());
+var timestamp = (timestamp_namespaceFn());
 
 const schema = [
     map.map,
@@ -42732,17 +42887,15 @@ const schema = [
 
 exports.schema = schema;
 
+});
 
-/***/ },
-
-/***/ 6675
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/set.js
+var set_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var Pair = __webpack_require__(7748);
-var YAMLMap = __webpack_require__(73);
+var identity = (identity_namespaceFn());
+var Pair = (Pair_namespaceFn());
+var YAMLMap = (YAMLMap_namespaceFn());
 
 class YAMLSet extends YAMLMap.YAMLMap {
     constructor(schema) {
@@ -42835,15 +42988,13 @@ const set = {
 exports.YAMLSet = YAMLSet;
 exports.set = set;
 
+});
 
-/***/ },
-
-/***/ 9859
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/timestamp.js
+var timestamp_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var stringifyNumber = __webpack_require__(4374);
+var stringifyNumber = (stringifyNumber_namespaceFn());
 
 /** Internal types handle bigint as number, because TS can't figure it out. */
 function parseSexagesimal(str, asBigInt) {
@@ -42947,12 +43098,10 @@ exports.floatTime = floatTime;
 exports.intTime = intTime;
 exports.timestamp = timestamp;
 
+});
 
-/***/ },
-
-/***/ 3980
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/foldFlowLines.js
+var foldFlowLines_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 const FOLD_FLOW = 'flow';
@@ -43105,18 +43254,16 @@ exports.FOLD_FLOW = FOLD_FLOW;
 exports.FOLD_QUOTED = FOLD_QUOTED;
 exports.foldFlowLines = foldFlowLines;
 
+});
 
-/***/ },
-
-/***/ 6203
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringify.js
+var stringify_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var anchors = __webpack_require__(9531);
-var identity = __webpack_require__(6730);
-var stringifyComment = __webpack_require__(3202);
-var stringifyString = __webpack_require__(4286);
+var anchors = (anchors_namespaceFn());
+var identity = (identity_namespaceFn());
+var stringifyComment = (stringifyComment_namespaceFn());
+var stringifyString = (stringifyString_namespaceFn());
 
 function createStringifyContext(doc, options) {
     const opt = Object.assign({
@@ -43244,17 +43391,15 @@ function stringify(item, ctx, onComment, onChompKeep) {
 exports.createStringifyContext = createStringifyContext;
 exports.stringify = stringify;
 
+});
 
-/***/ },
-
-/***/ 8143
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyCollection.js
+var stringifyCollection_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var stringify = __webpack_require__(6203);
-var stringifyComment = __webpack_require__(3202);
+var identity = (identity_namespaceFn());
+var stringify = (stringify_namespaceFn());
+var stringifyComment = (stringifyComment_namespaceFn());
 
 function stringifyCollection(collection, ctx, options) {
     const flow = ctx.inFlow ?? collection.flow;
@@ -43406,12 +43551,10 @@ function addCommentBefore({ indent, options: { commentString } }, lines, comment
 
 exports.stringifyCollection = stringifyCollection;
 
+});
 
-/***/ },
-
-/***/ 3202
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyComment.js
+var stringifyComment_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 /**
@@ -43437,17 +43580,15 @@ exports.indentComment = indentComment;
 exports.lineComment = lineComment;
 exports.stringifyComment = stringifyComment;
 
+});
 
-/***/ },
-
-/***/ 5966
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyDocument.js
+var stringifyDocument_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var stringify = __webpack_require__(6203);
-var stringifyComment = __webpack_require__(3202);
+var identity = (identity_namespaceFn());
+var stringify = (stringify_namespaceFn());
+var stringifyComment = (stringifyComment_namespaceFn());
 
 function stringifyDocument(doc, options) {
     const lines = [];
@@ -43531,12 +43672,10 @@ function stringifyDocument(doc, options) {
 
 exports.stringifyDocument = stringifyDocument;
 
+});
 
-/***/ },
-
-/***/ 4374
-(__unused_webpack_module, exports) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyNumber.js
+var stringifyNumber_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
 function stringifyNumber({ format, minFractionDigits, tag, value }) {
@@ -43565,18 +43704,16 @@ function stringifyNumber({ format, minFractionDigits, tag, value }) {
 
 exports.stringifyNumber = stringifyNumber;
 
+});
 
-/***/ },
-
-/***/ 4711
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyPair.js
+var stringifyPair_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
-var Scalar = __webpack_require__(8376);
-var stringify = __webpack_require__(6203);
-var stringifyComment = __webpack_require__(3202);
+var identity = (identity_namespaceFn());
+var Scalar = (Scalar_namespaceFn());
+var stringify = (stringify_namespaceFn());
+var stringifyComment = (stringifyComment_namespaceFn());
 
 function stringifyPair({ key, value }, ctx, onComment, onChompKeep) {
     const { allNullValues, doc, indent, indentStep, options: { commentString, indentSeq, simpleKeys } } = ctx;
@@ -43724,16 +43861,14 @@ function stringifyPair({ key, value }, ctx, onComment, onChompKeep) {
 
 exports.stringifyPair = stringifyPair;
 
+});
 
-/***/ },
-
-/***/ 4286
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyString.js
+var stringifyString_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var Scalar = __webpack_require__(8376);
-var foldFlowLines = __webpack_require__(3980);
+var Scalar = (Scalar_namespaceFn());
+var foldFlowLines = (foldFlowLines_namespaceFn());
 
 const getFoldOptions = (ctx, isBlock) => ({
     indentAtStart: isBlock ? ctx.indent.length : ctx.indentAtStart,
@@ -44069,15 +44204,13 @@ function stringifyString(item, ctx, onComment, onChompKeep) {
 
 exports.stringifyString = stringifyString;
 
+});
 
-/***/ },
-
-/***/ 7995
-(__unused_webpack_module, exports, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/visit.js
+var visit_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
 
 
-var identity = __webpack_require__(6730);
+var identity = (identity_namespaceFn());
 
 const BREAK = Symbol('break visit');
 const SKIP = Symbol('skip children');
@@ -44312,12 +44445,10 @@ function replaceNode(key, path, node) {
 exports.visit = visit;
 exports.visitAsync = visitAsync;
 
+});
 
-/***/ },
-
-/***/ 7320
-(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
-
+// MODULE: ./node_modules/.pnpm/@socket.io+component-emitter@3.1.2/node_modules/@socket.io/component-emitter/lib/esm/index.js
+var esm_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(__webpack_module__, __webpack_exports__) {
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Emitter: () => (/* binding */ Emitter)
 /* harmony export */ });
@@ -44491,194 +44622,20 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
+});
 
-/***/ },
-
-/***/ 7080
-(module) {
-
-module.exports = /*#__PURE__*/JSON.parse('{"application/1d-interleaved-parityfec":{"source":"iana"},"application/3gpdash-qoe-report+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/3gpp-ims+xml":{"source":"iana","compressible":true},"application/3gpphal+json":{"source":"iana","compressible":true},"application/3gpphalforms+json":{"source":"iana","compressible":true},"application/a2l":{"source":"iana"},"application/ace+cbor":{"source":"iana"},"application/activemessage":{"source":"iana"},"application/activity+json":{"source":"iana","compressible":true},"application/alto-costmap+json":{"source":"iana","compressible":true},"application/alto-costmapfilter+json":{"source":"iana","compressible":true},"application/alto-directory+json":{"source":"iana","compressible":true},"application/alto-endpointcost+json":{"source":"iana","compressible":true},"application/alto-endpointcostparams+json":{"source":"iana","compressible":true},"application/alto-endpointprop+json":{"source":"iana","compressible":true},"application/alto-endpointpropparams+json":{"source":"iana","compressible":true},"application/alto-error+json":{"source":"iana","compressible":true},"application/alto-networkmap+json":{"source":"iana","compressible":true},"application/alto-networkmapfilter+json":{"source":"iana","compressible":true},"application/alto-updatestreamcontrol+json":{"source":"iana","compressible":true},"application/alto-updatestreamparams+json":{"source":"iana","compressible":true},"application/aml":{"source":"iana"},"application/andrew-inset":{"source":"iana","extensions":["ez"]},"application/applefile":{"source":"iana"},"application/applixware":{"source":"apache","extensions":["aw"]},"application/at+jwt":{"source":"iana"},"application/atf":{"source":"iana"},"application/atfx":{"source":"iana"},"application/atom+xml":{"source":"iana","compressible":true,"extensions":["atom"]},"application/atomcat+xml":{"source":"iana","compressible":true,"extensions":["atomcat"]},"application/atomdeleted+xml":{"source":"iana","compressible":true,"extensions":["atomdeleted"]},"application/atomicmail":{"source":"iana"},"application/atomsvc+xml":{"source":"iana","compressible":true,"extensions":["atomsvc"]},"application/atsc-dwd+xml":{"source":"iana","compressible":true,"extensions":["dwd"]},"application/atsc-dynamic-event-message":{"source":"iana"},"application/atsc-held+xml":{"source":"iana","compressible":true,"extensions":["held"]},"application/atsc-rdt+json":{"source":"iana","compressible":true},"application/atsc-rsat+xml":{"source":"iana","compressible":true,"extensions":["rsat"]},"application/atxml":{"source":"iana"},"application/auth-policy+xml":{"source":"iana","compressible":true},"application/bacnet-xdd+zip":{"source":"iana","compressible":false},"application/batch-smtp":{"source":"iana"},"application/bdoc":{"compressible":false,"extensions":["bdoc"]},"application/beep+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/calendar+json":{"source":"iana","compressible":true},"application/calendar+xml":{"source":"iana","compressible":true,"extensions":["xcs"]},"application/call-completion":{"source":"iana"},"application/cals-1840":{"source":"iana"},"application/captive+json":{"source":"iana","compressible":true},"application/cbor":{"source":"iana"},"application/cbor-seq":{"source":"iana"},"application/cccex":{"source":"iana"},"application/ccmp+xml":{"source":"iana","compressible":true},"application/ccxml+xml":{"source":"iana","compressible":true,"extensions":["ccxml"]},"application/cdfx+xml":{"source":"iana","compressible":true,"extensions":["cdfx"]},"application/cdmi-capability":{"source":"iana","extensions":["cdmia"]},"application/cdmi-container":{"source":"iana","extensions":["cdmic"]},"application/cdmi-domain":{"source":"iana","extensions":["cdmid"]},"application/cdmi-object":{"source":"iana","extensions":["cdmio"]},"application/cdmi-queue":{"source":"iana","extensions":["cdmiq"]},"application/cdni":{"source":"iana"},"application/cea":{"source":"iana"},"application/cea-2018+xml":{"source":"iana","compressible":true},"application/cellml+xml":{"source":"iana","compressible":true},"application/cfw":{"source":"iana"},"application/city+json":{"source":"iana","compressible":true},"application/clr":{"source":"iana"},"application/clue+xml":{"source":"iana","compressible":true},"application/clue_info+xml":{"source":"iana","compressible":true},"application/cms":{"source":"iana"},"application/cnrp+xml":{"source":"iana","compressible":true},"application/coap-group+json":{"source":"iana","compressible":true},"application/coap-payload":{"source":"iana"},"application/commonground":{"source":"iana"},"application/conference-info+xml":{"source":"iana","compressible":true},"application/cose":{"source":"iana"},"application/cose-key":{"source":"iana"},"application/cose-key-set":{"source":"iana"},"application/cpl+xml":{"source":"iana","compressible":true,"extensions":["cpl"]},"application/csrattrs":{"source":"iana"},"application/csta+xml":{"source":"iana","compressible":true},"application/cstadata+xml":{"source":"iana","compressible":true},"application/csvm+json":{"source":"iana","compressible":true},"application/cu-seeme":{"source":"apache","extensions":["cu"]},"application/cwt":{"source":"iana"},"application/cybercash":{"source":"iana"},"application/dart":{"compressible":true},"application/dash+xml":{"source":"iana","compressible":true,"extensions":["mpd"]},"application/dash-patch+xml":{"source":"iana","compressible":true,"extensions":["mpp"]},"application/dashdelta":{"source":"iana"},"application/davmount+xml":{"source":"iana","compressible":true,"extensions":["davmount"]},"application/dca-rft":{"source":"iana"},"application/dcd":{"source":"iana"},"application/dec-dx":{"source":"iana"},"application/dialog-info+xml":{"source":"iana","compressible":true},"application/dicom":{"source":"iana"},"application/dicom+json":{"source":"iana","compressible":true},"application/dicom+xml":{"source":"iana","compressible":true},"application/dii":{"source":"iana"},"application/dit":{"source":"iana"},"application/dns":{"source":"iana"},"application/dns+json":{"source":"iana","compressible":true},"application/dns-message":{"source":"iana"},"application/docbook+xml":{"source":"apache","compressible":true,"extensions":["dbk"]},"application/dots+cbor":{"source":"iana"},"application/dskpp+xml":{"source":"iana","compressible":true},"application/dssc+der":{"source":"iana","extensions":["dssc"]},"application/dssc+xml":{"source":"iana","compressible":true,"extensions":["xdssc"]},"application/dvcs":{"source":"iana"},"application/ecmascript":{"source":"iana","compressible":true,"extensions":["es","ecma"]},"application/edi-consent":{"source":"iana"},"application/edi-x12":{"source":"iana","compressible":false},"application/edifact":{"source":"iana","compressible":false},"application/efi":{"source":"iana"},"application/elm+json":{"source":"iana","charset":"UTF-8","compressible":true},"application/elm+xml":{"source":"iana","compressible":true},"application/emergencycalldata.cap+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/emergencycalldata.comment+xml":{"source":"iana","compressible":true},"application/emergencycalldata.control+xml":{"source":"iana","compressible":true},"application/emergencycalldata.deviceinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.ecall.msd":{"source":"iana"},"application/emergencycalldata.providerinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.serviceinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.subscriberinfo+xml":{"source":"iana","compressible":true},"application/emergencycalldata.veds+xml":{"source":"iana","compressible":true},"application/emma+xml":{"source":"iana","compressible":true,"extensions":["emma"]},"application/emotionml+xml":{"source":"iana","compressible":true,"extensions":["emotionml"]},"application/encaprtp":{"source":"iana"},"application/epp+xml":{"source":"iana","compressible":true},"application/epub+zip":{"source":"iana","compressible":false,"extensions":["epub"]},"application/eshop":{"source":"iana"},"application/exi":{"source":"iana","extensions":["exi"]},"application/expect-ct-report+json":{"source":"iana","compressible":true},"application/express":{"source":"iana","extensions":["exp"]},"application/fastinfoset":{"source":"iana"},"application/fastsoap":{"source":"iana"},"application/fdt+xml":{"source":"iana","compressible":true,"extensions":["fdt"]},"application/fhir+json":{"source":"iana","charset":"UTF-8","compressible":true},"application/fhir+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/fido.trusted-apps+json":{"compressible":true},"application/fits":{"source":"iana"},"application/flexfec":{"source":"iana"},"application/font-sfnt":{"source":"iana"},"application/font-tdpfr":{"source":"iana","extensions":["pfr"]},"application/font-woff":{"source":"iana","compressible":false},"application/framework-attributes+xml":{"source":"iana","compressible":true},"application/geo+json":{"source":"iana","compressible":true,"extensions":["geojson"]},"application/geo+json-seq":{"source":"iana"},"application/geopackage+sqlite3":{"source":"iana"},"application/geoxacml+xml":{"source":"iana","compressible":true},"application/gltf-buffer":{"source":"iana"},"application/gml+xml":{"source":"iana","compressible":true,"extensions":["gml"]},"application/gpx+xml":{"source":"apache","compressible":true,"extensions":["gpx"]},"application/gxf":{"source":"apache","extensions":["gxf"]},"application/gzip":{"source":"iana","compressible":false,"extensions":["gz"]},"application/h224":{"source":"iana"},"application/held+xml":{"source":"iana","compressible":true},"application/hjson":{"extensions":["hjson"]},"application/http":{"source":"iana"},"application/hyperstudio":{"source":"iana","extensions":["stk"]},"application/ibe-key-request+xml":{"source":"iana","compressible":true},"application/ibe-pkg-reply+xml":{"source":"iana","compressible":true},"application/ibe-pp-data":{"source":"iana"},"application/iges":{"source":"iana"},"application/im-iscomposing+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/index":{"source":"iana"},"application/index.cmd":{"source":"iana"},"application/index.obj":{"source":"iana"},"application/index.response":{"source":"iana"},"application/index.vnd":{"source":"iana"},"application/inkml+xml":{"source":"iana","compressible":true,"extensions":["ink","inkml"]},"application/iotp":{"source":"iana"},"application/ipfix":{"source":"iana","extensions":["ipfix"]},"application/ipp":{"source":"iana"},"application/isup":{"source":"iana"},"application/its+xml":{"source":"iana","compressible":true,"extensions":["its"]},"application/java-archive":{"source":"apache","compressible":false,"extensions":["jar","war","ear"]},"application/java-serialized-object":{"source":"apache","compressible":false,"extensions":["ser"]},"application/java-vm":{"source":"apache","compressible":false,"extensions":["class"]},"application/javascript":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["js","mjs"]},"application/jf2feed+json":{"source":"iana","compressible":true},"application/jose":{"source":"iana"},"application/jose+json":{"source":"iana","compressible":true},"application/jrd+json":{"source":"iana","compressible":true},"application/jscalendar+json":{"source":"iana","compressible":true},"application/json":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["json","map"]},"application/json-patch+json":{"source":"iana","compressible":true},"application/json-seq":{"source":"iana"},"application/json5":{"extensions":["json5"]},"application/jsonml+json":{"source":"apache","compressible":true,"extensions":["jsonml"]},"application/jwk+json":{"source":"iana","compressible":true},"application/jwk-set+json":{"source":"iana","compressible":true},"application/jwt":{"source":"iana"},"application/kpml-request+xml":{"source":"iana","compressible":true},"application/kpml-response+xml":{"source":"iana","compressible":true},"application/ld+json":{"source":"iana","compressible":true,"extensions":["jsonld"]},"application/lgr+xml":{"source":"iana","compressible":true,"extensions":["lgr"]},"application/link-format":{"source":"iana"},"application/load-control+xml":{"source":"iana","compressible":true},"application/lost+xml":{"source":"iana","compressible":true,"extensions":["lostxml"]},"application/lostsync+xml":{"source":"iana","compressible":true},"application/lpf+zip":{"source":"iana","compressible":false},"application/lxf":{"source":"iana"},"application/mac-binhex40":{"source":"iana","extensions":["hqx"]},"application/mac-compactpro":{"source":"apache","extensions":["cpt"]},"application/macwriteii":{"source":"iana"},"application/mads+xml":{"source":"iana","compressible":true,"extensions":["mads"]},"application/manifest+json":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["webmanifest"]},"application/marc":{"source":"iana","extensions":["mrc"]},"application/marcxml+xml":{"source":"iana","compressible":true,"extensions":["mrcx"]},"application/mathematica":{"source":"iana","extensions":["ma","nb","mb"]},"application/mathml+xml":{"source":"iana","compressible":true,"extensions":["mathml"]},"application/mathml-content+xml":{"source":"iana","compressible":true},"application/mathml-presentation+xml":{"source":"iana","compressible":true},"application/mbms-associated-procedure-description+xml":{"source":"iana","compressible":true},"application/mbms-deregister+xml":{"source":"iana","compressible":true},"application/mbms-envelope+xml":{"source":"iana","compressible":true},"application/mbms-msk+xml":{"source":"iana","compressible":true},"application/mbms-msk-response+xml":{"source":"iana","compressible":true},"application/mbms-protection-description+xml":{"source":"iana","compressible":true},"application/mbms-reception-report+xml":{"source":"iana","compressible":true},"application/mbms-register+xml":{"source":"iana","compressible":true},"application/mbms-register-response+xml":{"source":"iana","compressible":true},"application/mbms-schedule+xml":{"source":"iana","compressible":true},"application/mbms-user-service-description+xml":{"source":"iana","compressible":true},"application/mbox":{"source":"iana","extensions":["mbox"]},"application/media-policy-dataset+xml":{"source":"iana","compressible":true,"extensions":["mpf"]},"application/media_control+xml":{"source":"iana","compressible":true},"application/mediaservercontrol+xml":{"source":"iana","compressible":true,"extensions":["mscml"]},"application/merge-patch+json":{"source":"iana","compressible":true},"application/metalink+xml":{"source":"apache","compressible":true,"extensions":["metalink"]},"application/metalink4+xml":{"source":"iana","compressible":true,"extensions":["meta4"]},"application/mets+xml":{"source":"iana","compressible":true,"extensions":["mets"]},"application/mf4":{"source":"iana"},"application/mikey":{"source":"iana"},"application/mipc":{"source":"iana"},"application/missing-blocks+cbor-seq":{"source":"iana"},"application/mmt-aei+xml":{"source":"iana","compressible":true,"extensions":["maei"]},"application/mmt-usd+xml":{"source":"iana","compressible":true,"extensions":["musd"]},"application/mods+xml":{"source":"iana","compressible":true,"extensions":["mods"]},"application/moss-keys":{"source":"iana"},"application/moss-signature":{"source":"iana"},"application/mosskey-data":{"source":"iana"},"application/mosskey-request":{"source":"iana"},"application/mp21":{"source":"iana","extensions":["m21","mp21"]},"application/mp4":{"source":"iana","extensions":["mp4s","m4p"]},"application/mpeg4-generic":{"source":"iana"},"application/mpeg4-iod":{"source":"iana"},"application/mpeg4-iod-xmt":{"source":"iana"},"application/mrb-consumer+xml":{"source":"iana","compressible":true},"application/mrb-publish+xml":{"source":"iana","compressible":true},"application/msc-ivr+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/msc-mixer+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/msword":{"source":"iana","compressible":false,"extensions":["doc","dot"]},"application/mud+json":{"source":"iana","compressible":true},"application/multipart-core":{"source":"iana"},"application/mxf":{"source":"iana","extensions":["mxf"]},"application/n-quads":{"source":"iana","extensions":["nq"]},"application/n-triples":{"source":"iana","extensions":["nt"]},"application/nasdata":{"source":"iana"},"application/news-checkgroups":{"source":"iana","charset":"US-ASCII"},"application/news-groupinfo":{"source":"iana","charset":"US-ASCII"},"application/news-transmission":{"source":"iana"},"application/nlsml+xml":{"source":"iana","compressible":true},"application/node":{"source":"iana","extensions":["cjs"]},"application/nss":{"source":"iana"},"application/oauth-authz-req+jwt":{"source":"iana"},"application/oblivious-dns-message":{"source":"iana"},"application/ocsp-request":{"source":"iana"},"application/ocsp-response":{"source":"iana"},"application/octet-stream":{"source":"iana","compressible":false,"extensions":["bin","dms","lrf","mar","so","dist","distz","pkg","bpk","dump","elc","deploy","exe","dll","deb","dmg","iso","img","msi","msp","msm","buffer"]},"application/oda":{"source":"iana","extensions":["oda"]},"application/odm+xml":{"source":"iana","compressible":true},"application/odx":{"source":"iana"},"application/oebps-package+xml":{"source":"iana","compressible":true,"extensions":["opf"]},"application/ogg":{"source":"iana","compressible":false,"extensions":["ogx"]},"application/omdoc+xml":{"source":"apache","compressible":true,"extensions":["omdoc"]},"application/onenote":{"source":"apache","extensions":["onetoc","onetoc2","onetmp","onepkg"]},"application/opc-nodeset+xml":{"source":"iana","compressible":true},"application/oscore":{"source":"iana"},"application/oxps":{"source":"iana","extensions":["oxps"]},"application/p21":{"source":"iana"},"application/p21+zip":{"source":"iana","compressible":false},"application/p2p-overlay+xml":{"source":"iana","compressible":true,"extensions":["relo"]},"application/parityfec":{"source":"iana"},"application/passport":{"source":"iana"},"application/patch-ops-error+xml":{"source":"iana","compressible":true,"extensions":["xer"]},"application/pdf":{"source":"iana","compressible":false,"extensions":["pdf"]},"application/pdx":{"source":"iana"},"application/pem-certificate-chain":{"source":"iana"},"application/pgp-encrypted":{"source":"iana","compressible":false,"extensions":["pgp"]},"application/pgp-keys":{"source":"iana","extensions":["asc"]},"application/pgp-signature":{"source":"iana","extensions":["asc","sig"]},"application/pics-rules":{"source":"apache","extensions":["prf"]},"application/pidf+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/pidf-diff+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/pkcs10":{"source":"iana","extensions":["p10"]},"application/pkcs12":{"source":"iana"},"application/pkcs7-mime":{"source":"iana","extensions":["p7m","p7c"]},"application/pkcs7-signature":{"source":"iana","extensions":["p7s"]},"application/pkcs8":{"source":"iana","extensions":["p8"]},"application/pkcs8-encrypted":{"source":"iana"},"application/pkix-attr-cert":{"source":"iana","extensions":["ac"]},"application/pkix-cert":{"source":"iana","extensions":["cer"]},"application/pkix-crl":{"source":"iana","extensions":["crl"]},"application/pkix-pkipath":{"source":"iana","extensions":["pkipath"]},"application/pkixcmp":{"source":"iana","extensions":["pki"]},"application/pls+xml":{"source":"iana","compressible":true,"extensions":["pls"]},"application/poc-settings+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/postscript":{"source":"iana","compressible":true,"extensions":["ai","eps","ps"]},"application/ppsp-tracker+json":{"source":"iana","compressible":true},"application/problem+json":{"source":"iana","compressible":true},"application/problem+xml":{"source":"iana","compressible":true},"application/provenance+xml":{"source":"iana","compressible":true,"extensions":["provx"]},"application/prs.alvestrand.titrax-sheet":{"source":"iana"},"application/prs.cww":{"source":"iana","extensions":["cww"]},"application/prs.cyn":{"source":"iana","charset":"7-BIT"},"application/prs.hpub+zip":{"source":"iana","compressible":false},"application/prs.nprend":{"source":"iana"},"application/prs.plucker":{"source":"iana"},"application/prs.rdf-xml-crypt":{"source":"iana"},"application/prs.xsf+xml":{"source":"iana","compressible":true},"application/pskc+xml":{"source":"iana","compressible":true,"extensions":["pskcxml"]},"application/pvd+json":{"source":"iana","compressible":true},"application/qsig":{"source":"iana"},"application/raml+yaml":{"compressible":true,"extensions":["raml"]},"application/raptorfec":{"source":"iana"},"application/rdap+json":{"source":"iana","compressible":true},"application/rdf+xml":{"source":"iana","compressible":true,"extensions":["rdf","owl"]},"application/reginfo+xml":{"source":"iana","compressible":true,"extensions":["rif"]},"application/relax-ng-compact-syntax":{"source":"iana","extensions":["rnc"]},"application/remote-printing":{"source":"iana"},"application/reputon+json":{"source":"iana","compressible":true},"application/resource-lists+xml":{"source":"iana","compressible":true,"extensions":["rl"]},"application/resource-lists-diff+xml":{"source":"iana","compressible":true,"extensions":["rld"]},"application/rfc+xml":{"source":"iana","compressible":true},"application/riscos":{"source":"iana"},"application/rlmi+xml":{"source":"iana","compressible":true},"application/rls-services+xml":{"source":"iana","compressible":true,"extensions":["rs"]},"application/route-apd+xml":{"source":"iana","compressible":true,"extensions":["rapd"]},"application/route-s-tsid+xml":{"source":"iana","compressible":true,"extensions":["sls"]},"application/route-usd+xml":{"source":"iana","compressible":true,"extensions":["rusd"]},"application/rpki-ghostbusters":{"source":"iana","extensions":["gbr"]},"application/rpki-manifest":{"source":"iana","extensions":["mft"]},"application/rpki-publication":{"source":"iana"},"application/rpki-roa":{"source":"iana","extensions":["roa"]},"application/rpki-updown":{"source":"iana"},"application/rsd+xml":{"source":"apache","compressible":true,"extensions":["rsd"]},"application/rss+xml":{"source":"apache","compressible":true,"extensions":["rss"]},"application/rtf":{"source":"iana","compressible":true,"extensions":["rtf"]},"application/rtploopback":{"source":"iana"},"application/rtx":{"source":"iana"},"application/samlassertion+xml":{"source":"iana","compressible":true},"application/samlmetadata+xml":{"source":"iana","compressible":true},"application/sarif+json":{"source":"iana","compressible":true},"application/sarif-external-properties+json":{"source":"iana","compressible":true},"application/sbe":{"source":"iana"},"application/sbml+xml":{"source":"iana","compressible":true,"extensions":["sbml"]},"application/scaip+xml":{"source":"iana","compressible":true},"application/scim+json":{"source":"iana","compressible":true},"application/scvp-cv-request":{"source":"iana","extensions":["scq"]},"application/scvp-cv-response":{"source":"iana","extensions":["scs"]},"application/scvp-vp-request":{"source":"iana","extensions":["spq"]},"application/scvp-vp-response":{"source":"iana","extensions":["spp"]},"application/sdp":{"source":"iana","extensions":["sdp"]},"application/secevent+jwt":{"source":"iana"},"application/senml+cbor":{"source":"iana"},"application/senml+json":{"source":"iana","compressible":true},"application/senml+xml":{"source":"iana","compressible":true,"extensions":["senmlx"]},"application/senml-etch+cbor":{"source":"iana"},"application/senml-etch+json":{"source":"iana","compressible":true},"application/senml-exi":{"source":"iana"},"application/sensml+cbor":{"source":"iana"},"application/sensml+json":{"source":"iana","compressible":true},"application/sensml+xml":{"source":"iana","compressible":true,"extensions":["sensmlx"]},"application/sensml-exi":{"source":"iana"},"application/sep+xml":{"source":"iana","compressible":true},"application/sep-exi":{"source":"iana"},"application/session-info":{"source":"iana"},"application/set-payment":{"source":"iana"},"application/set-payment-initiation":{"source":"iana","extensions":["setpay"]},"application/set-registration":{"source":"iana"},"application/set-registration-initiation":{"source":"iana","extensions":["setreg"]},"application/sgml":{"source":"iana"},"application/sgml-open-catalog":{"source":"iana"},"application/shf+xml":{"source":"iana","compressible":true,"extensions":["shf"]},"application/sieve":{"source":"iana","extensions":["siv","sieve"]},"application/simple-filter+xml":{"source":"iana","compressible":true},"application/simple-message-summary":{"source":"iana"},"application/simplesymbolcontainer":{"source":"iana"},"application/sipc":{"source":"iana"},"application/slate":{"source":"iana"},"application/smil":{"source":"iana"},"application/smil+xml":{"source":"iana","compressible":true,"extensions":["smi","smil"]},"application/smpte336m":{"source":"iana"},"application/soap+fastinfoset":{"source":"iana"},"application/soap+xml":{"source":"iana","compressible":true},"application/sparql-query":{"source":"iana","extensions":["rq"]},"application/sparql-results+xml":{"source":"iana","compressible":true,"extensions":["srx"]},"application/spdx+json":{"source":"iana","compressible":true},"application/spirits-event+xml":{"source":"iana","compressible":true},"application/sql":{"source":"iana"},"application/srgs":{"source":"iana","extensions":["gram"]},"application/srgs+xml":{"source":"iana","compressible":true,"extensions":["grxml"]},"application/sru+xml":{"source":"iana","compressible":true,"extensions":["sru"]},"application/ssdl+xml":{"source":"apache","compressible":true,"extensions":["ssdl"]},"application/ssml+xml":{"source":"iana","compressible":true,"extensions":["ssml"]},"application/stix+json":{"source":"iana","compressible":true},"application/swid+xml":{"source":"iana","compressible":true,"extensions":["swidtag"]},"application/tamp-apex-update":{"source":"iana"},"application/tamp-apex-update-confirm":{"source":"iana"},"application/tamp-community-update":{"source":"iana"},"application/tamp-community-update-confirm":{"source":"iana"},"application/tamp-error":{"source":"iana"},"application/tamp-sequence-adjust":{"source":"iana"},"application/tamp-sequence-adjust-confirm":{"source":"iana"},"application/tamp-status-query":{"source":"iana"},"application/tamp-status-response":{"source":"iana"},"application/tamp-update":{"source":"iana"},"application/tamp-update-confirm":{"source":"iana"},"application/tar":{"compressible":true},"application/taxii+json":{"source":"iana","compressible":true},"application/td+json":{"source":"iana","compressible":true},"application/tei+xml":{"source":"iana","compressible":true,"extensions":["tei","teicorpus"]},"application/tetra_isi":{"source":"iana"},"application/thraud+xml":{"source":"iana","compressible":true,"extensions":["tfi"]},"application/timestamp-query":{"source":"iana"},"application/timestamp-reply":{"source":"iana"},"application/timestamped-data":{"source":"iana","extensions":["tsd"]},"application/tlsrpt+gzip":{"source":"iana"},"application/tlsrpt+json":{"source":"iana","compressible":true},"application/tnauthlist":{"source":"iana"},"application/token-introspection+jwt":{"source":"iana"},"application/toml":{"compressible":true,"extensions":["toml"]},"application/trickle-ice-sdpfrag":{"source":"iana"},"application/trig":{"source":"iana","extensions":["trig"]},"application/ttml+xml":{"source":"iana","compressible":true,"extensions":["ttml"]},"application/tve-trigger":{"source":"iana"},"application/tzif":{"source":"iana"},"application/tzif-leap":{"source":"iana"},"application/ubjson":{"compressible":false,"extensions":["ubj"]},"application/ulpfec":{"source":"iana"},"application/urc-grpsheet+xml":{"source":"iana","compressible":true},"application/urc-ressheet+xml":{"source":"iana","compressible":true,"extensions":["rsheet"]},"application/urc-targetdesc+xml":{"source":"iana","compressible":true,"extensions":["td"]},"application/urc-uisocketdesc+xml":{"source":"iana","compressible":true},"application/vcard+json":{"source":"iana","compressible":true},"application/vcard+xml":{"source":"iana","compressible":true},"application/vemmi":{"source":"iana"},"application/vividence.scriptfile":{"source":"apache"},"application/vnd.1000minds.decision-model+xml":{"source":"iana","compressible":true,"extensions":["1km"]},"application/vnd.3gpp-prose+xml":{"source":"iana","compressible":true},"application/vnd.3gpp-prose-pc3ch+xml":{"source":"iana","compressible":true},"application/vnd.3gpp-v2x-local-service-information":{"source":"iana"},"application/vnd.3gpp.5gnas":{"source":"iana"},"application/vnd.3gpp.access-transfer-events+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.bsf+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.gmop+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.gtpc":{"source":"iana"},"application/vnd.3gpp.interworking-data":{"source":"iana"},"application/vnd.3gpp.lpp":{"source":"iana"},"application/vnd.3gpp.mc-signalling-ear":{"source":"iana"},"application/vnd.3gpp.mcdata-affiliation-command+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-payload":{"source":"iana"},"application/vnd.3gpp.mcdata-service-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-signalling":{"source":"iana"},"application/vnd.3gpp.mcdata-ue-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcdata-user-profile+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-affiliation-command+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-floor-request+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-location-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-mbms-usage-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-service-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-signed+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-ue-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-ue-init-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcptt-user-profile+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-affiliation-command+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-affiliation-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-location-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-mbms-usage-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-service-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-transmission-request+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-ue-config+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mcvideo-user-profile+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.mid-call+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.ngap":{"source":"iana"},"application/vnd.3gpp.pfcp":{"source":"iana"},"application/vnd.3gpp.pic-bw-large":{"source":"iana","extensions":["plb"]},"application/vnd.3gpp.pic-bw-small":{"source":"iana","extensions":["psb"]},"application/vnd.3gpp.pic-bw-var":{"source":"iana","extensions":["pvb"]},"application/vnd.3gpp.s1ap":{"source":"iana"},"application/vnd.3gpp.sms":{"source":"iana"},"application/vnd.3gpp.sms+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.srvcc-ext+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.srvcc-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.state-and-event-info+xml":{"source":"iana","compressible":true},"application/vnd.3gpp.ussd+xml":{"source":"iana","compressible":true},"application/vnd.3gpp2.bcmcsinfo+xml":{"source":"iana","compressible":true},"application/vnd.3gpp2.sms":{"source":"iana"},"application/vnd.3gpp2.tcap":{"source":"iana","extensions":["tcap"]},"application/vnd.3lightssoftware.imagescal":{"source":"iana"},"application/vnd.3m.post-it-notes":{"source":"iana","extensions":["pwn"]},"application/vnd.accpac.simply.aso":{"source":"iana","extensions":["aso"]},"application/vnd.accpac.simply.imp":{"source":"iana","extensions":["imp"]},"application/vnd.acucobol":{"source":"iana","extensions":["acu"]},"application/vnd.acucorp":{"source":"iana","extensions":["atc","acutc"]},"application/vnd.adobe.air-application-installer-package+zip":{"source":"apache","compressible":false,"extensions":["air"]},"application/vnd.adobe.flash.movie":{"source":"iana"},"application/vnd.adobe.formscentral.fcdt":{"source":"iana","extensions":["fcdt"]},"application/vnd.adobe.fxp":{"source":"iana","extensions":["fxp","fxpl"]},"application/vnd.adobe.partial-upload":{"source":"iana"},"application/vnd.adobe.xdp+xml":{"source":"iana","compressible":true,"extensions":["xdp"]},"application/vnd.adobe.xfdf":{"source":"iana","extensions":["xfdf"]},"application/vnd.aether.imp":{"source":"iana"},"application/vnd.afpc.afplinedata":{"source":"iana"},"application/vnd.afpc.afplinedata-pagedef":{"source":"iana"},"application/vnd.afpc.cmoca-cmresource":{"source":"iana"},"application/vnd.afpc.foca-charset":{"source":"iana"},"application/vnd.afpc.foca-codedfont":{"source":"iana"},"application/vnd.afpc.foca-codepage":{"source":"iana"},"application/vnd.afpc.modca":{"source":"iana"},"application/vnd.afpc.modca-cmtable":{"source":"iana"},"application/vnd.afpc.modca-formdef":{"source":"iana"},"application/vnd.afpc.modca-mediummap":{"source":"iana"},"application/vnd.afpc.modca-objectcontainer":{"source":"iana"},"application/vnd.afpc.modca-overlay":{"source":"iana"},"application/vnd.afpc.modca-pagesegment":{"source":"iana"},"application/vnd.age":{"source":"iana","extensions":["age"]},"application/vnd.ah-barcode":{"source":"iana"},"application/vnd.ahead.space":{"source":"iana","extensions":["ahead"]},"application/vnd.airzip.filesecure.azf":{"source":"iana","extensions":["azf"]},"application/vnd.airzip.filesecure.azs":{"source":"iana","extensions":["azs"]},"application/vnd.amadeus+json":{"source":"iana","compressible":true},"application/vnd.amazon.ebook":{"source":"apache","extensions":["azw"]},"application/vnd.amazon.mobi8-ebook":{"source":"iana"},"application/vnd.americandynamics.acc":{"source":"iana","extensions":["acc"]},"application/vnd.amiga.ami":{"source":"iana","extensions":["ami"]},"application/vnd.amundsen.maze+xml":{"source":"iana","compressible":true},"application/vnd.android.ota":{"source":"iana"},"application/vnd.android.package-archive":{"source":"apache","compressible":false,"extensions":["apk"]},"application/vnd.anki":{"source":"iana"},"application/vnd.anser-web-certificate-issue-initiation":{"source":"iana","extensions":["cii"]},"application/vnd.anser-web-funds-transfer-initiation":{"source":"apache","extensions":["fti"]},"application/vnd.antix.game-component":{"source":"iana","extensions":["atx"]},"application/vnd.apache.arrow.file":{"source":"iana"},"application/vnd.apache.arrow.stream":{"source":"iana"},"application/vnd.apache.thrift.binary":{"source":"iana"},"application/vnd.apache.thrift.compact":{"source":"iana"},"application/vnd.apache.thrift.json":{"source":"iana"},"application/vnd.api+json":{"source":"iana","compressible":true},"application/vnd.aplextor.warrp+json":{"source":"iana","compressible":true},"application/vnd.apothekende.reservation+json":{"source":"iana","compressible":true},"application/vnd.apple.installer+xml":{"source":"iana","compressible":true,"extensions":["mpkg"]},"application/vnd.apple.keynote":{"source":"iana","extensions":["key"]},"application/vnd.apple.mpegurl":{"source":"iana","extensions":["m3u8"]},"application/vnd.apple.numbers":{"source":"iana","extensions":["numbers"]},"application/vnd.apple.pages":{"source":"iana","extensions":["pages"]},"application/vnd.apple.pkpass":{"compressible":false,"extensions":["pkpass"]},"application/vnd.arastra.swi":{"source":"iana"},"application/vnd.aristanetworks.swi":{"source":"iana","extensions":["swi"]},"application/vnd.artisan+json":{"source":"iana","compressible":true},"application/vnd.artsquare":{"source":"iana"},"application/vnd.astraea-software.iota":{"source":"iana","extensions":["iota"]},"application/vnd.audiograph":{"source":"iana","extensions":["aep"]},"application/vnd.autopackage":{"source":"iana"},"application/vnd.avalon+json":{"source":"iana","compressible":true},"application/vnd.avistar+xml":{"source":"iana","compressible":true},"application/vnd.balsamiq.bmml+xml":{"source":"iana","compressible":true,"extensions":["bmml"]},"application/vnd.balsamiq.bmpr":{"source":"iana"},"application/vnd.banana-accounting":{"source":"iana"},"application/vnd.bbf.usp.error":{"source":"iana"},"application/vnd.bbf.usp.msg":{"source":"iana"},"application/vnd.bbf.usp.msg+json":{"source":"iana","compressible":true},"application/vnd.bekitzur-stech+json":{"source":"iana","compressible":true},"application/vnd.bint.med-content":{"source":"iana"},"application/vnd.biopax.rdf+xml":{"source":"iana","compressible":true},"application/vnd.blink-idb-value-wrapper":{"source":"iana"},"application/vnd.blueice.multipass":{"source":"iana","extensions":["mpm"]},"application/vnd.bluetooth.ep.oob":{"source":"iana"},"application/vnd.bluetooth.le.oob":{"source":"iana"},"application/vnd.bmi":{"source":"iana","extensions":["bmi"]},"application/vnd.bpf":{"source":"iana"},"application/vnd.bpf3":{"source":"iana"},"application/vnd.businessobjects":{"source":"iana","extensions":["rep"]},"application/vnd.byu.uapi+json":{"source":"iana","compressible":true},"application/vnd.cab-jscript":{"source":"iana"},"application/vnd.canon-cpdl":{"source":"iana"},"application/vnd.canon-lips":{"source":"iana"},"application/vnd.capasystems-pg+json":{"source":"iana","compressible":true},"application/vnd.cendio.thinlinc.clientconf":{"source":"iana"},"application/vnd.century-systems.tcp_stream":{"source":"iana"},"application/vnd.chemdraw+xml":{"source":"iana","compressible":true,"extensions":["cdxml"]},"application/vnd.chess-pgn":{"source":"iana"},"application/vnd.chipnuts.karaoke-mmd":{"source":"iana","extensions":["mmd"]},"application/vnd.ciedi":{"source":"iana"},"application/vnd.cinderella":{"source":"iana","extensions":["cdy"]},"application/vnd.cirpack.isdn-ext":{"source":"iana"},"application/vnd.citationstyles.style+xml":{"source":"iana","compressible":true,"extensions":["csl"]},"application/vnd.claymore":{"source":"iana","extensions":["cla"]},"application/vnd.cloanto.rp9":{"source":"iana","extensions":["rp9"]},"application/vnd.clonk.c4group":{"source":"iana","extensions":["c4g","c4d","c4f","c4p","c4u"]},"application/vnd.cluetrust.cartomobile-config":{"source":"iana","extensions":["c11amc"]},"application/vnd.cluetrust.cartomobile-config-pkg":{"source":"iana","extensions":["c11amz"]},"application/vnd.coffeescript":{"source":"iana"},"application/vnd.collabio.xodocuments.document":{"source":"iana"},"application/vnd.collabio.xodocuments.document-template":{"source":"iana"},"application/vnd.collabio.xodocuments.presentation":{"source":"iana"},"application/vnd.collabio.xodocuments.presentation-template":{"source":"iana"},"application/vnd.collabio.xodocuments.spreadsheet":{"source":"iana"},"application/vnd.collabio.xodocuments.spreadsheet-template":{"source":"iana"},"application/vnd.collection+json":{"source":"iana","compressible":true},"application/vnd.collection.doc+json":{"source":"iana","compressible":true},"application/vnd.collection.next+json":{"source":"iana","compressible":true},"application/vnd.comicbook+zip":{"source":"iana","compressible":false},"application/vnd.comicbook-rar":{"source":"iana"},"application/vnd.commerce-battelle":{"source":"iana"},"application/vnd.commonspace":{"source":"iana","extensions":["csp"]},"application/vnd.contact.cmsg":{"source":"iana","extensions":["cdbcmsg"]},"application/vnd.coreos.ignition+json":{"source":"iana","compressible":true},"application/vnd.cosmocaller":{"source":"iana","extensions":["cmc"]},"application/vnd.crick.clicker":{"source":"iana","extensions":["clkx"]},"application/vnd.crick.clicker.keyboard":{"source":"iana","extensions":["clkk"]},"application/vnd.crick.clicker.palette":{"source":"iana","extensions":["clkp"]},"application/vnd.crick.clicker.template":{"source":"iana","extensions":["clkt"]},"application/vnd.crick.clicker.wordbank":{"source":"iana","extensions":["clkw"]},"application/vnd.criticaltools.wbs+xml":{"source":"iana","compressible":true,"extensions":["wbs"]},"application/vnd.cryptii.pipe+json":{"source":"iana","compressible":true},"application/vnd.crypto-shade-file":{"source":"iana"},"application/vnd.cryptomator.encrypted":{"source":"iana"},"application/vnd.cryptomator.vault":{"source":"iana"},"application/vnd.ctc-posml":{"source":"iana","extensions":["pml"]},"application/vnd.ctct.ws+xml":{"source":"iana","compressible":true},"application/vnd.cups-pdf":{"source":"iana"},"application/vnd.cups-postscript":{"source":"iana"},"application/vnd.cups-ppd":{"source":"iana","extensions":["ppd"]},"application/vnd.cups-raster":{"source":"iana"},"application/vnd.cups-raw":{"source":"iana"},"application/vnd.curl":{"source":"iana"},"application/vnd.curl.car":{"source":"apache","extensions":["car"]},"application/vnd.curl.pcurl":{"source":"apache","extensions":["pcurl"]},"application/vnd.cyan.dean.root+xml":{"source":"iana","compressible":true},"application/vnd.cybank":{"source":"iana"},"application/vnd.cyclonedx+json":{"source":"iana","compressible":true},"application/vnd.cyclonedx+xml":{"source":"iana","compressible":true},"application/vnd.d2l.coursepackage1p0+zip":{"source":"iana","compressible":false},"application/vnd.d3m-dataset":{"source":"iana"},"application/vnd.d3m-problem":{"source":"iana"},"application/vnd.dart":{"source":"iana","compressible":true,"extensions":["dart"]},"application/vnd.data-vision.rdz":{"source":"iana","extensions":["rdz"]},"application/vnd.datapackage+json":{"source":"iana","compressible":true},"application/vnd.dataresource+json":{"source":"iana","compressible":true},"application/vnd.dbf":{"source":"iana","extensions":["dbf"]},"application/vnd.debian.binary-package":{"source":"iana"},"application/vnd.dece.data":{"source":"iana","extensions":["uvf","uvvf","uvd","uvvd"]},"application/vnd.dece.ttml+xml":{"source":"iana","compressible":true,"extensions":["uvt","uvvt"]},"application/vnd.dece.unspecified":{"source":"iana","extensions":["uvx","uvvx"]},"application/vnd.dece.zip":{"source":"iana","extensions":["uvz","uvvz"]},"application/vnd.denovo.fcselayout-link":{"source":"iana","extensions":["fe_launch"]},"application/vnd.desmume.movie":{"source":"iana"},"application/vnd.dir-bi.plate-dl-nosuffix":{"source":"iana"},"application/vnd.dm.delegation+xml":{"source":"iana","compressible":true},"application/vnd.dna":{"source":"iana","extensions":["dna"]},"application/vnd.document+json":{"source":"iana","compressible":true},"application/vnd.dolby.mlp":{"source":"apache","extensions":["mlp"]},"application/vnd.dolby.mobile.1":{"source":"iana"},"application/vnd.dolby.mobile.2":{"source":"iana"},"application/vnd.doremir.scorecloud-binary-document":{"source":"iana"},"application/vnd.dpgraph":{"source":"iana","extensions":["dpg"]},"application/vnd.dreamfactory":{"source":"iana","extensions":["dfac"]},"application/vnd.drive+json":{"source":"iana","compressible":true},"application/vnd.ds-keypoint":{"source":"apache","extensions":["kpxx"]},"application/vnd.dtg.local":{"source":"iana"},"application/vnd.dtg.local.flash":{"source":"iana"},"application/vnd.dtg.local.html":{"source":"iana"},"application/vnd.dvb.ait":{"source":"iana","extensions":["ait"]},"application/vnd.dvb.dvbisl+xml":{"source":"iana","compressible":true},"application/vnd.dvb.dvbj":{"source":"iana"},"application/vnd.dvb.esgcontainer":{"source":"iana"},"application/vnd.dvb.ipdcdftnotifaccess":{"source":"iana"},"application/vnd.dvb.ipdcesgaccess":{"source":"iana"},"application/vnd.dvb.ipdcesgaccess2":{"source":"iana"},"application/vnd.dvb.ipdcesgpdd":{"source":"iana"},"application/vnd.dvb.ipdcroaming":{"source":"iana"},"application/vnd.dvb.iptv.alfec-base":{"source":"iana"},"application/vnd.dvb.iptv.alfec-enhancement":{"source":"iana"},"application/vnd.dvb.notif-aggregate-root+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-container+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-generic+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-ia-msglist+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-ia-registration-request+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-ia-registration-response+xml":{"source":"iana","compressible":true},"application/vnd.dvb.notif-init+xml":{"source":"iana","compressible":true},"application/vnd.dvb.pfr":{"source":"iana"},"application/vnd.dvb.service":{"source":"iana","extensions":["svc"]},"application/vnd.dxr":{"source":"iana"},"application/vnd.dynageo":{"source":"iana","extensions":["geo"]},"application/vnd.dzr":{"source":"iana"},"application/vnd.easykaraoke.cdgdownload":{"source":"iana"},"application/vnd.ecdis-update":{"source":"iana"},"application/vnd.ecip.rlp":{"source":"iana"},"application/vnd.eclipse.ditto+json":{"source":"iana","compressible":true},"application/vnd.ecowin.chart":{"source":"iana","extensions":["mag"]},"application/vnd.ecowin.filerequest":{"source":"iana"},"application/vnd.ecowin.fileupdate":{"source":"iana"},"application/vnd.ecowin.series":{"source":"iana"},"application/vnd.ecowin.seriesrequest":{"source":"iana"},"application/vnd.ecowin.seriesupdate":{"source":"iana"},"application/vnd.efi.img":{"source":"iana"},"application/vnd.efi.iso":{"source":"iana"},"application/vnd.emclient.accessrequest+xml":{"source":"iana","compressible":true},"application/vnd.enliven":{"source":"iana","extensions":["nml"]},"application/vnd.enphase.envoy":{"source":"iana"},"application/vnd.eprints.data+xml":{"source":"iana","compressible":true},"application/vnd.epson.esf":{"source":"iana","extensions":["esf"]},"application/vnd.epson.msf":{"source":"iana","extensions":["msf"]},"application/vnd.epson.quickanime":{"source":"iana","extensions":["qam"]},"application/vnd.epson.salt":{"source":"iana","extensions":["slt"]},"application/vnd.epson.ssf":{"source":"iana","extensions":["ssf"]},"application/vnd.ericsson.quickcall":{"source":"iana"},"application/vnd.espass-espass+zip":{"source":"iana","compressible":false},"application/vnd.eszigno3+xml":{"source":"iana","compressible":true,"extensions":["es3","et3"]},"application/vnd.etsi.aoc+xml":{"source":"iana","compressible":true},"application/vnd.etsi.asic-e+zip":{"source":"iana","compressible":false},"application/vnd.etsi.asic-s+zip":{"source":"iana","compressible":false},"application/vnd.etsi.cug+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvcommand+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvdiscovery+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvprofile+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsad-bc+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsad-cod+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsad-npvr+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvservice+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvsync+xml":{"source":"iana","compressible":true},"application/vnd.etsi.iptvueprofile+xml":{"source":"iana","compressible":true},"application/vnd.etsi.mcid+xml":{"source":"iana","compressible":true},"application/vnd.etsi.mheg5":{"source":"iana"},"application/vnd.etsi.overload-control-policy-dataset+xml":{"source":"iana","compressible":true},"application/vnd.etsi.pstn+xml":{"source":"iana","compressible":true},"application/vnd.etsi.sci+xml":{"source":"iana","compressible":true},"application/vnd.etsi.simservs+xml":{"source":"iana","compressible":true},"application/vnd.etsi.timestamp-token":{"source":"iana"},"application/vnd.etsi.tsl+xml":{"source":"iana","compressible":true},"application/vnd.etsi.tsl.der":{"source":"iana"},"application/vnd.eu.kasparian.car+json":{"source":"iana","compressible":true},"application/vnd.eudora.data":{"source":"iana"},"application/vnd.evolv.ecig.profile":{"source":"iana"},"application/vnd.evolv.ecig.settings":{"source":"iana"},"application/vnd.evolv.ecig.theme":{"source":"iana"},"application/vnd.exstream-empower+zip":{"source":"iana","compressible":false},"application/vnd.exstream-package":{"source":"iana"},"application/vnd.ezpix-album":{"source":"iana","extensions":["ez2"]},"application/vnd.ezpix-package":{"source":"iana","extensions":["ez3"]},"application/vnd.f-secure.mobile":{"source":"iana"},"application/vnd.familysearch.gedcom+zip":{"source":"iana","compressible":false},"application/vnd.fastcopy-disk-image":{"source":"iana"},"application/vnd.fdf":{"source":"iana","extensions":["fdf"]},"application/vnd.fdsn.mseed":{"source":"iana","extensions":["mseed"]},"application/vnd.fdsn.seed":{"source":"iana","extensions":["seed","dataless"]},"application/vnd.ffsns":{"source":"iana"},"application/vnd.ficlab.flb+zip":{"source":"iana","compressible":false},"application/vnd.filmit.zfc":{"source":"iana"},"application/vnd.fints":{"source":"iana"},"application/vnd.firemonkeys.cloudcell":{"source":"iana"},"application/vnd.flographit":{"source":"iana","extensions":["gph"]},"application/vnd.fluxtime.clip":{"source":"iana","extensions":["ftc"]},"application/vnd.font-fontforge-sfd":{"source":"iana"},"application/vnd.framemaker":{"source":"iana","extensions":["fm","frame","maker","book"]},"application/vnd.frogans.fnc":{"source":"iana","extensions":["fnc"]},"application/vnd.frogans.ltf":{"source":"iana","extensions":["ltf"]},"application/vnd.fsc.weblaunch":{"source":"iana","extensions":["fsc"]},"application/vnd.fujifilm.fb.docuworks":{"source":"iana"},"application/vnd.fujifilm.fb.docuworks.binder":{"source":"iana"},"application/vnd.fujifilm.fb.docuworks.container":{"source":"iana"},"application/vnd.fujifilm.fb.jfi+xml":{"source":"iana","compressible":true},"application/vnd.fujitsu.oasys":{"source":"iana","extensions":["oas"]},"application/vnd.fujitsu.oasys2":{"source":"iana","extensions":["oa2"]},"application/vnd.fujitsu.oasys3":{"source":"iana","extensions":["oa3"]},"application/vnd.fujitsu.oasysgp":{"source":"iana","extensions":["fg5"]},"application/vnd.fujitsu.oasysprs":{"source":"iana","extensions":["bh2"]},"application/vnd.fujixerox.art-ex":{"source":"iana"},"application/vnd.fujixerox.art4":{"source":"iana"},"application/vnd.fujixerox.ddd":{"source":"iana","extensions":["ddd"]},"application/vnd.fujixerox.docuworks":{"source":"iana","extensions":["xdw"]},"application/vnd.fujixerox.docuworks.binder":{"source":"iana","extensions":["xbd"]},"application/vnd.fujixerox.docuworks.container":{"source":"iana"},"application/vnd.fujixerox.hbpl":{"source":"iana"},"application/vnd.fut-misnet":{"source":"iana"},"application/vnd.futoin+cbor":{"source":"iana"},"application/vnd.futoin+json":{"source":"iana","compressible":true},"application/vnd.fuzzysheet":{"source":"iana","extensions":["fzs"]},"application/vnd.genomatix.tuxedo":{"source":"iana","extensions":["txd"]},"application/vnd.gentics.grd+json":{"source":"iana","compressible":true},"application/vnd.geo+json":{"source":"iana","compressible":true},"application/vnd.geocube+xml":{"source":"iana","compressible":true},"application/vnd.geogebra.file":{"source":"iana","extensions":["ggb"]},"application/vnd.geogebra.slides":{"source":"iana"},"application/vnd.geogebra.tool":{"source":"iana","extensions":["ggt"]},"application/vnd.geometry-explorer":{"source":"iana","extensions":["gex","gre"]},"application/vnd.geonext":{"source":"iana","extensions":["gxt"]},"application/vnd.geoplan":{"source":"iana","extensions":["g2w"]},"application/vnd.geospace":{"source":"iana","extensions":["g3w"]},"application/vnd.gerber":{"source":"iana"},"application/vnd.globalplatform.card-content-mgt":{"source":"iana"},"application/vnd.globalplatform.card-content-mgt-response":{"source":"iana"},"application/vnd.gmx":{"source":"iana","extensions":["gmx"]},"application/vnd.google-apps.document":{"compressible":false,"extensions":["gdoc"]},"application/vnd.google-apps.presentation":{"compressible":false,"extensions":["gslides"]},"application/vnd.google-apps.spreadsheet":{"compressible":false,"extensions":["gsheet"]},"application/vnd.google-earth.kml+xml":{"source":"iana","compressible":true,"extensions":["kml"]},"application/vnd.google-earth.kmz":{"source":"iana","compressible":false,"extensions":["kmz"]},"application/vnd.gov.sk.e-form+xml":{"source":"iana","compressible":true},"application/vnd.gov.sk.e-form+zip":{"source":"iana","compressible":false},"application/vnd.gov.sk.xmldatacontainer+xml":{"source":"iana","compressible":true},"application/vnd.grafeq":{"source":"iana","extensions":["gqf","gqs"]},"application/vnd.gridmp":{"source":"iana"},"application/vnd.groove-account":{"source":"iana","extensions":["gac"]},"application/vnd.groove-help":{"source":"iana","extensions":["ghf"]},"application/vnd.groove-identity-message":{"source":"iana","extensions":["gim"]},"application/vnd.groove-injector":{"source":"iana","extensions":["grv"]},"application/vnd.groove-tool-message":{"source":"iana","extensions":["gtm"]},"application/vnd.groove-tool-template":{"source":"iana","extensions":["tpl"]},"application/vnd.groove-vcard":{"source":"iana","extensions":["vcg"]},"application/vnd.hal+json":{"source":"iana","compressible":true},"application/vnd.hal+xml":{"source":"iana","compressible":true,"extensions":["hal"]},"application/vnd.handheld-entertainment+xml":{"source":"iana","compressible":true,"extensions":["zmm"]},"application/vnd.hbci":{"source":"iana","extensions":["hbci"]},"application/vnd.hc+json":{"source":"iana","compressible":true},"application/vnd.hcl-bireports":{"source":"iana"},"application/vnd.hdt":{"source":"iana"},"application/vnd.heroku+json":{"source":"iana","compressible":true},"application/vnd.hhe.lesson-player":{"source":"iana","extensions":["les"]},"application/vnd.hl7cda+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.hl7v2+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.hp-hpgl":{"source":"iana","extensions":["hpgl"]},"application/vnd.hp-hpid":{"source":"iana","extensions":["hpid"]},"application/vnd.hp-hps":{"source":"iana","extensions":["hps"]},"application/vnd.hp-jlyt":{"source":"iana","extensions":["jlt"]},"application/vnd.hp-pcl":{"source":"iana","extensions":["pcl"]},"application/vnd.hp-pclxl":{"source":"iana","extensions":["pclxl"]},"application/vnd.httphone":{"source":"iana"},"application/vnd.hydrostatix.sof-data":{"source":"iana","extensions":["sfd-hdstx"]},"application/vnd.hyper+json":{"source":"iana","compressible":true},"application/vnd.hyper-item+json":{"source":"iana","compressible":true},"application/vnd.hyperdrive+json":{"source":"iana","compressible":true},"application/vnd.hzn-3d-crossword":{"source":"iana"},"application/vnd.ibm.afplinedata":{"source":"iana"},"application/vnd.ibm.electronic-media":{"source":"iana"},"application/vnd.ibm.minipay":{"source":"iana","extensions":["mpy"]},"application/vnd.ibm.modcap":{"source":"iana","extensions":["afp","listafp","list3820"]},"application/vnd.ibm.rights-management":{"source":"iana","extensions":["irm"]},"application/vnd.ibm.secure-container":{"source":"iana","extensions":["sc"]},"application/vnd.iccprofile":{"source":"iana","extensions":["icc","icm"]},"application/vnd.ieee.1905":{"source":"iana"},"application/vnd.igloader":{"source":"iana","extensions":["igl"]},"application/vnd.imagemeter.folder+zip":{"source":"iana","compressible":false},"application/vnd.imagemeter.image+zip":{"source":"iana","compressible":false},"application/vnd.immervision-ivp":{"source":"iana","extensions":["ivp"]},"application/vnd.immervision-ivu":{"source":"iana","extensions":["ivu"]},"application/vnd.ims.imsccv1p1":{"source":"iana"},"application/vnd.ims.imsccv1p2":{"source":"iana"},"application/vnd.ims.imsccv1p3":{"source":"iana"},"application/vnd.ims.lis.v2.result+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolconsumerprofile+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolproxy+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolproxy.id+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolsettings+json":{"source":"iana","compressible":true},"application/vnd.ims.lti.v2.toolsettings.simple+json":{"source":"iana","compressible":true},"application/vnd.informedcontrol.rms+xml":{"source":"iana","compressible":true},"application/vnd.informix-visionary":{"source":"iana"},"application/vnd.infotech.project":{"source":"iana"},"application/vnd.infotech.project+xml":{"source":"iana","compressible":true},"application/vnd.innopath.wamp.notification":{"source":"iana"},"application/vnd.insors.igm":{"source":"iana","extensions":["igm"]},"application/vnd.intercon.formnet":{"source":"iana","extensions":["xpw","xpx"]},"application/vnd.intergeo":{"source":"iana","extensions":["i2g"]},"application/vnd.intertrust.digibox":{"source":"iana"},"application/vnd.intertrust.nncp":{"source":"iana"},"application/vnd.intu.qbo":{"source":"iana","extensions":["qbo"]},"application/vnd.intu.qfx":{"source":"iana","extensions":["qfx"]},"application/vnd.iptc.g2.catalogitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.conceptitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.knowledgeitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.newsitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.newsmessage+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.packageitem+xml":{"source":"iana","compressible":true},"application/vnd.iptc.g2.planningitem+xml":{"source":"iana","compressible":true},"application/vnd.ipunplugged.rcprofile":{"source":"iana","extensions":["rcprofile"]},"application/vnd.irepository.package+xml":{"source":"iana","compressible":true,"extensions":["irp"]},"application/vnd.is-xpr":{"source":"iana","extensions":["xpr"]},"application/vnd.isac.fcs":{"source":"iana","extensions":["fcs"]},"application/vnd.iso11783-10+zip":{"source":"iana","compressible":false},"application/vnd.jam":{"source":"iana","extensions":["jam"]},"application/vnd.japannet-directory-service":{"source":"iana"},"application/vnd.japannet-jpnstore-wakeup":{"source":"iana"},"application/vnd.japannet-payment-wakeup":{"source":"iana"},"application/vnd.japannet-registration":{"source":"iana"},"application/vnd.japannet-registration-wakeup":{"source":"iana"},"application/vnd.japannet-setstore-wakeup":{"source":"iana"},"application/vnd.japannet-verification":{"source":"iana"},"application/vnd.japannet-verification-wakeup":{"source":"iana"},"application/vnd.jcp.javame.midlet-rms":{"source":"iana","extensions":["rms"]},"application/vnd.jisp":{"source":"iana","extensions":["jisp"]},"application/vnd.joost.joda-archive":{"source":"iana","extensions":["joda"]},"application/vnd.jsk.isdn-ngn":{"source":"iana"},"application/vnd.kahootz":{"source":"iana","extensions":["ktz","ktr"]},"application/vnd.kde.karbon":{"source":"iana","extensions":["karbon"]},"application/vnd.kde.kchart":{"source":"iana","extensions":["chrt"]},"application/vnd.kde.kformula":{"source":"iana","extensions":["kfo"]},"application/vnd.kde.kivio":{"source":"iana","extensions":["flw"]},"application/vnd.kde.kontour":{"source":"iana","extensions":["kon"]},"application/vnd.kde.kpresenter":{"source":"iana","extensions":["kpr","kpt"]},"application/vnd.kde.kspread":{"source":"iana","extensions":["ksp"]},"application/vnd.kde.kword":{"source":"iana","extensions":["kwd","kwt"]},"application/vnd.kenameaapp":{"source":"iana","extensions":["htke"]},"application/vnd.kidspiration":{"source":"iana","extensions":["kia"]},"application/vnd.kinar":{"source":"iana","extensions":["kne","knp"]},"application/vnd.koan":{"source":"iana","extensions":["skp","skd","skt","skm"]},"application/vnd.kodak-descriptor":{"source":"iana","extensions":["sse"]},"application/vnd.las":{"source":"iana"},"application/vnd.las.las+json":{"source":"iana","compressible":true},"application/vnd.las.las+xml":{"source":"iana","compressible":true,"extensions":["lasxml"]},"application/vnd.laszip":{"source":"iana"},"application/vnd.leap+json":{"source":"iana","compressible":true},"application/vnd.liberty-request+xml":{"source":"iana","compressible":true},"application/vnd.llamagraphics.life-balance.desktop":{"source":"iana","extensions":["lbd"]},"application/vnd.llamagraphics.life-balance.exchange+xml":{"source":"iana","compressible":true,"extensions":["lbe"]},"application/vnd.logipipe.circuit+zip":{"source":"iana","compressible":false},"application/vnd.loom":{"source":"iana"},"application/vnd.lotus-1-2-3":{"source":"iana","extensions":["123"]},"application/vnd.lotus-approach":{"source":"iana","extensions":["apr"]},"application/vnd.lotus-freelance":{"source":"iana","extensions":["pre"]},"application/vnd.lotus-notes":{"source":"iana","extensions":["nsf"]},"application/vnd.lotus-organizer":{"source":"iana","extensions":["org"]},"application/vnd.lotus-screencam":{"source":"iana","extensions":["scm"]},"application/vnd.lotus-wordpro":{"source":"iana","extensions":["lwp"]},"application/vnd.macports.portpkg":{"source":"iana","extensions":["portpkg"]},"application/vnd.mapbox-vector-tile":{"source":"iana","extensions":["mvt"]},"application/vnd.marlin.drm.actiontoken+xml":{"source":"iana","compressible":true},"application/vnd.marlin.drm.conftoken+xml":{"source":"iana","compressible":true},"application/vnd.marlin.drm.license+xml":{"source":"iana","compressible":true},"application/vnd.marlin.drm.mdcf":{"source":"iana"},"application/vnd.mason+json":{"source":"iana","compressible":true},"application/vnd.maxar.archive.3tz+zip":{"source":"iana","compressible":false},"application/vnd.maxmind.maxmind-db":{"source":"iana"},"application/vnd.mcd":{"source":"iana","extensions":["mcd"]},"application/vnd.medcalcdata":{"source":"iana","extensions":["mc1"]},"application/vnd.mediastation.cdkey":{"source":"iana","extensions":["cdkey"]},"application/vnd.meridian-slingshot":{"source":"iana"},"application/vnd.mfer":{"source":"iana","extensions":["mwf"]},"application/vnd.mfmp":{"source":"iana","extensions":["mfm"]},"application/vnd.micro+json":{"source":"iana","compressible":true},"application/vnd.micrografx.flo":{"source":"iana","extensions":["flo"]},"application/vnd.micrografx.igx":{"source":"iana","extensions":["igx"]},"application/vnd.microsoft.portable-executable":{"source":"iana"},"application/vnd.microsoft.windows.thumbnail-cache":{"source":"iana"},"application/vnd.miele+json":{"source":"iana","compressible":true},"application/vnd.mif":{"source":"iana","extensions":["mif"]},"application/vnd.minisoft-hp3000-save":{"source":"iana"},"application/vnd.mitsubishi.misty-guard.trustweb":{"source":"iana"},"application/vnd.mobius.daf":{"source":"iana","extensions":["daf"]},"application/vnd.mobius.dis":{"source":"iana","extensions":["dis"]},"application/vnd.mobius.mbk":{"source":"iana","extensions":["mbk"]},"application/vnd.mobius.mqy":{"source":"iana","extensions":["mqy"]},"application/vnd.mobius.msl":{"source":"iana","extensions":["msl"]},"application/vnd.mobius.plc":{"source":"iana","extensions":["plc"]},"application/vnd.mobius.txf":{"source":"iana","extensions":["txf"]},"application/vnd.mophun.application":{"source":"iana","extensions":["mpn"]},"application/vnd.mophun.certificate":{"source":"iana","extensions":["mpc"]},"application/vnd.motorola.flexsuite":{"source":"iana"},"application/vnd.motorola.flexsuite.adsi":{"source":"iana"},"application/vnd.motorola.flexsuite.fis":{"source":"iana"},"application/vnd.motorola.flexsuite.gotap":{"source":"iana"},"application/vnd.motorola.flexsuite.kmr":{"source":"iana"},"application/vnd.motorola.flexsuite.ttc":{"source":"iana"},"application/vnd.motorola.flexsuite.wem":{"source":"iana"},"application/vnd.motorola.iprm":{"source":"iana"},"application/vnd.mozilla.xul+xml":{"source":"iana","compressible":true,"extensions":["xul"]},"application/vnd.ms-3mfdocument":{"source":"iana"},"application/vnd.ms-artgalry":{"source":"iana","extensions":["cil"]},"application/vnd.ms-asf":{"source":"iana"},"application/vnd.ms-cab-compressed":{"source":"iana","extensions":["cab"]},"application/vnd.ms-color.iccprofile":{"source":"apache"},"application/vnd.ms-excel":{"source":"iana","compressible":false,"extensions":["xls","xlm","xla","xlc","xlt","xlw"]},"application/vnd.ms-excel.addin.macroenabled.12":{"source":"iana","extensions":["xlam"]},"application/vnd.ms-excel.sheet.binary.macroenabled.12":{"source":"iana","extensions":["xlsb"]},"application/vnd.ms-excel.sheet.macroenabled.12":{"source":"iana","extensions":["xlsm"]},"application/vnd.ms-excel.template.macroenabled.12":{"source":"iana","extensions":["xltm"]},"application/vnd.ms-fontobject":{"source":"iana","compressible":true,"extensions":["eot"]},"application/vnd.ms-htmlhelp":{"source":"iana","extensions":["chm"]},"application/vnd.ms-ims":{"source":"iana","extensions":["ims"]},"application/vnd.ms-lrm":{"source":"iana","extensions":["lrm"]},"application/vnd.ms-office.activex+xml":{"source":"iana","compressible":true},"application/vnd.ms-officetheme":{"source":"iana","extensions":["thmx"]},"application/vnd.ms-opentype":{"source":"apache","compressible":true},"application/vnd.ms-outlook":{"compressible":false,"extensions":["msg"]},"application/vnd.ms-package.obfuscated-opentype":{"source":"apache"},"application/vnd.ms-pki.seccat":{"source":"apache","extensions":["cat"]},"application/vnd.ms-pki.stl":{"source":"apache","extensions":["stl"]},"application/vnd.ms-playready.initiator+xml":{"source":"iana","compressible":true},"application/vnd.ms-powerpoint":{"source":"iana","compressible":false,"extensions":["ppt","pps","pot"]},"application/vnd.ms-powerpoint.addin.macroenabled.12":{"source":"iana","extensions":["ppam"]},"application/vnd.ms-powerpoint.presentation.macroenabled.12":{"source":"iana","extensions":["pptm"]},"application/vnd.ms-powerpoint.slide.macroenabled.12":{"source":"iana","extensions":["sldm"]},"application/vnd.ms-powerpoint.slideshow.macroenabled.12":{"source":"iana","extensions":["ppsm"]},"application/vnd.ms-powerpoint.template.macroenabled.12":{"source":"iana","extensions":["potm"]},"application/vnd.ms-printdevicecapabilities+xml":{"source":"iana","compressible":true},"application/vnd.ms-printing.printticket+xml":{"source":"apache","compressible":true},"application/vnd.ms-printschematicket+xml":{"source":"iana","compressible":true},"application/vnd.ms-project":{"source":"iana","extensions":["mpp","mpt"]},"application/vnd.ms-tnef":{"source":"iana"},"application/vnd.ms-windows.devicepairing":{"source":"iana"},"application/vnd.ms-windows.nwprinting.oob":{"source":"iana"},"application/vnd.ms-windows.printerpairing":{"source":"iana"},"application/vnd.ms-windows.wsd.oob":{"source":"iana"},"application/vnd.ms-wmdrm.lic-chlg-req":{"source":"iana"},"application/vnd.ms-wmdrm.lic-resp":{"source":"iana"},"application/vnd.ms-wmdrm.meter-chlg-req":{"source":"iana"},"application/vnd.ms-wmdrm.meter-resp":{"source":"iana"},"application/vnd.ms-word.document.macroenabled.12":{"source":"iana","extensions":["docm"]},"application/vnd.ms-word.template.macroenabled.12":{"source":"iana","extensions":["dotm"]},"application/vnd.ms-works":{"source":"iana","extensions":["wps","wks","wcm","wdb"]},"application/vnd.ms-wpl":{"source":"iana","extensions":["wpl"]},"application/vnd.ms-xpsdocument":{"source":"iana","compressible":false,"extensions":["xps"]},"application/vnd.msa-disk-image":{"source":"iana"},"application/vnd.mseq":{"source":"iana","extensions":["mseq"]},"application/vnd.msign":{"source":"iana"},"application/vnd.multiad.creator":{"source":"iana"},"application/vnd.multiad.creator.cif":{"source":"iana"},"application/vnd.music-niff":{"source":"iana"},"application/vnd.musician":{"source":"iana","extensions":["mus"]},"application/vnd.muvee.style":{"source":"iana","extensions":["msty"]},"application/vnd.mynfc":{"source":"iana","extensions":["taglet"]},"application/vnd.nacamar.ybrid+json":{"source":"iana","compressible":true},"application/vnd.ncd.control":{"source":"iana"},"application/vnd.ncd.reference":{"source":"iana"},"application/vnd.nearst.inv+json":{"source":"iana","compressible":true},"application/vnd.nebumind.line":{"source":"iana"},"application/vnd.nervana":{"source":"iana"},"application/vnd.netfpx":{"source":"iana"},"application/vnd.neurolanguage.nlu":{"source":"iana","extensions":["nlu"]},"application/vnd.nimn":{"source":"iana"},"application/vnd.nintendo.nitro.rom":{"source":"iana"},"application/vnd.nintendo.snes.rom":{"source":"iana"},"application/vnd.nitf":{"source":"iana","extensions":["ntf","nitf"]},"application/vnd.noblenet-directory":{"source":"iana","extensions":["nnd"]},"application/vnd.noblenet-sealer":{"source":"iana","extensions":["nns"]},"application/vnd.noblenet-web":{"source":"iana","extensions":["nnw"]},"application/vnd.nokia.catalogs":{"source":"iana"},"application/vnd.nokia.conml+wbxml":{"source":"iana"},"application/vnd.nokia.conml+xml":{"source":"iana","compressible":true},"application/vnd.nokia.iptv.config+xml":{"source":"iana","compressible":true},"application/vnd.nokia.isds-radio-presets":{"source":"iana"},"application/vnd.nokia.landmark+wbxml":{"source":"iana"},"application/vnd.nokia.landmark+xml":{"source":"iana","compressible":true},"application/vnd.nokia.landmarkcollection+xml":{"source":"iana","compressible":true},"application/vnd.nokia.n-gage.ac+xml":{"source":"iana","compressible":true,"extensions":["ac"]},"application/vnd.nokia.n-gage.data":{"source":"iana","extensions":["ngdat"]},"application/vnd.nokia.n-gage.symbian.install":{"source":"iana","extensions":["n-gage"]},"application/vnd.nokia.ncd":{"source":"iana"},"application/vnd.nokia.pcd+wbxml":{"source":"iana"},"application/vnd.nokia.pcd+xml":{"source":"iana","compressible":true},"application/vnd.nokia.radio-preset":{"source":"iana","extensions":["rpst"]},"application/vnd.nokia.radio-presets":{"source":"iana","extensions":["rpss"]},"application/vnd.novadigm.edm":{"source":"iana","extensions":["edm"]},"application/vnd.novadigm.edx":{"source":"iana","extensions":["edx"]},"application/vnd.novadigm.ext":{"source":"iana","extensions":["ext"]},"application/vnd.ntt-local.content-share":{"source":"iana"},"application/vnd.ntt-local.file-transfer":{"source":"iana"},"application/vnd.ntt-local.ogw_remote-access":{"source":"iana"},"application/vnd.ntt-local.sip-ta_remote":{"source":"iana"},"application/vnd.ntt-local.sip-ta_tcp_stream":{"source":"iana"},"application/vnd.oasis.opendocument.chart":{"source":"iana","extensions":["odc"]},"application/vnd.oasis.opendocument.chart-template":{"source":"iana","extensions":["otc"]},"application/vnd.oasis.opendocument.database":{"source":"iana","extensions":["odb"]},"application/vnd.oasis.opendocument.formula":{"source":"iana","extensions":["odf"]},"application/vnd.oasis.opendocument.formula-template":{"source":"iana","extensions":["odft"]},"application/vnd.oasis.opendocument.graphics":{"source":"iana","compressible":false,"extensions":["odg"]},"application/vnd.oasis.opendocument.graphics-template":{"source":"iana","extensions":["otg"]},"application/vnd.oasis.opendocument.image":{"source":"iana","extensions":["odi"]},"application/vnd.oasis.opendocument.image-template":{"source":"iana","extensions":["oti"]},"application/vnd.oasis.opendocument.presentation":{"source":"iana","compressible":false,"extensions":["odp"]},"application/vnd.oasis.opendocument.presentation-template":{"source":"iana","extensions":["otp"]},"application/vnd.oasis.opendocument.spreadsheet":{"source":"iana","compressible":false,"extensions":["ods"]},"application/vnd.oasis.opendocument.spreadsheet-template":{"source":"iana","extensions":["ots"]},"application/vnd.oasis.opendocument.text":{"source":"iana","compressible":false,"extensions":["odt"]},"application/vnd.oasis.opendocument.text-master":{"source":"iana","extensions":["odm"]},"application/vnd.oasis.opendocument.text-template":{"source":"iana","extensions":["ott"]},"application/vnd.oasis.opendocument.text-web":{"source":"iana","extensions":["oth"]},"application/vnd.obn":{"source":"iana"},"application/vnd.ocf+cbor":{"source":"iana"},"application/vnd.oci.image.manifest.v1+json":{"source":"iana","compressible":true},"application/vnd.oftn.l10n+json":{"source":"iana","compressible":true},"application/vnd.oipf.contentaccessdownload+xml":{"source":"iana","compressible":true},"application/vnd.oipf.contentaccessstreaming+xml":{"source":"iana","compressible":true},"application/vnd.oipf.cspg-hexbinary":{"source":"iana"},"application/vnd.oipf.dae.svg+xml":{"source":"iana","compressible":true},"application/vnd.oipf.dae.xhtml+xml":{"source":"iana","compressible":true},"application/vnd.oipf.mippvcontrolmessage+xml":{"source":"iana","compressible":true},"application/vnd.oipf.pae.gem":{"source":"iana"},"application/vnd.oipf.spdiscovery+xml":{"source":"iana","compressible":true},"application/vnd.oipf.spdlist+xml":{"source":"iana","compressible":true},"application/vnd.oipf.ueprofile+xml":{"source":"iana","compressible":true},"application/vnd.oipf.userprofile+xml":{"source":"iana","compressible":true},"application/vnd.olpc-sugar":{"source":"iana","extensions":["xo"]},"application/vnd.oma-scws-config":{"source":"iana"},"application/vnd.oma-scws-http-request":{"source":"iana"},"application/vnd.oma-scws-http-response":{"source":"iana"},"application/vnd.oma.bcast.associated-procedure-parameter+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.drm-trigger+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.imd+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.ltkm":{"source":"iana"},"application/vnd.oma.bcast.notification+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.provisioningtrigger":{"source":"iana"},"application/vnd.oma.bcast.sgboot":{"source":"iana"},"application/vnd.oma.bcast.sgdd+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.sgdu":{"source":"iana"},"application/vnd.oma.bcast.simple-symbol-container":{"source":"iana"},"application/vnd.oma.bcast.smartcard-trigger+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.sprov+xml":{"source":"iana","compressible":true},"application/vnd.oma.bcast.stkm":{"source":"iana"},"application/vnd.oma.cab-address-book+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-feature-handler+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-pcc+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-subs-invite+xml":{"source":"iana","compressible":true},"application/vnd.oma.cab-user-prefs+xml":{"source":"iana","compressible":true},"application/vnd.oma.dcd":{"source":"iana"},"application/vnd.oma.dcdc":{"source":"iana"},"application/vnd.oma.dd2+xml":{"source":"iana","compressible":true,"extensions":["dd2"]},"application/vnd.oma.drm.risd+xml":{"source":"iana","compressible":true},"application/vnd.oma.group-usage-list+xml":{"source":"iana","compressible":true},"application/vnd.oma.lwm2m+cbor":{"source":"iana"},"application/vnd.oma.lwm2m+json":{"source":"iana","compressible":true},"application/vnd.oma.lwm2m+tlv":{"source":"iana"},"application/vnd.oma.pal+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.detailed-progress-report+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.final-report+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.groups+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.invocation-descriptor+xml":{"source":"iana","compressible":true},"application/vnd.oma.poc.optimized-progress-report+xml":{"source":"iana","compressible":true},"application/vnd.oma.push":{"source":"iana"},"application/vnd.oma.scidm.messages+xml":{"source":"iana","compressible":true},"application/vnd.oma.xcap-directory+xml":{"source":"iana","compressible":true},"application/vnd.omads-email+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.omads-file+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.omads-folder+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.omaloc-supl-init":{"source":"iana"},"application/vnd.onepager":{"source":"iana"},"application/vnd.onepagertamp":{"source":"iana"},"application/vnd.onepagertamx":{"source":"iana"},"application/vnd.onepagertat":{"source":"iana"},"application/vnd.onepagertatp":{"source":"iana"},"application/vnd.onepagertatx":{"source":"iana"},"application/vnd.openblox.game+xml":{"source":"iana","compressible":true,"extensions":["obgx"]},"application/vnd.openblox.game-binary":{"source":"iana"},"application/vnd.openeye.oeb":{"source":"iana"},"application/vnd.openofficeorg.extension":{"source":"apache","extensions":["oxt"]},"application/vnd.openstreetmap.data+xml":{"source":"iana","compressible":true,"extensions":["osm"]},"application/vnd.opentimestamps.ots":{"source":"iana"},"application/vnd.openxmlformats-officedocument.custom-properties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.customxmlproperties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawing+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.chart+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.chartshapes+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramcolors+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramdata+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramlayout+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.drawingml.diagramstyle+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.extended-properties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.commentauthors+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.comments+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.handoutmaster+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.notesmaster+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.notesslide+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.presentation":{"source":"iana","compressible":false,"extensions":["pptx"]},"application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.presprops+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slide":{"source":"iana","extensions":["sldx"]},"application/vnd.openxmlformats-officedocument.presentationml.slide+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slidelayout+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slidemaster+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slideshow":{"source":"iana","extensions":["ppsx"]},"application/vnd.openxmlformats-officedocument.presentationml.slideshow.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.slideupdateinfo+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.tablestyles+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.tags+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.template":{"source":"iana","extensions":["potx"]},"application/vnd.openxmlformats-officedocument.presentationml.template.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.presentationml.viewprops+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.calcchain+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.connections+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.dialogsheet+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.externallink+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotcachedefinition+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotcacherecords+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.pivottable+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.querytable+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.revisionheaders+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.revisionlog+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedstrings+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":{"source":"iana","compressible":false,"extensions":["xlsx"]},"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.sheetmetadata+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.tablesinglecells+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.template":{"source":"iana","extensions":["xltx"]},"application/vnd.openxmlformats-officedocument.spreadsheetml.template.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.usernames+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.volatiledependencies+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.theme+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.themeoverride+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.vmldrawing":{"source":"iana"},"application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.document":{"source":"iana","compressible":false,"extensions":["docx"]},"application/vnd.openxmlformats-officedocument.wordprocessingml.document.glossary+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.endnotes+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.fonttable+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.template":{"source":"iana","extensions":["dotx"]},"application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-officedocument.wordprocessingml.websettings+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-package.core-properties+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-package.digital-signature-xmlsignature+xml":{"source":"iana","compressible":true},"application/vnd.openxmlformats-package.relationships+xml":{"source":"iana","compressible":true},"application/vnd.oracle.resource+json":{"source":"iana","compressible":true},"application/vnd.orange.indata":{"source":"iana"},"application/vnd.osa.netdeploy":{"source":"iana"},"application/vnd.osgeo.mapguide.package":{"source":"iana","extensions":["mgp"]},"application/vnd.osgi.bundle":{"source":"iana"},"application/vnd.osgi.dp":{"source":"iana","extensions":["dp"]},"application/vnd.osgi.subsystem":{"source":"iana","extensions":["esa"]},"application/vnd.otps.ct-kip+xml":{"source":"iana","compressible":true},"application/vnd.oxli.countgraph":{"source":"iana"},"application/vnd.pagerduty+json":{"source":"iana","compressible":true},"application/vnd.palm":{"source":"iana","extensions":["pdb","pqa","oprc"]},"application/vnd.panoply":{"source":"iana"},"application/vnd.paos.xml":{"source":"iana"},"application/vnd.patentdive":{"source":"iana"},"application/vnd.patientecommsdoc":{"source":"iana"},"application/vnd.pawaafile":{"source":"iana","extensions":["paw"]},"application/vnd.pcos":{"source":"iana"},"application/vnd.pg.format":{"source":"iana","extensions":["str"]},"application/vnd.pg.osasli":{"source":"iana","extensions":["ei6"]},"application/vnd.piaccess.application-licence":{"source":"iana"},"application/vnd.picsel":{"source":"iana","extensions":["efif"]},"application/vnd.pmi.widget":{"source":"iana","extensions":["wg"]},"application/vnd.poc.group-advertisement+xml":{"source":"iana","compressible":true},"application/vnd.pocketlearn":{"source":"iana","extensions":["plf"]},"application/vnd.powerbuilder6":{"source":"iana","extensions":["pbd"]},"application/vnd.powerbuilder6-s":{"source":"iana"},"application/vnd.powerbuilder7":{"source":"iana"},"application/vnd.powerbuilder7-s":{"source":"iana"},"application/vnd.powerbuilder75":{"source":"iana"},"application/vnd.powerbuilder75-s":{"source":"iana"},"application/vnd.preminet":{"source":"iana"},"application/vnd.previewsystems.box":{"source":"iana","extensions":["box"]},"application/vnd.proteus.magazine":{"source":"iana","extensions":["mgz"]},"application/vnd.psfs":{"source":"iana"},"application/vnd.publishare-delta-tree":{"source":"iana","extensions":["qps"]},"application/vnd.pvi.ptid1":{"source":"iana","extensions":["ptid"]},"application/vnd.pwg-multiplexed":{"source":"iana"},"application/vnd.pwg-xhtml-print+xml":{"source":"iana","compressible":true},"application/vnd.qualcomm.brew-app-res":{"source":"iana"},"application/vnd.quarantainenet":{"source":"iana"},"application/vnd.quark.quarkxpress":{"source":"iana","extensions":["qxd","qxt","qwd","qwt","qxl","qxb"]},"application/vnd.quobject-quoxdocument":{"source":"iana"},"application/vnd.radisys.moml+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-conf+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-conn+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-dialog+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-audit-stream+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-conf+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-base+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-fax-detect+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-fax-sendrecv+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-group+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-speech+xml":{"source":"iana","compressible":true},"application/vnd.radisys.msml-dialog-transform+xml":{"source":"iana","compressible":true},"application/vnd.rainstor.data":{"source":"iana"},"application/vnd.rapid":{"source":"iana"},"application/vnd.rar":{"source":"iana","extensions":["rar"]},"application/vnd.realvnc.bed":{"source":"iana","extensions":["bed"]},"application/vnd.recordare.musicxml":{"source":"iana","extensions":["mxl"]},"application/vnd.recordare.musicxml+xml":{"source":"iana","compressible":true,"extensions":["musicxml"]},"application/vnd.renlearn.rlprint":{"source":"iana"},"application/vnd.resilient.logic":{"source":"iana"},"application/vnd.restful+json":{"source":"iana","compressible":true},"application/vnd.rig.cryptonote":{"source":"iana","extensions":["cryptonote"]},"application/vnd.rim.cod":{"source":"apache","extensions":["cod"]},"application/vnd.rn-realmedia":{"source":"apache","extensions":["rm"]},"application/vnd.rn-realmedia-vbr":{"source":"apache","extensions":["rmvb"]},"application/vnd.route66.link66+xml":{"source":"iana","compressible":true,"extensions":["link66"]},"application/vnd.rs-274x":{"source":"iana"},"application/vnd.ruckus.download":{"source":"iana"},"application/vnd.s3sms":{"source":"iana"},"application/vnd.sailingtracker.track":{"source":"iana","extensions":["st"]},"application/vnd.sar":{"source":"iana"},"application/vnd.sbm.cid":{"source":"iana"},"application/vnd.sbm.mid2":{"source":"iana"},"application/vnd.scribus":{"source":"iana"},"application/vnd.sealed.3df":{"source":"iana"},"application/vnd.sealed.csf":{"source":"iana"},"application/vnd.sealed.doc":{"source":"iana"},"application/vnd.sealed.eml":{"source":"iana"},"application/vnd.sealed.mht":{"source":"iana"},"application/vnd.sealed.net":{"source":"iana"},"application/vnd.sealed.ppt":{"source":"iana"},"application/vnd.sealed.tiff":{"source":"iana"},"application/vnd.sealed.xls":{"source":"iana"},"application/vnd.sealedmedia.softseal.html":{"source":"iana"},"application/vnd.sealedmedia.softseal.pdf":{"source":"iana"},"application/vnd.seemail":{"source":"iana","extensions":["see"]},"application/vnd.seis+json":{"source":"iana","compressible":true},"application/vnd.sema":{"source":"iana","extensions":["sema"]},"application/vnd.semd":{"source":"iana","extensions":["semd"]},"application/vnd.semf":{"source":"iana","extensions":["semf"]},"application/vnd.shade-save-file":{"source":"iana"},"application/vnd.shana.informed.formdata":{"source":"iana","extensions":["ifm"]},"application/vnd.shana.informed.formtemplate":{"source":"iana","extensions":["itp"]},"application/vnd.shana.informed.interchange":{"source":"iana","extensions":["iif"]},"application/vnd.shana.informed.package":{"source":"iana","extensions":["ipk"]},"application/vnd.shootproof+json":{"source":"iana","compressible":true},"application/vnd.shopkick+json":{"source":"iana","compressible":true},"application/vnd.shp":{"source":"iana"},"application/vnd.shx":{"source":"iana"},"application/vnd.sigrok.session":{"source":"iana"},"application/vnd.simtech-mindmapper":{"source":"iana","extensions":["twd","twds"]},"application/vnd.siren+json":{"source":"iana","compressible":true},"application/vnd.smaf":{"source":"iana","extensions":["mmf"]},"application/vnd.smart.notebook":{"source":"iana"},"application/vnd.smart.teacher":{"source":"iana","extensions":["teacher"]},"application/vnd.snesdev-page-table":{"source":"iana"},"application/vnd.software602.filler.form+xml":{"source":"iana","compressible":true,"extensions":["fo"]},"application/vnd.software602.filler.form-xml-zip":{"source":"iana"},"application/vnd.solent.sdkm+xml":{"source":"iana","compressible":true,"extensions":["sdkm","sdkd"]},"application/vnd.spotfire.dxp":{"source":"iana","extensions":["dxp"]},"application/vnd.spotfire.sfs":{"source":"iana","extensions":["sfs"]},"application/vnd.sqlite3":{"source":"iana"},"application/vnd.sss-cod":{"source":"iana"},"application/vnd.sss-dtf":{"source":"iana"},"application/vnd.sss-ntf":{"source":"iana"},"application/vnd.stardivision.calc":{"source":"apache","extensions":["sdc"]},"application/vnd.stardivision.draw":{"source":"apache","extensions":["sda"]},"application/vnd.stardivision.impress":{"source":"apache","extensions":["sdd"]},"application/vnd.stardivision.math":{"source":"apache","extensions":["smf"]},"application/vnd.stardivision.writer":{"source":"apache","extensions":["sdw","vor"]},"application/vnd.stardivision.writer-global":{"source":"apache","extensions":["sgl"]},"application/vnd.stepmania.package":{"source":"iana","extensions":["smzip"]},"application/vnd.stepmania.stepchart":{"source":"iana","extensions":["sm"]},"application/vnd.street-stream":{"source":"iana"},"application/vnd.sun.wadl+xml":{"source":"iana","compressible":true,"extensions":["wadl"]},"application/vnd.sun.xml.calc":{"source":"apache","extensions":["sxc"]},"application/vnd.sun.xml.calc.template":{"source":"apache","extensions":["stc"]},"application/vnd.sun.xml.draw":{"source":"apache","extensions":["sxd"]},"application/vnd.sun.xml.draw.template":{"source":"apache","extensions":["std"]},"application/vnd.sun.xml.impress":{"source":"apache","extensions":["sxi"]},"application/vnd.sun.xml.impress.template":{"source":"apache","extensions":["sti"]},"application/vnd.sun.xml.math":{"source":"apache","extensions":["sxm"]},"application/vnd.sun.xml.writer":{"source":"apache","extensions":["sxw"]},"application/vnd.sun.xml.writer.global":{"source":"apache","extensions":["sxg"]},"application/vnd.sun.xml.writer.template":{"source":"apache","extensions":["stw"]},"application/vnd.sus-calendar":{"source":"iana","extensions":["sus","susp"]},"application/vnd.svd":{"source":"iana","extensions":["svd"]},"application/vnd.swiftview-ics":{"source":"iana"},"application/vnd.sycle+xml":{"source":"iana","compressible":true},"application/vnd.syft+json":{"source":"iana","compressible":true},"application/vnd.symbian.install":{"source":"apache","extensions":["sis","sisx"]},"application/vnd.syncml+xml":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["xsm"]},"application/vnd.syncml.dm+wbxml":{"source":"iana","charset":"UTF-8","extensions":["bdm"]},"application/vnd.syncml.dm+xml":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["xdm"]},"application/vnd.syncml.dm.notification":{"source":"iana"},"application/vnd.syncml.dmddf+wbxml":{"source":"iana"},"application/vnd.syncml.dmddf+xml":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["ddf"]},"application/vnd.syncml.dmtnds+wbxml":{"source":"iana"},"application/vnd.syncml.dmtnds+xml":{"source":"iana","charset":"UTF-8","compressible":true},"application/vnd.syncml.ds.notification":{"source":"iana"},"application/vnd.tableschema+json":{"source":"iana","compressible":true},"application/vnd.tao.intent-module-archive":{"source":"iana","extensions":["tao"]},"application/vnd.tcpdump.pcap":{"source":"iana","extensions":["pcap","cap","dmp"]},"application/vnd.think-cell.ppttc+json":{"source":"iana","compressible":true},"application/vnd.tmd.mediaflex.api+xml":{"source":"iana","compressible":true},"application/vnd.tml":{"source":"iana"},"application/vnd.tmobile-livetv":{"source":"iana","extensions":["tmo"]},"application/vnd.tri.onesource":{"source":"iana"},"application/vnd.trid.tpt":{"source":"iana","extensions":["tpt"]},"application/vnd.triscape.mxs":{"source":"iana","extensions":["mxs"]},"application/vnd.trueapp":{"source":"iana","extensions":["tra"]},"application/vnd.truedoc":{"source":"iana"},"application/vnd.ubisoft.webplayer":{"source":"iana"},"application/vnd.ufdl":{"source":"iana","extensions":["ufd","ufdl"]},"application/vnd.uiq.theme":{"source":"iana","extensions":["utz"]},"application/vnd.umajin":{"source":"iana","extensions":["umj"]},"application/vnd.unity":{"source":"iana","extensions":["unityweb"]},"application/vnd.uoml+xml":{"source":"iana","compressible":true,"extensions":["uoml"]},"application/vnd.uplanet.alert":{"source":"iana"},"application/vnd.uplanet.alert-wbxml":{"source":"iana"},"application/vnd.uplanet.bearer-choice":{"source":"iana"},"application/vnd.uplanet.bearer-choice-wbxml":{"source":"iana"},"application/vnd.uplanet.cacheop":{"source":"iana"},"application/vnd.uplanet.cacheop-wbxml":{"source":"iana"},"application/vnd.uplanet.channel":{"source":"iana"},"application/vnd.uplanet.channel-wbxml":{"source":"iana"},"application/vnd.uplanet.list":{"source":"iana"},"application/vnd.uplanet.list-wbxml":{"source":"iana"},"application/vnd.uplanet.listcmd":{"source":"iana"},"application/vnd.uplanet.listcmd-wbxml":{"source":"iana"},"application/vnd.uplanet.signal":{"source":"iana"},"application/vnd.uri-map":{"source":"iana"},"application/vnd.valve.source.material":{"source":"iana"},"application/vnd.vcx":{"source":"iana","extensions":["vcx"]},"application/vnd.vd-study":{"source":"iana"},"application/vnd.vectorworks":{"source":"iana"},"application/vnd.vel+json":{"source":"iana","compressible":true},"application/vnd.verimatrix.vcas":{"source":"iana"},"application/vnd.veritone.aion+json":{"source":"iana","compressible":true},"application/vnd.veryant.thin":{"source":"iana"},"application/vnd.ves.encrypted":{"source":"iana"},"application/vnd.vidsoft.vidconference":{"source":"iana"},"application/vnd.visio":{"source":"iana","extensions":["vsd","vst","vss","vsw"]},"application/vnd.visionary":{"source":"iana","extensions":["vis"]},"application/vnd.vividence.scriptfile":{"source":"iana"},"application/vnd.vsf":{"source":"iana","extensions":["vsf"]},"application/vnd.wap.sic":{"source":"iana"},"application/vnd.wap.slc":{"source":"iana"},"application/vnd.wap.wbxml":{"source":"iana","charset":"UTF-8","extensions":["wbxml"]},"application/vnd.wap.wmlc":{"source":"iana","extensions":["wmlc"]},"application/vnd.wap.wmlscriptc":{"source":"iana","extensions":["wmlsc"]},"application/vnd.webturbo":{"source":"iana","extensions":["wtb"]},"application/vnd.wfa.dpp":{"source":"iana"},"application/vnd.wfa.p2p":{"source":"iana"},"application/vnd.wfa.wsc":{"source":"iana"},"application/vnd.windows.devicepairing":{"source":"iana"},"application/vnd.wmc":{"source":"iana"},"application/vnd.wmf.bootstrap":{"source":"iana"},"application/vnd.wolfram.mathematica":{"source":"iana"},"application/vnd.wolfram.mathematica.package":{"source":"iana"},"application/vnd.wolfram.player":{"source":"iana","extensions":["nbp"]},"application/vnd.wordperfect":{"source":"iana","extensions":["wpd"]},"application/vnd.wqd":{"source":"iana","extensions":["wqd"]},"application/vnd.wrq-hp3000-labelled":{"source":"iana"},"application/vnd.wt.stf":{"source":"iana","extensions":["stf"]},"application/vnd.wv.csp+wbxml":{"source":"iana"},"application/vnd.wv.csp+xml":{"source":"iana","compressible":true},"application/vnd.wv.ssp+xml":{"source":"iana","compressible":true},"application/vnd.xacml+json":{"source":"iana","compressible":true},"application/vnd.xara":{"source":"iana","extensions":["xar"]},"application/vnd.xfdl":{"source":"iana","extensions":["xfdl"]},"application/vnd.xfdl.webform":{"source":"iana"},"application/vnd.xmi+xml":{"source":"iana","compressible":true},"application/vnd.xmpie.cpkg":{"source":"iana"},"application/vnd.xmpie.dpkg":{"source":"iana"},"application/vnd.xmpie.plan":{"source":"iana"},"application/vnd.xmpie.ppkg":{"source":"iana"},"application/vnd.xmpie.xlim":{"source":"iana"},"application/vnd.yamaha.hv-dic":{"source":"iana","extensions":["hvd"]},"application/vnd.yamaha.hv-script":{"source":"iana","extensions":["hvs"]},"application/vnd.yamaha.hv-voice":{"source":"iana","extensions":["hvp"]},"application/vnd.yamaha.openscoreformat":{"source":"iana","extensions":["osf"]},"application/vnd.yamaha.openscoreformat.osfpvg+xml":{"source":"iana","compressible":true,"extensions":["osfpvg"]},"application/vnd.yamaha.remote-setup":{"source":"iana"},"application/vnd.yamaha.smaf-audio":{"source":"iana","extensions":["saf"]},"application/vnd.yamaha.smaf-phrase":{"source":"iana","extensions":["spf"]},"application/vnd.yamaha.through-ngn":{"source":"iana"},"application/vnd.yamaha.tunnel-udpencap":{"source":"iana"},"application/vnd.yaoweme":{"source":"iana"},"application/vnd.yellowriver-custom-menu":{"source":"iana","extensions":["cmp"]},"application/vnd.youtube.yt":{"source":"iana"},"application/vnd.zul":{"source":"iana","extensions":["zir","zirz"]},"application/vnd.zzazz.deck+xml":{"source":"iana","compressible":true,"extensions":["zaz"]},"application/voicexml+xml":{"source":"iana","compressible":true,"extensions":["vxml"]},"application/voucher-cms+json":{"source":"iana","compressible":true},"application/vq-rtcpxr":{"source":"iana"},"application/wasm":{"source":"iana","compressible":true,"extensions":["wasm"]},"application/watcherinfo+xml":{"source":"iana","compressible":true,"extensions":["wif"]},"application/webpush-options+json":{"source":"iana","compressible":true},"application/whoispp-query":{"source":"iana"},"application/whoispp-response":{"source":"iana"},"application/widget":{"source":"iana","extensions":["wgt"]},"application/winhlp":{"source":"apache","extensions":["hlp"]},"application/wita":{"source":"iana"},"application/wordperfect5.1":{"source":"iana"},"application/wsdl+xml":{"source":"iana","compressible":true,"extensions":["wsdl"]},"application/wspolicy+xml":{"source":"iana","compressible":true,"extensions":["wspolicy"]},"application/x-7z-compressed":{"source":"apache","compressible":false,"extensions":["7z"]},"application/x-abiword":{"source":"apache","extensions":["abw"]},"application/x-ace-compressed":{"source":"apache","extensions":["ace"]},"application/x-amf":{"source":"apache"},"application/x-apple-diskimage":{"source":"apache","extensions":["dmg"]},"application/x-arj":{"compressible":false,"extensions":["arj"]},"application/x-authorware-bin":{"source":"apache","extensions":["aab","x32","u32","vox"]},"application/x-authorware-map":{"source":"apache","extensions":["aam"]},"application/x-authorware-seg":{"source":"apache","extensions":["aas"]},"application/x-bcpio":{"source":"apache","extensions":["bcpio"]},"application/x-bdoc":{"compressible":false,"extensions":["bdoc"]},"application/x-bittorrent":{"source":"apache","extensions":["torrent"]},"application/x-blorb":{"source":"apache","extensions":["blb","blorb"]},"application/x-bzip":{"source":"apache","compressible":false,"extensions":["bz"]},"application/x-bzip2":{"source":"apache","compressible":false,"extensions":["bz2","boz"]},"application/x-cbr":{"source":"apache","extensions":["cbr","cba","cbt","cbz","cb7"]},"application/x-cdlink":{"source":"apache","extensions":["vcd"]},"application/x-cfs-compressed":{"source":"apache","extensions":["cfs"]},"application/x-chat":{"source":"apache","extensions":["chat"]},"application/x-chess-pgn":{"source":"apache","extensions":["pgn"]},"application/x-chrome-extension":{"extensions":["crx"]},"application/x-cocoa":{"source":"nginx","extensions":["cco"]},"application/x-compress":{"source":"apache"},"application/x-conference":{"source":"apache","extensions":["nsc"]},"application/x-cpio":{"source":"apache","extensions":["cpio"]},"application/x-csh":{"source":"apache","extensions":["csh"]},"application/x-deb":{"compressible":false},"application/x-debian-package":{"source":"apache","extensions":["deb","udeb"]},"application/x-dgc-compressed":{"source":"apache","extensions":["dgc"]},"application/x-director":{"source":"apache","extensions":["dir","dcr","dxr","cst","cct","cxt","w3d","fgd","swa"]},"application/x-doom":{"source":"apache","extensions":["wad"]},"application/x-dtbncx+xml":{"source":"apache","compressible":true,"extensions":["ncx"]},"application/x-dtbook+xml":{"source":"apache","compressible":true,"extensions":["dtb"]},"application/x-dtbresource+xml":{"source":"apache","compressible":true,"extensions":["res"]},"application/x-dvi":{"source":"apache","compressible":false,"extensions":["dvi"]},"application/x-envoy":{"source":"apache","extensions":["evy"]},"application/x-eva":{"source":"apache","extensions":["eva"]},"application/x-font-bdf":{"source":"apache","extensions":["bdf"]},"application/x-font-dos":{"source":"apache"},"application/x-font-framemaker":{"source":"apache"},"application/x-font-ghostscript":{"source":"apache","extensions":["gsf"]},"application/x-font-libgrx":{"source":"apache"},"application/x-font-linux-psf":{"source":"apache","extensions":["psf"]},"application/x-font-pcf":{"source":"apache","extensions":["pcf"]},"application/x-font-snf":{"source":"apache","extensions":["snf"]},"application/x-font-speedo":{"source":"apache"},"application/x-font-sunos-news":{"source":"apache"},"application/x-font-type1":{"source":"apache","extensions":["pfa","pfb","pfm","afm"]},"application/x-font-vfont":{"source":"apache"},"application/x-freearc":{"source":"apache","extensions":["arc"]},"application/x-futuresplash":{"source":"apache","extensions":["spl"]},"application/x-gca-compressed":{"source":"apache","extensions":["gca"]},"application/x-glulx":{"source":"apache","extensions":["ulx"]},"application/x-gnumeric":{"source":"apache","extensions":["gnumeric"]},"application/x-gramps-xml":{"source":"apache","extensions":["gramps"]},"application/x-gtar":{"source":"apache","extensions":["gtar"]},"application/x-gzip":{"source":"apache"},"application/x-hdf":{"source":"apache","extensions":["hdf"]},"application/x-httpd-php":{"compressible":true,"extensions":["php"]},"application/x-install-instructions":{"source":"apache","extensions":["install"]},"application/x-iso9660-image":{"source":"apache","extensions":["iso"]},"application/x-iwork-keynote-sffkey":{"extensions":["key"]},"application/x-iwork-numbers-sffnumbers":{"extensions":["numbers"]},"application/x-iwork-pages-sffpages":{"extensions":["pages"]},"application/x-java-archive-diff":{"source":"nginx","extensions":["jardiff"]},"application/x-java-jnlp-file":{"source":"apache","compressible":false,"extensions":["jnlp"]},"application/x-javascript":{"compressible":true},"application/x-keepass2":{"extensions":["kdbx"]},"application/x-latex":{"source":"apache","compressible":false,"extensions":["latex"]},"application/x-lua-bytecode":{"extensions":["luac"]},"application/x-lzh-compressed":{"source":"apache","extensions":["lzh","lha"]},"application/x-makeself":{"source":"nginx","extensions":["run"]},"application/x-mie":{"source":"apache","extensions":["mie"]},"application/x-mobipocket-ebook":{"source":"apache","extensions":["prc","mobi"]},"application/x-mpegurl":{"compressible":false},"application/x-ms-application":{"source":"apache","extensions":["application"]},"application/x-ms-shortcut":{"source":"apache","extensions":["lnk"]},"application/x-ms-wmd":{"source":"apache","extensions":["wmd"]},"application/x-ms-wmz":{"source":"apache","extensions":["wmz"]},"application/x-ms-xbap":{"source":"apache","extensions":["xbap"]},"application/x-msaccess":{"source":"apache","extensions":["mdb"]},"application/x-msbinder":{"source":"apache","extensions":["obd"]},"application/x-mscardfile":{"source":"apache","extensions":["crd"]},"application/x-msclip":{"source":"apache","extensions":["clp"]},"application/x-msdos-program":{"extensions":["exe"]},"application/x-msdownload":{"source":"apache","extensions":["exe","dll","com","bat","msi"]},"application/x-msmediaview":{"source":"apache","extensions":["mvb","m13","m14"]},"application/x-msmetafile":{"source":"apache","extensions":["wmf","wmz","emf","emz"]},"application/x-msmoney":{"source":"apache","extensions":["mny"]},"application/x-mspublisher":{"source":"apache","extensions":["pub"]},"application/x-msschedule":{"source":"apache","extensions":["scd"]},"application/x-msterminal":{"source":"apache","extensions":["trm"]},"application/x-mswrite":{"source":"apache","extensions":["wri"]},"application/x-netcdf":{"source":"apache","extensions":["nc","cdf"]},"application/x-ns-proxy-autoconfig":{"compressible":true,"extensions":["pac"]},"application/x-nzb":{"source":"apache","extensions":["nzb"]},"application/x-perl":{"source":"nginx","extensions":["pl","pm"]},"application/x-pilot":{"source":"nginx","extensions":["prc","pdb"]},"application/x-pkcs12":{"source":"apache","compressible":false,"extensions":["p12","pfx"]},"application/x-pkcs7-certificates":{"source":"apache","extensions":["p7b","spc"]},"application/x-pkcs7-certreqresp":{"source":"apache","extensions":["p7r"]},"application/x-pki-message":{"source":"iana"},"application/x-rar-compressed":{"source":"apache","compressible":false,"extensions":["rar"]},"application/x-redhat-package-manager":{"source":"nginx","extensions":["rpm"]},"application/x-research-info-systems":{"source":"apache","extensions":["ris"]},"application/x-sea":{"source":"nginx","extensions":["sea"]},"application/x-sh":{"source":"apache","compressible":true,"extensions":["sh"]},"application/x-shar":{"source":"apache","extensions":["shar"]},"application/x-shockwave-flash":{"source":"apache","compressible":false,"extensions":["swf"]},"application/x-silverlight-app":{"source":"apache","extensions":["xap"]},"application/x-sql":{"source":"apache","extensions":["sql"]},"application/x-stuffit":{"source":"apache","compressible":false,"extensions":["sit"]},"application/x-stuffitx":{"source":"apache","extensions":["sitx"]},"application/x-subrip":{"source":"apache","extensions":["srt"]},"application/x-sv4cpio":{"source":"apache","extensions":["sv4cpio"]},"application/x-sv4crc":{"source":"apache","extensions":["sv4crc"]},"application/x-t3vm-image":{"source":"apache","extensions":["t3"]},"application/x-tads":{"source":"apache","extensions":["gam"]},"application/x-tar":{"source":"apache","compressible":true,"extensions":["tar"]},"application/x-tcl":{"source":"apache","extensions":["tcl","tk"]},"application/x-tex":{"source":"apache","extensions":["tex"]},"application/x-tex-tfm":{"source":"apache","extensions":["tfm"]},"application/x-texinfo":{"source":"apache","extensions":["texinfo","texi"]},"application/x-tgif":{"source":"apache","extensions":["obj"]},"application/x-ustar":{"source":"apache","extensions":["ustar"]},"application/x-virtualbox-hdd":{"compressible":true,"extensions":["hdd"]},"application/x-virtualbox-ova":{"compressible":true,"extensions":["ova"]},"application/x-virtualbox-ovf":{"compressible":true,"extensions":["ovf"]},"application/x-virtualbox-vbox":{"compressible":true,"extensions":["vbox"]},"application/x-virtualbox-vbox-extpack":{"compressible":false,"extensions":["vbox-extpack"]},"application/x-virtualbox-vdi":{"compressible":true,"extensions":["vdi"]},"application/x-virtualbox-vhd":{"compressible":true,"extensions":["vhd"]},"application/x-virtualbox-vmdk":{"compressible":true,"extensions":["vmdk"]},"application/x-wais-source":{"source":"apache","extensions":["src"]},"application/x-web-app-manifest+json":{"compressible":true,"extensions":["webapp"]},"application/x-www-form-urlencoded":{"source":"iana","compressible":true},"application/x-x509-ca-cert":{"source":"iana","extensions":["der","crt","pem"]},"application/x-x509-ca-ra-cert":{"source":"iana"},"application/x-x509-next-ca-cert":{"source":"iana"},"application/x-xfig":{"source":"apache","extensions":["fig"]},"application/x-xliff+xml":{"source":"apache","compressible":true,"extensions":["xlf"]},"application/x-xpinstall":{"source":"apache","compressible":false,"extensions":["xpi"]},"application/x-xz":{"source":"apache","extensions":["xz"]},"application/x-zmachine":{"source":"apache","extensions":["z1","z2","z3","z4","z5","z6","z7","z8"]},"application/x400-bp":{"source":"iana"},"application/xacml+xml":{"source":"iana","compressible":true},"application/xaml+xml":{"source":"apache","compressible":true,"extensions":["xaml"]},"application/xcap-att+xml":{"source":"iana","compressible":true,"extensions":["xav"]},"application/xcap-caps+xml":{"source":"iana","compressible":true,"extensions":["xca"]},"application/xcap-diff+xml":{"source":"iana","compressible":true,"extensions":["xdf"]},"application/xcap-el+xml":{"source":"iana","compressible":true,"extensions":["xel"]},"application/xcap-error+xml":{"source":"iana","compressible":true},"application/xcap-ns+xml":{"source":"iana","compressible":true,"extensions":["xns"]},"application/xcon-conference-info+xml":{"source":"iana","compressible":true},"application/xcon-conference-info-diff+xml":{"source":"iana","compressible":true},"application/xenc+xml":{"source":"iana","compressible":true,"extensions":["xenc"]},"application/xhtml+xml":{"source":"iana","compressible":true,"extensions":["xhtml","xht"]},"application/xhtml-voice+xml":{"source":"apache","compressible":true},"application/xliff+xml":{"source":"iana","compressible":true,"extensions":["xlf"]},"application/xml":{"source":"iana","compressible":true,"extensions":["xml","xsl","xsd","rng"]},"application/xml-dtd":{"source":"iana","compressible":true,"extensions":["dtd"]},"application/xml-external-parsed-entity":{"source":"iana"},"application/xml-patch+xml":{"source":"iana","compressible":true},"application/xmpp+xml":{"source":"iana","compressible":true},"application/xop+xml":{"source":"iana","compressible":true,"extensions":["xop"]},"application/xproc+xml":{"source":"apache","compressible":true,"extensions":["xpl"]},"application/xslt+xml":{"source":"iana","compressible":true,"extensions":["xsl","xslt"]},"application/xspf+xml":{"source":"apache","compressible":true,"extensions":["xspf"]},"application/xv+xml":{"source":"iana","compressible":true,"extensions":["mxml","xhvml","xvml","xvm"]},"application/yang":{"source":"iana","extensions":["yang"]},"application/yang-data+json":{"source":"iana","compressible":true},"application/yang-data+xml":{"source":"iana","compressible":true},"application/yang-patch+json":{"source":"iana","compressible":true},"application/yang-patch+xml":{"source":"iana","compressible":true},"application/yin+xml":{"source":"iana","compressible":true,"extensions":["yin"]},"application/zip":{"source":"iana","compressible":false,"extensions":["zip"]},"application/zlib":{"source":"iana"},"application/zstd":{"source":"iana"},"audio/1d-interleaved-parityfec":{"source":"iana"},"audio/32kadpcm":{"source":"iana"},"audio/3gpp":{"source":"iana","compressible":false,"extensions":["3gpp"]},"audio/3gpp2":{"source":"iana"},"audio/aac":{"source":"iana"},"audio/ac3":{"source":"iana"},"audio/adpcm":{"source":"apache","extensions":["adp"]},"audio/amr":{"source":"iana","extensions":["amr"]},"audio/amr-wb":{"source":"iana"},"audio/amr-wb+":{"source":"iana"},"audio/aptx":{"source":"iana"},"audio/asc":{"source":"iana"},"audio/atrac-advanced-lossless":{"source":"iana"},"audio/atrac-x":{"source":"iana"},"audio/atrac3":{"source":"iana"},"audio/basic":{"source":"iana","compressible":false,"extensions":["au","snd"]},"audio/bv16":{"source":"iana"},"audio/bv32":{"source":"iana"},"audio/clearmode":{"source":"iana"},"audio/cn":{"source":"iana"},"audio/dat12":{"source":"iana"},"audio/dls":{"source":"iana"},"audio/dsr-es201108":{"source":"iana"},"audio/dsr-es202050":{"source":"iana"},"audio/dsr-es202211":{"source":"iana"},"audio/dsr-es202212":{"source":"iana"},"audio/dv":{"source":"iana"},"audio/dvi4":{"source":"iana"},"audio/eac3":{"source":"iana"},"audio/encaprtp":{"source":"iana"},"audio/evrc":{"source":"iana"},"audio/evrc-qcp":{"source":"iana"},"audio/evrc0":{"source":"iana"},"audio/evrc1":{"source":"iana"},"audio/evrcb":{"source":"iana"},"audio/evrcb0":{"source":"iana"},"audio/evrcb1":{"source":"iana"},"audio/evrcnw":{"source":"iana"},"audio/evrcnw0":{"source":"iana"},"audio/evrcnw1":{"source":"iana"},"audio/evrcwb":{"source":"iana"},"audio/evrcwb0":{"source":"iana"},"audio/evrcwb1":{"source":"iana"},"audio/evs":{"source":"iana"},"audio/flexfec":{"source":"iana"},"audio/fwdred":{"source":"iana"},"audio/g711-0":{"source":"iana"},"audio/g719":{"source":"iana"},"audio/g722":{"source":"iana"},"audio/g7221":{"source":"iana"},"audio/g723":{"source":"iana"},"audio/g726-16":{"source":"iana"},"audio/g726-24":{"source":"iana"},"audio/g726-32":{"source":"iana"},"audio/g726-40":{"source":"iana"},"audio/g728":{"source":"iana"},"audio/g729":{"source":"iana"},"audio/g7291":{"source":"iana"},"audio/g729d":{"source":"iana"},"audio/g729e":{"source":"iana"},"audio/gsm":{"source":"iana"},"audio/gsm-efr":{"source":"iana"},"audio/gsm-hr-08":{"source":"iana"},"audio/ilbc":{"source":"iana"},"audio/ip-mr_v2.5":{"source":"iana"},"audio/isac":{"source":"apache"},"audio/l16":{"source":"iana"},"audio/l20":{"source":"iana"},"audio/l24":{"source":"iana","compressible":false},"audio/l8":{"source":"iana"},"audio/lpc":{"source":"iana"},"audio/melp":{"source":"iana"},"audio/melp1200":{"source":"iana"},"audio/melp2400":{"source":"iana"},"audio/melp600":{"source":"iana"},"audio/mhas":{"source":"iana"},"audio/midi":{"source":"apache","extensions":["mid","midi","kar","rmi"]},"audio/mobile-xmf":{"source":"iana","extensions":["mxmf"]},"audio/mp3":{"compressible":false,"extensions":["mp3"]},"audio/mp4":{"source":"iana","compressible":false,"extensions":["m4a","mp4a"]},"audio/mp4a-latm":{"source":"iana"},"audio/mpa":{"source":"iana"},"audio/mpa-robust":{"source":"iana"},"audio/mpeg":{"source":"iana","compressible":false,"extensions":["mpga","mp2","mp2a","mp3","m2a","m3a"]},"audio/mpeg4-generic":{"source":"iana"},"audio/musepack":{"source":"apache"},"audio/ogg":{"source":"iana","compressible":false,"extensions":["oga","ogg","spx","opus"]},"audio/opus":{"source":"iana"},"audio/parityfec":{"source":"iana"},"audio/pcma":{"source":"iana"},"audio/pcma-wb":{"source":"iana"},"audio/pcmu":{"source":"iana"},"audio/pcmu-wb":{"source":"iana"},"audio/prs.sid":{"source":"iana"},"audio/qcelp":{"source":"iana"},"audio/raptorfec":{"source":"iana"},"audio/red":{"source":"iana"},"audio/rtp-enc-aescm128":{"source":"iana"},"audio/rtp-midi":{"source":"iana"},"audio/rtploopback":{"source":"iana"},"audio/rtx":{"source":"iana"},"audio/s3m":{"source":"apache","extensions":["s3m"]},"audio/scip":{"source":"iana"},"audio/silk":{"source":"apache","extensions":["sil"]},"audio/smv":{"source":"iana"},"audio/smv-qcp":{"source":"iana"},"audio/smv0":{"source":"iana"},"audio/sofa":{"source":"iana"},"audio/sp-midi":{"source":"iana"},"audio/speex":{"source":"iana"},"audio/t140c":{"source":"iana"},"audio/t38":{"source":"iana"},"audio/telephone-event":{"source":"iana"},"audio/tetra_acelp":{"source":"iana"},"audio/tetra_acelp_bb":{"source":"iana"},"audio/tone":{"source":"iana"},"audio/tsvcis":{"source":"iana"},"audio/uemclip":{"source":"iana"},"audio/ulpfec":{"source":"iana"},"audio/usac":{"source":"iana"},"audio/vdvi":{"source":"iana"},"audio/vmr-wb":{"source":"iana"},"audio/vnd.3gpp.iufp":{"source":"iana"},"audio/vnd.4sb":{"source":"iana"},"audio/vnd.audiokoz":{"source":"iana"},"audio/vnd.celp":{"source":"iana"},"audio/vnd.cisco.nse":{"source":"iana"},"audio/vnd.cmles.radio-events":{"source":"iana"},"audio/vnd.cns.anp1":{"source":"iana"},"audio/vnd.cns.inf1":{"source":"iana"},"audio/vnd.dece.audio":{"source":"iana","extensions":["uva","uvva"]},"audio/vnd.digital-winds":{"source":"iana","extensions":["eol"]},"audio/vnd.dlna.adts":{"source":"iana"},"audio/vnd.dolby.heaac.1":{"source":"iana"},"audio/vnd.dolby.heaac.2":{"source":"iana"},"audio/vnd.dolby.mlp":{"source":"iana"},"audio/vnd.dolby.mps":{"source":"iana"},"audio/vnd.dolby.pl2":{"source":"iana"},"audio/vnd.dolby.pl2x":{"source":"iana"},"audio/vnd.dolby.pl2z":{"source":"iana"},"audio/vnd.dolby.pulse.1":{"source":"iana"},"audio/vnd.dra":{"source":"iana","extensions":["dra"]},"audio/vnd.dts":{"source":"iana","extensions":["dts"]},"audio/vnd.dts.hd":{"source":"iana","extensions":["dtshd"]},"audio/vnd.dts.uhd":{"source":"iana"},"audio/vnd.dvb.file":{"source":"iana"},"audio/vnd.everad.plj":{"source":"iana"},"audio/vnd.hns.audio":{"source":"iana"},"audio/vnd.lucent.voice":{"source":"iana","extensions":["lvp"]},"audio/vnd.ms-playready.media.pya":{"source":"iana","extensions":["pya"]},"audio/vnd.nokia.mobile-xmf":{"source":"iana"},"audio/vnd.nortel.vbk":{"source":"iana"},"audio/vnd.nuera.ecelp4800":{"source":"iana","extensions":["ecelp4800"]},"audio/vnd.nuera.ecelp7470":{"source":"iana","extensions":["ecelp7470"]},"audio/vnd.nuera.ecelp9600":{"source":"iana","extensions":["ecelp9600"]},"audio/vnd.octel.sbc":{"source":"iana"},"audio/vnd.presonus.multitrack":{"source":"iana"},"audio/vnd.qcelp":{"source":"iana"},"audio/vnd.rhetorex.32kadpcm":{"source":"iana"},"audio/vnd.rip":{"source":"iana","extensions":["rip"]},"audio/vnd.rn-realaudio":{"compressible":false},"audio/vnd.sealedmedia.softseal.mpeg":{"source":"iana"},"audio/vnd.vmx.cvsd":{"source":"iana"},"audio/vnd.wave":{"compressible":false},"audio/vorbis":{"source":"iana","compressible":false},"audio/vorbis-config":{"source":"iana"},"audio/wav":{"compressible":false,"extensions":["wav"]},"audio/wave":{"compressible":false,"extensions":["wav"]},"audio/webm":{"source":"apache","compressible":false,"extensions":["weba"]},"audio/x-aac":{"source":"apache","compressible":false,"extensions":["aac"]},"audio/x-aiff":{"source":"apache","extensions":["aif","aiff","aifc"]},"audio/x-caf":{"source":"apache","compressible":false,"extensions":["caf"]},"audio/x-flac":{"source":"apache","extensions":["flac"]},"audio/x-m4a":{"source":"nginx","extensions":["m4a"]},"audio/x-matroska":{"source":"apache","extensions":["mka"]},"audio/x-mpegurl":{"source":"apache","extensions":["m3u"]},"audio/x-ms-wax":{"source":"apache","extensions":["wax"]},"audio/x-ms-wma":{"source":"apache","extensions":["wma"]},"audio/x-pn-realaudio":{"source":"apache","extensions":["ram","ra"]},"audio/x-pn-realaudio-plugin":{"source":"apache","extensions":["rmp"]},"audio/x-realaudio":{"source":"nginx","extensions":["ra"]},"audio/x-tta":{"source":"apache"},"audio/x-wav":{"source":"apache","extensions":["wav"]},"audio/xm":{"source":"apache","extensions":["xm"]},"chemical/x-cdx":{"source":"apache","extensions":["cdx"]},"chemical/x-cif":{"source":"apache","extensions":["cif"]},"chemical/x-cmdf":{"source":"apache","extensions":["cmdf"]},"chemical/x-cml":{"source":"apache","extensions":["cml"]},"chemical/x-csml":{"source":"apache","extensions":["csml"]},"chemical/x-pdb":{"source":"apache"},"chemical/x-xyz":{"source":"apache","extensions":["xyz"]},"font/collection":{"source":"iana","extensions":["ttc"]},"font/otf":{"source":"iana","compressible":true,"extensions":["otf"]},"font/sfnt":{"source":"iana"},"font/ttf":{"source":"iana","compressible":true,"extensions":["ttf"]},"font/woff":{"source":"iana","extensions":["woff"]},"font/woff2":{"source":"iana","extensions":["woff2"]},"image/aces":{"source":"iana","extensions":["exr"]},"image/apng":{"compressible":false,"extensions":["apng"]},"image/avci":{"source":"iana","extensions":["avci"]},"image/avcs":{"source":"iana","extensions":["avcs"]},"image/avif":{"source":"iana","compressible":false,"extensions":["avif"]},"image/bmp":{"source":"iana","compressible":true,"extensions":["bmp"]},"image/cgm":{"source":"iana","extensions":["cgm"]},"image/dicom-rle":{"source":"iana","extensions":["drle"]},"image/emf":{"source":"iana","extensions":["emf"]},"image/fits":{"source":"iana","extensions":["fits"]},"image/g3fax":{"source":"iana","extensions":["g3"]},"image/gif":{"source":"iana","compressible":false,"extensions":["gif"]},"image/heic":{"source":"iana","extensions":["heic"]},"image/heic-sequence":{"source":"iana","extensions":["heics"]},"image/heif":{"source":"iana","extensions":["heif"]},"image/heif-sequence":{"source":"iana","extensions":["heifs"]},"image/hej2k":{"source":"iana","extensions":["hej2"]},"image/hsj2":{"source":"iana","extensions":["hsj2"]},"image/ief":{"source":"iana","extensions":["ief"]},"image/jls":{"source":"iana","extensions":["jls"]},"image/jp2":{"source":"iana","compressible":false,"extensions":["jp2","jpg2"]},"image/jpeg":{"source":"iana","compressible":false,"extensions":["jpeg","jpg","jpe"]},"image/jph":{"source":"iana","extensions":["jph"]},"image/jphc":{"source":"iana","extensions":["jhc"]},"image/jpm":{"source":"iana","compressible":false,"extensions":["jpm"]},"image/jpx":{"source":"iana","compressible":false,"extensions":["jpx","jpf"]},"image/jxr":{"source":"iana","extensions":["jxr"]},"image/jxra":{"source":"iana","extensions":["jxra"]},"image/jxrs":{"source":"iana","extensions":["jxrs"]},"image/jxs":{"source":"iana","extensions":["jxs"]},"image/jxsc":{"source":"iana","extensions":["jxsc"]},"image/jxsi":{"source":"iana","extensions":["jxsi"]},"image/jxss":{"source":"iana","extensions":["jxss"]},"image/ktx":{"source":"iana","extensions":["ktx"]},"image/ktx2":{"source":"iana","extensions":["ktx2"]},"image/naplps":{"source":"iana"},"image/pjpeg":{"compressible":false},"image/png":{"source":"iana","compressible":false,"extensions":["png"]},"image/prs.btif":{"source":"iana","extensions":["btif"]},"image/prs.pti":{"source":"iana","extensions":["pti"]},"image/pwg-raster":{"source":"iana"},"image/sgi":{"source":"apache","extensions":["sgi"]},"image/svg+xml":{"source":"iana","compressible":true,"extensions":["svg","svgz"]},"image/t38":{"source":"iana","extensions":["t38"]},"image/tiff":{"source":"iana","compressible":false,"extensions":["tif","tiff"]},"image/tiff-fx":{"source":"iana","extensions":["tfx"]},"image/vnd.adobe.photoshop":{"source":"iana","compressible":true,"extensions":["psd"]},"image/vnd.airzip.accelerator.azv":{"source":"iana","extensions":["azv"]},"image/vnd.cns.inf2":{"source":"iana"},"image/vnd.dece.graphic":{"source":"iana","extensions":["uvi","uvvi","uvg","uvvg"]},"image/vnd.djvu":{"source":"iana","extensions":["djvu","djv"]},"image/vnd.dvb.subtitle":{"source":"iana","extensions":["sub"]},"image/vnd.dwg":{"source":"iana","extensions":["dwg"]},"image/vnd.dxf":{"source":"iana","extensions":["dxf"]},"image/vnd.fastbidsheet":{"source":"iana","extensions":["fbs"]},"image/vnd.fpx":{"source":"iana","extensions":["fpx"]},"image/vnd.fst":{"source":"iana","extensions":["fst"]},"image/vnd.fujixerox.edmics-mmr":{"source":"iana","extensions":["mmr"]},"image/vnd.fujixerox.edmics-rlc":{"source":"iana","extensions":["rlc"]},"image/vnd.globalgraphics.pgb":{"source":"iana"},"image/vnd.microsoft.icon":{"source":"iana","compressible":true,"extensions":["ico"]},"image/vnd.mix":{"source":"iana"},"image/vnd.mozilla.apng":{"source":"iana"},"image/vnd.ms-dds":{"compressible":true,"extensions":["dds"]},"image/vnd.ms-modi":{"source":"iana","extensions":["mdi"]},"image/vnd.ms-photo":{"source":"apache","extensions":["wdp"]},"image/vnd.net-fpx":{"source":"iana","extensions":["npx"]},"image/vnd.pco.b16":{"source":"iana","extensions":["b16"]},"image/vnd.radiance":{"source":"iana"},"image/vnd.sealed.png":{"source":"iana"},"image/vnd.sealedmedia.softseal.gif":{"source":"iana"},"image/vnd.sealedmedia.softseal.jpg":{"source":"iana"},"image/vnd.svf":{"source":"iana"},"image/vnd.tencent.tap":{"source":"iana","extensions":["tap"]},"image/vnd.valve.source.texture":{"source":"iana","extensions":["vtf"]},"image/vnd.wap.wbmp":{"source":"iana","extensions":["wbmp"]},"image/vnd.xiff":{"source":"iana","extensions":["xif"]},"image/vnd.zbrush.pcx":{"source":"iana","extensions":["pcx"]},"image/webp":{"source":"apache","extensions":["webp"]},"image/wmf":{"source":"iana","extensions":["wmf"]},"image/x-3ds":{"source":"apache","extensions":["3ds"]},"image/x-cmu-raster":{"source":"apache","extensions":["ras"]},"image/x-cmx":{"source":"apache","extensions":["cmx"]},"image/x-freehand":{"source":"apache","extensions":["fh","fhc","fh4","fh5","fh7"]},"image/x-icon":{"source":"apache","compressible":true,"extensions":["ico"]},"image/x-jng":{"source":"nginx","extensions":["jng"]},"image/x-mrsid-image":{"source":"apache","extensions":["sid"]},"image/x-ms-bmp":{"source":"nginx","compressible":true,"extensions":["bmp"]},"image/x-pcx":{"source":"apache","extensions":["pcx"]},"image/x-pict":{"source":"apache","extensions":["pic","pct"]},"image/x-portable-anymap":{"source":"apache","extensions":["pnm"]},"image/x-portable-bitmap":{"source":"apache","extensions":["pbm"]},"image/x-portable-graymap":{"source":"apache","extensions":["pgm"]},"image/x-portable-pixmap":{"source":"apache","extensions":["ppm"]},"image/x-rgb":{"source":"apache","extensions":["rgb"]},"image/x-tga":{"source":"apache","extensions":["tga"]},"image/x-xbitmap":{"source":"apache","extensions":["xbm"]},"image/x-xcf":{"compressible":false},"image/x-xpixmap":{"source":"apache","extensions":["xpm"]},"image/x-xwindowdump":{"source":"apache","extensions":["xwd"]},"message/cpim":{"source":"iana"},"message/delivery-status":{"source":"iana"},"message/disposition-notification":{"source":"iana","extensions":["disposition-notification"]},"message/external-body":{"source":"iana"},"message/feedback-report":{"source":"iana"},"message/global":{"source":"iana","extensions":["u8msg"]},"message/global-delivery-status":{"source":"iana","extensions":["u8dsn"]},"message/global-disposition-notification":{"source":"iana","extensions":["u8mdn"]},"message/global-headers":{"source":"iana","extensions":["u8hdr"]},"message/http":{"source":"iana","compressible":false},"message/imdn+xml":{"source":"iana","compressible":true},"message/news":{"source":"iana"},"message/partial":{"source":"iana","compressible":false},"message/rfc822":{"source":"iana","compressible":true,"extensions":["eml","mime"]},"message/s-http":{"source":"iana"},"message/sip":{"source":"iana"},"message/sipfrag":{"source":"iana"},"message/tracking-status":{"source":"iana"},"message/vnd.si.simp":{"source":"iana"},"message/vnd.wfa.wsc":{"source":"iana","extensions":["wsc"]},"model/3mf":{"source":"iana","extensions":["3mf"]},"model/e57":{"source":"iana"},"model/gltf+json":{"source":"iana","compressible":true,"extensions":["gltf"]},"model/gltf-binary":{"source":"iana","compressible":true,"extensions":["glb"]},"model/iges":{"source":"iana","compressible":false,"extensions":["igs","iges"]},"model/mesh":{"source":"iana","compressible":false,"extensions":["msh","mesh","silo"]},"model/mtl":{"source":"iana","extensions":["mtl"]},"model/obj":{"source":"iana","extensions":["obj"]},"model/step":{"source":"iana"},"model/step+xml":{"source":"iana","compressible":true,"extensions":["stpx"]},"model/step+zip":{"source":"iana","compressible":false,"extensions":["stpz"]},"model/step-xml+zip":{"source":"iana","compressible":false,"extensions":["stpxz"]},"model/stl":{"source":"iana","extensions":["stl"]},"model/vnd.collada+xml":{"source":"iana","compressible":true,"extensions":["dae"]},"model/vnd.dwf":{"source":"iana","extensions":["dwf"]},"model/vnd.flatland.3dml":{"source":"iana"},"model/vnd.gdl":{"source":"iana","extensions":["gdl"]},"model/vnd.gs-gdl":{"source":"apache"},"model/vnd.gs.gdl":{"source":"iana"},"model/vnd.gtw":{"source":"iana","extensions":["gtw"]},"model/vnd.moml+xml":{"source":"iana","compressible":true},"model/vnd.mts":{"source":"iana","extensions":["mts"]},"model/vnd.opengex":{"source":"iana","extensions":["ogex"]},"model/vnd.parasolid.transmit.binary":{"source":"iana","extensions":["x_b"]},"model/vnd.parasolid.transmit.text":{"source":"iana","extensions":["x_t"]},"model/vnd.pytha.pyox":{"source":"iana"},"model/vnd.rosette.annotated-data-model":{"source":"iana"},"model/vnd.sap.vds":{"source":"iana","extensions":["vds"]},"model/vnd.usdz+zip":{"source":"iana","compressible":false,"extensions":["usdz"]},"model/vnd.valve.source.compiled-map":{"source":"iana","extensions":["bsp"]},"model/vnd.vtu":{"source":"iana","extensions":["vtu"]},"model/vrml":{"source":"iana","compressible":false,"extensions":["wrl","vrml"]},"model/x3d+binary":{"source":"apache","compressible":false,"extensions":["x3db","x3dbz"]},"model/x3d+fastinfoset":{"source":"iana","extensions":["x3db"]},"model/x3d+vrml":{"source":"apache","compressible":false,"extensions":["x3dv","x3dvz"]},"model/x3d+xml":{"source":"iana","compressible":true,"extensions":["x3d","x3dz"]},"model/x3d-vrml":{"source":"iana","extensions":["x3dv"]},"multipart/alternative":{"source":"iana","compressible":false},"multipart/appledouble":{"source":"iana"},"multipart/byteranges":{"source":"iana"},"multipart/digest":{"source":"iana"},"multipart/encrypted":{"source":"iana","compressible":false},"multipart/form-data":{"source":"iana","compressible":false},"multipart/header-set":{"source":"iana"},"multipart/mixed":{"source":"iana"},"multipart/multilingual":{"source":"iana"},"multipart/parallel":{"source":"iana"},"multipart/related":{"source":"iana","compressible":false},"multipart/report":{"source":"iana"},"multipart/signed":{"source":"iana","compressible":false},"multipart/vnd.bint.med-plus":{"source":"iana"},"multipart/voice-message":{"source":"iana"},"multipart/x-mixed-replace":{"source":"iana"},"text/1d-interleaved-parityfec":{"source":"iana"},"text/cache-manifest":{"source":"iana","compressible":true,"extensions":["appcache","manifest"]},"text/calendar":{"source":"iana","extensions":["ics","ifb"]},"text/calender":{"compressible":true},"text/cmd":{"compressible":true},"text/coffeescript":{"extensions":["coffee","litcoffee"]},"text/cql":{"source":"iana"},"text/cql-expression":{"source":"iana"},"text/cql-identifier":{"source":"iana"},"text/css":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["css"]},"text/csv":{"source":"iana","compressible":true,"extensions":["csv"]},"text/csv-schema":{"source":"iana"},"text/directory":{"source":"iana"},"text/dns":{"source":"iana"},"text/ecmascript":{"source":"iana"},"text/encaprtp":{"source":"iana"},"text/enriched":{"source":"iana"},"text/fhirpath":{"source":"iana"},"text/flexfec":{"source":"iana"},"text/fwdred":{"source":"iana"},"text/gff3":{"source":"iana"},"text/grammar-ref-list":{"source":"iana"},"text/html":{"source":"iana","compressible":true,"extensions":["html","htm","shtml"]},"text/jade":{"extensions":["jade"]},"text/javascript":{"source":"iana","compressible":true},"text/jcr-cnd":{"source":"iana"},"text/jsx":{"compressible":true,"extensions":["jsx"]},"text/less":{"compressible":true,"extensions":["less"]},"text/markdown":{"source":"iana","compressible":true,"extensions":["markdown","md"]},"text/mathml":{"source":"nginx","extensions":["mml"]},"text/mdx":{"compressible":true,"extensions":["mdx"]},"text/mizar":{"source":"iana"},"text/n3":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["n3"]},"text/parameters":{"source":"iana","charset":"UTF-8"},"text/parityfec":{"source":"iana"},"text/plain":{"source":"iana","compressible":true,"extensions":["txt","text","conf","def","list","log","in","ini"]},"text/provenance-notation":{"source":"iana","charset":"UTF-8"},"text/prs.fallenstein.rst":{"source":"iana"},"text/prs.lines.tag":{"source":"iana","extensions":["dsc"]},"text/prs.prop.logic":{"source":"iana"},"text/raptorfec":{"source":"iana"},"text/red":{"source":"iana"},"text/rfc822-headers":{"source":"iana"},"text/richtext":{"source":"iana","compressible":true,"extensions":["rtx"]},"text/rtf":{"source":"iana","compressible":true,"extensions":["rtf"]},"text/rtp-enc-aescm128":{"source":"iana"},"text/rtploopback":{"source":"iana"},"text/rtx":{"source":"iana"},"text/sgml":{"source":"iana","extensions":["sgml","sgm"]},"text/shaclc":{"source":"iana"},"text/shex":{"source":"iana","extensions":["shex"]},"text/slim":{"extensions":["slim","slm"]},"text/spdx":{"source":"iana","extensions":["spdx"]},"text/strings":{"source":"iana"},"text/stylus":{"extensions":["stylus","styl"]},"text/t140":{"source":"iana"},"text/tab-separated-values":{"source":"iana","compressible":true,"extensions":["tsv"]},"text/troff":{"source":"iana","extensions":["t","tr","roff","man","me","ms"]},"text/turtle":{"source":"iana","charset":"UTF-8","extensions":["ttl"]},"text/ulpfec":{"source":"iana"},"text/uri-list":{"source":"iana","compressible":true,"extensions":["uri","uris","urls"]},"text/vcard":{"source":"iana","compressible":true,"extensions":["vcard"]},"text/vnd.a":{"source":"iana"},"text/vnd.abc":{"source":"iana"},"text/vnd.ascii-art":{"source":"iana"},"text/vnd.curl":{"source":"iana","extensions":["curl"]},"text/vnd.curl.dcurl":{"source":"apache","extensions":["dcurl"]},"text/vnd.curl.mcurl":{"source":"apache","extensions":["mcurl"]},"text/vnd.curl.scurl":{"source":"apache","extensions":["scurl"]},"text/vnd.debian.copyright":{"source":"iana","charset":"UTF-8"},"text/vnd.dmclientscript":{"source":"iana"},"text/vnd.dvb.subtitle":{"source":"iana","extensions":["sub"]},"text/vnd.esmertec.theme-descriptor":{"source":"iana","charset":"UTF-8"},"text/vnd.familysearch.gedcom":{"source":"iana","extensions":["ged"]},"text/vnd.ficlab.flt":{"source":"iana"},"text/vnd.fly":{"source":"iana","extensions":["fly"]},"text/vnd.fmi.flexstor":{"source":"iana","extensions":["flx"]},"text/vnd.gml":{"source":"iana"},"text/vnd.graphviz":{"source":"iana","extensions":["gv"]},"text/vnd.hans":{"source":"iana"},"text/vnd.hgl":{"source":"iana"},"text/vnd.in3d.3dml":{"source":"iana","extensions":["3dml"]},"text/vnd.in3d.spot":{"source":"iana","extensions":["spot"]},"text/vnd.iptc.newsml":{"source":"iana"},"text/vnd.iptc.nitf":{"source":"iana"},"text/vnd.latex-z":{"source":"iana"},"text/vnd.motorola.reflex":{"source":"iana"},"text/vnd.ms-mediapackage":{"source":"iana"},"text/vnd.net2phone.commcenter.command":{"source":"iana"},"text/vnd.radisys.msml-basic-layout":{"source":"iana"},"text/vnd.senx.warpscript":{"source":"iana"},"text/vnd.si.uricatalogue":{"source":"iana"},"text/vnd.sosi":{"source":"iana"},"text/vnd.sun.j2me.app-descriptor":{"source":"iana","charset":"UTF-8","extensions":["jad"]},"text/vnd.trolltech.linguist":{"source":"iana","charset":"UTF-8"},"text/vnd.wap.si":{"source":"iana"},"text/vnd.wap.sl":{"source":"iana"},"text/vnd.wap.wml":{"source":"iana","extensions":["wml"]},"text/vnd.wap.wmlscript":{"source":"iana","extensions":["wmls"]},"text/vtt":{"source":"iana","charset":"UTF-8","compressible":true,"extensions":["vtt"]},"text/x-asm":{"source":"apache","extensions":["s","asm"]},"text/x-c":{"source":"apache","extensions":["c","cc","cxx","cpp","h","hh","dic"]},"text/x-component":{"source":"nginx","extensions":["htc"]},"text/x-fortran":{"source":"apache","extensions":["f","for","f77","f90"]},"text/x-gwt-rpc":{"compressible":true},"text/x-handlebars-template":{"extensions":["hbs"]},"text/x-java-source":{"source":"apache","extensions":["java"]},"text/x-jquery-tmpl":{"compressible":true},"text/x-lua":{"extensions":["lua"]},"text/x-markdown":{"compressible":true,"extensions":["mkd"]},"text/x-nfo":{"source":"apache","extensions":["nfo"]},"text/x-opml":{"source":"apache","extensions":["opml"]},"text/x-org":{"compressible":true,"extensions":["org"]},"text/x-pascal":{"source":"apache","extensions":["p","pas"]},"text/x-processing":{"compressible":true,"extensions":["pde"]},"text/x-sass":{"extensions":["sass"]},"text/x-scss":{"extensions":["scss"]},"text/x-setext":{"source":"apache","extensions":["etx"]},"text/x-sfv":{"source":"apache","extensions":["sfv"]},"text/x-suse-ymp":{"compressible":true,"extensions":["ymp"]},"text/x-uuencode":{"source":"apache","extensions":["uu"]},"text/x-vcalendar":{"source":"apache","extensions":["vcs"]},"text/x-vcard":{"source":"apache","extensions":["vcf"]},"text/xml":{"source":"iana","compressible":true,"extensions":["xml"]},"text/xml-external-parsed-entity":{"source":"iana"},"text/yaml":{"compressible":true,"extensions":["yaml","yml"]},"video/1d-interleaved-parityfec":{"source":"iana"},"video/3gpp":{"source":"iana","extensions":["3gp","3gpp"]},"video/3gpp-tt":{"source":"iana"},"video/3gpp2":{"source":"iana","extensions":["3g2"]},"video/av1":{"source":"iana"},"video/bmpeg":{"source":"iana"},"video/bt656":{"source":"iana"},"video/celb":{"source":"iana"},"video/dv":{"source":"iana"},"video/encaprtp":{"source":"iana"},"video/ffv1":{"source":"iana"},"video/flexfec":{"source":"iana"},"video/h261":{"source":"iana","extensions":["h261"]},"video/h263":{"source":"iana","extensions":["h263"]},"video/h263-1998":{"source":"iana"},"video/h263-2000":{"source":"iana"},"video/h264":{"source":"iana","extensions":["h264"]},"video/h264-rcdo":{"source":"iana"},"video/h264-svc":{"source":"iana"},"video/h265":{"source":"iana"},"video/iso.segment":{"source":"iana","extensions":["m4s"]},"video/jpeg":{"source":"iana","extensions":["jpgv"]},"video/jpeg2000":{"source":"iana"},"video/jpm":{"source":"apache","extensions":["jpm","jpgm"]},"video/jxsv":{"source":"iana"},"video/mj2":{"source":"iana","extensions":["mj2","mjp2"]},"video/mp1s":{"source":"iana"},"video/mp2p":{"source":"iana"},"video/mp2t":{"source":"iana","extensions":["ts"]},"video/mp4":{"source":"iana","compressible":false,"extensions":["mp4","mp4v","mpg4"]},"video/mp4v-es":{"source":"iana"},"video/mpeg":{"source":"iana","compressible":false,"extensions":["mpeg","mpg","mpe","m1v","m2v"]},"video/mpeg4-generic":{"source":"iana"},"video/mpv":{"source":"iana"},"video/nv":{"source":"iana"},"video/ogg":{"source":"iana","compressible":false,"extensions":["ogv"]},"video/parityfec":{"source":"iana"},"video/pointer":{"source":"iana"},"video/quicktime":{"source":"iana","compressible":false,"extensions":["qt","mov"]},"video/raptorfec":{"source":"iana"},"video/raw":{"source":"iana"},"video/rtp-enc-aescm128":{"source":"iana"},"video/rtploopback":{"source":"iana"},"video/rtx":{"source":"iana"},"video/scip":{"source":"iana"},"video/smpte291":{"source":"iana"},"video/smpte292m":{"source":"iana"},"video/ulpfec":{"source":"iana"},"video/vc1":{"source":"iana"},"video/vc2":{"source":"iana"},"video/vnd.cctv":{"source":"iana"},"video/vnd.dece.hd":{"source":"iana","extensions":["uvh","uvvh"]},"video/vnd.dece.mobile":{"source":"iana","extensions":["uvm","uvvm"]},"video/vnd.dece.mp4":{"source":"iana"},"video/vnd.dece.pd":{"source":"iana","extensions":["uvp","uvvp"]},"video/vnd.dece.sd":{"source":"iana","extensions":["uvs","uvvs"]},"video/vnd.dece.video":{"source":"iana","extensions":["uvv","uvvv"]},"video/vnd.directv.mpeg":{"source":"iana"},"video/vnd.directv.mpeg-tts":{"source":"iana"},"video/vnd.dlna.mpeg-tts":{"source":"iana"},"video/vnd.dvb.file":{"source":"iana","extensions":["dvb"]},"video/vnd.fvt":{"source":"iana","extensions":["fvt"]},"video/vnd.hns.video":{"source":"iana"},"video/vnd.iptvforum.1dparityfec-1010":{"source":"iana"},"video/vnd.iptvforum.1dparityfec-2005":{"source":"iana"},"video/vnd.iptvforum.2dparityfec-1010":{"source":"iana"},"video/vnd.iptvforum.2dparityfec-2005":{"source":"iana"},"video/vnd.iptvforum.ttsavc":{"source":"iana"},"video/vnd.iptvforum.ttsmpeg2":{"source":"iana"},"video/vnd.motorola.video":{"source":"iana"},"video/vnd.motorola.videop":{"source":"iana"},"video/vnd.mpegurl":{"source":"iana","extensions":["mxu","m4u"]},"video/vnd.ms-playready.media.pyv":{"source":"iana","extensions":["pyv"]},"video/vnd.nokia.interleaved-multimedia":{"source":"iana"},"video/vnd.nokia.mp4vr":{"source":"iana"},"video/vnd.nokia.videovoip":{"source":"iana"},"video/vnd.objectvideo":{"source":"iana"},"video/vnd.radgamettools.bink":{"source":"iana"},"video/vnd.radgamettools.smacker":{"source":"iana"},"video/vnd.sealed.mpeg1":{"source":"iana"},"video/vnd.sealed.mpeg4":{"source":"iana"},"video/vnd.sealed.swf":{"source":"iana"},"video/vnd.sealedmedia.softseal.mov":{"source":"iana"},"video/vnd.uvvu.mp4":{"source":"iana","extensions":["uvu","uvvu"]},"video/vnd.vivo":{"source":"iana","extensions":["viv"]},"video/vnd.youtube.yt":{"source":"iana"},"video/vp8":{"source":"iana"},"video/vp9":{"source":"iana"},"video/webm":{"source":"apache","compressible":false,"extensions":["webm"]},"video/x-f4v":{"source":"apache","extensions":["f4v"]},"video/x-fli":{"source":"apache","extensions":["fli"]},"video/x-flv":{"source":"apache","compressible":false,"extensions":["flv"]},"video/x-m4v":{"source":"apache","extensions":["m4v"]},"video/x-matroska":{"source":"apache","compressible":false,"extensions":["mkv","mk3d","mks"]},"video/x-mng":{"source":"apache","extensions":["mng"]},"video/x-ms-asf":{"source":"apache","extensions":["asf","asx"]},"video/x-ms-vob":{"source":"apache","extensions":["vob"]},"video/x-ms-wm":{"source":"apache","extensions":["wm"]},"video/x-ms-wmv":{"source":"apache","compressible":false,"extensions":["wmv"]},"video/x-ms-wmx":{"source":"apache","extensions":["wmx"]},"video/x-ms-wvx":{"source":"apache","extensions":["wvx"]},"video/x-msvideo":{"source":"apache","extensions":["avi"]},"video/x-sgi-movie":{"source":"apache","extensions":["movie"]},"video/x-smv":{"source":"apache","extensions":["smv"]},"x-conference/x-cooltalk":{"source":"apache","extensions":["ice"]},"x-shader/x-fragment":{"compressible":true},"x-shader/x-vertex":{"compressible":true}}');
-
-/***/ },
-
-/***/ 4343
-(module) {
-
-module.exports = {"rE":"4.8.3"};
-
-/***/ }
-
-/******/ });
-/************************************************************************/
-/******/ // The module cache
-/******/ const __webpack_module_cache__ = {};
-/******/ 
-/******/ // The require function
-/******/ function __webpack_require__(moduleId) {
-/******/ 	// Check if module is in cache
-/******/ 	const cachedModule = __webpack_module_cache__[moduleId];
-/******/ 	if (cachedModule !== undefined) {
-/******/ 		return cachedModule.exports;
-/******/ 	}
-/******/ 	// Create a new module (and put it into the cache)
-/******/ 	const module = __webpack_module_cache__[moduleId] = {
-/******/ 		id: moduleId,
-/******/ 		loaded: false,
-/******/ 		exports: {}
-/******/ 	};
-/******/ 
-/******/ 	// Execute the module function
-/******/ 	__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/ 
-/******/ 	// Flag the module as loaded
-/******/ 	module.loaded = true;
-/******/ 
-/******/ 	// Return the exports of the module
-/******/ 	return module.exports;
-/******/ }
-/******/ 
-/************************************************************************/
-/******/ /* webpack/runtime/compat get default export */
-/******/ (() => {
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = (module) => {
-/******/ 		const getter = module && module.__esModule ?
-/******/ 			() => (module['default']) :
-/******/ 			() => (module);
-/******/ 		__webpack_require__.d(getter, { a: getter });
-/******/ 		return getter;
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/define property getters */
-/******/ (() => {
-/******/ 	// define getter/value functions for harmony exports
-/******/ 	__webpack_require__.d = (exports, definition) => {
-/******/ 		if(Array.isArray(definition)) {
-/******/ 			var i = 0;
-/******/ 			while(i < definition.length) {
-/******/ 				var key = definition[i++];
-/******/ 				var binding = definition[i++];
-/******/ 				if(!__webpack_require__.o(exports, key)) {
-/******/ 					if(binding === 0) {
-/******/ 						Object.defineProperty(exports, key, { enumerable: true, value: definition[i++] });
-/******/ 					} else {
-/******/ 						Object.defineProperty(exports, key, { enumerable: true, get: binding });
-/******/ 					}
-/******/ 				} else if(binding === 0) { i++; }
-/******/ 			}
-/******/ 		} else {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		}
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/hasOwnProperty shorthand */
-/******/ (() => {
-/******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/node module decorator */
-/******/ (() => {
-/******/ 	__webpack_require__.nmd = (module) => {
-/******/ 		module.paths = [];
-/******/ 		if (!module.children) module.children = [];
-/******/ 		return module;
-/******/ 	};
-/******/ })();
-/******/ 
-/************************************************************************/
+// MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/package.json
+var package_namespaceFn = /*#__PURE__*/__webpack_require__.cw(function(module, exports) {
+const __WEBPACK_NAMESPACE_OBJECT__ = {"rE":"4.8.3"};
+module.exports = __WEBPACK_NAMESPACE_OBJECT__;
+});
 
 ;// ./src/server/settings_default.yaml?raw
 const settings_defaultraw_namespaceObject = "# yaml-language-server: $schema=https://testingcf.jsdelivr.net/gh/StageDog/tavern_sync/dist/schema/settings.zh.json\n\n# 在此填入 user 名称, 提示词中如果有这个名字则会被替换成 <user> 宏\nuser名称: 青空黎\n\n# 在此填入新的\"角色卡\"、\"世界书\"或\"预设\"配置\n配置:\n  # 配置名称, 可以和酒馆中的不同. 你使用脚本时需要填写配置名称来指出用哪个配置, 因此尽量配置名称尽量简单点方便填写\n  角色卡示例:\n    # 类型可以是\"角色卡\"、\"世界书\"或\"预设\"\n    类型: 角色卡\n\n    # 在酒馆中这个\"角色卡\"、\"世界书\"或\"预设\"叫什么\n    酒馆中的名称: 呕吐内心的少女\n\n    # 这个\"角色卡\"、\"世界书\"或\"预设\"的等效配置文件要提取到本地哪个文件中, 可以是绝对路径或相对于本文件的相对路径\n    # 如果不满足路径格式将会报错\n    # - 绝对路径: 如 Windows 中, 想将配置提取成 C 盘\"角色卡示例\"文件夹中的\"index.yaml\"文件, 则填入 `C:/角色卡示例/index.yaml`,\n    #           `.yaml` 可以省略, 如 `C:/角色卡示例/index`\n    # - 相对路径:\n    #   - 想将配置文件提取成本文件相同的文件夹中的\"index.yaml\"文件, 则填入 `./角色卡示例/index` 或 `角色卡示例/index`\n    #   - 想将配置文件提取成本文件所在文件夹的子文件夹\"世界书\"中的\"index.yaml\"文件, 则填入 `./世界书/角色卡示例/index` 或 `世界书/角色卡示例/index`\n    #   - 想将配置文件提取成本文件所在文件夹的父文件夹中的\"index.yaml\"文件, 则填入 `../角色卡示例/index`\n    本地文件路径: 角色卡示例/index\n\n    # 当使用打包功能 `node tavern_sync.mjs bundle 配置名称` 直接生成\"角色卡\"、\"世界书\"或\"预设\"文件时, 要将它存放在哪个文件中\n    # 你也可以直接删去下面一行不填, 则默认会导出到本地文件路径的同目录下\n    导出文件路径: 角色卡示例/角色卡示例\n";
 // EXTERNAL MODULE: ./node_modules/.pnpm/lodash@4.18.1/node_modules/lodash/lodash.js
-var lodash = __webpack_require__(6746);
+var lodash = __webpack_require__(746);
 var lodash_default = /*#__PURE__*/__webpack_require__.n(lodash);
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/core.js
-var _a;
-/** A special constant with type `never` */
-const NEVER = /*@__PURE__*/ (/* unused pure expression or super */ null && (Object.freeze({
-    status: "aborted",
-})));
-function $constructor(name, initializer, params) {
-    function init(inst, def) {
-        if (!inst._zod) {
-            Object.defineProperty(inst, "_zod", {
-                value: {
-                    def,
-                    constr: _,
-                    traits: new Set(),
-                },
-                enumerable: false,
-            });
-        }
-        if (inst._zod.traits.has(name)) {
-            return;
-        }
-        inst._zod.traits.add(name);
-        initializer(inst, def);
-        // support prototype modifications
-        const proto = _.prototype;
-        const keys = Object.keys(proto);
-        for (let i = 0; i < keys.length; i++) {
-            const k = keys[i];
-            if (!(k in inst)) {
-                inst[k] = proto[k].bind(inst);
-            }
-        }
-    }
-    // doesn't work if Parent has a constructor with arguments
-    const Parent = params?.Parent ?? Object;
-    class Definition extends Parent {
-    }
-    Object.defineProperty(Definition, "name", { value: name });
-    function _(def) {
-        var _a;
-        const inst = params?.Parent ? new Definition() : this;
-        init(inst, def);
-        (_a = inst._zod).deferred ?? (_a.deferred = []);
-        for (const fn of inst._zod.deferred) {
-            fn();
-        }
-        return inst;
-    }
-    Object.defineProperty(_, "init", { value: init });
-    Object.defineProperty(_, Symbol.hasInstance, {
-        value: (inst) => {
-            if (params?.Parent && inst instanceof params.Parent)
-                return true;
-            return inst?._zod?.traits?.has(name);
-        },
-    });
-    Object.defineProperty(_, "name", { value: name });
-    return _;
-}
-//////////////////////////////   UTILITIES   ///////////////////////////////////////
-const $brand = Symbol("zod_brand");
-class $ZodAsyncError extends Error {
-    constructor() {
-        super(`Encountered Promise during synchronous parse. Use .parseAsync() instead.`);
-    }
-}
-class $ZodEncodeError extends Error {
-    constructor(name) {
-        super(`Encountered unidirectional transform during encode: ${name}`);
-        this.name = "ZodEncodeError";
-    }
-}
-(_a = globalThis).__zod_globalConfig ?? (_a.__zod_globalConfig = {});
-const globalConfig = globalThis.__zod_globalConfig;
-function config(newConfig) {
-    if (newConfig)
-        Object.assign(globalConfig, newConfig);
-    return globalConfig;
-}
-
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/util.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/util.js
 
 // functions
 function assertEqual(val) {
@@ -44687,11 +44644,14 @@ function assertEqual(val) {
 function assertNotEqual(val) {
     return val;
 }
+function toZod() {
+    return (schema) => schema;
+}
 function assertIs(_arg) { }
 function assertNever(_x) {
     throw new Error("Unexpected value in exhaustive check");
 }
-function assert(_) { }
+function util_assert(_) { }
 function getEnumValues(entries) {
     const numericValues = Object.values(entries).filter((v) => typeof v === "number");
     const values = Object.entries(entries)
@@ -44707,20 +44667,25 @@ function jsonStringifyReplacer(_, value) {
         return value.toString();
     return value;
 }
-function cached(getter) {
-    const set = false;
-    return {
-        get value() {
-            if (!set) {
-                const value = getter();
-                Object.defineProperty(this, "value", { value });
-                return value;
-            }
-            throw new Error("cached value already set");
-        },
-    };
+// the accessor lives on a shared prototype: an own accessor makes every box a dictionary-mode object (~360 B and a slow load per read against ~100 B and an inlined getter here)
+class Cached {
+    constructor(getter) {
+        this._getter = getter;
+        this._value = undefined;
+    }
+    get value() {
+        const getter = this._getter;
+        if (getter !== undefined) {
+            this._value = getter();
+            this._getter = undefined;
+        }
+        return this._value;
+    }
 }
-function nullish(input) {
+function cached(getter) {
+    return new Cached(getter);
+}
+function util_nullish(input) {
     return input === null || input === undefined;
 }
 function cleanRegex(source) {
@@ -44731,13 +44696,13 @@ function cleanRegex(source) {
 function floatSafeRemainder(val, step) {
     const ratio = val / step;
     const roundedRatio = Math.round(ratio);
-    // Use a relative epsilon scaled to the magnitude of the result
-    const tolerance = Number.EPSILON * Math.max(Math.abs(ratio), 1);
+    // `val` and `step` each round to a double before the division rounds again, so a true decimal multiple's quotient can sit up to 1.5 of these scaled epsilons from the integer. A 1x tolerance therefore rejected 2.03 as a multiple of 0.07; 4x covers the worst case with margin.
+    const tolerance = 4 * Number.EPSILON * Math.max(Math.abs(ratio), 1);
     if (Math.abs(ratio - roundedRatio) < tolerance)
         return 0;
     return ratio - roundedRatio;
 }
-const EVALUATING = /* @__PURE__*/ Symbol("evaluating");
+const EVALUATING = /* @__PURE__*/ (/* unused pure expression or super */ null && (Symbol("evaluating")));
 function defineLazy(object, key, getter) {
     let value = undefined;
     Object.defineProperty(object, key, {
@@ -44772,6 +44737,71 @@ function assignProp(target, prop, value) {
         enumerable: true,
         configurable: true,
     });
+}
+/**
+ * Whichever object a def's `shape` currently answers from: the one the caller passed until the first read, the frozen copy after it.
+ *
+ * Its keys and descriptors read without invoking anything, which is what lets a discriminated union check its discriminator, and the cycle walk read a shape, without resolving a getter that references the schema being constructed. A def that answers `shape` from an accessor of its own has none.
+ */
+function rawShape(def) {
+    const desc = Object.getOwnPropertyDescriptor(def, "shape");
+    return desc?.get ? desc.get.raw : desc?.value;
+}
+// where a builder reads its source's keys and descriptors, resolving only a shape a def answers for itself. A shape resolves by object spread, so only its enumerable keys are ever part of it.
+function sourceShape(schema) {
+    return rawShape(schema._zod.def) ?? schema._zod.def.shape;
+}
+// a key whose value is not settled yet, self-caching so every read after the first gets the same one
+function deferProp(target, key, getter) {
+    Object.defineProperty(target, key, {
+        get() {
+            const value = getter();
+            assignProp(this, key, value);
+            return value;
+        },
+        enumerable: true,
+        configurable: true,
+    });
+}
+// Writes a settled key. A plain assignment is much cheaper than `defineProperty` and produces the same descriptor, but it runs whatever setter already answers to the key — an accessor this shape deferred, or an inherited one, which `__proto__` has on every object and prototype pollution can add for any name.
+function putProp(target, key, value) {
+    if (key in target)
+        assignProp(target, key, value);
+    else
+        target[key] = value;
+}
+/**
+ * Copies `keys` of `source`'s shape onto `target`, each value passed through `wrap`.
+ *
+ * A key the source has resolved is copied through now, so the derived shape states it outright and nothing has to resolve it to learn what it holds. A key the source still defers stays deferred, and reads back through the source's own `shape`, so it resolves once and both shapes get that one schema.
+ */
+function mirrorShape(target, source, keys, wrap) {
+    const raw = sourceShape(source);
+    for (const key of keys) {
+        const desc = Object.getOwnPropertyDescriptor(raw, key);
+        if (!desc.enumerable)
+            continue;
+        if (desc.get) {
+            deferProp(target, key, () => {
+                const value = source._zod.def.shape[key];
+                return wrap ? wrap(value, key) : value;
+            });
+        }
+        else
+            putProp(target, key, wrap ? wrap(desc.value, key) : desc.value);
+    }
+}
+// same, for a plain shape a caller passed rather than a schema's
+function mirrorProps(target, source) {
+    for (const key of Reflect.ownKeys(source)) {
+        const desc = Object.getOwnPropertyDescriptor(source, key);
+        if (!desc.enumerable)
+            continue;
+        if (desc.get)
+            deferProp(target, key, () => source[key]);
+        else
+            putProp(target, key, desc.value);
+    }
 }
 function mergeDefs(...defs) {
     const mergedDescriptors = {};
@@ -44824,8 +44854,7 @@ function util_isObject(data) {
     return typeof data === "object" && data !== null && !Array.isArray(data);
 }
 const util_allowsEval = /* @__PURE__*/ cached(() => {
-    // Skip the probe under `jitless`: strict CSPs report the caught `new Function`
-    // as a `securitypolicyviolation` even though the throw is swallowed.
+    // Skip the probe under `jitless`: strict CSPs report the caught `new Function` as a `securitypolicyviolation` even though the throw is swallowed.
     if (globalConfig.jitless) {
         return false;
     }
@@ -44939,13 +44968,13 @@ function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 // zod-specific utils
-function clone(inst, def, params) {
+function util_clone(inst, def, params) {
     const cl = new inst._zod.constr(def ?? inst._zod.def);
     if (!def || params?.parent)
         cl._zod.parent = inst;
     return cl;
 }
-function normalizeParams(_params) {
+function util_normalizeParams(_params) {
     const params = _params;
     if (!params)
         return {};
@@ -45003,20 +45032,21 @@ function stringifyPrimitive(value) {
 }
 function optionalKeys(shape) {
     return Object.keys(shape).filter((k) => {
-        return shape[k]._zod.optin === "optional" && shape[k]._zod.optout === "optional";
+        return shape[k]._zod.optin !== undefined && shape[k]._zod.optout === "optional";
     });
 }
-const NUMBER_FORMAT_RANGES = {
+// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle.
+const NUMBER_FORMAT_RANGES = /*@__PURE__*/ (() => ({
     safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
     int32: [-2147483648, 2147483647],
     uint32: [0, 4294967295],
     float32: [-3.4028234663852886e38, 3.4028234663852886e38],
     float64: [-Number.MAX_VALUE, Number.MAX_VALUE],
-};
-const BIGINT_FORMAT_RANGES = (/* unused pure expression or super */ null && ({
+}))();
+const BIGINT_FORMAT_RANGES = {
     int64: [/* @__PURE__*/ BigInt("-9223372036854775808"), /* @__PURE__*/ BigInt("9223372036854775807")],
     uint64: [/* @__PURE__*/ BigInt(0), /* @__PURE__*/ BigInt("18446744073709551615")],
-}));
+};
 function pick(schema, mask) {
     const currDef = schema._zod.def;
     const checks = currDef.checks;
@@ -45024,23 +45054,23 @@ function pick(schema, mask) {
     if (hasChecks) {
         throw new Error(".pick() cannot be used on object schemas containing refinements");
     }
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const newShape = {};
-            for (const key in mask) {
-                if (!(key in currDef.shape)) {
-                    throw new Error(`Unrecognized key: "${key}"`);
-                }
-                if (!mask[key])
-                    continue;
-                newShape[key] = currDef.shape[key];
-            }
-            assignProp(this, "shape", newShape); // self-caching
-            return newShape;
-        },
-        checks: [],
-    });
-    return clone(schema, def);
+    const newShape = {};
+    mirrorShape(newShape, schema, maskedKeys(schema, mask));
+    return util_clone(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
+}
+// the mask keys that select something, checked against the source's shape without resolving it
+function maskedKeys(schema, mask) {
+    const raw = sourceShape(schema);
+    const keys = [];
+    // `for...in` skips symbols, so a symbol in the mask would select nothing
+    for (const key of Reflect.ownKeys(mask)) {
+        if (!Object.getOwnPropertyDescriptor(raw, key)?.enumerable) {
+            throw new Error(`Unrecognized key: "${String(key)}"`);
+        }
+        if (mask[key])
+            keys.push(key);
+    }
+    return keys;
 }
 function omit(schema, mask) {
     const currDef = schema._zod.def;
@@ -45049,23 +45079,10 @@ function omit(schema, mask) {
     if (hasChecks) {
         throw new Error(".omit() cannot be used on object schemas containing refinements");
     }
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const newShape = { ...schema._zod.def.shape };
-            for (const key in mask) {
-                if (!(key in currDef.shape)) {
-                    throw new Error(`Unrecognized key: "${key}"`);
-                }
-                if (!mask[key])
-                    continue;
-                delete newShape[key];
-            }
-            assignProp(this, "shape", newShape); // self-caching
-            return newShape;
-        },
-        checks: [],
-    });
-    return clone(schema, def);
+    const omitted = new Set(maskedKeys(schema, mask));
+    const newShape = {};
+    mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)).filter((key) => !omitted.has(key)));
+    return util_clone(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
 }
 function extend(schema, shape) {
     if (!isPlainObject(shape)) {
@@ -45074,135 +45091,71 @@ function extend(schema, shape) {
     const checks = schema._zod.def.checks;
     const hasChecks = checks && checks.length > 0;
     if (hasChecks) {
-        // Only throw if new shape overlaps with existing shape
-        // Use getOwnPropertyDescriptor to check key existence without accessing values
-        const existingShape = schema._zod.def.shape;
-        for (const key in shape) {
+        // Only throw if new shape overlaps with existing shape. Use getOwnPropertyDescriptor to check key existence without accessing values
+        const existingShape = sourceShape(schema);
+        for (const key of Reflect.ownKeys(shape)) {
             if (Object.getOwnPropertyDescriptor(existingShape, key) !== undefined) {
                 throw new Error("Cannot overwrite keys on object schemas containing refinements. Use `.safeExtend()` instead.");
             }
         }
     }
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const _shape = { ...schema._zod.def.shape, ...shape };
-            assignProp(this, "shape", _shape); // self-caching
-            return _shape;
-        },
-    });
-    return clone(schema, def);
+    return util_clone(schema, mergeDefs(schema._zod.def, { shape: util_extended(schema, shape) }));
+}
+// the source's keys, then the caller's overlaid on top
+function util_extended(schema, shape) {
+    const newShape = {};
+    mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)));
+    mirrorProps(newShape, shape);
+    return newShape;
 }
 function safeExtend(schema, shape) {
     if (!isPlainObject(shape)) {
         throw new Error("Invalid input to safeExtend: expected a plain object");
     }
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const _shape = { ...schema._zod.def.shape, ...shape };
-            assignProp(this, "shape", _shape); // self-caching
-            return _shape;
-        },
-    });
-    return clone(schema, def);
+    return util_clone(schema, mergeDefs(schema._zod.def, { shape: util_extended(schema, shape) }));
 }
-function merge(a, b) {
+function util_merge(a, b) {
+    if (!b?._zod?.def) {
+        throw new Error("Invalid input to merge: expected an object schema. To merge a plain shape, use `.extend()`.");
+    }
     if (a._zod.def.checks?.length) {
         throw new Error(".merge() cannot be used on object schemas containing refinements. Use .safeExtend() instead.");
     }
+    const newShape = {};
+    mirrorShape(newShape, a, Reflect.ownKeys(sourceShape(a)));
+    mirrorShape(newShape, b, Reflect.ownKeys(sourceShape(b)));
     const def = mergeDefs(a._zod.def, {
-        get shape() {
-            const _shape = { ...a._zod.def.shape, ...b._zod.def.shape };
-            assignProp(this, "shape", _shape); // self-caching
-            return _shape;
-        },
+        shape: newShape,
         get catchall() {
             return b._zod.def.catchall;
         },
         checks: b._zod.def.checks ?? [],
     });
-    return clone(a, def);
+    return util_clone(a, def);
 }
-function partial(Class, schema, mask) {
+function partial(Class, schema, mask, name = "partial") {
     const currDef = schema._zod.def;
     const checks = currDef.checks;
     const hasChecks = checks && checks.length > 0;
     if (hasChecks) {
-        throw new Error(".partial() cannot be used on object schemas containing refinements");
+        throw new Error(`.${name}() cannot be used on object schemas containing refinements`);
     }
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const oldShape = schema._zod.def.shape;
-            const shape = { ...oldShape };
-            if (mask) {
-                for (const key in mask) {
-                    if (!(key in oldShape)) {
-                        throw new Error(`Unrecognized key: "${key}"`);
-                    }
-                    if (!mask[key])
-                        continue;
-                    // if (oldShape[key]!._zod.optin === "optional") continue;
-                    shape[key] = Class
-                        ? new Class({
-                            type: "optional",
-                            innerType: oldShape[key],
-                        })
-                        : oldShape[key];
-                }
-            }
-            else {
-                for (const key in oldShape) {
-                    // if (oldShape[key]!._zod.optin === "optional") continue;
-                    shape[key] = Class
-                        ? new Class({
-                            type: "optional",
-                            innerType: oldShape[key],
-                        })
-                        : oldShape[key];
-                }
-            }
-            assignProp(this, "shape", shape); // self-caching
-            return shape;
-        },
-        checks: [],
-    });
-    return clone(schema, def);
+    const selected = mask ? new Set(maskedKeys(schema, mask)) : undefined;
+    const newShape = {};
+    mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), Class &&
+        ((value, key) => (selected && !selected.has(key) ? value : new Class({ type: "optional", innerType: value }))));
+    return util_clone(schema, mergeDefs(schema._zod.def, { shape: newShape, checks: [] }));
 }
-function required(Class, schema, mask) {
-    const def = mergeDefs(schema._zod.def, {
-        get shape() {
-            const oldShape = schema._zod.def.shape;
-            const shape = { ...oldShape };
-            if (mask) {
-                for (const key in mask) {
-                    if (!(key in shape)) {
-                        throw new Error(`Unrecognized key: "${key}"`);
-                    }
-                    if (!mask[key])
-                        continue;
-                    // overwrite with non-optional
-                    shape[key] = new Class({
-                        type: "nonoptional",
-                        innerType: oldShape[key],
-                    });
-                }
-            }
-            else {
-                for (const key in oldShape) {
-                    // overwrite with non-optional
-                    shape[key] = new Class({
-                        type: "nonoptional",
-                        innerType: oldShape[key],
-                    });
-                }
-            }
-            assignProp(this, "shape", shape); // self-caching
-            return shape;
-        },
-    });
-    return clone(schema, def);
+function util_required(Class, schema, mask) {
+    const selected = mask ? new Set(maskedKeys(schema, mask)) : undefined;
+    const newShape = {};
+    mirrorShape(newShape, schema, Reflect.ownKeys(sourceShape(schema)), (value, key) => 
+    // overwrite with non-optional
+    selected && !selected.has(key) ? value : new Class({ type: "nonoptional", innerType: value }));
+    return util_clone(schema, mergeDefs(schema._zod.def, { shape: newShape }));
 }
 // invalid_type | too_big | too_small | invalid_format | not_multiple_of | unrecognized_keys | invalid_union | invalid_key | invalid_element | invalid_value | custom
-function aborted(x, startIndex = 0) {
+function util_aborted(x, startIndex = 0) {
     if (x.aborted === true)
         return true;
     for (let i = startIndex; i < x.issues.length; i++) {
@@ -45212,8 +45165,7 @@ function aborted(x, startIndex = 0) {
     }
     return false;
 }
-// Checks for explicit abort (continue === false), as opposed to implicit abort (continue === undefined).
-// Used to respect `abort: true` in .refine() even for checks that have a `when` function.
+// Checks for explicit abort (continue === false), as opposed to implicit abort (continue === undefined). Used to respect `abort: true` in .refine() even for checks that have a `when` function.
 function explicitlyAborted(x, startIndex = 0) {
     if (x.aborted === true)
         return true;
@@ -45235,21 +45187,46 @@ function prefixIssues(path, issues) {
 function unwrapMessage(message) {
     return typeof message === "string" ? message : message?.message;
 }
+/* A check holds no link back to the schema it is attached to — the same check instance is shared by every clone of that schema — so the owner is stamped onto the issues a check just raised, at the only point where both are in scope. Runs on the failure path only; `start` is the issue count from before the check ran. */
+function attachSchema(issues, start, inst) {
+    var _a;
+    for (let i = start; i < issues.length; i++) {
+        (_a = issues[i]).schema ?? (_a.schema = inst);
+    }
+}
 function finalizeIssue(iss, ctx, config) {
+    var _a;
+    // A schema that raised an issue itself owns it outright, and outranks any stamp an enclosing check left in `attachSchema`. String formats and z.custom() are schema and check at once, so when they act as a check they defer to that stamp instead.
+    const traits = iss.inst?._zod?.traits;
+    if (traits?.has("$ZodType")) {
+        if (traits.has("$ZodCheck"))
+            (_a = iss).schema ?? (_a.schema = iss.inst);
+        else
+            iss.schema = iss.inst;
+    }
+    // Decreasing specificity, first map to return a message wins. `inst` is whatever raised the issue, so a check's own map outranks the owning schema's.
+    const schemaError = iss.schema !== iss.inst ? iss.schema?._zod.def?.error : undefined;
     const message = iss.message
         ? iss.message
         : (unwrapMessage(iss.inst?._zod.def?.error?.(iss)) ??
+            unwrapMessage(schemaError?.(iss)) ??
             unwrapMessage(ctx?.error?.(iss)) ??
             unwrapMessage(config.customError?.(iss)) ??
             unwrapMessage(config.localeError?.(iss)) ??
             "Invalid input");
-    const { inst: _inst, continue: _continue, input: _input, ...rest } = iss;
-    rest.path ?? (rest.path = []);
-    rest.message = message;
-    if (ctx?.reportInput) {
-        rest.input = _input;
+    // an explicit own-key copy beats object rest with excluded keys, which v8 routes through a generic runtime call; Object.keys rather than for-in so an issue pushed with a prototype does not leak inherited keys, and an own __proto__ key is dropped rather than assigned through the setter
+    const full = {};
+    for (const k of Object.keys(iss)) {
+        if (k === "inst" || k === "schema" || k === "continue" || k === "input" || k === "__proto__")
+            continue;
+        full[k] = iss[k];
     }
-    return rest;
+    full.path ?? (full.path = []);
+    full.message = message;
+    if (ctx?.reportInput) {
+        full.input = iss.input;
+    }
+    return full;
 }
 function getSizableOrigin(input) {
     if (input instanceof Set)
@@ -45260,6 +45237,21 @@ function getSizableOrigin(input) {
     if (input instanceof File)
         return "file";
     return "unknown";
+}
+const highSurrogate = /[\uD800-\uDBFF]/;
+// Code points in `str`: a surrogate pair counts once, a lone surrogate as itself. Hand-rolled because the string iterator allocates and runs ~250x slower on this path; the regex probe exits ~50x quicker for a string with no astral characters.
+function codePointLength(str) {
+    const units = str.length;
+    if (!highSurrogate.test(str))
+        return units;
+    let count = units;
+    for (let i = 0; i < units - 1; i++) {
+        if ((str.charCodeAt(i) & 0xfc00) === 0xd800 && (str.charCodeAt(i + 1) & 0xfc00) === 0xdc00) {
+            count--;
+            i++;
+        }
+    }
+    return count;
 }
 function getLengthableOrigin(input) {
     if (Array.isArray(input))
@@ -45350,38 +45342,383 @@ function uint8ArrayToHex(bytes) {
         .join("");
 }
 // instanceof
-class Class {
+class util_Class {
     constructor(..._args) { }
 }
+//////////    PROTOTYPE INSTALLERS     //////////
+//
+// Members live on the prototype and materialize per instance on first read, which keeps own-property count under the step where V8 stops using inline slots. Changing anything here means re-measuring runtime, memory and bundle size together — see "The three axes" in AGENTS.md.
+/**
+ * Installs a trait's members on its prototype. Each value builds that member for the instance on first read; the built value shadows the accessor as an own property, so a detached `const { parse } = schema` keeps working.
+ *
+ * Call this from a `proto` initializer, which runs once per prototype — never per instance.
+ */
+function util_members(proto, table) {
+    for (const key in table) {
+        const desc = Object.getOwnPropertyDescriptor(table, key);
+        // a getter installs as written, so it stays live: `description` reads through to the registry on every access. not enumerable: an object literal's is, and a prototype member never was
+        if (desc.get)
+            Object.defineProperty(proto, key, { ...desc, enumerable: false });
+        // a method materializes bound on first read, which is what keeps a detached member working: `const opt = schema.optional; opt()`
+        else
+            defineBound(proto, key, desc.value);
+    }
+}
+/** Shadows a prototype member with an own value, so a getter that builds from the instance runs once. */
+function util_own(inst, key, value, enumerable = true) {
+    Object.defineProperty(inst, key, { configurable: true, writable: true, enumerable, value });
+    return value;
+}
+/** Like {@link own}, for a member that was never an own data property and has to stay out of `Object.keys`. */
+function hide(inst, key, value) {
+    return util_own(inst, key, value, false);
+}
+/** Adds members a table derives from the instance: each builds on first read and shadows as own data, and assignment shadows the same way, as when these were own properties. */
+function derived(computes, table) {
+    for (const key in computes) {
+        const compute = computes[key];
+        // an object literal's accessor is configurable and enumerable, and `members` copies the descriptor as written
+        Object.defineProperty(table, key, {
+            configurable: true,
+            enumerable: true,
+            get() {
+                return util_own(this, key, compute(this));
+            },
+            set(value) {
+                util_own(this, key, value);
+            },
+        });
+    }
+    return table;
+}
+function defineBound(proto, key, fn) {
+    Object.defineProperty(proto, key, {
+        configurable: true,
+        get() {
+            // vitest's spyOn calls a prototype getter bare to find the function it wraps, so a nullish receiver answers the raw method
+            return this == null ? fn : util_own(this, key, fn.bind(this));
+        },
+        set(value) {
+            util_own(this, key, value);
+        },
+    });
+}
+/** Returns the prototype to install on, or `undefined` if this group is already installed on it. */
+function claim(inst, sentinel) {
+    const proto = Object.getPrototypeOf(inst);
+    // Runs on every construction, so `in` rather than the costlier `hasOwnProperty.call`. Sentinels are keys the group itself defines.
+    return sentinel in proto ? undefined : proto;
+}
+// The internals whose init chain is installing. A second call for the same one is a derived constructor overriding its base, so it must not construct another schema in between or the override is dropped.
+let installing;
+// Set while a getter is running, so a value that resolved through a recursion break is not memoized. One shared descriptor shadows the key for the duration, which costs no per-key allocation.
+let broke = false;
+const breaker = {
+    configurable: true,
+    get() {
+        broke = true;
+        return undefined;
+    },
+};
+/**
+ * Installs a lazily-derived internal on the `_zod` prototype of `inst`'s
+ * constructor, computed from the internals object itself and cached there on
+ * first read. One accessor per constructor rather than one per instance.
+ */
+function defineLazyInternal(inst, key, compute) {
+    const proto = Object.getPrototypeOf(inst._zod);
+    if (key in proto && installing !== inst._zod) {
+        // A repeat construction: everything is installed already. Cleared here so the reference is not held past the first construction of every type.
+        installing = undefined;
+        return;
+    }
+    installing = inst._zod;
+    Object.defineProperty(proto, key, {
+        configurable: true,
+        get() {
+            // Shadowed before computing so a re-entrant read from a recursive schema resolves to undefined instead of running the getter again.
+            Object.defineProperty(this, key, breaker);
+            const outer = broke;
+            broke = false;
+            try {
+                const value = compute(this);
+                // A result that resolved through a recursion break is recomputed once the graph is complete; everything else memoizes, undefined included.
+                if (broke)
+                    delete this[key];
+                else
+                    Object.defineProperty(this, key, { configurable: true, writable: true, value });
+                broke = broke || outer;
+                return value;
+            }
+            catch (err) {
+                // A compute that threw memoizes nothing, so a later read runs it again and fails the same way. The shadow goes with it, since leaving it installed would answer undefined for every later read.
+                delete this[key];
+                broke = broke || outer;
+                throw err;
+            }
+        },
+        set(value) {
+            Object.defineProperty(this, key, { configurable: true, writable: true, value });
+        },
+    });
+}
+/**
+ * Installs `key` on `inst`'s prototype, computed by `make` on first read and cached there as an own
+ * data property. One accessor per constructor rather than one per instance, because an own accessor
+ * puts every instance after the first into v8 dictionary mode. The key doubles as the sentinel.
+ */
+function installLazyProp(inst, key, make, enumerable) {
+    const proto = claim(inst, key);
+    if (!proto)
+        return;
+    Object.defineProperty(proto, key, {
+        configurable: true,
+        get() {
+            // Shadowed before computing, so a re-entrant read from a self-referential shape resolves to undefined instead of running the getter again. A data property rather than an accessor: an own accessor is the dictionary-mode transition this exists to avoid.
+            const desc = { configurable: true, writable: true, enumerable, value: undefined };
+            Object.defineProperty(this, key, desc);
+            // a compute that throws leaves the shadow behind, so later reads answer undefined instead of re-throwing; `defineLazy` did the same, and `defineLazyInternal`'s delete-on-catch would cost bytes in every bundle for a case only a throwing user getter reaches
+            desc.value = make(this);
+            Object.defineProperty(this, key, desc);
+            return desc.value;
+        },
+        set(value) {
+            Object.defineProperty(this, key, { configurable: true, writable: true, enumerable, value });
+        },
+    });
+}
+/** Marks the thunk `_catch` synthesises for a constant catch value. `Function.length` cannot tell that thunk from a user callback — rest and defaulted parameters both report arity 0 — and a user callback reads `ctx.error`, whose issues only finalize correctly against the caller's per-parse error map. Provenance can say what arity cannot. A plain string key rather than `Symbol.for`, whose call at module scope no bundler can prove pure — the same shape that anchored `urlCanParse` into every build. */
+const CONSTANT_CATCH = "~constantCatch";
+/** Wraps a constant catch value in a thunk tagged with {@link CONSTANT_CATCH}. */
+function constantCatch(value) {
+    const fn = () => value;
+    fn[CONSTANT_CATCH] = true;
+    return fn;
+}
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/errors.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/core.js
+var core_a;
+
+/** A special constant with type `never` */
+const NEVER = /*@__PURE__*/ (/* unused pure expression or super */ null && (Object.freeze({
+    status: "aborted",
+})));
+/* Shared descriptor for installing `_zod`; defineProperty reads it
+ * synchronously, so reusing one object avoids a per-instance allocation. */
+const _zodDesc = { value: undefined, enumerable: false };
+// null where suppressing the capture would be unrecoverable: `parse()` puts the frames back with `captureStackTrace`, so without it the throw would lose its stack. also latched to null once `stackTraceLimit` proves unassignable, which a realm can do at any point by hardening Error
+let _E = "captureStackTrace" in Error ? Error : null;
+// v8 captures a stack trace inside the Error constructor, which dominates a failed parse; costs only the frames, and parse() restores those. the constructor must RUN: Object.create is cheaper and passes instanceof, but Error.isError and util.types.isNativeError check an internal slot
+function newError(Definition) {
+    const E = _E;
+    if (E) {
+        const saved = E.stackTraceLimit;
+        if (typeof saved === "number") {
+            try {
+                E.stackTraceLimit = 0;
+            }
+            catch {
+                _E = null;
+                return new Definition();
+            }
+            try {
+                return new Definition();
+            }
+            finally {
+                E.stackTraceLimit = saved;
+            }
+        }
+    }
+    return new Definition();
+}
+function $constructor(name, initializer, 
+/** This trait's members, installed once on every prototype that composes it. They cannot be declared in the initializer above: that runs per instance, and the prototype is shared. */
+proto, params) {
+    // Prototype for this constructor's `_zod` internals. Lazily-derived fields (`values`, `pattern`, `optin`, …) install here once rather than as an accessor on every instance.
+    const zodProto = {};
+    // Assigning the fields in the constructor body is what gives instances in-object slots; building the object literally and reparenting it costs a second allocation and a generic property copy.
+    function Internals(def) {
+        this.def = def;
+        this.constr = _;
+        this.traits = new Set();
+    }
+    Internals.prototype = zodProto;
+    const protoMembers = proto;
+    // One trait's members land on every prototype whose chain composes it, so the answer is per prototype rather than per trait.
+    const initialized = protoMembers && new WeakSet();
+    function init(inst, def) {
+        if (!inst._zod) {
+            _zodDesc.value = new Internals(def);
+            try {
+                Object.defineProperty(inst, "_zod", _zodDesc);
+            }
+            finally {
+                // Cleared even on throw, so the shared descriptor never leaks one instance's internals into the next.
+                _zodDesc.value = undefined;
+            }
+        }
+        else if (inst._zod.traits.has(name)) {
+            return;
+        }
+        inst._zod.traits.add(name);
+        initializer(inst, def);
+        if (initialized) {
+            // `super(def)` from a user subclass gives `this` a prototype the subclass owns, and installing there would overwrite whatever the subclass declared. `constr` built the instance, so its prototype is the one below the subclass's that should carry the members. A receiver whose chain never reaches that prototype installs on its own, which for a plain object handed straight to `init` means `Object.prototype` — unchanged from before.
+            const own = Object.getPrototypeOf(inst);
+            const ctorProto = inst._zod.constr.prototype;
+            let up = own;
+            while (up && up !== ctorProto)
+                up = Object.getPrototypeOf(up);
+            const target = up ?? own;
+            if (!initialized.has(target)) {
+                initialized.add(target);
+                util_members(target, protoMembers);
+            }
+        }
+        // support prototype modifications; for-in avoids the array allocation of Object.keys on the (usually empty) prototype
+        const proto = _.prototype;
+        for (const k in proto) {
+            if (!Object.prototype.hasOwnProperty.call(proto, k))
+                continue;
+            if (!(k in inst)) {
+                inst[k] = proto[k].bind(inst);
+            }
+        }
+    }
+    // doesn't work if Parent has a constructor with arguments
+    const Parent = params?.Parent ?? Object;
+    class Definition extends Parent {
+    }
+    Object.defineProperty(Definition, "name", { value: name });
+    function _(def) {
+        const inst = params?.Parent ? newError(Definition) : this;
+        init(inst, def);
+        const deferred = inst._zod.deferred;
+        if (deferred) {
+            for (const fn of deferred) {
+                fn();
+            }
+            // Released: initializers run once, and the list would otherwise be retained for the schema's lifetime.
+            inst._zod.deferred = undefined;
+        }
+        // Global post-processor hook. Internal: installed by `import "zod/compile"` to enable AOT compilation for every constructed schema. Runs last, once the instance is fully built, because it hands the instance to compile(). The post-processor is expected to be reentrancy-guarded by its own implementation.
+        const pp = globalThis.__zod_globalConfig?.postProcessor;
+        if (pp)
+            pp(inst);
+        return inst;
+    }
+    Object.defineProperty(_, "init", { value: init });
+    Object.defineProperty(_, Symbol.hasInstance, {
+        value: (inst) => {
+            if (params?.Parent && inst instanceof params.Parent)
+                return true;
+            return inst?._zod?.traits?.has(name);
+        },
+    });
+    Object.defineProperty(_, "name", { value: name });
+    return _;
+}
+//////////////////////////////   UTILITIES   ///////////////////////////////////////
+const $brand = /*@__PURE__*/ (/* unused pure expression or super */ null && (Symbol("zod_brand")));
+class $ZodAsyncError extends Error {
+    constructor() {
+        super(`Encountered Promise during synchronous parse. Use .parseAsync() instead.`);
+    }
+}
+class $ZodEncodeError extends Error {
+    constructor(name) {
+        super(`Encountered unidirectional transform during encode: ${name}`);
+        this.name = "ZodEncodeError";
+    }
+}
+(core_a = globalThis).__zod_globalConfig ?? (core_a.__zod_globalConfig = {});
+const globalConfig = globalThis.__zod_globalConfig;
+function config(newConfig) {
+    if (newConfig)
+        Object.assign(globalConfig, newConfig);
+    return globalConfig;
+}
+
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/errors.js
 
 
+/* Computing the message eagerly is expensive (pretty-printed JSON of all
+ * issues), so defer it until first read. The accessor functions and
+ * descriptors are shared across instances to keep error construction
+ * cheap; the computed message is cached on the internals object. The
+ * setter preserves plain assignment semantics for consumers that
+ * overwrite `message`. */
+function _getMessage() {
+    const internals = this._zod;
+    internals.message ?? (internals.message = JSON.stringify(internals.def, jsonStringifyReplacer, 2));
+    return internals.message;
+}
+function _setMessage(value) {
+    this._zod.message = value;
+}
+const _messageDesc = {
+    get: _getMessage,
+    set: _setMessage,
+    enumerable: true,
+    configurable: true,
+};
+const _issuesDesc = { value: undefined, enumerable: false };
+/* Prototypes that already carry the lazy `toString`. Seeded with the
+ * intrinsics so that `init` on a foreign object — it accepts any object —
+ * can never install an accessor onto a prototype we do not own. */
+const _installedToString = /* @__PURE__ */ new WeakSet([Object.prototype, Error.prototype]);
 const initializer = (inst, def) => {
     inst.name = "$ZodError";
-    Object.defineProperty(inst, "_zod", {
-        value: inst._zod,
-        enumerable: false,
-    });
-    Object.defineProperty(inst, "issues", {
-        value: def,
-        enumerable: false,
-    });
-    inst.message = JSON.stringify(def, jsonStringifyReplacer, 2);
-    Object.defineProperty(inst, "toString", {
-        value: () => inst.message,
-        enumerable: false,
-    });
+    // `_zod` is already non-enumerable: $constructor's init defined it with this same descriptor
+    _issuesDesc.value = def;
+    Object.defineProperty(inst, "issues", _issuesDesc);
+    // Clear the shared slot; a retained `value` pins the last error's issues.
+    _issuesDesc.value = undefined;
+    Object.defineProperty(inst, "message", _messageDesc);
+    /* `toString` lives as a non-enumerable lazy getter on the shared
+     * prototype; on first access it caches a per-instance closure so
+     * detached usage still works. */
+    const proto = Object.getPrototypeOf(inst);
+    if (!_installedToString.has(proto)) {
+        _installedToString.add(proto);
+        Object.defineProperty(proto, "toString", {
+            configurable: true,
+            enumerable: false,
+            get() {
+                const value = () => this.message;
+                Object.defineProperty(this, "toString", { value, configurable: true, writable: true });
+                return value;
+            },
+            set(value) {
+                Object.defineProperty(this, "toString", { value, configurable: true, writable: true });
+            },
+        });
+    }
 };
 const $ZodError = $constructor("$ZodError", initializer);
-const $ZodRealError = $constructor("$ZodError", initializer, { Parent: Error });
+const $ZodRealError = $constructor("$ZodError", initializer, undefined, {
+    Parent: Error,
+});
+/** Get-or-create `obj[key]` as an own data property. A path segment naming an inherited member
+ * ("toString", "constructor") would otherwise read through to the prototype, and assigning
+ * "__proto__" would hit the setter instead of creating a key. */
+function errors_node(obj, key, make) {
+    if (!Object.prototype.hasOwnProperty.call(obj, key)) {
+        if (key === "__proto__") {
+            Object.defineProperty(obj, key, { value: make(), writable: true, enumerable: true, configurable: true });
+        }
+        else {
+            obj[key] = make();
+        }
+    }
+    return obj[key];
+}
 function flattenError(error, mapper = (issue) => issue.message) {
     const fieldErrors = {};
     const formErrors = [];
     for (const sub of error.issues) {
         if (sub.path.length > 0) {
-            fieldErrors[sub.path[0]] = fieldErrors[sub.path[0]] || [];
-            fieldErrors[sub.path[0]].push(mapper(sub));
+            errors_node(fieldErrors, sub.path[0], () => []).push(mapper(sub));
         }
         else {
             formErrors.push(mapper(sub));
@@ -45413,14 +45750,32 @@ function formatError(error, mapper = (issue) => issue.message) {
                     while (i < fullpath.length) {
                         const el = fullpath[i];
                         const terminal = i === fullpath.length - 1;
-                        if (!terminal) {
-                            curr[el] = curr[el] || { _errors: [] };
+                        // `_errors` is reserved by this legacy format, so merge a matching path segment into the current node instead of treating its array as a child.
+                        if (el === "_errors") {
+                            if (terminal)
+                                curr._errors.push(mapper(issue));
+                            i++;
+                            continue;
                         }
-                        else {
-                            curr[el] = curr[el] || { _errors: [] };
-                            curr[el]._errors.push(mapper(issue));
+                        // A path element may collide with an inherited property name such as
+                        // "__proto__" or "constructor". Truthiness checks read the prototype
+                        // (so no node is created, then ._errors.push throws), and bracket
+                        // assignment of "__proto__" hits the setter instead of creating an
+                        // own key. Guard the read with hasOwnProperty and create the node
+                        // with defineProperty so any path element becomes a real own key.
+                        if (!Object.prototype.hasOwnProperty.call(curr, el)) {
+                            Object.defineProperty(curr, el, {
+                                value: { _errors: [] },
+                                enumerable: true,
+                                writable: true,
+                                configurable: true,
+                            });
                         }
-                        curr = curr[el];
+                        const node = curr[el];
+                        if (terminal) {
+                            node._errors.push(mapper(issue));
+                        }
+                        curr = node;
                         i++;
                     }
                 }
@@ -45433,7 +45788,7 @@ function formatError(error, mapper = (issue) => issue.message) {
 function treeifyError(error, mapper = (issue) => issue.message) {
     const result = { errors: [] };
     const processError = (error, path = []) => {
-        var _a, _b;
+        var _a;
         for (const issue of error.issues) {
             if (issue.code === "invalid_union" && issue.errors.length) {
                 // regular union error
@@ -45458,12 +45813,24 @@ function treeifyError(error, mapper = (issue) => issue.message) {
                     const terminal = i === fullpath.length - 1;
                     if (typeof el === "string") {
                         curr.properties ?? (curr.properties = {});
-                        (_a = curr.properties)[el] ?? (_a[el] = { errors: [] });
+                        // el may collide with an inherited property name ("__proto__",
+                        // "constructor", ...); ??= reads the prototype so the node is never
+                        // created and curr.errors.push throws. Guard with hasOwnProperty and
+                        // create the node with defineProperty so "__proto__" becomes a real
+                        // own key rather than invoking the prototype setter.
+                        if (!Object.prototype.hasOwnProperty.call(curr.properties, el)) {
+                            Object.defineProperty(curr.properties, el, {
+                                value: { errors: [] },
+                                enumerable: true,
+                                writable: true,
+                                configurable: true,
+                            });
+                        }
                         curr = curr.properties[el];
                     }
                     else {
                         curr.items ?? (curr.items = []);
-                        (_b = curr.items)[el] ?? (_b[el] = { errors: [] });
+                        (_a = curr.items)[el] ?? (_a[el] = { errors: [] });
                         curr = curr.items[el];
                     }
                     if (terminal) {
@@ -45527,7 +45894,7 @@ function toDotPath(_path) {
     }
     return segs.join("");
 }
-function prettifyError(error) {
+function errors_prettifyError(error) {
     const lines = [];
     // sort by path length
     const issues = [...error.issues].sort((a, b) => (a.path ?? []).length - (b.path ?? []).length);
@@ -45641,7 +46008,320 @@ function write_file_recursively(base, file, content) {
 
 ;// external "path"
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/regexes.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/memoizer.js
+
+class $ZodCyclicError extends Error {
+    constructor() {
+        super(`Cannot parse a reference cycle that closes through a transform`);
+        this.name = "ZodCyclicError";
+    }
+}
+/** Keyed off the context object every schema in one parse call already shares. */
+const STATE = "~memo";
+const NO_ISSUES = [];
+// a value a cycle can close through
+function isRef(value) {
+    return value !== null && typeof value === "object";
+}
+// Receivers prefix paths in place, so the cache and every hand-out need their own copies.
+function cloneIssues(issues) {
+    return issues.map((iss) => (iss.path ? { ...iss, path: iss.path.slice() } : { ...iss }));
+}
+const recursive = /*@__PURE__*/ new WeakMap();
+/** What the walk established, in order of certainty: ordered so the strongest answer among children wins. */
+const NONE = 0;
+const ASSUMED = 1;
+const PROVEN = 2;
+/** Whether this schema's subtree contains a cycle, so one parse can re-enter it. */
+function isRecursive(inst, stack, resolve) {
+    const cached = recursive.get(inst);
+    if (cached !== undefined)
+        return cached ? PROVEN : NONE;
+    // Relative to the walk in progress, so not cached.
+    if (stack.has(inst))
+        return PROVEN;
+    stack.add(inst);
+    let result = NONE;
+    const check = (child) => {
+        if (result !== PROVEN && child?._zod) {
+            const answer = isRecursive(child, stack, resolve);
+            if (answer > result)
+                result = answer;
+        }
+    };
+    // `Reflect.ownKeys` rather than `Object.keys`, so a cycle through a declared symbol key is still seen
+    const shape = (sh, spread) => {
+        let answer = NONE;
+        for (const key of Reflect.ownKeys(sh)) {
+            const desc = Object.getOwnPropertyDescriptor(sh, key);
+            // an object resolves its shape by spread, so a key it does not enumerate is never parsed; `z.properties` reads every own key and so keeps them all
+            if (spread && !desc.enumerable)
+                continue;
+            // resolving runs user code, and a factory mints a fresh subtree per read, so an edge the walk can't follow counts as a cycle
+            const child = desc.get ? ASSUMED : desc.value?._zod ? isRecursive(desc.value, stack, resolve) : NONE;
+            if (child > answer)
+                answer = child;
+        }
+        return answer;
+    };
+    const merge = (answer) => {
+        if (answer > result)
+            result = answer;
+    };
+    const def = inst._zod.def;
+    const kind = def.type;
+    switch (kind) {
+        case "object": {
+            const raw = rawShape(def);
+            // a def with no raw shape answers `shape` from an accessor of its own, and running that can mint a whole fresh subtree
+            merge(raw ? shape(raw, true) : ASSUMED);
+            check(def.catchall);
+            break;
+        }
+        case "array":
+            check(def.element);
+            break;
+        case "tuple":
+            for (const el of def.items)
+                check(el);
+            check(def.rest);
+            break;
+        case "record":
+        case "map":
+            check(def.keyType);
+            check(def.valueType);
+            break;
+        case "set":
+            check(def.valueType);
+            break;
+        case "union":
+            for (const el of def.options)
+                check(el);
+            break;
+        case "intersection":
+            check(def.left);
+            check(def.right);
+            break;
+        case "optional":
+        case "nullable":
+        case "default":
+        case "prefault":
+        case "catch":
+        case "readonly":
+        case "nonoptional":
+        case "promise":
+        case "success":
+            check(def.innerType);
+            break;
+        case "pipe":
+            check(def.in);
+            check(def.out);
+            break;
+        case "function":
+            check(def.input);
+            check(def.output);
+            break;
+        // `$ZodLazy` caches its inner on the def, so a resolved edge is followed exactly
+        case "lazy": {
+            const inner = def._cachedInner ?? (resolve ? inst._zod.innerType : undefined);
+            // walked with resolution off: one hop sees past the deferral, and a lazy that yields only another unresolved lazy is generative, so it stops there
+            merge(inner ? isRecursive(inner, stack, false) : ASSUMED);
+            break;
+        }
+        // a leaf by choice: `parts` are regex fragments, not data positions
+        case "template_literal":
+        // leaves
+        case "string":
+        case "number":
+        case "int":
+        case "boolean":
+        case "bigint":
+        case "symbol":
+        case "undefined":
+        case "null":
+        case "void":
+        case "never":
+        case "any":
+        case "unknown":
+        case "date":
+        case "nan":
+        case "enum":
+        case "literal":
+        case "file":
+        case "transform":
+        case "custom":
+            break;
+        default: {
+            // a new built-in kind becomes a compile error here
+            kind;
+            // a user-defined kind can still hold children, and only its author knows where, so fall back to scanning the def — skipping accessors, since reading one can run user code
+            for (const key in def) {
+                const desc = Object.getOwnPropertyDescriptor(def, key);
+                if (!desc || desc.get)
+                    continue;
+                const value = desc.value;
+                if (!value || typeof value !== "object")
+                    continue;
+                if (value._zod)
+                    check(value);
+                else if (Array.isArray(value))
+                    for (const el of value)
+                        check(el);
+            }
+        }
+    }
+    stack.delete(inst);
+    return settle(inst, result);
+}
+/** An assumed answer must not outlive the resolution that settles it, so only a certain one is cached. */
+function settle(inst, answer) {
+    if (answer !== ASSUMED)
+        recursive.set(inst, answer === PROVEN);
+    return answer;
+}
+/**
+ * Whether one parse can re-enter this schema, i.e. its subtree contains a cycle.
+ * Exported for `z.compile`, which refuses to compile such a schema: cycle
+ * breaking is driven from here off state keyed on the parse context, and a
+ * generated fast path has no context to key on.
+ */
+function isRecursiveSchema(inst) {
+    // z.compile never parses, so nothing would ever resolve a lazy for it; it runs once and already treats a throw here as recursive
+    return isRecursive(inst, new Set(), true) !== NONE;
+}
+function bucketFor(state, inst) {
+    let bucket = state.buckets.get(inst);
+    if (!bucket) {
+        bucket = new WeakMap();
+        state.buckets.set(inst, bucket);
+    }
+    return bucket;
+}
+// Set immediately before delegating to core and cleared immediately after, so `alloc` registers only for a visit this module is driving.
+let handoff;
+// Allocated but unfinished entries. `alloc` and the matching pop both happen in the synchronous part of a parse, so they nest even when children are async, and one stack serves every schema.
+const memoizer_open = [];
+const memo = {
+    alloc(_inst, payload, empty) {
+        const bucket = handoff;
+        if (!bucket)
+            return empty;
+        handoff = undefined;
+        const entry = { value: empty, issues: null };
+        bucket.set(payload.value, entry);
+        memoizer_open.push(entry);
+        return empty;
+    },
+    guard(inst) {
+        var _a;
+        (_a = inst._zod).deferred ?? (_a.deferred = []);
+        inst._zod.deferred.push(() => {
+            const base = inst._zod.parse;
+            const wrapped = (payload, ctx) => {
+                // The value is a placeholder a back-edge is still waiting on, so the cycle closes through this transform. Its output can't exist in time to bind.
+                if (ctx.direction !== "backward" && isBackEdge(ctx, payload.value))
+                    throw new $ZodCyclicError();
+                return base(payload, ctx);
+            };
+            inst._zod.parse = wrapped;
+            if (inst._zod.run === base)
+                inst._zod.run = wrapped;
+        });
+    },
+    attach(inst) {
+        var _a;
+        let isRecursiveInst;
+        let rechecked = false;
+        // a recursive schema is re-entered many times per parse and its bucket never changes
+        let lastCtx;
+        let lastBucket;
+        // Wraps `parse` in a deferred so it sees the container's final parse. Core's own deferred copies `parse` into `run` when there are no checks, and it ran first, so `run` is patched to match; with checks, `run` reads `parse` dynamically.
+        (_a = inst._zod).deferred ?? (_a.deferred = []);
+        inst._zod.deferred.push(() => {
+            const base = inst._zod.parse;
+            const wrapped = (payload, ctx) => {
+                if (isRecursiveInst === undefined) {
+                    const walked = isRecursive(inst, new Set(), false);
+                    if (walked === NONE) {
+                        // Nothing here can ever fire, so take it back out.
+                        inst._zod.parse = base;
+                        if (inst._zod.run === wrapped)
+                            inst._zod.run = base;
+                        return base(payload, ctx);
+                    }
+                    // this parse resolves the deferred edges on its own path, so ask once more before latching
+                    if (walked === PROVEN || rechecked)
+                        isRecursiveInst = true;
+                    else
+                        rechecked = true;
+                }
+                const input = payload.value;
+                if (!isRef(input))
+                    return base(payload, ctx);
+                let state = ctx[STATE];
+                if (!state) {
+                    state = { buckets: new WeakMap(), backEdges: undefined };
+                    ctx[STATE] = state;
+                }
+                let bucket;
+                if (lastCtx === ctx) {
+                    bucket = lastBucket;
+                }
+                else {
+                    bucket = bucketFor(state, inst);
+                    lastCtx = ctx;
+                    lastBucket = bucket;
+                }
+                const hit = bucket.get(input);
+                if (hit) {
+                    payload.value = hit.value;
+                    if (hit.issues) {
+                        if (hit.issues.length)
+                            payload.issues.push(...cloneIssues(hit.issues));
+                    }
+                    else {
+                        // Still being parsed: its own checks cover it, so skip them here.
+                        payload.memo = true;
+                        state.backEdges ?? (state.backEdges = new WeakSet());
+                        state.backEdges.add(hit.value);
+                    }
+                    return payload;
+                }
+                handoff = bucket;
+                const depth = memoizer_open.length;
+                const result = base(payload, ctx);
+                handoff = undefined;
+                // A container that rejected its input outright allocated nothing.
+                const entry = memoizer_open.length > depth ? memoizer_open.pop() : undefined;
+                // Both paths written out so the sync one allocates no closure. It runs once per node, and capturing here cost more than everything else combined.
+                if (result instanceof Promise) {
+                    return result.then((r) => {
+                        if (entry)
+                            entry.issues = r.issues.length ? cloneIssues(r.issues) : NO_ISSUES;
+                        return r;
+                    });
+                }
+                if (entry)
+                    entry.issues = result.issues.length ? cloneIssues(result.issues) : NO_ISSUES;
+                return result;
+            };
+            inst._zod.parse = wrapped;
+            if (inst._zod.run === base)
+                inst._zod.run = wrapped;
+        });
+    },
+};
+/** The memoizer that gives containers cycle support. `zod` installs it by default; `zod/mini` opts in with `config({ memoizer: memoizer() })`. */
+function memoizer() {
+    return memo;
+}
+/** Whether this value is a node a back-edge resolved to before it finished. */
+function isBackEdge(ctx, value) {
+    const backEdges = ctx[STATE]?.backEdges;
+    return backEdges !== undefined && isRef(value) && backEdges.has(value);
+}
+
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/regexes.js
 /* unused harmony import specifier */ var util;
 
 /**
@@ -45651,10 +46331,13 @@ function write_file_recursively(base, file, content) {
  */
 const cuid = /^[cC][0-9a-z]{6,}$/;
 const cuid2 = /^[0-9a-z]+$/;
-const ulid = /^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/;
+const ulid = /^[0-7][0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{25}$/;
 const xid = /^[0-9a-vA-V]{20}$/;
 const ksuid = /^[A-Za-z0-9]{27}$/;
 const nanoid = /^[a-zA-Z0-9_-]{21}$/;
+function nanoidOfLength(length) {
+    return new RegExp(`^[a-zA-Z0-9_-]{${length}}$`);
+}
 /** ISO 8601-1 duration regex. Does not support the 8601-2 extensions like negative durations or fractional/negative components. */
 const duration = /^P(?:(\d+W)|(?!.*W)(?=\d|T\d)(\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+([.,]\d+)?S)?)?)$/;
 /** Implements ISO 8601-2 extensions like explicit +- prefixes, mixing weeks with other units, and fractional/negative components. */
@@ -45664,16 +46347,16 @@ const guid = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9
 /** Returns a regex for validating an RFC 9562/4122 UUID.
  *
  * @param version Optionally specify a version 1-8. If no version is specified, all versions are supported. */
-const uuid = (version) => {
+const regexes_uuid = (version) => {
     if (!version)
         return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/;
     return new RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`);
 };
-const uuid4 = /*@__PURE__*/ (/* unused pure expression or super */ null && (uuid(4)));
-const uuid6 = /*@__PURE__*/ (/* unused pure expression or super */ null && (uuid(6)));
-const uuid7 = /*@__PURE__*/ (/* unused pure expression or super */ null && (uuid(7)));
+const uuid4 = /*@__PURE__*/ (/* unused pure expression or super */ null && (regexes_uuid(4)));
+const uuid6 = /*@__PURE__*/ (/* unused pure expression or super */ null && (regexes_uuid(6)));
+const uuid7 = /*@__PURE__*/ (/* unused pure expression or super */ null && (regexes_uuid(7)));
 /** Practical email validation */
-const email = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
+const email = /^(?:[A-Za-z0-9_'+\-]+\.)*[A-Za-z0-9_'+\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
 /** Equivalent to the HTML5 input[type=email] validation implemented by browsers. Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email */
 const html5Email = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 /** The classic emailregex.com regex for RFC 5322-compliant emails */
@@ -45683,7 +46366,8 @@ const unicodeEmail = /^[^\s@"]{1,64}@[^\s@]{1,255}$/u;
 const idnEmail = (/* unused pure expression or super */ null && (unicodeEmail));
 const browserEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 // from https://thekevinscott.com/emojis-in-javascript/#writing-a-regular-expression
-const _emoji = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
+// Single character class, not an alternation: the two properties overlap (U+1F9B0-U+1F9B3), so `(A|B)+` backtracks exponentially on a failed match. The leading lookahead then demands one anchor — a pictograph, a regional indicator, or the enclosing keycap — because `\p{Emoji_Component}` on its own covers ASCII digits, `#`, `*`, ZWJ, variation selectors and skin tone modifiers, none of which is an emoji without a base.
+const _emoji = `^(?=[\\s\\S]*[\\p{Extended_Pictographic}\\p{Regional_Indicator}\\u20E3])[\\p{Extended_Pictographic}\\p{Emoji_Component}]+$`;
 function emoji() {
     return new RegExp(_emoji, "u");
 }
@@ -45694,21 +46378,31 @@ const mac = (delimiter) => {
     return new RegExp(`^(?:[0-9A-F]{2}${escapedDelim}){5}[0-9A-F]{2}$|^(?:[0-9a-f]{2}${escapedDelim}){5}[0-9a-f]{2}$`);
 };
 const cidrv4 = /^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/([0-9]|[1-2][0-9]|3[0-2])$/;
-const cidrv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::|([0-9a-fA-F]{1,4})?::([0-9a-fA-F]{1,4}:?){0,6})\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
+const cidrv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
 // https://stackoverflow.com/questions/7860392/determine-if-string-is-in-base64-using-javascript
-const base64 = /^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2}==)|(?:[0-9a-zA-Z+/]{3}=))?$/;
-const base64url = /^[A-Za-z0-9_-]*$/;
+const regexes_base64 = /^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2}==)|(?:[0-9a-zA-Z+/]{3}=))?$/;
+const base64url = /^(?:[A-Za-z0-9_-]{4})*(?:[A-Za-z0-9_-]{2,3})?$/;
 // based on https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
 // export const hostname: RegExp = /^([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+$/;
-const hostname = /^(?=.{1,253}\.?$)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[-0-9a-zA-Z]{0,61}[0-9a-zA-Z])?)*\.?$/;
-const domain = /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+const regexes_hostname = /^(?=.{1,253}\.?$)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[-0-9a-zA-Z]{0,61}[0-9a-zA-Z])?)*\.?$/;
+const regexes_domain = /^(?=.{1,253}$)([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$/;
 const httpProtocol = /^https?$/;
-// https://blog.stevenlevithan.com/archives/validate-phone-number#r4-3 (regex sans spaces)
-// E.164: leading digit must be 1-9; total digits (excluding '+') between 7-15
+// https://blog.stevenlevithan.com/archives/validate-phone-number#r4-3 (regex sans spaces) E.164: leading digit must be 1-9; total digits (excluding '+') between 7-15
 const e164 = /^\+[1-9]\d{6,14}$/;
-// const dateSource = `((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))`;
+// Credit card shape: 12–19 digits, optionally separated by single spaces or single hyphens. ISO/IEC 7812 caps the PAN at 19 digits; 12 is the shortest issued length (Maestro).
+const creditCard = /^\d(?:[ -]?\d){11,18}$/;
+// ISO 4217 alpha codes from the SIX list, regenerated by scripts/update-iso-4217.ts
+const currencyCode = /^(?:AED|AFN|ALL|AMD|AOA|ARS|AUD|AWG|AZN|BAM|BBD|BDT|BHD|BIF|BMD|BND|BOB|BOV|BRL|BSD|BTN|BWP|BYN|BZD|CAD|CDF|CHE|CHF|CHW|CLF|CLP|CNY|COP|COU|CRC|CUP|CVE|CZK|DJF|DKK|DOP|DZD|EGP|ERN|ETB|EUR|FJD|FKP|GBP|GEL|GHS|GIP|GMD|GNF|GTQ|GYD|HKD|HNL|HTG|HUF|IDR|ILS|INR|IQD|IRR|ISK|JMD|JOD|JPY|KES|KGS|KHR|KMF|KPW|KRW|KWD|KYD|KZT|LAK|LBP|LKR|LRD|LSL|LYD|MAD|MDL|MGA|MKD|MMK|MNT|MOP|MRU|MUR|MVR|MWK|MXN|MXV|MYR|MZN|NAD|NGN|NIO|NOK|NPR|NZD|OMR|PAB|PEN|PGK|PHP|PKR|PLN|PYG|QAR|RON|RSD|RUB|RWF|SAR|SBD|SCR|SDG|SEK|SGD|SHP|SLE|SOS|SRD|SSP|STN|SVC|SYP|SZL|THB|TJS|TMT|TND|TOP|TRY|TTD|TWD|TZS|UAH|UGX|USD|USN|UYI|UYU|UYW|UZS|VED|VES|VND|VUV|WST|XAD|XAF|XAG|XAU|XBA|XBB|XBC|XBD|XCD|XCG|XDR|XOF|XPD|XPF|XPT|XSU|XTS|XUA|XXX|YER|ZAR|ZMW|ZWG)$/;
+// iban electronic format: 2-letter country, check digits 02-98 (the only values `98 - remainder` can produce), 11-30 bban characters
+const iban = /^[A-Z]{2}(?!00|01|99)\d{2}[A-Z0-9]{11,30}$/;
 const dateSource = `(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))`;
-const date = /*@__PURE__*/ new RegExp(`^${dateSource}$`);
+/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */
+function regexes_anchor(source) {
+    return new RegExp(`^${source}$`);
+}
+const regexes_date = /*@__PURE__*/ regexes_anchor(dateSource);
 function timeSource(args) {
     const hhmm = `(?:[01]\\d|2[0-3]):[0-5]\\d`;
     const regex = typeof args.precision === "number"
@@ -45717,33 +46411,36 @@ function timeSource(args) {
             : args.precision === 0
                 ? `${hhmm}:[0-5]\\d`
                 : `${hhmm}:[0-5]\\d\\.\\d{${args.precision}}`
-        : `${hhmm}(?::[0-5]\\d(?:\\.\\d+)?)?`;
+        : args.seconds
+            ? `${hhmm}:[0-5]\\d(?:\\.\\d+)?`
+            : `${hhmm}(?::[0-5]\\d(?:\\.\\d+)?)?`;
     return regex;
 }
-function time(args) {
+function regexes_time(args) {
     return new RegExp(`^${timeSource(args)}$`);
 }
 // Adapted from https://stackoverflow.com/a/3143231
 function datetime(args) {
-    const time = timeSource({ precision: args.precision });
     const opts = ["Z"];
-    if (args.local)
-        opts.push("");
     // if (args.offset) opts.push(`([+-]\\d{2}:\\d{2})`);
     if (args.offset)
         opts.push(`([+-](?:[01]\\d|2[0-3]):[0-5]\\d)`);
-    const timeRegex = `${time}(?:${opts.join("|")})`;
+    // RFC 3339 mandates seconds wherever the time carries a `Z` or an offset, so only the unqualified form `local` adds may omit them
+    const qualified = `${timeSource({ precision: args.precision, seconds: true })}(?:${opts.join("|")})`;
+    const timeRegex = args.local ? `${qualified}|${timeSource({ precision: args.precision })}` : qualified;
     return new RegExp(`^${dateSource}T(?:${timeRegex})$`);
 }
-const string = (params) => {
+// the unbounded form of `string()` as a literal, so every plain string shares one instance instead of building its own
+const anyString = /^[\s\S]{0,}$/;
+const regexes_string = (params) => {
     const regex = params ? `[\\s\\S]{${params?.minimum ?? 0},${params?.maximum ?? ""}}` : `[\\s\\S]*`;
     return new RegExp(`^${regex}$`);
 };
-const bigint = /^-?\d+n?$/;
-const integer = /^-?\d+$/;
-const number = /^-?\d+(?:\.\d+)?$/;
+const regexes_bigint = /^-?\d+n?$/;
+const regexes_integer = /^-?\d+$/;
+const regexes_number = /^-?\d+(?:\.\d+)?$/;
 const regexes_boolean = /^(?:true|false)$/i;
-const _null = /^null$/i;
+const regexes_null = /^null$/i;
 
 const _undefined = /^undefined$/i;
 
@@ -45752,7 +46449,7 @@ const lowercase = /^[^A-Z]*$/;
 // regex for string with no lowercase letters
 const uppercase = /^[^a-z]*$/;
 // regex for hexadecimal strings (any length)
-const hex = /^[0-9a-fA-F]*$/;
+const regexes_hex = /^[0-9a-fA-F]*$/;
 // Hash regexes for different algorithms and encodings
 // Helper function to create base64 regex with exact length and padding
 function fixedBase64(bodyLength, padding) {
@@ -45783,8 +46480,8 @@ const sha512_hex = /^[0-9a-fA-F]{128}$/;
 const sha512_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(86, "==")));
 const sha512_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(86)));
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/checks.js
-/* unused harmony import specifier */ var core;
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/checks.js
+/* unused harmony import specifier */ var checks_core;
 /* unused harmony import specifier */ var checks_util;
 // import { $ZodType } from "./schemas.js";
 
@@ -45796,6 +46493,16 @@ const $ZodCheck = /*@__PURE__*/ $constructor("$ZodCheck", (inst, def) => {
     inst._zod.def = def;
     (_a = inst._zod).onattach ?? (_a.onattach = []);
 });
+/** Default `when` for size-based checks: run only on non-nullish values with a `size`. */
+const _whenHasSize = (payload) => {
+    const val = payload.value;
+    return !checks_util.nullish(val) && val.size !== undefined;
+};
+/** Default `when` for length-based checks: run only on non-nullish values with a `length`. */
+const _whenHasLength = (payload) => {
+    const val = payload.value;
+    return !util_nullish(val) && val.length !== undefined;
+};
 const numericOriginMap = {
     number: "number",
     bigint: "bigint",
@@ -45804,22 +46511,12 @@ const numericOriginMap = {
 const $ZodCheckLessThan = /*@__PURE__*/ $constructor("$ZodCheckLessThan", (inst, def) => {
     $ZodCheck.init(inst, def);
     const origin = numericOriginMap[typeof def.value];
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        const curr = (def.inclusive ? bag.maximum : bag.exclusiveMaximum) ?? Number.POSITIVE_INFINITY;
-        if (def.value < curr) {
-            if (def.inclusive)
-                bag.maximum = def.value;
-            else
-                bag.exclusiveMaximum = def.value;
-        }
-    });
     inst._zod.check = (payload) => {
         if (def.inclusive ? payload.value <= def.value : payload.value < def.value) {
             return;
         }
         payload.issues.push({
-            origin,
+            origin: numericOriginMap[typeof payload.value] ?? origin,
             code: "too_big",
             maximum: typeof def.value === "object" ? def.value.getTime() : def.value,
             input: payload.value,
@@ -45832,22 +46529,12 @@ const $ZodCheckLessThan = /*@__PURE__*/ $constructor("$ZodCheckLessThan", (inst,
 const $ZodCheckGreaterThan = /*@__PURE__*/ $constructor("$ZodCheckGreaterThan", (inst, def) => {
     $ZodCheck.init(inst, def);
     const origin = numericOriginMap[typeof def.value];
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        const curr = (def.inclusive ? bag.minimum : bag.exclusiveMinimum) ?? Number.NEGATIVE_INFINITY;
-        if (def.value > curr) {
-            if (def.inclusive)
-                bag.minimum = def.value;
-            else
-                bag.exclusiveMinimum = def.value;
-        }
-    });
     inst._zod.check = (payload) => {
         if (def.inclusive ? payload.value >= def.value : payload.value > def.value) {
             return;
         }
         payload.issues.push({
-            origin,
+            origin: numericOriginMap[typeof payload.value] ?? origin,
             code: "too_small",
             minimum: typeof def.value === "object" ? def.value.getTime() : def.value,
             input: payload.value,
@@ -45860,15 +46547,12 @@ const $ZodCheckGreaterThan = /*@__PURE__*/ $constructor("$ZodCheckGreaterThan", 
 const $ZodCheckMultipleOf = 
 /*@__PURE__*/ $constructor("$ZodCheckMultipleOf", (inst, def) => {
     $ZodCheck.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        var _a;
-        (_a = inst._zod.bag).multipleOf ?? (_a.multipleOf = def.value);
-    });
     inst._zod.check = (payload) => {
         if (typeof payload.value !== typeof def.value)
             throw new Error("Cannot mix number and bigint in multiple_of check.");
         const isMultiple = typeof payload.value === "bigint"
-            ? payload.value % def.value === BigInt(0)
+            ? // `value % 0n` throws, and nothing is a multiple of zero — the number branch already fails this way via NaN
+                def.value !== BigInt(0) && payload.value % def.value === BigInt(0)
             : floatSafeRemainder(payload.value, def.value) === 0;
         if (isMultiple)
             return;
@@ -45888,14 +46572,6 @@ const $ZodCheckNumberFormat = /*@__PURE__*/ $constructor("$ZodCheckNumberFormat"
     const isInt = def.format?.includes("int");
     const origin = isInt ? "int" : "number";
     const [minimum, maximum] = NUMBER_FORMAT_RANGES[def.format];
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.format = def.format;
-        bag.minimum = minimum;
-        bag.maximum = maximum;
-        if (isInt)
-            bag.pattern = integer;
-    });
     inst._zod.check = (payload) => {
         const input = payload.value;
         if (isInt) {
@@ -45981,15 +46657,9 @@ const $ZodCheckNumberFormat = /*@__PURE__*/ $constructor("$ZodCheckNumberFormat"
         }
     };
 });
-const $ZodCheckBigIntFormat = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckBigIntFormat", (inst, def) => {
+const $ZodCheckBigIntFormat = /*@__PURE__*/ (/* unused pure expression or super */ null && (checks_core.$constructor("$ZodCheckBigIntFormat", (inst, def) => {
     $ZodCheck.init(inst, def); // no format checks
     const [minimum, maximum] = checks_util.BIGINT_FORMAT_RANGES[def.format];
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.format = def.format;
-        bag.minimum = minimum;
-        bag.maximum = maximum;
-    });
     inst._zod.check = (payload) => {
         const input = payload.value;
         if (input < minimum) {
@@ -46016,18 +46686,10 @@ const $ZodCheckBigIntFormat = /*@__PURE__*/ (/* unused pure expression or super 
         }
     };
 })));
-const $ZodCheckMaxSize = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckMaxSize", (inst, def) => {
+const $ZodCheckMaxSize = /*@__PURE__*/ (/* unused pure expression or super */ null && (checks_core.$constructor("$ZodCheckMaxSize", (inst, def) => {
     var _a;
     $ZodCheck.init(inst, def);
-    (_a = inst._zod.def).when ?? (_a.when = (payload) => {
-        const val = payload.value;
-        return !checks_util.nullish(val) && val.size !== undefined;
-    });
-    inst._zod.onattach.push((inst) => {
-        const curr = (inst._zod.bag.maximum ?? Number.POSITIVE_INFINITY);
-        if (def.maximum < curr)
-            inst._zod.bag.maximum = def.maximum;
-    });
+    (_a = inst._zod.def).when ?? (_a.when = _whenHasSize);
     inst._zod.check = (payload) => {
         const input = payload.value;
         const size = input.size;
@@ -46044,18 +46706,10 @@ const $ZodCheckMaxSize = /*@__PURE__*/ (/* unused pure expression or super */ nu
         });
     };
 })));
-const $ZodCheckMinSize = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckMinSize", (inst, def) => {
+const $ZodCheckMinSize = /*@__PURE__*/ (/* unused pure expression or super */ null && (checks_core.$constructor("$ZodCheckMinSize", (inst, def) => {
     var _a;
     $ZodCheck.init(inst, def);
-    (_a = inst._zod.def).when ?? (_a.when = (payload) => {
-        const val = payload.value;
-        return !checks_util.nullish(val) && val.size !== undefined;
-    });
-    inst._zod.onattach.push((inst) => {
-        const curr = (inst._zod.bag.minimum ?? Number.NEGATIVE_INFINITY);
-        if (def.minimum > curr)
-            inst._zod.bag.minimum = def.minimum;
-    });
+    (_a = inst._zod.def).when ?? (_a.when = _whenHasSize);
     inst._zod.check = (payload) => {
         const input = payload.value;
         const size = input.size;
@@ -46072,19 +46726,10 @@ const $ZodCheckMinSize = /*@__PURE__*/ (/* unused pure expression or super */ nu
         });
     };
 })));
-const $ZodCheckSizeEquals = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckSizeEquals", (inst, def) => {
+const $ZodCheckSizeEquals = /*@__PURE__*/ (/* unused pure expression or super */ null && (checks_core.$constructor("$ZodCheckSizeEquals", (inst, def) => {
     var _a;
     $ZodCheck.init(inst, def);
-    (_a = inst._zod.def).when ?? (_a.when = (payload) => {
-        const val = payload.value;
-        return !checks_util.nullish(val) && val.size !== undefined;
-    });
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.minimum = def.size;
-        bag.maximum = def.size;
-        bag.size = def.size;
-    });
+    (_a = inst._zod.def).when ?? (_a.when = _whenHasSize);
     inst._zod.check = (payload) => {
         const input = payload.value;
         const size = input.size;
@@ -46105,18 +46750,12 @@ const $ZodCheckSizeEquals = /*@__PURE__*/ (/* unused pure expression or super */
 const $ZodCheckMaxLength = /*@__PURE__*/ $constructor("$ZodCheckMaxLength", (inst, def) => {
     var _a;
     $ZodCheck.init(inst, def);
-    (_a = inst._zod.def).when ?? (_a.when = (payload) => {
-        const val = payload.value;
-        return !nullish(val) && val.length !== undefined;
-    });
-    inst._zod.onattach.push((inst) => {
-        const curr = (inst._zod.bag.maximum ?? Number.POSITIVE_INFINITY);
-        if (def.maximum < curr)
-            inst._zod.bag.maximum = def.maximum;
-    });
+    (_a = inst._zod.def).when ?? (_a.when = _whenHasLength);
     inst._zod.check = (payload) => {
         const input = payload.value;
-        const length = input.length;
+        const units = input.length;
+        // Strings are measured in Unicode code points, not UTF-16 units. A code point is at most two units, so a string that already fits in units fits in code points; only an overflow has to be counted.
+        const length = typeof input === "string" && units > def.maximum ? codePointLength(input) : units;
         if (length <= def.maximum)
             return;
         const origin = getLengthableOrigin(input);
@@ -46134,18 +46773,14 @@ const $ZodCheckMaxLength = /*@__PURE__*/ $constructor("$ZodCheckMaxLength", (ins
 const $ZodCheckMinLength = /*@__PURE__*/ $constructor("$ZodCheckMinLength", (inst, def) => {
     var _a;
     $ZodCheck.init(inst, def);
-    (_a = inst._zod.def).when ?? (_a.when = (payload) => {
-        const val = payload.value;
-        return !nullish(val) && val.length !== undefined;
-    });
-    inst._zod.onattach.push((inst) => {
-        const curr = (inst._zod.bag.minimum ?? Number.NEGATIVE_INFINITY);
-        if (def.minimum > curr)
-            inst._zod.bag.minimum = def.minimum;
-    });
+    (_a = inst._zod.def).when ?? (_a.when = _whenHasLength);
     inst._zod.check = (payload) => {
         const input = payload.value;
-        const length = input.length;
+        const units = input.length;
+        // A code point is one or two UTF-16 units, so fewer units than the floor can never reach it and twice the floor always clears it. Only in between is the exact count in doubt.
+        const length = typeof input === "string" && units >= def.minimum && units < def.minimum * 2
+            ? codePointLength(input)
+            : units;
         if (length >= def.minimum)
             return;
         const origin = getLengthableOrigin(input);
@@ -46163,19 +46798,14 @@ const $ZodCheckMinLength = /*@__PURE__*/ $constructor("$ZodCheckMinLength", (ins
 const $ZodCheckLengthEquals = /*@__PURE__*/ $constructor("$ZodCheckLengthEquals", (inst, def) => {
     var _a;
     $ZodCheck.init(inst, def);
-    (_a = inst._zod.def).when ?? (_a.when = (payload) => {
-        const val = payload.value;
-        return !nullish(val) && val.length !== undefined;
-    });
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.minimum = def.length;
-        bag.maximum = def.length;
-        bag.length = def.length;
-    });
+    (_a = inst._zod.def).when ?? (_a.when = _whenHasLength);
     inst._zod.check = (payload) => {
         const input = payload.value;
-        const length = input.length;
+        const units = input.length;
+        // A code point is one or two UTF-16 units, so outside `[length, length * 2]` units the target is missed either way — and missed in the same direction in both measures.
+        const length = typeof input === "string" && units >= def.length && units <= def.length * 2
+            ? codePointLength(input)
+            : units;
         if (length === def.length)
             return;
         const origin = getLengthableOrigin(input);
@@ -46194,14 +46824,6 @@ const $ZodCheckLengthEquals = /*@__PURE__*/ $constructor("$ZodCheckLengthEquals"
 const $ZodCheckStringFormat = /*@__PURE__*/ $constructor("$ZodCheckStringFormat", (inst, def) => {
     var _a, _b;
     $ZodCheck.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.format = def.format;
-        if (def.pattern) {
-            bag.patterns ?? (bag.patterns = new Set());
-            bag.patterns.add(def.pattern);
-        }
-    });
     if (def.pattern)
         (_a = inst._zod).check ?? (_a.check = (payload) => {
             def.pattern.lastIndex = 0;
@@ -46248,13 +46870,11 @@ const $ZodCheckUpperCase = /*@__PURE__*/ $constructor("$ZodCheckUpperCase", (ins
 const $ZodCheckIncludes = /*@__PURE__*/ $constructor("$ZodCheckIncludes", (inst, def) => {
     $ZodCheck.init(inst, def);
     const escapedRegex = escapeRegex(def.includes);
-    const pattern = new RegExp(typeof def.position === "number" ? `^.{${def.position}}${escapedRegex}` : escapedRegex);
+    // `String.prototype.includes(sub, position)` matches `sub` at `position`
+    // OR LATER, so the pattern must allow at least `position` leading chars
+    // (`{N,}`), not exactly `position` chars (`{N}`).
+    const pattern = new RegExp(typeof def.position === "number" ? `^.{${def.position},}${escapedRegex}` : escapedRegex);
     def.pattern = pattern;
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.patterns ?? (bag.patterns = new Set());
-        bag.patterns.add(pattern);
-    });
     inst._zod.check = (payload) => {
         if (payload.value.includes(def.includes, def.position))
             return;
@@ -46273,11 +46893,6 @@ const $ZodCheckStartsWith = /*@__PURE__*/ $constructor("$ZodCheckStartsWith", (i
     $ZodCheck.init(inst, def);
     const pattern = new RegExp(`^${escapeRegex(def.prefix)}.*`);
     def.pattern ?? (def.pattern = pattern);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.patterns ?? (bag.patterns = new Set());
-        bag.patterns.add(pattern);
-    });
     inst._zod.check = (payload) => {
         if (payload.value.startsWith(def.prefix))
             return;
@@ -46296,11 +46911,6 @@ const $ZodCheckEndsWith = /*@__PURE__*/ $constructor("$ZodCheckEndsWith", (inst,
     $ZodCheck.init(inst, def);
     const pattern = new RegExp(`.*${escapeRegex(def.suffix)}$`);
     def.pattern ?? (def.pattern = pattern);
-    inst._zod.onattach.push((inst) => {
-        const bag = inst._zod.bag;
-        bag.patterns ?? (bag.patterns = new Set());
-        bag.patterns.add(pattern);
-    });
     inst._zod.check = (payload) => {
         if (payload.value.endsWith(def.suffix))
             return;
@@ -46320,10 +46930,10 @@ const $ZodCheckEndsWith = /*@__PURE__*/ $constructor("$ZodCheckEndsWith", (inst,
 ///////////////////////////////////
 function handleCheckPropertyResult(result, payload, property) {
     if (result.issues.length) {
-        payload.issues.push(...checks_util.prefixIssues(property, result.issues));
+        payload.issues.push(...prefixIssues(property, result.issues));
     }
 }
-const $ZodCheckProperty = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckProperty", (inst, def) => {
+const $ZodCheckProperty = /*@__PURE__*/ (/* unused pure expression or super */ null && (checks_core.$constructor("$ZodCheckProperty", (inst, def) => {
     $ZodCheck.init(inst, def);
     inst._zod.check = (payload) => {
         const result = def.schema._zod.run({
@@ -46337,12 +46947,40 @@ const $ZodCheckProperty = /*@__PURE__*/ (/* unused pure expression or super */ n
         return;
     };
 })));
-const $ZodCheckMimeType = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckMimeType", (inst, def) => {
+const $ZodCheckProperties = /*@__PURE__*/ $constructor("$ZodCheckProperties", (inst, def) => {
+    $ZodCheck.init(inst, def);
+    hide(inst, Symbol.iterator, function* () {
+        yield inst;
+    });
+    // key and schema snapshotted together: reading one live and the other cached lets a later mutation of the caller's shape object pair a stale key with a missing schema
+    let entries;
+    inst._zod.check = (payload) => {
+        // the base schema already typed the value, so only a nullish one is rejected here: the properties read on a primitive too, matching z.property() on a string's length
+        if (payload.value == null) {
+            payload.issues.push({ expected: "object", code: "invalid_type", input: payload.value, inst });
+            return undefined;
+        }
+        entries ?? (entries = Reflect.ownKeys(def.shape).map((key) => [key, def.shape[key]]));
+        const input = payload.value;
+        let proms;
+        for (const [key, schema] of entries) {
+            const result = schema._zod.run({ value: input[key], issues: [] }, {});
+            if (result instanceof Promise) {
+                proms ?? (proms = []);
+                proms.push(result.then((result) => handleCheckPropertyResult(result, payload, key)));
+            }
+            else {
+                handleCheckPropertyResult(result, payload, key);
+            }
+        }
+        if (proms)
+            return Promise.all(proms).then(() => undefined);
+        return undefined;
+    };
+});
+const $ZodCheckMimeType = /*@__PURE__*/ (/* unused pure expression or super */ null && (checks_core.$constructor("$ZodCheckMimeType", (inst, def) => {
     $ZodCheck.init(inst, def);
     const mimeSet = new Set(def.mime);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.bag.mime = def.mime;
-    });
     inst._zod.check = (payload) => {
         if (mimeSet.has(payload.value.type))
             return;
@@ -46362,18 +47000,23 @@ const $ZodCheckOverwrite = /*@__PURE__*/ $constructor("$ZodCheckOverwrite", (ins
     };
 });
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/doc.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/doc.js
 class Doc {
-    constructor(args = []) {
+    constructor(args = [], closed = {}) {
         this.content = [];
         this.indent = 0;
-        if (this)
-            this.args = args;
+        this.args = args;
+        this.closed = closed;
     }
+    // the compiler catches a child's throw and keeps writing into this doc, so the indent has to unwind with it
     indented(fn) {
         this.indent += 1;
-        fn(this);
-        this.indent -= 1;
+        try {
+            fn(this);
+        }
+        finally {
+            this.indent -= 1;
+        }
     }
     write(arg) {
         if (typeof arg === "function") {
@@ -46391,121 +47034,24 @@ class Doc {
     }
     compile() {
         const F = Function;
-        const args = this?.args;
         const content = this?.content ?? [``];
-        const lines = [...content.map((x) => `  ${x}`)];
-        // console.log(lines.join("\n"));
-        return new F(...args, lines.join("\n"));
+        const factory = new F(...Object.keys(this.closed), `return function (${this.args.join(", ")}) {\n${content.join("\n")}\n};`);
+        return factory(...Object.values(this.closed));
     }
 }
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/parse.js
-
-
-
-const _parse = (_Err) => (schema, value, _ctx, _params) => {
-    const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
-    const result = schema._zod.run({ value, issues: [] }, ctx);
-    if (result instanceof Promise) {
-        throw new $ZodAsyncError();
-    }
-    if (result.issues.length) {
-        const e = new (_params?.Err ?? _Err)(result.issues.map((iss) => finalizeIssue(iss, ctx, config())));
-        captureStackTrace(e, _params?.callee);
-        throw e;
-    }
-    return result.value;
-};
-const parse = /* @__PURE__*/ _parse($ZodRealError);
-const _parseAsync = (_Err) => async (schema, value, _ctx, params) => {
-    const ctx = _ctx ? { ..._ctx, async: true } : { async: true };
-    let result = schema._zod.run({ value, issues: [] }, ctx);
-    if (result instanceof Promise)
-        result = await result;
-    if (result.issues.length) {
-        const e = new (params?.Err ?? _Err)(result.issues.map((iss) => finalizeIssue(iss, ctx, config())));
-        captureStackTrace(e, params?.callee);
-        throw e;
-    }
-    return result.value;
-};
-const parseAsync = /* @__PURE__*/ _parseAsync($ZodRealError);
-const _safeParse = (_Err) => (schema, value, _ctx) => {
-    const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
-    const result = schema._zod.run({ value, issues: [] }, ctx);
-    if (result instanceof Promise) {
-        throw new $ZodAsyncError();
-    }
-    return result.issues.length
-        ? {
-            success: false,
-            error: new (_Err ?? $ZodError)(result.issues.map((iss) => finalizeIssue(iss, ctx, config()))),
-        }
-        : { success: true, data: result.value };
-};
-const safeParse = /* @__PURE__*/ _safeParse($ZodRealError);
-const _safeParseAsync = (_Err) => async (schema, value, _ctx) => {
-    const ctx = _ctx ? { ..._ctx, async: true } : { async: true };
-    let result = schema._zod.run({ value, issues: [] }, ctx);
-    if (result instanceof Promise)
-        result = await result;
-    return result.issues.length
-        ? {
-            success: false,
-            error: new _Err(result.issues.map((iss) => finalizeIssue(iss, ctx, config()))),
-        }
-        : { success: true, data: result.value };
-};
-const safeParseAsync = /* @__PURE__*/ _safeParseAsync($ZodRealError);
-const _encode = (_Err) => (schema, value, _ctx) => {
-    const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
-    return _parse(_Err)(schema, value, ctx);
-};
-const encode = /* @__PURE__*/ _encode($ZodRealError);
-const _decode = (_Err) => (schema, value, _ctx) => {
-    return _parse(_Err)(schema, value, _ctx);
-};
-const decode = /* @__PURE__*/ _decode($ZodRealError);
-const _encodeAsync = (_Err) => async (schema, value, _ctx) => {
-    const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
-    return _parseAsync(_Err)(schema, value, ctx);
-};
-const encodeAsync = /* @__PURE__*/ _encodeAsync($ZodRealError);
-const _decodeAsync = (_Err) => async (schema, value, _ctx) => {
-    return _parseAsync(_Err)(schema, value, _ctx);
-};
-const decodeAsync = /* @__PURE__*/ _decodeAsync($ZodRealError);
-const _safeEncode = (_Err) => (schema, value, _ctx) => {
-    const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
-    return _safeParse(_Err)(schema, value, ctx);
-};
-const safeEncode = /* @__PURE__*/ _safeEncode($ZodRealError);
-const _safeDecode = (_Err) => (schema, value, _ctx) => {
-    return _safeParse(_Err)(schema, value, _ctx);
-};
-const safeDecode = /* @__PURE__*/ _safeDecode($ZodRealError);
-const _safeEncodeAsync = (_Err) => async (schema, value, _ctx) => {
-    const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
-    return _safeParseAsync(_Err)(schema, value, ctx);
-};
-const safeEncodeAsync = /* @__PURE__*/ _safeEncodeAsync($ZodRealError);
-const _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
-    return _safeParseAsync(_Err)(schema, value, _ctx);
-};
-const safeDecodeAsync = /* @__PURE__*/ _safeDecodeAsync($ZodRealError);
-
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/versions.js
-const version = {
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/versions.js
+const versions_version = {
     major: 4,
-    minor: 4,
-    patch: 3,
+    minor: 6,
+    patch: 5,
 };
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/schemas.js
-/* unused harmony import specifier */ var checks;
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/schemas.js
+/* unused harmony import specifier */ var schemas_checks;
 /* unused harmony import specifier */ var schemas_core;
 /* unused harmony import specifier */ var schemas_parse;
-/* unused harmony import specifier */ var schemas_parseAsync;
+/* unused harmony import specifier */ var parseAsync;
 /* unused harmony import specifier */ var regexes;
 /* unused harmony import specifier */ var schemas_util;
 
@@ -46520,20 +47066,21 @@ const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
     inst ?? (inst = {});
     inst._zod.def = def; // set _def property
     inst._zod.bag = inst._zod.bag || {}; // initialize _bag object
-    inst._zod.version = version;
-    const checks = [...(inst._zod.def.checks ?? [])];
+    inst._zod.version = versions_version;
+    const defChecks = inst._zod.def.checks;
     // if inst is itself a checks.$ZodCheck, run it as a check
-    if (inst._zod.traits.has("$ZodCheck")) {
-        checks.unshift(inst);
-    }
+    const checks = inst._zod.traits.has("$ZodCheck")
+        ? [inst, ...(defChecks ?? [])]
+        : defChecks?.length
+            ? [...defChecks]
+            : [];
     for (const ch of checks) {
         for (const fn of ch._zod.onattach) {
             fn(inst);
         }
     }
     if (checks.length === 0) {
-        // deferred initializer
-        // inst._zod.parse is not yet defined
+        // deferred initializer inst._zod.parse is not yet defined
         (_a = inst._zod).deferred ?? (_a.deferred = []);
         inst._zod.deferred?.push(() => {
             inst._zod.run = inst._zod.parse;
@@ -46541,7 +47088,9 @@ const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
     }
     else {
         const runChecks = (payload, checks, ctx) => {
-            let isAborted = aborted(payload);
+            if (payload.memo)
+                return payload;
+            let isAborted = util_aborted(payload);
             let asyncResult;
             for (const ch of checks) {
                 if (ch._zod.def.when) {
@@ -46565,16 +47114,18 @@ const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
                         const nextLen = payload.issues.length;
                         if (nextLen === currLen)
                             return;
+                        attachSchema(payload.issues, currLen, inst);
                         if (!isAborted)
-                            isAborted = aborted(payload, currLen);
+                            isAborted = util_aborted(payload, currLen);
                     });
                 }
                 else {
                     const nextLen = payload.issues.length;
                     if (nextLen === currLen)
                         continue;
+                    attachSchema(payload.issues, currLen, inst);
                     if (!isAborted)
-                        isAborted = aborted(payload, currLen);
+                        isAborted = util_aborted(payload, currLen);
                 }
             }
             if (asyncResult) {
@@ -46586,7 +47137,7 @@ const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
         };
         const handleCanaryResult = (canary, payload, ctx) => {
             // abort if the canary is aborted
-            if (aborted(canary)) {
+            if (util_aborted(canary)) {
                 canary.aborted = true;
                 return canary;
             }
@@ -46604,8 +47155,7 @@ const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
                 return inst._zod.parse(payload, ctx);
             }
             if (ctx.direction === "backward") {
-                // run canary
-                // initial pass (no checks)
+                // run canary initial pass (no checks)
                 const canary = inst._zod.parse({ value: payload.value, issues: [] }, { ...ctx, skipChecks: true });
                 if (canary instanceof Promise) {
                     return canary.then((canary) => {
@@ -46624,25 +47174,44 @@ const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
             return runChecks(result, checks, ctx);
         };
     }
-    // Lazy initialize ~standard to avoid creating objects for every schema
-    defineLazy(inst, "~standard", () => ({
+}, {
+    // Wrappers extend this by installing a richer factory over it; reading it eagerly would defeat the laziness.
+    get "~standard"() {
+        return hide(this, "~standard", standardProps(this));
+    },
+    set "~standard"(value) {
+        util_own(this, "~standard", value);
+    },
+});
+/** The Standard Schema surface for `inst`. Shared so wrappers can extend it without forcing it. */
+// a Standard Schema result only reports issues, so a failure finalizes them straight off the raw payload: no ZodError, and no lazy result to read through
+const toStandardResult = (r, ctx) => r.issues.length ? { issues: r.issues.map((iss) => finalizeIssue(iss, ctx, config())) } : { value: r.value };
+async function validateAsync(inst, value) {
+    const ctx = { async: true };
+    return toStandardResult((await inst._zod.run({ value, issues: [] }, ctx)), ctx);
+}
+function standardProps(inst) {
+    return {
         validate: (value) => {
+            const ctx = { async: false };
             try {
-                const r = safeParse(inst, value);
-                return r.success ? { value: r.data } : { issues: r.error?.issues };
+                const r = inst._zod.run({ value, issues: [] }, ctx);
+                if (!(r instanceof Promise))
+                    return toStandardResult(r, ctx);
             }
-            catch (_) {
-                return safeParseAsync(inst, value).then((r) => (r.success ? { value: r.data } : { issues: r.error?.issues }));
-            }
+            catch (_) { }
+            // async function so a synchronously throwing check rejects instead of escaping validate
+            return validateAsync(inst, value);
         },
         vendor: "zod",
         version: 1,
-    }));
-});
+    };
+}
 
 const $ZodString = /*@__PURE__*/ $constructor("$ZodString", (inst, def) => {
     $ZodType.init(inst, def);
-    inst._zod.pattern = [...(inst?._zod.bag?.patterns ?? [])].pop() ?? string(inst._zod.bag);
+    // a format's own pattern, else unbounded; a template literal derives the check-aware form itself
+    inst._zod.pattern = def.pattern ?? anyString;
     inst._zod.parse = (payload, _) => {
         if (def.coerce)
             try {
@@ -46684,76 +47253,125 @@ const $ZodUUID = /*@__PURE__*/ $constructor("$ZodUUID", (inst, def) => {
         const v = versionMap[def.version];
         if (v === undefined)
             throw new Error(`Invalid UUID version: "${def.version}"`);
-        def.pattern ?? (def.pattern = uuid(v));
+        def.pattern ?? (def.pattern = regexes_uuid(v));
     }
     else
-        def.pattern ?? (def.pattern = uuid());
+        def.pattern ?? (def.pattern = regexes_uuid());
     $ZodStringFormat.init(inst, def);
 });
 const $ZodEmail = /*@__PURE__*/ $constructor("$ZodEmail", (inst, def) => {
     def.pattern ?? (def.pattern = email);
     $ZodStringFormat.init(inst, def);
 });
+/** The `://` guard rejected the input before the URL constructor saw it. */
+const URL_BAD_FORMAT = 1;
+/** The URL parser rejected the input. */
+const URL_UNPARSEABLE = 2;
+function canParseURL(input) {
+    try {
+        if (typeof URL !== "undefined" && typeof URL.canParse === "function")
+            return URL.canParse(input);
+        new URL(input);
+        return true;
+    }
+    catch {
+        return false;
+    }
+}
+function validateURL(trimmed, def) {
+    if (!("normalize" in def) && !("hostname" in def) && !("protocol" in def)) {
+        return canParseURL(trimmed) || URL_UNPARSEABLE;
+    }
+    return parseURLObject(trimmed, def);
+}
+/** Parses a URL while preserving the non-normalizing HTTP guard. */
+function parseURLObject(trimmed, def) {
+    // When normalize is off, require :// for http/https URLs. This prevents strings like "http:example.com" or "https:/path" from being silently accepted
+    if (!def.normalize && def.protocol?.source === httpProtocol.source && !/^https?:\/\//i.test(trimmed)) {
+        return URL_BAD_FORMAT;
+    }
+    try {
+        if (typeof URL !== "undefined") {
+            const URLStatic = URL;
+            if (typeof URLStatic.parse === "function")
+                return URLStatic.parse(trimmed) ?? URL_UNPARSEABLE;
+        }
+        // @ts-ignore
+        return new URL(trimmed);
+    }
+    catch {
+        return URL_UNPARSEABLE;
+    }
+}
+const asciiTabOrNewline = /[\t\n\r]/g;
+/** The URL parser deletes every ASCII tab, LF and CR from its input before it parses, so `new URL("https://exa\nmple.com")` reports on `example.com`. Applying the same deletion to the returned value closes the half of that divergence which can move the host; the parser's other rewrite, stripping C0 controls at the edges, cannot. */
+function stripTabAndNewline(value) {
+    return value.replace(asciiTabOrNewline, "");
+}
+function urlHostnameOk(url, hostname) {
+    hostname.lastIndex = 0;
+    return hostname.test(url.hostname);
+}
+function urlProtocolOk(url, protocol) {
+    protocol.lastIndex = 0;
+    return protocol.test(url.protocol.endsWith(":") ? url.protocol.slice(0, -1) : url.protocol);
+}
 const $ZodURL = /*@__PURE__*/ $constructor("$ZodURL", (inst, def) => {
     $ZodStringFormat.init(inst, def);
     inst._zod.check = (payload) => {
         try {
             // Trim whitespace from input
             const trimmed = payload.value.trim();
-            // When normalize is off, require :// for http/https URLs
-            // This prevents strings like "http:example.com" or "https:/path" from being silently accepted
-            if (!def.normalize && def.protocol?.source === httpProtocol.source) {
-                if (!/^https?:\/\//i.test(trimmed)) {
-                    payload.issues.push({
-                        code: "invalid_format",
-                        format: "url",
-                        note: "Invalid URL format",
-                        input: payload.value,
-                        inst,
-                        continue: !def.abort,
-                    });
-                    return;
-                }
+            const url = validateURL(trimmed, def);
+            if (url === URL_BAD_FORMAT) {
+                payload.issues.push({
+                    code: "invalid_format",
+                    format: "url",
+                    note: "Invalid URL format",
+                    input: payload.value,
+                    inst,
+                    continue: !def.abort,
+                });
+                return;
             }
-            // @ts-ignore
-            const url = new URL(trimmed);
-            if (def.hostname) {
-                def.hostname.lastIndex = 0;
-                if (!def.hostname.test(url.hostname)) {
-                    payload.issues.push({
-                        code: "invalid_format",
-                        format: "url",
-                        note: "Invalid hostname",
-                        pattern: def.hostname.source,
-                        input: payload.value,
-                        inst,
-                        continue: !def.abort,
-                    });
-                }
+            if (url === URL_UNPARSEABLE) {
+                payload.issues.push({
+                    code: "invalid_format",
+                    format: "url",
+                    input: payload.value,
+                    inst,
+                    continue: !def.abort,
+                });
+                return;
             }
-            if (def.protocol) {
-                def.protocol.lastIndex = 0;
-                if (!def.protocol.test(url.protocol.endsWith(":") ? url.protocol.slice(0, -1) : url.protocol)) {
-                    payload.issues.push({
-                        code: "invalid_format",
-                        format: "url",
-                        note: "Invalid protocol",
-                        pattern: def.protocol.source,
-                        input: payload.value,
-                        inst,
-                        continue: !def.abort,
-                    });
-                }
+            if (url === true) {
+                payload.value = stripTabAndNewline(trimmed);
+                return;
+            }
+            if (def.hostname && !urlHostnameOk(url, def.hostname)) {
+                payload.issues.push({
+                    code: "invalid_format",
+                    format: "url",
+                    note: "Invalid hostname",
+                    pattern: def.hostname.source,
+                    input: payload.value,
+                    inst,
+                    continue: !def.abort,
+                });
+            }
+            if (def.protocol && !urlProtocolOk(url, def.protocol)) {
+                payload.issues.push({
+                    code: "invalid_format",
+                    format: "url",
+                    note: "Invalid protocol",
+                    pattern: def.protocol.source,
+                    input: payload.value,
+                    inst,
+                    continue: !def.abort,
+                });
             }
             // Set the output value based on normalize flag
-            if (def.normalize) {
-                // Use normalized URL
-                payload.value = url.href;
-            }
-            else {
-                // Preserve the original input (trimmed)
-                payload.value = trimmed;
-            }
+            payload.value = def.normalize ? url.href : stripTabAndNewline(trimmed);
             return;
         }
         catch (_) {
@@ -46772,7 +47390,9 @@ const $ZodEmoji = /*@__PURE__*/ $constructor("$ZodEmoji", (inst, def) => {
     $ZodStringFormat.init(inst, def);
 });
 const $ZodNanoID = /*@__PURE__*/ $constructor("$ZodNanoID", (inst, def) => {
-    def.pattern ?? (def.pattern = nanoid);
+    if (def.length !== undefined && (!Number.isInteger(def.length) || def.length < 1))
+        throw new Error(`Invalid nanoid length: ${def.length}`);
+    def.pattern ?? (def.pattern = def.length === undefined ? nanoid : nanoidOfLength(def.length));
     $ZodStringFormat.init(inst, def);
 });
 /**
@@ -46805,11 +47425,11 @@ const $ZodISODateTime = /*@__PURE__*/ $constructor("$ZodISODateTime", (inst, def
     $ZodStringFormat.init(inst, def);
 });
 const $ZodISODate = /*@__PURE__*/ $constructor("$ZodISODate", (inst, def) => {
-    def.pattern ?? (def.pattern = date);
+    def.pattern ?? (def.pattern = regexes_date);
     $ZodStringFormat.init(inst, def);
 });
 const $ZodISOTime = /*@__PURE__*/ $constructor("$ZodISOTime", (inst, def) => {
-    def.pattern ?? (def.pattern = time(def));
+    def.pattern ?? (def.pattern = regexes_time(def));
     $ZodStringFormat.init(inst, def);
 });
 const $ZodISODuration = /*@__PURE__*/ $constructor("$ZodISODuration", (inst, def) => {
@@ -46819,19 +47439,19 @@ const $ZodISODuration = /*@__PURE__*/ $constructor("$ZodISODuration", (inst, def
 const $ZodIPv4 = /*@__PURE__*/ $constructor("$ZodIPv4", (inst, def) => {
     def.pattern ?? (def.pattern = ipv4);
     $ZodStringFormat.init(inst, def);
-    inst._zod.bag.format = `ipv4`;
 });
+/** An IPv6 address is written with hex digits, colons and dots, and nothing else. The guard is what makes the check below an IPv6 check: `new URL("http://[...]")` parses an authority, not an address, so `@` and `\` re-delimit it and `"::@1\\"` validates against the host `0.0.0.1`. The URL parser also deletes ASCII tab, LF and CR rather than failing, which is how `"::1\n"` validated as `::1`. */
+const ipv6Alphabet = /^[0-9a-fA-F:.]+$/;
+function isValidIPv6(value) {
+    if (!ipv6Alphabet.test(value))
+        return false;
+    return canParseURL(`http://[${value}]`);
+}
 const $ZodIPv6 = /*@__PURE__*/ $constructor("$ZodIPv6", (inst, def) => {
     def.pattern ?? (def.pattern = ipv6);
     $ZodStringFormat.init(inst, def);
-    inst._zod.bag.format = `ipv6`;
     inst._zod.check = (payload) => {
-        try {
-            // @ts-ignore
-            new URL(`http://[${payload.value}]`);
-            // return;
-        }
-        catch {
+        if (!isValidIPv6(payload.value)) {
             payload.issues.push({
                 code: "invalid_format",
                 format: "ipv6",
@@ -46845,32 +47465,30 @@ const $ZodIPv6 = /*@__PURE__*/ $constructor("$ZodIPv6", (inst, def) => {
 const $ZodMAC = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodMAC", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.mac(def.delimiter));
     $ZodStringFormat.init(inst, def);
-    inst._zod.bag.format = `mac`;
 })));
 const $ZodCIDRv4 = /*@__PURE__*/ $constructor("$ZodCIDRv4", (inst, def) => {
     def.pattern ?? (def.pattern = cidrv4);
     $ZodStringFormat.init(inst, def);
 });
+function isValidCIDRv6(value) {
+    const parts = value.split("/");
+    if (parts.length !== 2)
+        return false;
+    const [address, prefix] = parts;
+    if (!prefix)
+        return false;
+    const prefixNum = Number(prefix);
+    if (`${prefixNum}` !== prefix)
+        return false;
+    if (prefixNum < 0 || prefixNum > 128)
+        return false;
+    return isValidIPv6(address);
+}
 const $ZodCIDRv6 = /*@__PURE__*/ $constructor("$ZodCIDRv6", (inst, def) => {
     def.pattern ?? (def.pattern = cidrv6); // not used for validation
     $ZodStringFormat.init(inst, def);
     inst._zod.check = (payload) => {
-        const parts = payload.value.split("/");
-        try {
-            if (parts.length !== 2)
-                throw new Error();
-            const [address, prefix] = parts;
-            if (!prefix)
-                throw new Error();
-            const prefixNum = Number(prefix);
-            if (`${prefixNum}` !== prefix)
-                throw new Error();
-            if (prefixNum < 0 || prefixNum > 128)
-                throw new Error();
-            // @ts-ignore
-            new URL(`http://[${address}]`);
-        }
-        catch {
+        if (!isValidCIDRv6(payload.value)) {
             payload.issues.push({
                 code: "invalid_format",
                 format: "cidrv6",
@@ -46899,10 +47517,11 @@ function isValidBase64(data) {
         return false;
     }
 }
+// lax on purpose: the quantified regexes.base64 overflows the regex stack on multi-MB input and its leading ^$| alternation leaks through template-literal composition; isValidBase64 enforces length and padding
+const base64Charset = /^[0-9a-zA-Z+/]*={0,2}$/;
 const $ZodBase64 = /*@__PURE__*/ $constructor("$ZodBase64", (inst, def) => {
-    def.pattern ?? (def.pattern = base64);
+    def.pattern ?? (def.pattern = base64Charset);
     $ZodStringFormat.init(inst, def);
-    inst._zod.bag.contentEncoding = "base64";
     inst._zod.check = (payload) => {
         if (isValidBase64(payload.value))
             return;
@@ -46915,18 +47534,19 @@ const $ZodBase64 = /*@__PURE__*/ $constructor("$ZodBase64", (inst, def) => {
         });
     };
 });
-//////////////////////////////   ZodBase64   //////////////////////////////
+//////////////////////////////   ZodBase64URL   //////////////////////////////
+// lax on purpose: the quantified regexes.base64url overflows the regex stack on multi-MB input; isValidBase64 enforces length on the padded string
+const base64urlCharset = /^[A-Za-z0-9_-]*$/;
 function isValidBase64URL(data) {
-    if (!base64url.test(data))
+    if (!base64urlCharset.test(data))
         return false;
     const base64 = data.replace(/[-_]/g, (c) => (c === "-" ? "+" : "/"));
     const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
     return isValidBase64(padded);
 }
 const $ZodBase64URL = /*@__PURE__*/ $constructor("$ZodBase64URL", (inst, def) => {
-    def.pattern ?? (def.pattern = base64url);
+    def.pattern ?? (def.pattern = base64urlCharset);
     $ZodStringFormat.init(inst, def);
-    inst._zod.bag.contentEncoding = "base64url";
     inst._zod.check = (payload) => {
         if (isValidBase64URL(payload.value))
             return;
@@ -46943,6 +47563,77 @@ const $ZodE164 = /*@__PURE__*/ $constructor("$ZodE164", (inst, def) => {
     def.pattern ?? (def.pattern = e164);
     $ZodStringFormat.init(inst, def);
 });
+//////////////////////////////   ZodCreditCard   //////////////////////////////
+const CC_SANITIZE = /[- ]/g;
+/** Luhn checksum on a digit-only string. Adapted from valibot (MIT). */
+function isLuhnAlgo(digits) {
+    let length = digits.length;
+    let bit = 1;
+    let sum = 0;
+    while (length) {
+        const value = digits.charCodeAt(--length) - 48;
+        bit ^= 1;
+        sum += bit ? [0, 2, 4, 6, 8, 1, 3, 5, 7, 9][value] : value;
+    }
+    return sum % 10 === 0;
+}
+function isValidCreditCard(input) {
+    if (!regexes.creditCard.test(input))
+        return false;
+    return isLuhnAlgo(input.replace(CC_SANITIZE, ""));
+}
+const $ZodCreditCard = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodCreditCard", (inst, def) => {
+    // Shape only — the Luhn check below is not expressible as a pattern, so consumers of `pattern` (JSON Schema, template literals) get the length and separator rules alone.
+    def.pattern ?? (def.pattern = regexes.creditCard);
+    $ZodStringFormat.init(inst, def);
+    inst._zod.check = (payload) => {
+        if (isValidCreditCard(payload.value))
+            return;
+        payload.issues.push({
+            code: "invalid_format",
+            format: "credit_card",
+            input: payload.value,
+            inst,
+            continue: !def.abort,
+        });
+    };
+})));
+//////////////////////////////   ZodIBAN   //////////////////////////////
+// iso 7064 mod 97-10 checksum without BigInt
+function isIso7064Mod97(iban) {
+    let remainder = 0;
+    const len = iban.length;
+    for (let i = 4; i < len; i++) {
+        const code = iban.charCodeAt(i);
+        remainder = (code >= 65 ? remainder * 100 + (code - 55) : remainder * 10 + (code - 48)) % 97;
+    }
+    for (let i = 0; i < 4; i++) {
+        const code = iban.charCodeAt(i);
+        remainder = (code >= 65 ? remainder * 100 + (code - 55) : remainder * 10 + (code - 48)) % 97;
+    }
+    return remainder === 1;
+}
+function isValidIBAN(input) {
+    if (!regexes.iban.test(input))
+        return false;
+    return isIso7064Mod97(input);
+}
+const $ZodIBAN = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodIBAN", (inst, def) => {
+    // shape only — checksum is not expressible as a pattern
+    def.pattern ?? (def.pattern = regexes.iban);
+    $ZodStringFormat.init(inst, def);
+    inst._zod.check = (payload) => {
+        if (isValidIBAN(payload.value))
+            return;
+        payload.issues.push({
+            code: "invalid_format",
+            format: "iban",
+            input: payload.value,
+            inst,
+            continue: !def.abort,
+        });
+    };
+})));
 //////////////////////////////   ZodJWT   //////////////////////////////
 function isValidJWT(token, algorithm = null) {
     try {
@@ -46996,7 +47687,7 @@ const $ZodCustomStringFormat = /*@__PURE__*/ (/* unused pure expression or super
 })));
 const $ZodNumber = /*@__PURE__*/ $constructor("$ZodNumber", (inst, def) => {
     $ZodType.init(inst, def);
-    inst._zod.pattern = inst._zod.bag.pattern ?? number;
+    inst._zod.pattern = regexes_number;
     inst._zod.parse = (payload, _ctx) => {
         if (def.coerce)
             try {
@@ -47011,7 +47702,7 @@ const $ZodNumber = /*@__PURE__*/ $constructor("$ZodNumber", (inst, def) => {
             ? Number.isNaN(input)
                 ? "NaN"
                 : !Number.isFinite(input)
-                    ? "Infinity"
+                    ? String(input)
                     : undefined
             : undefined;
         payload.issues.push({
@@ -47070,7 +47761,7 @@ const $ZodBigInt = /*@__PURE__*/ (/* unused pure expression or super */ null && 
     };
 })));
 const $ZodBigIntFormat = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodBigIntFormat", (inst, def) => {
-    checks.$ZodCheckBigIntFormat.init(inst, def);
+    schemas_checks.$ZodCheckBigIntFormat.init(inst, def);
     $ZodBigInt.init(inst, def); // no format checks
 })));
 const $ZodSymbol = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodSymbol", (inst, def) => {
@@ -47107,7 +47798,7 @@ const $ZodUndefined = /*@__PURE__*/ (/* unused pure expression or super */ null 
 })));
 const $ZodNull = /*@__PURE__*/ $constructor("$ZodNull", (inst, def) => {
     $ZodType.init(inst, def);
-    inst._zod.pattern = _null;
+    inst._zod.pattern = regexes_null;
     inst._zod.values = new Set([null]);
     inst._zod.parse = (payload, _ctx) => {
         const input = payload.value;
@@ -47189,6 +47880,8 @@ function handleArrayResult(result, final, index) {
 }
 const $ZodArray = /*@__PURE__*/ $constructor("$ZodArray", (inst, def) => {
     $ZodType.init(inst, def);
+    const memo = globalConfig.memoizer;
+    memo?.attach(inst);
     inst._zod.parse = (payload, ctx) => {
         const input = payload.value;
         if (!Array.isArray(input)) {
@@ -47200,8 +47893,9 @@ const $ZodArray = /*@__PURE__*/ $constructor("$ZodArray", (inst, def) => {
             });
             return payload;
         }
-        payload.value = Array(input.length);
+        payload.value = memo ? memo.alloc(inst, payload, Array(input.length), ctx) : Array(input.length);
         const proms = [];
+        const abortEarly = ctx?.abortEarly;
         for (let i = 0; i < input.length; i++) {
             const item = input[i];
             const result = def.element._zod.run({
@@ -47213,6 +47907,9 @@ const $ZodArray = /*@__PURE__*/ $constructor("$ZodArray", (inst, def) => {
             }
             else {
                 handleArrayResult(result, payload, i);
+                // the element's payload is authoritative here, since handleArrayResult forwards every issue; an object's is not, because it drops a failed absent optional
+                if (abortEarly && result.issues.length !== 0 && util_aborted(result))
+                    break;
             }
         }
         if (proms.length) {
@@ -47221,16 +47918,21 @@ const $ZodArray = /*@__PURE__*/ $constructor("$ZodArray", (inst, def) => {
         return payload; //handleArrayResultsAsync(parseResults, final);
     };
 });
-function handlePropertyResult(result, final, key, input, isOptionalIn, isOptionalOut) {
+function handlePropertyResult(result, final, key, input, optin, optout) {
     const isPresent = key in input;
+    const isOptionalOut = optout === "optional";
+    // The middle rung means "absence permitted, nothing supplied in its place", so an absent key contributes nothing — whatever the schema made of `undefined` is invented, not substituted. Only `optional` reaches this with a value: `defaulted` substitutes, and a schema that isn't optional-out has to keep the key.
+    if (!isPresent && isOptionalOut && optin === "optional") {
+        return;
+    }
     if (result.issues.length) {
         // For optional-in/out schemas, ignore errors on absent keys.
-        if (isOptionalIn && isOptionalOut && !isPresent) {
+        if (optin !== undefined && isOptionalOut && !isPresent) {
             return;
         }
         final.issues.push(...prefixIssues(key, result.issues));
     }
-    if (!isPresent && !isOptionalIn) {
+    if (!isPresent && optin === undefined) {
         if (!result.issues.length) {
             final.issues.push({
                 code: "invalid_type",
@@ -47242,7 +47944,7 @@ function handlePropertyResult(result, final, key, input, isOptionalIn, isOptiona
         return;
     }
     if (result.value === undefined) {
-        if (isPresent) {
+        if (isPresent || (optin === "defaulted" && !isOptionalOut)) {
             final.value[key] = undefined;
         }
     }
@@ -47250,46 +47952,64 @@ function handlePropertyResult(result, final, key, input, isOptionalIn, isOptiona
         final.value[key] = result.value;
     }
 }
+// one shared instance; a fresh [] per schema cost 56 bytes retained
+const NO_SYMBOL_KEYS = [];
 function normalizeDef(def) {
     const keys = Object.keys(def.shape);
-    for (const k of keys) {
+    const ownSymbols = Object.getOwnPropertySymbols(def.shape);
+    const symbolKeys = ownSymbols.length ? ownSymbols : NO_SYMBOL_KEYS;
+    // aliases `keys` when there are no symbols, so a string-only shape keeps one array
+    const allKeys = symbolKeys.length ? [...keys, ...symbolKeys] : keys;
+    for (const k of allKeys) {
         if (!def.shape?.[k]?._zod?.traits?.has("$ZodType")) {
-            throw new Error(`Invalid element at key "${k}": expected a Zod schema`);
+            throw new Error(`Invalid element at key "${String(k)}": expected a Zod schema`);
         }
     }
     const okeys = optionalKeys(def.shape);
     return {
         ...def,
-        keys,
+        allKeys,
+        symbolKeys,
+        // string-only: handleCatchall matches it against `for...in`, which never yields a symbol
         keySet: new Set(keys),
         numKeys: keys.length,
         optionalKeys: new Set(okeys),
     };
 }
-function handleCatchall(proms, input, payload, ctx, def, inst) {
+function handleCatchall(proms, input, payload, ctx, def, inst, abortEarly) {
     const unrecognized = [];
     const keySet = def.keySet;
     const _catchall = def.catchall._zod;
     const t = _catchall.def.type;
-    const isOptionalIn = _catchall.optin === "optional";
-    const isOptionalOut = _catchall.optout === "optional";
+    const optin = _catchall.optin;
+    const optout = _catchall.optout;
+    // starts at 0, not the current length: the shape phase already ran and may have aborted
+    let seen = 0;
     for (const key in input) {
-        // skip __proto__ so it can't replace the result prototype via the
-        // assignment setter on the plain {} we build into
-        if (key === "__proto__")
-            continue;
+        if (abortEarly && payload.issues.length !== seen) {
+            if (util_aborted(payload, seen))
+                break;
+            seen = payload.issues.length;
+        }
+        // Must precede the __proto__ branch: a declared key is not unrecognized, even though the shape loop deliberately strips __proto__ from the parsed output.
         if (keySet.has(key))
             continue;
+        // Don't copy an undeclared __proto__ into the result; assignment to a plain {} would replace the result prototype. But in strict mode it is still an unknown key, so report it before skipping.
+        if (key === "__proto__") {
+            if (t === "never")
+                unrecognized.push(key);
+            continue;
+        }
         if (t === "never") {
             unrecognized.push(key);
             continue;
         }
         const r = _catchall.run({ value: input[key], issues: [] }, ctx);
         if (r instanceof Promise) {
-            proms.push(r.then((r) => handlePropertyResult(r, payload, key, input, isOptionalIn, isOptionalOut)));
+            proms.push(r.then((r) => handlePropertyResult(r, payload, key, input, optin, optout)));
         }
         else {
-            handlePropertyResult(r, payload, key, input, isOptionalIn, isOptionalOut);
+            handlePropertyResult(r, payload, key, input, optin, optout);
         }
     }
     if (unrecognized.length) {
@@ -47298,6 +48018,8 @@ function handleCatchall(proms, input, payload, ctx, def, inst) {
             keys: unrecognized,
             input,
             inst,
+            // Describes the shape of the input, not the validity of the parsed value, so it never aborts. The parse still fails; the schema's own checks just get to run first, and an enclosing intersection can reconcile the key against a sibling operand.
+            continue: true,
         });
     }
     if (!proms.length)
@@ -47309,30 +48031,35 @@ function handleCatchall(proms, input, payload, ctx, def, inst) {
 const $ZodObject = /*@__PURE__*/ $constructor("$ZodObject", (inst, def) => {
     // requires cast because technically $ZodObject doesn't extend
     $ZodType.init(inst, def);
-    // const sh = def.shape;
     const desc = Object.getOwnPropertyDescriptor(def, "shape");
-    if (!desc?.get) {
-        const sh = def.shape;
-        Object.defineProperty(def, "shape", {
-            get: () => {
-                const newSh = { ...sh };
-                Object.defineProperty(def, "shape", {
-                    value: newSh,
-                });
-                return newSh;
-            },
-        });
+    // a cloned def carries its source's accessor, which knows the shape it answers from; adopting that keeps the clone's keys readable without running it
+    const sh = desc?.get ? desc.get.raw : (def.shape ?? {});
+    if (sh) {
+        // Freezes the shape on first read, so its getters resolve once and every later read sees the same schemas.
+        const get = () => {
+            const newSh = { ...sh };
+            Object.defineProperty(def, "shape", { value: newSh });
+            get.raw = newSh;
+            return newSh;
+        };
+        get.raw = sh;
+        Object.defineProperty(def, "shape", { get });
     }
     const _normalized = cached(() => normalizeDef(def));
-    defineLazy(inst._zod, "propValues", () => {
-        const shape = def.shape;
+    defineLazyInternal(inst, "propValues", (zod) => {
+        const shape = zod.def.shape;
         const propValues = {};
         for (const key in shape) {
             const field = shape[key]._zod;
             if (field.values) {
-                propValues[key] ?? (propValues[key] = new Set());
+                if (!Object.prototype.hasOwnProperty.call(propValues, key)) {
+                    assignProp(propValues, key, new Set());
+                }
                 for (const v of field.values)
                     propValues[key].add(v);
+                // An omittable slot reads back as undefined at a discriminator lookup, so it has to claim undefined: two options that can both omit the key are not discriminable on it.
+                if (field.optin !== undefined)
+                    propValues[key].add(undefined);
             }
         }
         return propValues;
@@ -47340,6 +48067,8 @@ const $ZodObject = /*@__PURE__*/ $constructor("$ZodObject", (inst, def) => {
     const isObject = util_isObject;
     const catchall = def.catchall;
     let value;
+    const memo = globalConfig.memoizer;
+    memo?.attach(inst);
     inst._zod.parse = (payload, ctx) => {
         value ?? (value = _normalized.value);
         const input = payload.value;
@@ -47352,25 +48081,34 @@ const $ZodObject = /*@__PURE__*/ $constructor("$ZodObject", (inst, def) => {
             });
             return payload;
         }
-        payload.value = {};
+        payload.value = memo ? memo.alloc(inst, payload, {}, ctx) : {};
         const proms = [];
         const shape = value.shape;
-        for (const key of value.keys) {
+        const abortEarly = ctx?.abortEarly;
+        let seen = payload.issues.length;
+        for (const key of value.allKeys) {
+            if (abortEarly && payload.issues.length !== seen) {
+                if (util_aborted(payload, seen))
+                    break;
+                seen = payload.issues.length;
+            }
+            if (key === "__proto__")
+                continue;
             const el = shape[key];
-            const isOptionalIn = el._zod.optin === "optional";
-            const isOptionalOut = el._zod.optout === "optional";
+            const optin = el._zod.optin;
+            const optout = el._zod.optout;
             const r = el._zod.run({ value: input[key], issues: [] }, ctx);
             if (r instanceof Promise) {
-                proms.push(r.then((r) => handlePropertyResult(r, payload, key, input, isOptionalIn, isOptionalOut)));
+                proms.push(r.then((r) => handlePropertyResult(r, payload, key, input, optin, optout)));
             }
             else {
-                handlePropertyResult(r, payload, key, input, isOptionalIn, isOptionalOut);
+                handlePropertyResult(r, payload, key, input, optin, optout);
             }
         }
         if (!catchall) {
             return proms.length ? Promise.all(proms).then(() => payload) : payload;
         }
-        return handleCatchall(proms, input, payload, ctx, _normalized.value, inst);
+        return handleCatchall(proms, input, payload, ctx, _normalized.value, inst, abortEarly === true);
     };
 });
 const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) => {
@@ -47378,58 +48116,65 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
     $ZodObject.init(inst, def);
     const superParse = inst._zod.parse;
     const _normalized = cached(() => normalizeDef(def));
+    const memo = globalConfig.memoizer;
     const generateFastpass = (shape) => {
-        const doc = new Doc(["shape", "payload", "ctx"]);
         const normalized = _normalized.value;
-        const parseStr = (key) => {
-            const k = esc(key);
-            return `shape[${k}]._zod.run({ value: input[${k}], issues: [] }, ctx)`;
-        };
+        const syms = normalized.symbolKeys;
+        // a symbol has no source literal, so it is read as `syms[i]` off the closed-over scope
+        const doc = new Doc(["payload", "ctx"], { shape, inst, memo, syms });
+        const parseStr = (k) => `shape[${k}]._zod.run({ value: input[${k}], issues: [] }, ctx)`;
+        // prefixes in place, like util.prefixIssues. newResult must land before the early return: a catchall runs after this and would otherwise write onto the caller's input
+        const prefixStr = (id, k) => `
+          let ${id}_ab = false;
+          for (let i = 0; i < ${id}.issues.length; i++) {
+            const iss = ${id}.issues[i];
+            iss.path = iss.path ? [${k}, ...iss.path] : [${k}];
+            payload.issues.push(iss);
+            if (iss.continue !== true) ${id}_ab = true;
+          }
+          if (${id}_ab && ctx && ctx.abortEarly) {
+            payload.value = newResult;
+            return payload;
+          }`;
         doc.write(`const input = payload.value;`);
         const ids = Object.create(null);
         let counter = 0;
-        for (const key of normalized.keys) {
+        for (const key of normalized.allKeys) {
             ids[key] = `key_${counter++}`;
         }
         // A: preserve key order {
-        doc.write(`const newResult = {};`);
-        for (const key of normalized.keys) {
+        doc.write(memo ? `const newResult = memo.alloc(inst, payload, {}, ctx);` : `const newResult = {};`);
+        for (const key of normalized.allKeys) {
+            if (key === "__proto__")
+                continue;
             const id = ids[key];
-            const k = esc(key);
+            const k = typeof key === "symbol" ? `syms[${syms.indexOf(key)}]` : esc(key);
+            const isPresent = `${k} in input`;
             const schema = shape[key];
-            const isOptionalIn = schema?._zod?.optin === "optional";
+            const optin = schema?._zod?.optin;
+            const isOptionalIn = optin !== undefined;
             const isOptionalOut = schema?._zod?.optout === "optional";
-            doc.write(`const ${id} = ${parseStr(key)};`);
+            doc.write(`const ${id} = ${parseStr(k)};`);
             if (isOptionalIn && isOptionalOut) {
-                // For optional-in/out schemas, ignore errors on absent keys
+                // For optional-in/out schemas, ignore errors on absent keys — and, like the interpreted path, drop the value produced alongside them. The middle rung goes further: it permits absence without supplying anything in its place, so an absent key contributes nothing at all.
+                const assign = optin === "optional" ? `${id}_present` : `${id}.value !== undefined || ${id}_present`;
                 doc.write(`
-        if (${id}.issues.length) {
-          if (${k} in input) {
-            payload.issues = payload.issues.concat(${id}.issues.map(iss => ({
-              ...iss,
-              path: iss.path ? [${k}, ...iss.path] : [${k}]
-            })));
+        const ${id}_present = ${isPresent};
+        if (!${id}.issues.length || ${id}_present) {
+          if (${id}.issues.length) {${prefixStr(id, k)}
+          }
+
+          if (${assign}) {
+            newResult[${k}] = ${id}.value;
           }
         }
-        
-        if (${id}.value === undefined) {
-          if (${k} in input) {
-            newResult[${k}] = undefined;
-          }
-        } else {
-          newResult[${k}] = ${id}.value;
-        }
-        
+
       `);
             }
             else if (!isOptionalIn) {
                 doc.write(`
-        const ${id}_present = ${k} in input;
-        if (${id}.issues.length) {
-          payload.issues = payload.issues.concat(${id}.issues.map(iss => ({
-            ...iss,
-            path: iss.path ? [${k}, ...iss.path] : [${k}]
-          })));
+        const ${id}_present = ${isPresent};
+        if (${id}.issues.length) {${prefixStr(id, k)}
         }
         if (!${id}_present && !${id}.issues.length) {
           payload.issues.push({
@@ -47438,42 +48183,39 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
             input: undefined,
             path: [${k}]
           });
+          if (ctx && ctx.abortEarly) {
+            payload.value = newResult;
+            return payload;
+          }
         }
 
         if (${id}_present) {
-          if (${id}.value === undefined) {
-            newResult[${k}] = undefined;
-          } else {
-            newResult[${k}] = ${id}.value;
-          }
+          newResult[${k}] = ${id}.value;
         }
 
       `);
             }
             else {
                 doc.write(`
-        if (${id}.issues.length) {
-          payload.issues = payload.issues.concat(${id}.issues.map(iss => ({
-            ...iss,
-            path: iss.path ? [${k}, ...iss.path] : [${k}]
-          })));
+        if (${id}.issues.length) {${prefixStr(id, k)}
         }
-        
-        if (${id}.value === undefined) {
-          if (${k} in input) {
-            newResult[${k}] = undefined;
-          }
-        } else {
+      `);
+                if (optin === "defaulted") {
+                    doc.write(`newResult[${k}] = ${id}.value;`);
+                }
+                else {
+                    doc.write(`
+        if (${id}.value !== undefined || ${isPresent}) {
           newResult[${k}] = ${id}.value;
         }
-        
       `);
+                }
             }
         }
         doc.write(`payload.value = newResult;`);
         doc.write(`return payload;`);
-        const fn = doc.compile();
-        return (payload, ctx) => fn(shape, payload, ctx);
+        // closing `shape` in is what pays: turbofan specializes the parser against that one shape object, so every `shape[k]._zod.run` folds to a known callee. as a parameter it stays a generic load and measures 13% slower even with the forwarding frame gone
+        return doc.compile();
     };
     let fastpass;
     const isObject = util_isObject;
@@ -47501,7 +48243,7 @@ const $ZodObjectJIT = /*@__PURE__*/ $constructor("$ZodObjectJIT", (inst, def) =>
             payload = fastpass(payload, ctx);
             if (!catchall)
                 return payload;
-            return handleCatchall([], input, payload, ctx, value, inst);
+            return handleCatchall([], input, payload, ctx, value, inst, ctx?.abortEarly === true);
         }
         return superParse(payload, ctx);
     };
@@ -47513,7 +48255,7 @@ function handleUnionResults(results, final, inst, ctx) {
             return final;
         }
     }
-    const nonaborted = results.filter((r) => !aborted(r));
+    const nonaborted = results.filter((r) => !util_aborted(r));
     if (nonaborted.length === 1) {
         final.value = nonaborted[0].value;
         return nonaborted[0];
@@ -47528,17 +48270,21 @@ function handleUnionResults(results, final, inst, ctx) {
 }
 const $ZodUnion = /*@__PURE__*/ $constructor("$ZodUnion", (inst, def) => {
     $ZodType.init(inst, def);
-    defineLazy(inst._zod, "optin", () => def.options.some((o) => o._zod.optin === "optional") ? "optional" : undefined);
-    defineLazy(inst._zod, "optout", () => def.options.some((o) => o._zod.optout === "optional") ? "optional" : undefined);
-    defineLazy(inst._zod, "values", () => {
-        if (def.options.every((o) => o._zod.values)) {
-            return new Set(def.options.flatMap((option) => Array.from(option._zod.values)));
+    defineLazyInternal(inst, "optin", (zod) => zod.def.options.some((o) => o._zod.optin === "defaulted")
+        ? "defaulted"
+        : zod.def.options.some((o) => o._zod.optin !== undefined)
+            ? "optional"
+            : undefined);
+    defineLazyInternal(inst, "optout", (zod) => zod.def.options.some((o) => o._zod.optout === "optional") ? "optional" : undefined);
+    defineLazyInternal(inst, "values", (zod) => {
+        if (zod.def.options.every((o) => o._zod.values)) {
+            return new Set(zod.def.options.flatMap((option) => Array.from(option._zod.values)));
         }
         return undefined;
     });
-    defineLazy(inst._zod, "pattern", () => {
-        if (def.options.every((o) => o._zod.pattern)) {
-            const patterns = def.options.map((o) => o._zod.pattern);
+    defineLazyInternal(inst, "pattern", (zod) => {
+        if (zod.def.options.every((o) => o._zod.pattern)) {
+            const patterns = zod.def.options.map((o) => o._zod.pattern);
             return new RegExp(`^(${patterns.map((p) => cleanRegex(p.source)).join("|")})$`);
         }
         return undefined;
@@ -47573,12 +48319,16 @@ const $ZodUnion = /*@__PURE__*/ $constructor("$ZodUnion", (inst, def) => {
     };
 });
 function handleExclusiveUnionResults(results, final, inst, ctx) {
-    const successes = results.filter((r) => r.issues.length === 0);
-    if (successes.length === 1) {
-        final.value = successes[0].value;
+    const matches = [];
+    for (let i = 0; i < results.length; i++) {
+        if (results[i].issues.length === 0)
+            matches.push(i);
+    }
+    if (matches.length === 1) {
+        final.value = results[matches[0]].value;
         return final;
     }
-    if (successes.length === 0) {
+    if (matches.length === 0) {
         // No matches - same as regular union
         final.issues.push({
             code: "invalid_union",
@@ -47595,6 +48345,7 @@ function handleExclusiveUnionResults(results, final, inst, ctx) {
             inst,
             errors: [],
             inclusive: false,
+            matches,
         });
     }
     return final;
@@ -47629,44 +48380,75 @@ const $ZodXor = /*@__PURE__*/ (/* unused pure expression or super */ null && (sc
         });
     };
 })));
+/** Returns the option whose discriminator claims `value`, or throws if ambiguous. */
+function getDiscriminatedOption(union, value) {
+    const internals = union._zod;
+    let map = internals.bag.optionsMap;
+    if (!map) {
+        map = discriminatorMap(internals.def);
+        internals.bag.optionsMap = map;
+    }
+    const option = map.get(value);
+    if (option === null)
+        throw new Error(`Ambiguous discriminator value "${String(value)}"`);
+    return option;
+}
+function discriminatorMap(def) {
+    const map = new Map();
+    for (const option of def.options) {
+        const values = option._zod.propValues?.[def.discriminator];
+        if (!values || values.size === 0)
+            throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(option)}"`);
+        for (const value of values) {
+            if (map.has(value)) {
+                if (value !== undefined)
+                    throw new Error(`Duplicate discriminator value "${String(value)}"`);
+                // keep the collision marked so a later member cannot reclaim it
+                map.set(value, null);
+            }
+            else {
+                map.set(value, option);
+            }
+        }
+    }
+    return map;
+}
 const $ZodDiscriminatedUnion = 
 /*@__PURE__*/
 $constructor("$ZodDiscriminatedUnion", (inst, def) => {
     def.inclusive = false;
     $ZodUnion.init(inst, def);
     const _super = inst._zod.parse;
-    defineLazy(inst._zod, "propValues", () => {
+    defineLazyInternal(inst, "propValues", (zod) => {
         const propValues = {};
-        for (const option of def.options) {
+        let undefinedCount = 0;
+        for (const option of zod.def.options) {
             const pv = option._zod.propValues;
             if (!pv || Object.keys(pv).length === 0)
-                throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(option)}"`);
+                throw new Error(`Invalid discriminated union option at index "${zod.def.options.indexOf(option)}"`);
+            if (pv[zod.def.discriminator]?.has(undefined))
+                undefinedCount++;
             for (const [k, v] of Object.entries(pv)) {
-                if (!propValues[k])
-                    propValues[k] = new Set();
+                if (!Object.prototype.hasOwnProperty.call(propValues, k)) {
+                    assignProp(propValues, k, new Set());
+                }
                 for (const val of v) {
                     propValues[k].add(val);
                 }
             }
         }
+        if (!zod.def.unionFallback && undefinedCount > 1)
+            propValues[zod.def.discriminator]?.delete(undefined);
         return propValues;
     });
-    const disc = cached(() => {
-        const opts = def.options;
-        const map = new Map();
-        for (const o of opts) {
-            const values = o._zod.propValues?.[def.discriminator];
-            if (!values || values.size === 0)
-                throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(o)}"`);
-            for (const v of values) {
-                if (map.has(v)) {
-                    throw new Error(`Duplicate discriminator value "${String(v)}"`);
-                }
-                map.set(v, o);
-            }
+    // Checked now rather than in the lookup map below, so an option that lacks the discriminator fails at the `discriminatedUnion` call instead of on the first object parsed. Options whose shape cannot be enumerated without resolving it — pipes and lazies — are left to the map.
+    def.options.forEach((option, i) => {
+        const propShape = rawShape(option._zod.def);
+        if (propShape && !Object.prototype.hasOwnProperty.call(propShape, def.discriminator)) {
+            throw new Error(`Invalid discriminated union option at index "${i}"`);
         }
-        return map;
     });
+    const disc = cached(() => discriminatorMap(def));
     inst._zod.parse = (payload, ctx) => {
         const input = payload.value;
         if (!util_isObject(input)) {
@@ -47678,14 +48460,15 @@ $constructor("$ZodDiscriminatedUnion", (inst, def) => {
             });
             return payload;
         }
-        const opt = disc.value.get(input?.[def.discriminator]);
-        if (opt) {
+        const value = input?.[def.discriminator];
+        const opt = disc.value.get(value);
+        // forward metadata cannot choose an encoder for an absent tag
+        if (opt && (value !== undefined || ctx.direction !== "backward")) {
             return opt._zod.run(payload, ctx);
         }
         // Fall back to union matching when the fast discriminator path fails:
         // - explicitly enabled via unionFallback, or
-        // - during backward direction (encode), since codec-based discriminators
-        //   have different values in forward vs backward directions
+        // - during backward direction (encode), since codec-based discriminators have different values in forward vs backward directions
         if (def.unionFallback || ctx.direction === "backward") {
             return _super(payload, ctx);
         }
@@ -47695,7 +48478,7 @@ $constructor("$ZodDiscriminatedUnion", (inst, def) => {
             errors: [],
             note: "No matching discriminator",
             discriminator: def.discriminator,
-            options: Array.from(disc.value.keys()),
+            options: Array.from(disc.value.keys()).filter((value) => disc.value.get(value) !== null),
             input,
             path: [def.discriminator],
             inst,
@@ -47731,7 +48514,11 @@ function mergeValues(a, b) {
         const bKeys = Object.keys(b);
         const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1);
         const newObj = { ...a, ...b };
+        if (Object.prototype.hasOwnProperty.call(newObj, "__proto__"))
+            delete newObj.__proto__;
         for (const key of sharedKeys) {
+            if (key === "__proto__")
+                continue;
             const sharedValue = mergeValues(a[key], b[key]);
             if (!sharedValue.valid) {
                 return {
@@ -47765,43 +48552,55 @@ function mergeValues(a, b) {
     return { valid: false, mergeErrorPath: [] };
 }
 function handleIntersectionResults(result, left, right) {
-    // Track which side(s) report each key as unrecognized
+    // Track which side(s) reject each key. A key rejection is reported only when BOTH sides reject it, so a key owned by one branch survives the other's key schema. strictObject reports these as unrecognized_keys; a record with an open key schema reports one invalid_key per key.
     const unrecKeys = new Map();
     let unrecIssue;
-    for (const iss of left.issues) {
-        if (iss.code === "unrecognized_keys") {
+    const keyIssues = new Map();
+    const collect = (iss, side) => {
+        let keys;
+        if (iss.code === "unrecognized_keys" && !iss.path?.length) {
             unrecIssue ?? (unrecIssue = iss);
-            for (const k of iss.keys) {
-                if (!unrecKeys.has(k))
-                    unrecKeys.set(k, {});
-                unrecKeys.get(k).l = true;
-            }
+            keys = iss.keys;
+        }
+        else if (iss.code === "invalid_key" && iss.origin === "record" && iss.path?.length === 1) {
+            const k = String(iss.path[0]);
+            if (!keyIssues.has(k))
+                keyIssues.set(k, iss);
+            keys = [k];
         }
         else {
-            result.issues.push(iss);
+            return false;
         }
+        for (const k of keys) {
+            if (!unrecKeys.has(k))
+                unrecKeys.set(k, {});
+            unrecKeys.get(k)[side] = true;
+        }
+        return true;
+    };
+    for (const iss of left.issues) {
+        if (!collect(iss, "l"))
+            result.issues.push(iss);
     }
     for (const iss of right.issues) {
-        if (iss.code === "unrecognized_keys") {
-            for (const k of iss.keys) {
-                if (!unrecKeys.has(k))
-                    unrecKeys.set(k, {});
-                unrecKeys.get(k).r = true;
-            }
-        }
-        else {
+        if (!collect(iss, "r"))
             result.issues.push(iss);
+    }
+    // Report only keys rejected by BOTH sides
+    const bothKeys = [...unrecKeys].filter(([, f]) => f.l && f.r).map(([k]) => k);
+    if (bothKeys.length) {
+        const aggregated = unrecIssue ? bothKeys.filter((k) => unrecIssue.keys.includes(k)) : [];
+        if (aggregated.length)
+            result.issues.push({ ...unrecIssue, keys: aggregated });
+        for (const k of bothKeys) {
+            if (!aggregated.includes(k) && keyIssues.has(k))
+                result.issues.push(keyIssues.get(k));
         }
     }
-    // Report only keys unrecognized by BOTH sides
-    const bothKeys = [...unrecKeys].filter(([, f]) => f.l && f.r).map(([k]) => k);
-    if (bothKeys.length && unrecIssue) {
-        result.issues.push({ ...unrecIssue, keys: bothKeys });
-    }
-    if (aborted(result))
-        return result;
     const merged = mergeValues(left.value, right.value);
     if (!merged.valid) {
+        if (util_aborted(result))
+            return result;
         throw new Error(`Unmergable intersection. Error path: ` + `${JSON.stringify(merged.mergeErrorPath)}`);
     }
     result.value = merged.data;
@@ -47810,6 +48609,8 @@ function handleIntersectionResults(result, left, right) {
 const $ZodTuple = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodTuple", (inst, def) => {
     $ZodType.init(inst, def);
     const items = def.items;
+    const memo = schemas_core.globalConfig.memoizer;
+    memo?.attach(inst);
     inst._zod.parse = (payload, ctx) => {
         const input = payload.value;
         if (!Array.isArray(input)) {
@@ -47821,7 +48622,7 @@ const $ZodTuple = /*@__PURE__*/ (/* unused pure expression or super */ null && (
             });
             return payload;
         }
-        payload.value = [];
+        payload.value = memo ? memo.alloc(inst, payload, [], ctx) : [];
         const proms = [];
         const optinStart = getTupleOptStart(items, "optin");
         const optoutStart = getTupleOptStart(items, "optout");
@@ -47848,11 +48649,11 @@ const $ZodTuple = /*@__PURE__*/ (/* unused pure expression or super */ null && (
                 });
             }
         }
-        // Run every item in parallel, collecting results into an indexed
-        // array. The post-processing in `handleTupleResults` walks them in
-        // order so it can decide whether an absent optional-output error can
-        // truncate the tail or must be reported to preserve required output.
+        // Run every item in parallel, collecting results into an indexed array. The post-processing in `handleTupleResults` walks them in order so it can decide whether an absent optional-output error can truncate the tail or must be reported to preserve required output.
         const itemResults = new Array(items.length);
+        // only tracked when there is a rest loop to skip
+        const abortEarly = def.rest ? ctx?.abortEarly : undefined;
+        let itemAborted = false;
         for (let i = 0; i < items.length; i++) {
             const r = items[i]._zod.run({ value: input[i], issues: [] }, ctx);
             if (r instanceof Promise) {
@@ -47862,12 +48663,21 @@ const $ZodTuple = /*@__PURE__*/ (/* unused pure expression or super */ null && (
             }
             else {
                 itemResults[i] = r;
+                if (abortEarly && !itemAborted && r.issues.length)
+                    itemAborted = schemas_util.aborted(r);
             }
         }
-        if (def.rest) {
+        // sound because rest is non-empty exactly when every fixed index is present, the one case handleTupleResults cannot discard an item's issues
+        if (def.rest && !itemAborted) {
             let i = items.length - 1;
             const rest = input.slice(items.length);
+            let seen = payload.issues.length;
             for (const el of rest) {
+                if (abortEarly && payload.issues.length !== seen) {
+                    if (schemas_util.aborted(payload, seen))
+                        break;
+                    seen = payload.issues.length;
+                }
                 i++;
                 const result = def.rest._zod.run({ value: el, issues: [] }, ctx);
                 if (result instanceof Promise) {
@@ -47886,7 +48696,9 @@ const $ZodTuple = /*@__PURE__*/ (/* unused pure expression or super */ null && (
 })));
 function getTupleOptStart(items, key) {
     for (let i = items.length - 1; i >= 0; i--) {
-        if (items[i]._zod[key] !== "optional")
+        // optin is a three-rung ladder so any rung above `undefined` permits an absent slot; optout stays two-valued.
+        const omittable = key === "optin" ? items[i]._zod.optin !== undefined : items[i]._zod.optout === "optional";
+        if (!omittable)
             return i + 1;
     }
     return 0;
@@ -47898,12 +48710,15 @@ function handleTupleResult(result, final, index) {
     final.value[index] = result.value;
 }
 function handleTupleResults(itemResults, final, items, input, optoutStart) {
-    // Walk results in order. Mirror $ZodObject's swallow-on-absent-optional
-    // rule, but only after `optoutStart`: the first index where the output
-    // tuple tail can be absent.
+    // Walk results in order. Mirror $ZodObject's swallow-on-absent-optional rule, but only after `optoutStart`: the first index where the output tuple tail can be absent.
     for (let i = 0; i < items.length; i++) {
         const r = itemResults[i];
         const isPresent = i < input.length;
+        // The array analog of `handlePropertyResult`'s absent-key early return: the middle rung permits absence without supplying anything in its place, so the tail truncates here instead of materializing whatever the item made of `undefined`.
+        if (!isPresent && i >= optoutStart && items[i]._zod.optin === "optional") {
+            final.value.length = i;
+            break;
+        }
         if (r.issues.length) {
             if (!isPresent && i >= optoutStart) {
                 final.value.length = i;
@@ -47931,6 +48746,8 @@ function handleTupleResults(itemResults, final, items, input, optoutStart) {
 }
 const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
     $ZodType.init(inst, def);
+    const memo = globalConfig.memoizer;
+    memo?.attach(inst);
     inst._zod.parse = (payload, ctx) => {
         const input = payload.value;
         if (!isPlainObject(input)) {
@@ -47942,14 +48759,18 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
             });
             return payload;
         }
+        // no guard in either loop below: a record's invalid_key aborts but an enclosing intersection can reconcile it, so a stopped loop hides keys the sibling does not own and the intersection then rejects nothing
         const proms = [];
         const values = def.keyType._zod.values;
-        if (values) {
-            payload.value = {};
+        if (values && !def.partial) {
+            payload.value = memo ? memo.alloc(inst, payload, {}, ctx) : {};
             const recordKeys = new Set();
             for (const key of values) {
                 if (typeof key === "string" || typeof key === "number" || typeof key === "symbol") {
                     recordKeys.add(typeof key === "number" ? key.toString() : key);
+                    // A declared __proto__ is stripped but is not an unrecognized key.
+                    if (key === "__proto__")
+                        continue;
                     const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
                     if (keyResult instanceof Promise) {
                         throw new Error("Async schemas not supported in object keys currently");
@@ -47966,6 +48787,8 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
                         continue;
                     }
                     const outKey = keyResult.value;
+                    if (outKey === "__proto__")
+                        continue;
                     const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
                     if (result instanceof Promise) {
                         proms.push(result.then((result) => {
@@ -47986,8 +48809,16 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
             let unrecognized;
             for (const key in input) {
                 if (!recordKeys.has(key)) {
-                    unrecognized = unrecognized ?? [];
-                    unrecognized.push(key);
+                    if (def.mode === "loose") {
+                        // skip __proto__ so it can't replace the result prototype via the assignment setter on the plain {} we build into
+                        if (key === "__proto__")
+                            continue;
+                        payload.value[key] = input[key];
+                    }
+                    else {
+                        unrecognized = unrecognized ?? [];
+                        unrecognized.push(key);
+                    }
                 }
             }
             if (unrecognized && unrecognized.length > 0) {
@@ -47996,11 +48827,14 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
                     input,
                     inst,
                     keys: unrecognized,
+                    continue: true,
                 });
             }
         }
         else {
-            payload.value = {};
+            payload.value = memo ? memo.alloc(inst, payload, {}, ctx) : {};
+            // An enumerable key schema declares which keys the record owns, so a key outside the set is unrecognized. A non-enumerable one (regex, refine) is a constraint every key must satisfy, so a failing key is invalid. Only the former is reconcilable against the other side of an intersection.
+            let unrecognized;
             // Reflect.ownKeys for Symbol-key support; filter non-enumerable to match z.object()
             for (const key of Reflect.ownKeys(input)) {
                 if (key === "__proto__")
@@ -48011,9 +48845,8 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
                 if (keyResult instanceof Promise) {
                     throw new Error("Async schemas not supported in object keys currently");
                 }
-                // Numeric string fallback: if key is a numeric string and failed, retry with Number(key)
-                // This handles z.number(), z.literal([1, 2, 3]), and unions containing numeric literals
-                const checkNumericKey = typeof key === "string" && number.test(key) && keyResult.issues.length;
+                // Numeric string fallback: if key is a numeric string and failed, retry with Number(key). This handles z.number(), z.literal([1, 2, 3]), and unions containing numeric literals
+                const checkNumericKey = typeof key === "string" && regexes_number.test(key) && keyResult.issues.length;
                 if (checkNumericKey) {
                     const retryResult = def.keyType._zod.run({ value: Number(key), issues: [] }, ctx);
                     if (retryResult instanceof Promise) {
@@ -48028,6 +48861,10 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
                         // Pass through unchanged
                         payload.value[key] = input[key];
                     }
+                    else if (values) {
+                        unrecognized = unrecognized ?? [];
+                        unrecognized.push(key);
+                    }
                     else {
                         // Default "strict" behavior: error on invalid key
                         payload.issues.push({
@@ -48041,21 +48878,34 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
                     }
                     continue;
                 }
+                // the guard above tests the raw input key, but the key schema can normalize an ordinary key into __proto__; re-check the key we actually write under
+                const outKey = keyResult.value;
+                if (outKey === "__proto__")
+                    continue;
                 const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
                 if (result instanceof Promise) {
                     proms.push(result.then((result) => {
                         if (result.issues.length) {
                             payload.issues.push(...prefixIssues(key, result.issues));
                         }
-                        payload.value[keyResult.value] = result.value;
+                        payload.value[outKey] = result.value;
                     }));
                 }
                 else {
                     if (result.issues.length) {
                         payload.issues.push(...prefixIssues(key, result.issues));
                     }
-                    payload.value[keyResult.value] = result.value;
+                    payload.value[outKey] = result.value;
                 }
+            }
+            if (unrecognized && unrecognized.length > 0) {
+                payload.issues.push({
+                    code: "unrecognized_keys",
+                    input,
+                    inst,
+                    keys: unrecognized,
+                    continue: true,
+                });
             }
         }
         if (proms.length) {
@@ -48066,6 +48916,8 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
 });
 const $ZodMap = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodMap", (inst, def) => {
     $ZodType.init(inst, def);
+    const memo = schemas_core.globalConfig.memoizer;
+    memo?.attach(inst);
     inst._zod.parse = (payload, ctx) => {
         const input = payload.value;
         if (!(input instanceof Map)) {
@@ -48078,8 +48930,15 @@ const $ZodMap = /*@__PURE__*/ (/* unused pure expression or super */ null && (sc
             return payload;
         }
         const proms = [];
-        payload.value = new Map();
+        payload.value = memo ? memo.alloc(inst, payload, new Map(), ctx) : new Map();
+        const abortEarly = ctx?.abortEarly;
+        let seen = payload.issues.length;
         for (const [key, value] of input) {
+            if (abortEarly && payload.issues.length !== seen) {
+                if (schemas_util.aborted(payload, seen))
+                    break;
+                seen = payload.issues.length;
+            }
             const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
             const valueResult = def.valueType._zod.run({ value: value, issues: [] }, ctx);
             if (keyResult instanceof Promise || valueResult instanceof Promise) {
@@ -48130,6 +48989,8 @@ function handleMapResult(keyResult, valueResult, final, key, input, inst, ctx) {
 }
 const $ZodSet = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodSet", (inst, def) => {
     $ZodType.init(inst, def);
+    const memo = schemas_core.globalConfig.memoizer;
+    memo?.attach(inst);
     inst._zod.parse = (payload, ctx) => {
         const input = payload.value;
         if (!(input instanceof Set)) {
@@ -48142,8 +49003,15 @@ const $ZodSet = /*@__PURE__*/ (/* unused pure expression or super */ null && (sc
             return payload;
         }
         const proms = [];
-        payload.value = new Set();
+        payload.value = memo ? memo.alloc(inst, payload, new Set(), ctx) : new Set();
+        const abortEarly = ctx?.abortEarly;
+        let seen = payload.issues.length;
         for (const item of input) {
+            if (abortEarly && payload.issues.length !== seen) {
+                if (schemas_util.aborted(payload, seen))
+                    break;
+                seen = payload.issues.length;
+            }
             const result = def.valueType._zod.run({ value: item, issues: [] }, ctx);
             if (result instanceof Promise) {
                 proms.push(result.then((result) => handleSetResult(result, payload)));
@@ -48167,10 +49035,11 @@ const $ZodEnum = /*@__PURE__*/ $constructor("$ZodEnum", (inst, def) => {
     const values = getEnumValues(def.entries);
     const valuesSet = new Set(values);
     inst._zod.values = valuesSet;
-    inst._zod.pattern = new RegExp(`^(${values
-        .filter((k) => propertyKeyTypes.has(typeof k))
-        .map((o) => (typeof o === "string" ? escapeRegex(o) : o.toString()))
-        .join("|")})$`);
+    defineLazyInternal(inst, "pattern", (zod) => {
+        const patternValues = getEnumValues(zod.def.entries).filter((k) => propertyKeyTypes.has(typeof k));
+        // unmatchable fallback, RE2-safe: an empty alternation would compile to /^()$/, which matches ""
+        return new RegExp(patternValues.length ? `^(${patternValues.map((o) => escapeRegex(o.toString())).join("|")})$` : "^[^\\s\\S]$");
+    });
     inst._zod.parse = (payload, _ctx) => {
         const input = payload.value;
         if (valuesSet.has(input)) {
@@ -48187,14 +49056,17 @@ const $ZodEnum = /*@__PURE__*/ $constructor("$ZodEnum", (inst, def) => {
 });
 const $ZodLiteral = /*@__PURE__*/ $constructor("$ZodLiteral", (inst, def) => {
     $ZodType.init(inst, def);
-    if (def.values.length === 0) {
-        throw new Error("Cannot create literal schema with no valid values");
-    }
     const values = new Set(def.values);
     inst._zod.values = values;
-    inst._zod.pattern = new RegExp(`^(${def.values
-        .map((o) => (typeof o === "string" ? escapeRegex(o) : o ? escapeRegex(o.toString()) : String(o)))
-        .join("|")})$`);
+    defineLazyInternal(inst, "pattern", (zod) => {
+        const vals = zod.def.values;
+        // unmatchable fallback, RE2-safe: an empty alternation would compile to /^()$/, which matches ""
+        return new RegExp(vals.length
+            ? `^(${vals
+                .map((o) => typeof o === "string" ? escapeRegex(o) : o ? escapeRegex(o.toString()) : String(o))
+                .join("|")})$`
+            : "^[^\\s\\S]$");
+    });
     inst._zod.parse = (payload, _ctx) => {
         const input = payload.value;
         if (values.has(input)) {
@@ -48228,6 +49100,7 @@ const $ZodFile = /*@__PURE__*/ (/* unused pure expression or super */ null && (s
 const $ZodTransform = /*@__PURE__*/ $constructor("$ZodTransform", (inst, def) => {
     $ZodType.init(inst, def);
     inst._zod.optin = "optional";
+    globalConfig.memoizer?.guard(inst);
     inst._zod.parse = (payload, ctx) => {
         if (ctx.direction === "backward") {
             throw new $ZodEncodeError(inst.constructor.name);
@@ -48237,7 +49110,6 @@ const $ZodTransform = /*@__PURE__*/ $constructor("$ZodTransform", (inst, def) =>
             const output = _out instanceof Promise ? _out : Promise.resolve(_out);
             return output.then((output) => {
                 payload.value = output;
-                payload.fallback = true;
                 return payload;
             });
         }
@@ -48245,37 +49117,37 @@ const $ZodTransform = /*@__PURE__*/ $constructor("$ZodTransform", (inst, def) =>
             throw new $ZodAsyncError();
         }
         payload.value = _out;
-        payload.fallback = true;
         return payload;
     };
 });
-function handleOptionalResult(result, input) {
-    if (input === undefined && (result.issues.length || result.fallback)) {
-        return { issues: [], value: undefined };
-    }
-    return result;
+function handleOptionalResult(payload, result) {
+    // A substituting schema that still failed has no usable answer; yield undefined. Its issues are simply dropped: it ran on a payload of its own, so there is no shared array to truncate and nothing of the caller's to lose with it.
+    payload.value = result.issues.length ? undefined : result.value;
+    return payload;
 }
 const $ZodOptional = /*@__PURE__*/ $constructor("$ZodOptional", (inst, def) => {
     $ZodType.init(inst, def);
-    inst._zod.optin = "optional";
+    // .optional() propagates absence rather than substituting for it, so a defaulted inner keeps its rung.
+    defineLazyInternal(inst, "optin", (zod) => zod.def.innerType._zod.optin === "defaulted" ? "defaulted" : "optional");
     inst._zod.optout = "optional";
-    defineLazy(inst._zod, "values", () => {
-        return def.innerType._zod.values ? new Set([...def.innerType._zod.values, undefined]) : undefined;
+    defineLazyInternal(inst, "values", (zod) => {
+        const values = zod.def.innerType._zod.values;
+        return values ? new Set([...values, undefined]) : undefined;
     });
-    defineLazy(inst._zod, "pattern", () => {
-        const pattern = def.innerType._zod.pattern;
+    defineLazyInternal(inst, "pattern", (zod) => {
+        const pattern = zod.def.innerType._zod.pattern;
         return pattern ? new RegExp(`^(${cleanRegex(pattern.source)})?$`) : undefined;
     });
     inst._zod.parse = (payload, ctx) => {
-        if (def.innerType._zod.optin === "optional") {
-            const input = payload.value;
-            const result = def.innerType._zod.run(payload, ctx);
-            if (result instanceof Promise)
-                return result.then((r) => handleOptionalResult(r, input));
-            return handleOptionalResult(result, input);
-        }
         if (payload.value === undefined) {
-            return payload;
+            // Only the top rung substitutes a value for absence; everything else leaves it intact, which is what .optional() means.
+            if (def.innerType._zod.optin !== "defaulted")
+                return payload;
+            // Its own payload, for the same reason $ZodCatch gets one: a pipe forwards an unrecognized key through the caller's issues array, and this must not read that as the substituting schema failing and drop it.
+            const result = def.innerType._zod.run({ value: payload.value, issues: [] }, ctx);
+            if (result instanceof Promise)
+                return result.then((result) => handleOptionalResult(payload, result));
+            return handleOptionalResult(payload, result);
         }
         return def.innerType._zod.run(payload, ctx);
     };
@@ -48284,8 +49156,8 @@ const $ZodExactOptional = /*@__PURE__*/ $constructor("$ZodExactOptional", (inst,
     // Call parent init - inherits optin/optout = "optional"
     $ZodOptional.init(inst, def);
     // Override values/pattern to NOT add undefined
-    defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-    defineLazy(inst._zod, "pattern", () => def.innerType._zod.pattern);
+    defineLazyInternal(inst, "values", (zod) => zod.def.innerType._zod.values);
+    defineLazyInternal(inst, "pattern", (zod) => zod.def.innerType._zod.pattern);
     // Override parse to just delegate (no undefined handling)
     inst._zod.parse = (payload, ctx) => {
         return def.innerType._zod.run(payload, ctx);
@@ -48293,14 +49165,14 @@ const $ZodExactOptional = /*@__PURE__*/ $constructor("$ZodExactOptional", (inst,
 });
 const $ZodNullable = /*@__PURE__*/ $constructor("$ZodNullable", (inst, def) => {
     $ZodType.init(inst, def);
-    defineLazy(inst._zod, "optin", () => def.innerType._zod.optin);
-    defineLazy(inst._zod, "optout", () => def.innerType._zod.optout);
-    defineLazy(inst._zod, "pattern", () => {
-        const pattern = def.innerType._zod.pattern;
+    defineLazyInternal(inst, "optin", (zod) => zod.def.innerType._zod.optin);
+    defineLazyInternal(inst, "optout", (zod) => zod.def.innerType._zod.optout);
+    defineLazyInternal(inst, "pattern", (zod) => {
+        const pattern = zod.def.innerType._zod.pattern;
         return pattern ? new RegExp(`^(${cleanRegex(pattern.source)}|null)$`) : undefined;
     });
-    defineLazy(inst._zod, "values", () => {
-        return def.innerType._zod.values ? new Set([...def.innerType._zod.values, null]) : undefined;
+    defineLazyInternal(inst, "values", (zod) => {
+        return zod.def.innerType._zod.values ? new Set([...zod.def.innerType._zod.values, null]) : undefined;
     });
     inst._zod.parse = (payload, ctx) => {
         // Forward direction (decode): allow null to pass through
@@ -48312,8 +49184,8 @@ const $ZodNullable = /*@__PURE__*/ $constructor("$ZodNullable", (inst, def) => {
 const $ZodDefault = /*@__PURE__*/ $constructor("$ZodDefault", (inst, def) => {
     $ZodType.init(inst, def);
     // inst._zod.qin = "true";
-    inst._zod.optin = "optional";
-    defineLazy(inst._zod, "values", () => def.innerType._zod.values);
+    inst._zod.optin = "defaulted";
+    defineLazyInternal(inst, "values", (zod) => zod.def.innerType._zod.values);
     inst._zod.parse = (payload, ctx) => {
         if (ctx.direction === "backward") {
             return def.innerType._zod.run(payload, ctx);
@@ -48342,8 +49214,8 @@ function handleDefaultResult(payload, def) {
 }
 const $ZodPrefault = /*@__PURE__*/ $constructor("$ZodPrefault", (inst, def) => {
     $ZodType.init(inst, def);
-    inst._zod.optin = "optional";
-    defineLazy(inst._zod, "values", () => def.innerType._zod.values);
+    inst._zod.optin = "defaulted";
+    defineLazyInternal(inst, "values", (zod) => zod.def.innerType._zod.values);
     inst._zod.parse = (payload, ctx) => {
         if (ctx.direction === "backward") {
             return def.innerType._zod.run(payload, ctx);
@@ -48357,8 +49229,8 @@ const $ZodPrefault = /*@__PURE__*/ $constructor("$ZodPrefault", (inst, def) => {
 });
 const $ZodNonOptional = /*@__PURE__*/ $constructor("$ZodNonOptional", (inst, def) => {
     $ZodType.init(inst, def);
-    defineLazy(inst._zod, "values", () => {
-        const v = def.innerType._zod.values;
+    defineLazyInternal(inst, "values", (zod) => {
+        const v = zod.def.innerType._zod.values;
         return v ? new Set([...v].filter((x) => x !== undefined)) : undefined;
     });
     inst._zod.parse = (payload, ctx) => {
@@ -48397,47 +49269,40 @@ const $ZodSuccess = /*@__PURE__*/ (/* unused pure expression or super */ null &&
         return payload;
     };
 })));
+function handleCatchResult(payload, result, def, ctx) {
+    if (!result.issues.length) {
+        payload.value = result.value;
+        // The value carries up, so the flag describing it has to carry with it: a back-edge into a node still being parsed must not be frozen by an enclosing readonly, and its checks belong to the node itself. Guarded so the ordinary case adds no own property.
+        if (result.memo)
+            payload.memo = true;
+        return payload;
+    }
+    // Spread the inner's own payload, not ours: `value` has to stay the input the catch was handed, and the inner ran on a payload of its own so its issues are already private to this call.
+    payload.value = def.catchValue({
+        ...result,
+        value: payload.value,
+        error: {
+            issues: result.issues.map((iss) => finalizeIssue(iss, ctx, config())),
+        },
+        input: payload.value,
+    });
+    return payload;
+}
 const $ZodCatch = /*@__PURE__*/ $constructor("$ZodCatch", (inst, def) => {
     $ZodType.init(inst, def);
-    inst._zod.optin = "optional";
-    defineLazy(inst._zod, "optout", () => def.innerType._zod.optout);
-    defineLazy(inst._zod, "values", () => def.innerType._zod.values);
+    defineLazyInternal(inst, "optin", (zod) => zod.def.innerType._zod.optin === "defaulted" ? "defaulted" : "optional");
+    defineLazyInternal(inst, "optout", (zod) => zod.def.innerType._zod.optout);
+    defineLazyInternal(inst, "values", (zod) => zod.def.innerType._zod.values);
     inst._zod.parse = (payload, ctx) => {
         if (ctx.direction === "backward") {
             return def.innerType._zod.run(payload, ctx);
         }
         // Forward direction (decode): apply catch logic
-        const result = def.innerType._zod.run(payload, ctx);
+        const result = def.innerType._zod.run({ value: payload.value, issues: [] }, ctx);
         if (result instanceof Promise) {
-            return result.then((result) => {
-                payload.value = result.value;
-                if (result.issues.length) {
-                    payload.value = def.catchValue({
-                        ...payload,
-                        error: {
-                            issues: result.issues.map((iss) => finalizeIssue(iss, ctx, config())),
-                        },
-                        input: payload.value,
-                    });
-                    payload.issues = [];
-                    payload.fallback = true;
-                }
-                return payload;
-            });
+            return result.then((result) => handleCatchResult(payload, result, def, ctx));
         }
-        payload.value = result.value;
-        if (result.issues.length) {
-            payload.value = def.catchValue({
-                ...payload,
-                error: {
-                    issues: result.issues.map((iss) => finalizeIssue(iss, ctx, config())),
-                },
-                input: payload.value,
-            });
-            payload.issues = [];
-            payload.fallback = true;
-        }
-        return payload;
+        return handleCatchResult(payload, result, def, ctx);
     };
 });
 const $ZodNaN = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodNaN", (inst, def) => {
@@ -48457,10 +49322,10 @@ const $ZodNaN = /*@__PURE__*/ (/* unused pure expression or super */ null && (sc
 })));
 const $ZodPipe = /*@__PURE__*/ $constructor("$ZodPipe", (inst, def) => {
     $ZodType.init(inst, def);
-    defineLazy(inst._zod, "values", () => def.in._zod.values);
-    defineLazy(inst._zod, "optin", () => def.in._zod.optin);
-    defineLazy(inst._zod, "optout", () => def.out._zod.optout);
-    defineLazy(inst._zod, "propValues", () => def.in._zod.propValues);
+    defineLazyInternal(inst, "values", (zod) => zod.def.in._zod.values);
+    defineLazyInternal(inst, "optin", (zod) => zod.def.in._zod.optin);
+    defineLazyInternal(inst, "optout", (zod) => zod.def.out._zod.optout);
+    defineLazyInternal(inst, "propValues", (zod) => zod.def.in._zod.propValues);
     inst._zod.parse = (payload, ctx) => {
         if (ctx.direction === "backward") {
             const right = def.out._zod.run(payload, ctx);
@@ -48477,19 +49342,20 @@ const $ZodPipe = /*@__PURE__*/ $constructor("$ZodPipe", (inst, def) => {
     };
 });
 function handlePipeResult(left, next, ctx) {
-    if (left.issues.length) {
+    // Any issue stops the pipe, so a failing refinement never feeds its transform. An unrecognized key is the exception: it describes the input's extra properties, not the value being piped, and an enclosing intersection may yet reconcile it.
+    if (left.issues.some((iss) => iss.code !== "unrecognized_keys")) {
         // prevent further checks
         left.aborted = true;
         return left;
     }
-    return next._zod.run({ value: left.value, issues: left.issues, fallback: left.fallback }, ctx);
+    return next._zod.run({ value: left.value, issues: left.issues }, ctx);
 }
 const $ZodCodec = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodCodec", (inst, def) => {
     $ZodType.init(inst, def);
-    schemas_util.defineLazy(inst._zod, "values", () => def.in._zod.values);
-    schemas_util.defineLazy(inst._zod, "optin", () => def.in._zod.optin);
-    schemas_util.defineLazy(inst._zod, "optout", () => def.out._zod.optout);
-    schemas_util.defineLazy(inst._zod, "propValues", () => def.in._zod.propValues);
+    schemas_util.defineLazyInternal(inst, "values", (zod) => zod.def.in._zod.values);
+    schemas_util.defineLazyInternal(inst, "optin", (zod) => zod.def.in._zod.optin);
+    schemas_util.defineLazyInternal(inst, "optout", (zod) => zod.def.out._zod.optout);
+    schemas_util.defineLazyInternal(inst, "propValues", (zod) => zod.def.in._zod.propValues);
     inst._zod.parse = (payload, ctx) => {
         const direction = ctx.direction || "forward";
         if (direction === "forward") {
@@ -48543,10 +49409,10 @@ const $ZodPreprocess = /*@__PURE__*/ (/* unused pure expression or super */ null
 })));
 const $ZodReadonly = /*@__PURE__*/ $constructor("$ZodReadonly", (inst, def) => {
     $ZodType.init(inst, def);
-    defineLazy(inst._zod, "propValues", () => def.innerType._zod.propValues);
-    defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-    defineLazy(inst._zod, "optin", () => def.innerType?._zod?.optin);
-    defineLazy(inst._zod, "optout", () => def.innerType?._zod?.optout);
+    defineLazyInternal(inst, "propValues", (zod) => zod.def.innerType._zod.propValues);
+    defineLazyInternal(inst, "values", (zod) => zod.def.innerType._zod.values);
+    defineLazyInternal(inst, "optin", (zod) => zod.def.innerType?._zod?.optin);
+    defineLazyInternal(inst, "optout", (zod) => zod.def.innerType?._zod?.optout);
     inst._zod.parse = (payload, ctx) => {
         if (ctx.direction === "backward") {
             return def.innerType._zod.run(payload, ctx);
@@ -48559,8 +49425,60 @@ const $ZodReadonly = /*@__PURE__*/ $constructor("$ZodReadonly", (inst, def) => {
     };
 });
 function handleReadonlyResult(payload) {
-    payload.value = Object.freeze(payload.value);
+    // A repeat visit hands back a node that is still being built; freezing it here would make the rest of its keys fail to assign.
+    if (!payload.memo)
+        payload.value = Object.freeze(payload.value);
     return payload;
+}
+// a leaf's pattern source with its own checks folded in: the last pattern-carrying check wins, else length bounds narrow the catch-all, else an integer format narrows the number form. the fold lives here instead of on `_zod.pattern` so a bundle without template literals never pays for it
+function leafPattern(schema) {
+    const def = schema._zod.def;
+    let pattern = def.pattern;
+    let isInt = !!def.format?.includes("int");
+    let minimum;
+    let maximum;
+    for (const ch of def.checks ?? []) {
+        const d = ch._zod.def;
+        if (d.pattern)
+            pattern = d.pattern;
+        isInt || (isInt = !!d.format?.includes("int"));
+        const lo = d.minimum ?? d.length;
+        const hi = d.maximum ?? d.length;
+        if (lo !== undefined && (minimum === undefined || lo > minimum))
+            minimum = lo;
+        if (hi !== undefined && (maximum === undefined || hi < maximum))
+            maximum = hi;
+    }
+    if (pattern)
+        return pattern.source;
+    // an empty range matches nothing at runtime, and `{8,5}` is not a legal quantifier
+    if (minimum !== undefined && maximum !== undefined && minimum > maximum)
+        return "(?!)";
+    if (minimum !== undefined || maximum !== undefined)
+        return regexes.string({ minimum, maximum }).source;
+    const own = schema._zod.pattern;
+    return (isInt && own === regexes.number ? regexes.integer : own)?.source;
+}
+// a part's pattern source. a wrapper's pattern embeds its inner pattern's source verbatim, so the folded form is substituted in place without knowing the wrapper's own composition; a union's options are joined the way the union builds its own pattern
+function partPattern(schema) {
+    const def = schema._zod.def;
+    const own = schema._zod.pattern?.source;
+    // lazy resolves its inner on the internals, not the def
+    const inner = def.innerType ?? schema._zod.innerType;
+    if (inner) {
+        const before = inner._zod.pattern?.source;
+        const after = partPattern(inner);
+        if (own && before && after && after !== before) {
+            return own.replace(schemas_util.cleanRegex(before), () => schemas_util.cleanRegex(after));
+        }
+        return own;
+    }
+    if (def.options) {
+        const sources = def.options.map(partPattern);
+        if (sources.every(Boolean))
+            return `^(${sources.map((s) => schemas_util.cleanRegex(s)).join("|")})$`;
+    }
+    return leafPattern(schema);
 }
 const $ZodTemplateLiteral = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodTemplateLiteral", (inst, def) => {
     $ZodType.init(inst, def);
@@ -48568,16 +49486,11 @@ const $ZodTemplateLiteral = /*@__PURE__*/ (/* unused pure expression or super */
     for (const part of def.parts) {
         if (typeof part === "object" && part !== null) {
             // is Zod schema
-            if (!part._zod.pattern) {
-                // if (!source)
+            const source = partPattern(part);
+            if (!source) {
                 throw new Error(`Invalid template literal part, no pattern found: ${[...part._zod.traits].shift()}`);
             }
-            const source = part._zod.pattern instanceof RegExp ? part._zod.pattern.source : part._zod.pattern;
-            if (!source)
-                throw new Error(`Invalid template literal part: ${part._zod.traits}`);
-            const start = source.startsWith("^") ? 1 : 0;
-            const end = source.endsWith("$") ? source.length - 1 : source.length;
-            regexParts.push(source.slice(start, end));
+            regexParts.push(schemas_util.cleanRegex(source));
         }
         else if (part === null || schemas_util.primitiveTypes.has(typeof part)) {
             regexParts.push(schemas_util.escapeRegex(`${part}`));
@@ -48613,33 +49526,35 @@ const $ZodTemplateLiteral = /*@__PURE__*/ (/* unused pure expression or super */
 })));
 const $ZodFunction = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodFunction", (inst, def) => {
     $ZodType.init(inst, def);
-    inst._def = def;
+    // Defined, not assigned: the classic prototype exposes `_def` as a getter with no setter.
+    Object.defineProperty(inst, "_def", { value: def });
     inst._zod.def = def;
     inst.implement = (func) => {
         if (typeof func !== "function") {
             throw new Error("implement() must be called with a function");
         }
-        return function (...args) {
+        // Defined inline so the closure stays anonymous: binding it to a `const` first names it, which costs 256 bytes per implemented function.
+        return Object.defineProperty(function (...args) {
             const parsedArgs = inst._def.input ? schemas_parse(inst._def.input, args) : args;
             const result = Reflect.apply(func, this, parsedArgs);
             if (inst._def.output) {
                 return schemas_parse(inst._def.output, result);
             }
             return result;
-        };
+        }, "_zod", { value: inst._zod, enumerable: false });
     };
     inst.implementAsync = (func) => {
         if (typeof func !== "function") {
             throw new Error("implementAsync() must be called with a function");
         }
-        return async function (...args) {
-            const parsedArgs = inst._def.input ? await schemas_parseAsync(inst._def.input, args) : args;
+        return Object.defineProperty(async function (...args) {
+            const parsedArgs = inst._def.input ? await parseAsync(inst._def.input, args) : args;
             const result = await Reflect.apply(func, this, parsedArgs);
             if (inst._def.output) {
-                return await schemas_parseAsync(inst._def.output, result);
+                return await parseAsync(inst._def.output, result);
             }
             return result;
-        };
+        }, "_zod", { value: inst._zod, enumerable: false });
     };
     inst._zod.parse = (payload, _ctx) => {
         if (typeof payload.value !== "function") {
@@ -48698,19 +49613,17 @@ const $ZodPromise = /*@__PURE__*/ (/* unused pure expression or super */ null &&
 })));
 const $ZodLazy = /*@__PURE__*/ (/* unused pure expression or super */ null && (schemas_core.$constructor("$ZodLazy", (inst, def) => {
     $ZodType.init(inst, def);
-    // Cache the resolved inner type on the shared `def` so all clones of this
-    // lazy (e.g. via `.describe()`/`.meta()`) share the same inner instance,
-    // preserving identity for cycle detection on recursive schemas.
+    // Cache the resolved inner type on the shared `def` so all clones of this lazy (e.g. via `.describe()`/`.meta()`) share the same inner instance, preserving identity for cycle detection on recursive schemas.
     schemas_util.defineLazy(inst._zod, "innerType", () => {
         const d = def;
         if (!d._cachedInner)
             d._cachedInner = def.getter();
         return d._cachedInner;
     });
-    schemas_util.defineLazy(inst._zod, "pattern", () => inst._zod.innerType?._zod?.pattern);
-    schemas_util.defineLazy(inst._zod, "propValues", () => inst._zod.innerType?._zod?.propValues);
-    schemas_util.defineLazy(inst._zod, "optin", () => inst._zod.innerType?._zod?.optin ?? undefined);
-    schemas_util.defineLazy(inst._zod, "optout", () => inst._zod.innerType?._zod?.optout ?? undefined);
+    schemas_util.defineLazyInternal(inst, "pattern", (zod) => zod.innerType?._zod?.pattern);
+    schemas_util.defineLazyInternal(inst, "propValues", (zod) => zod.innerType?._zod?.propValues);
+    schemas_util.defineLazyInternal(inst, "optin", (zod) => zod.innerType?._zod?.optin ?? undefined);
+    schemas_util.defineLazyInternal(inst, "optout", (zod) => zod.innerType?._zod?.optout ?? undefined);
     inst._zod.parse = (payload, ctx) => {
         const inner = inst._zod.innerType;
         return inner._zod.run(payload, ctx);
@@ -48748,10 +49661,10 @@ function handleRefineResult(result, payload, input, inst) {
     }
 }
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/registries.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/registries.js
 var registries_a;
-const $output = Symbol("ZodOutput");
-const $input = Symbol("ZodInput");
+const $output = /*@__PURE__*/ (/* unused pure expression or super */ null && (Symbol("ZodOutput")));
+const $input = /*@__PURE__*/ (/* unused pure expression or super */ null && (Symbol("ZodInput")));
 class $ZodRegistry {
     constructor() {
         this._map = new WeakMap();
@@ -48801,28 +49714,26 @@ function registry() {
 (registries_a = globalThis).__zod_globalRegistry ?? (registries_a.__zod_globalRegistry = registry());
 const globalRegistry = globalThis.__zod_globalRegistry;
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/api.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/api.js
 /* unused harmony import specifier */ var api_checks;
-/* unused harmony import specifier */ var schemas;
+/* unused harmony import specifier */ var api_schemas;
 /* unused harmony import specifier */ var api_util;
 
 
 
 
+function snapshotChecks(def) {
+    if (def.checks)
+        def.checks = [...def.checks];
+    return def;
+}
 // @__NO_SIDE_EFFECTS__
 function _string(Class, params) {
-    return new Class({
-        type: "string",
-        ...normalizeParams(params),
-    });
+    return new Class(snapshotChecks({ type: "string", ...util_normalizeParams(params) }));
 }
 // @__NO_SIDE_EFFECTS__
 function _coercedString(Class, params) {
-    return new Class({
-        type: "string",
-        coerce: true,
-        ...normalizeParams(params),
-    });
+    return new Class(snapshotChecks({ type: "string", coerce: true, ...util_normalizeParams(params) }));
 }
 // @__NO_SIDE_EFFECTS__
 function _email(Class, params) {
@@ -48831,7 +49742,7 @@ function _email(Class, params) {
         format: "email",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48841,7 +49752,7 @@ function _guid(Class, params) {
         format: "guid",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48851,7 +49762,7 @@ function _uuid(Class, params) {
         format: "uuid",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48862,7 +49773,7 @@ function _uuidv4(Class, params) {
         check: "string_format",
         abort: false,
         version: "v4",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48873,7 +49784,7 @@ function _uuidv6(Class, params) {
         check: "string_format",
         abort: false,
         version: "v6",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48884,7 +49795,7 @@ function _uuidv7(Class, params) {
         check: "string_format",
         abort: false,
         version: "v7",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48894,7 +49805,7 @@ function _url(Class, params) {
         format: "url",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48904,7 +49815,7 @@ function api_emoji(Class, params) {
         format: "emoji",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48914,7 +49825,7 @@ function _nanoid(Class, params) {
         format: "nanoid",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 /**
@@ -48929,7 +49840,7 @@ function _cuid(Class, params) {
         format: "cuid",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48939,7 +49850,7 @@ function _cuid2(Class, params) {
         format: "cuid2",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48949,7 +49860,7 @@ function _ulid(Class, params) {
         format: "ulid",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48959,7 +49870,7 @@ function _xid(Class, params) {
         format: "xid",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48969,7 +49880,7 @@ function _ksuid(Class, params) {
         format: "ksuid",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48979,7 +49890,7 @@ function _ipv4(Class, params) {
         format: "ipv4",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -48989,7 +49900,7 @@ function _ipv6(Class, params) {
         format: "ipv6",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49009,7 +49920,7 @@ function _cidrv4(Class, params) {
         format: "cidrv4",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49019,7 +49930,7 @@ function _cidrv6(Class, params) {
         format: "cidrv6",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49029,7 +49940,7 @@ function _base64(Class, params) {
         format: "base64",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49039,7 +49950,7 @@ function _base64url(Class, params) {
         format: "base64url",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49049,7 +49960,27 @@ function _e164(Class, params) {
         format: "e164",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
+    });
+}
+// @__NO_SIDE_EFFECTS__
+function _creditCard(Class, params) {
+    return new Class({
+        type: "string",
+        format: "credit_card",
+        check: "string_format",
+        abort: false,
+        ...api_util.normalizeParams(params),
+    });
+}
+// @__NO_SIDE_EFFECTS__
+function _iban(Class, params) {
+    return new Class({
+        type: "string",
+        format: "iban",
+        check: "string_format",
+        abort: false,
+        ...api_util.normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49059,7 +49990,7 @@ function _jwt(Class, params) {
         format: "jwt",
         check: "string_format",
         abort: false,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 const TimePrecision = (/* unused pure expression or super */ null && ({
@@ -49078,7 +50009,7 @@ function _isoDateTime(Class, params) {
         offset: false,
         local: false,
         precision: null,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49087,7 +50018,7 @@ function _isoDate(Class, params) {
         type: "string",
         format: "date",
         check: "string_format",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49097,7 +50028,7 @@ function _isoTime(Class, params) {
         format: "time",
         check: "string_format",
         precision: null,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49106,25 +50037,16 @@ function _isoDuration(Class, params) {
         type: "string",
         format: "duration",
         check: "string_format",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
 function _number(Class, params) {
-    return new Class({
-        type: "number",
-        checks: [],
-        ...normalizeParams(params),
-    });
+    return new Class(snapshotChecks({ type: "number", checks: [], ...util_normalizeParams(params) }));
 }
 // @__NO_SIDE_EFFECTS__
 function _coercedNumber(Class, params) {
-    return new Class({
-        type: "number",
-        coerce: true,
-        checks: [],
-        ...normalizeParams(params),
-    });
+    return new Class(snapshotChecks({ type: "number", coerce: true, checks: [], ...util_normalizeParams(params) }));
 }
 // @__NO_SIDE_EFFECTS__
 function _int(Class, params) {
@@ -49133,7 +50055,7 @@ function _int(Class, params) {
         check: "number_format",
         abort: false,
         format: "safeint",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49180,7 +50102,7 @@ function _uint32(Class, params) {
 function _boolean(Class, params) {
     return new Class({
         type: "boolean",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49244,7 +50166,7 @@ function api_undefined(Class, params) {
 function api_null(Class, params) {
     return new Class({
         type: "null",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49263,7 +50185,7 @@ function _unknown(Class) {
 function _never(Class, params) {
     return new Class({
         type: "never",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49299,7 +50221,7 @@ function _nan(Class, params) {
 function _lt(value, params) {
     return new $ZodCheckLessThan({
         check: "less_than",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         value,
         inclusive: false,
     });
@@ -49308,7 +50230,7 @@ function _lt(value, params) {
 function _lte(value, params) {
     return new $ZodCheckLessThan({
         check: "less_than",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         value,
         inclusive: true,
     });
@@ -49318,7 +50240,7 @@ function _lte(value, params) {
 function _gt(value, params) {
     return new $ZodCheckGreaterThan({
         check: "greater_than",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         value,
         inclusive: false,
     });
@@ -49327,7 +50249,7 @@ function _gt(value, params) {
 function _gte(value, params) {
     return new $ZodCheckGreaterThan({
         check: "greater_than",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         value,
         inclusive: true,
     });
@@ -49356,7 +50278,7 @@ function _nonnegative(params) {
 function _multipleOf(value, params) {
     return new $ZodCheckMultipleOf({
         check: "multiple_of",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         value,
     });
 }
@@ -49388,7 +50310,7 @@ function _size(size, params) {
 function _maxLength(maximum, params) {
     const ch = new $ZodCheckMaxLength({
         check: "max_length",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         maximum,
     });
     return ch;
@@ -49397,7 +50319,7 @@ function _maxLength(maximum, params) {
 function _minLength(minimum, params) {
     return new $ZodCheckMinLength({
         check: "min_length",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         minimum,
     });
 }
@@ -49405,7 +50327,7 @@ function _minLength(minimum, params) {
 function _length(length, params) {
     return new $ZodCheckLengthEquals({
         check: "length_equals",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         length,
     });
 }
@@ -49414,7 +50336,7 @@ function _regex(pattern, params) {
     return new $ZodCheckRegex({
         check: "string_format",
         format: "regex",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         pattern,
     });
 }
@@ -49423,7 +50345,7 @@ function _lowercase(params) {
     return new $ZodCheckLowerCase({
         check: "string_format",
         format: "lowercase",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49431,7 +50353,7 @@ function _uppercase(params) {
     return new $ZodCheckUpperCase({
         check: "string_format",
         format: "uppercase",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49439,7 +50361,7 @@ function _includes(includes, params) {
     return new $ZodCheckIncludes({
         check: "string_format",
         format: "includes",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         includes,
     });
 }
@@ -49448,7 +50370,7 @@ function _startsWith(prefix, params) {
     return new $ZodCheckStartsWith({
         check: "string_format",
         format: "starts_with",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         prefix,
     });
 }
@@ -49457,7 +50379,7 @@ function _endsWith(suffix, params) {
     return new $ZodCheckEndsWith({
         check: "string_format",
         format: "ends_with",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
         suffix,
     });
 }
@@ -49468,6 +50390,14 @@ function _property(property, schema, params) {
         property,
         schema,
         ...api_util.normalizeParams(params),
+    });
+}
+// @__NO_SIDE_EFFECTS__
+function _properties(shape, params) {
+    return new $ZodCheckProperties({
+        check: "properties",
+        shape,
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49518,7 +50448,7 @@ function _array(Class, element, params) {
         // get element() {
         //   return element;
         // },
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49541,7 +50471,7 @@ function _xor(Class, options, params) {
 function _discriminatedUnion(Class, discriminator, options, params) {
     return new Class({
         type: "union",
-        options,
+        options: options,
         discriminator,
         ...api_util.normalizeParams(params),
     });
@@ -49561,7 +50491,7 @@ function _intersection(Class, left, right) {
 // ): schemas.$ZodTuple<[], null>;
 // @__NO_SIDE_EFFECTS__
 function _tuple(Class, items, _paramsOrRest, _params) {
-    const hasRest = _paramsOrRest instanceof schemas.$ZodType;
+    const hasRest = _paramsOrRest instanceof api_schemas.$ZodType;
     const params = hasRest ? _params : _paramsOrRest;
     const rest = hasRest ? _paramsOrRest : null;
     return new Class({
@@ -49698,7 +50628,7 @@ function _catch(Class, innerType, catchValue) {
     return new Class({
         type: "catch",
         innerType,
-        catchValue: (typeof catchValue === "function" ? catchValue : () => catchValue),
+        catchValue: (typeof catchValue === "function" ? catchValue : api_util.constantCatch(catchValue)),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -49757,7 +50687,7 @@ function _refine(Class, fn, _params) {
         type: "custom",
         check: "custom",
         fn: fn,
-        ...normalizeParams(_params),
+        ...util_normalizeParams(_params),
     });
     return schema;
 }
@@ -49774,7 +50704,8 @@ function _superRefine(fn, params) {
                 if (_issue.fatal)
                     _issue.continue = false;
                 _issue.code ?? (_issue.code = "custom");
-                _issue.input ?? (_issue.input = payload.value);
+                if (!("input" in _issue))
+                    _issue.input = payload.value;
                 _issue.inst ?? (_issue.inst = ch);
                 _issue.continue ?? (_issue.continue = !ch._zod.def.abort); // abort is always undefined, so this is always true...
                 payload.issues.push(util_issue(_issue));
@@ -49788,7 +50719,7 @@ function _superRefine(fn, params) {
 function _check(fn, params) {
     const ch = new $ZodCheck({
         check: "custom",
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
     ch._zod.check = fn;
     return ch;
@@ -49828,9 +50759,9 @@ function _stringbool(Classes, _params) {
     }
     const truthySet = new Set(truthyArray);
     const falsySet = new Set(falsyArray);
-    const _Codec = Classes.Codec ?? schemas.$ZodCodec;
-    const _Boolean = Classes.Boolean ?? schemas.$ZodBoolean;
-    const _String = Classes.String ?? schemas.$ZodString;
+    const _Codec = Classes.Codec ?? api_schemas.$ZodCodec;
+    const _Boolean = Classes.Boolean ?? api_schemas.$ZodBoolean;
+    const _String = Classes.String ?? api_schemas.$ZodString;
     const stringSchema = new _String({ type: "string", error: params.error });
     const booleanSchema = new _Boolean({ type: "boolean", error: params.error });
     const codec = new _Codec({
@@ -49869,13 +50800,15 @@ function _stringbool(Classes, _params) {
         }),
         error: params.error,
     });
+    codec._zod.bag.truthy = truthyArray;
+    codec._zod.bag.falsy = falsyArray;
+    codec._zod.bag.case = params.case ?? "insensitive";
     return codec;
 }
 // @__NO_SIDE_EFFECTS__
 function _stringFormat(Class, format, fnOrRegex, _params = {}) {
     const params = api_util.normalizeParams(_params);
     const def = {
-        ...api_util.normalizeParams(_params),
         check: "string_format",
         type: "string",
         format,
@@ -49889,8 +50822,19 @@ function _stringFormat(Class, format, fnOrRegex, _params = {}) {
     return inst;
 }
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/to-json-schema.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/to-json-schema.js
 
+
+function assignProps(target, ...sources) {
+    for (const source of sources) {
+        for (const key of Reflect.ownKeys(source)) {
+            if (Object.prototype.propertyIsEnumerable.call(source, key)) {
+                assignProp(target, key, source[key]);
+            }
+        }
+    }
+    return target;
+}
 // function initializeContext<T extends schemas.$ZodType>(inputs: JSONSchemaGeneratorParams<T>): ToJSONSchemaContext<T> {
 //   return {
 //     processor: inputs.processor,
@@ -49915,12 +50859,33 @@ function initializeContext(params) {
         io: params?.io ?? "output",
         counter: 0,
         seen: new Map(),
+        sharedDefsExtractedFor: undefined,
+        sharedEmitDoneFor: undefined,
         cycles: params?.cycles ?? "ref",
         reused: params?.reused ?? "inline",
+        intersections: [],
+        deferred: [],
         external: params?.external ?? undefined,
     };
 }
-function to_json_schema_process(schema, ctx, _params = { path: [], schemaPath: [] }) {
+/**
+ * Applies the `unrepresentable` setting at a site that has no JSON Schema equivalent. Throws
+ * `message` unless the setting (or the handler's return value) says otherwise. Returns `true` if a
+ * custom JSON Schema was written into `json`, in which case the caller must not write its own.
+ */
+function handleUnrepresentable(schema, ctx, json, params, message) {
+    const result = typeof ctx.unrepresentable === "function"
+        ? ctx.unrepresentable({ zodSchema: schema, path: params.path, message })
+        : ctx.unrepresentable;
+    if (result === "any")
+        return false;
+    if (result === undefined || result === "throw")
+        throw new Error(message);
+    Object.assign(json, result);
+    return true;
+}
+// never rename this back to `process`: bundler polyfills inject a top-level `const process` that a lexical declaration of the same name collides with (#6397)
+function processSchema(schema, ctx, _params = { path: [], schemaPath: [] }) {
     var _a;
     const def = schema._zod.def;
     // check for schema in seens
@@ -49937,6 +50902,8 @@ function to_json_schema_process(schema, ctx, _params = { path: [], schemaPath: [
     // initialize
     const result = { schema: {}, count: 1, cycle: undefined, path: _params.path };
     ctx.seen.set(schema, result);
+    ctx.sharedDefsExtractedFor = undefined;
+    ctx.sharedEmitDoneFor = undefined;
     // custom method overrides default behavior
     const overrideSchema = schema._zod.toJSONSchema?.();
     if (overrideSchema) {
@@ -49964,14 +50931,14 @@ function to_json_schema_process(schema, ctx, _params = { path: [], schemaPath: [
             // Also set ref if processor didn't (for inheritance)
             if (!result.ref)
                 result.ref = parent;
-            to_json_schema_process(parent, ctx, params);
+            processSchema(parent, ctx, params);
             ctx.seen.get(parent).isParent = true;
         }
     }
     // metadata
     const meta = ctx.metadataRegistry.get(schema);
     if (meta)
-        Object.assign(result.schema, meta);
+        assignProps(result.schema, meta);
     if (ctx.io === "input" && isTransforming(schema)) {
         // examples/defaults only apply to output type of pipe
         delete result.schema.examples;
@@ -49985,6 +50952,12 @@ function to_json_schema_process(schema, ctx, _params = { path: [], schemaPath: [
     const _result = ctx.seen.get(schema);
     return _result.schema;
 }
+/** @deprecated Renamed to `processSchema`. An export alias declares no binding, so it is safe to keep. */
+
+// Escape a reference token for use in a JSON Pointer fragment (RFC 6901): `~` becomes `~0` and `/` becomes `~1`. The `~` replacement must run first.
+function encodeJSONPointerSegment(segment) {
+    return segment.replace(/~/g, "~0").replace(/\//g, "~1");
+}
 function extractDefs(ctx, schema
 // params: EmitParams
 ) {
@@ -49992,6 +50965,9 @@ function extractDefs(ctx, schema
     const root = ctx.seen.get(schema);
     if (!root)
         throw new Error("Unprocessed schema. This is a bug in Zod.");
+    // With `external` set, every registered schema resolves through the external branch of `makeURI`, so the root branch below produces the same ref the external branch would — this pass is identical whichever schema it is called with, and only needs to run once.
+    if (ctx.external && ctx.sharedDefsExtractedFor === ctx.external)
+        return;
     // Track ids to detect duplicates across different schemas
     const idToSchema = new Map();
     for (const entry of ctx.seen.entries()) {
@@ -50004,12 +50980,9 @@ function extractDefs(ctx, schema
             idToSchema.set(id, entry[0]);
         }
     }
-    // returns a ref to the schema
-    // defId will be empty if the ref points to an external schema (or #)
+    // returns a ref to the schema defId will be empty if the ref points to an external schema (or #)
     const makeURI = (entry) => {
-        // comparing the seen objects because sometimes
-        // multiple schemas map to the same seen object.
-        // e.g. lazy
+        // comparing the seen objects because sometimes multiple schemas map to the same seen object. e.g. lazy
         // external is configured
         const defsSegment = ctx.target === "draft-2020-12" ? "$defs" : "definitions";
         if (ctx.external) {
@@ -50022,19 +50995,19 @@ function extractDefs(ctx, schema
             // otherwise, add to __shared
             const id = entry[1].defId ?? entry[1].schema.id ?? `schema${ctx.counter++}`;
             entry[1].defId = id; // set defId so it will be reused if needed
-            return { defId: id, ref: `${uriGenerator("__shared")}#/${defsSegment}/${id}` };
+            return { defId: id, ref: `${uriGenerator("__shared")}#/${defsSegment}/${encodeJSONPointerSegment(id)}` };
         }
-        if (entry[1] === root) {
-            return { ref: "#" };
-        }
-        // self-contained schema
         const uriPrefix = `#`;
         const defUriPrefix = `${uriPrefix}/${defsSegment}/`;
+        // an id-less root has nowhere to be extracted to, so it stays inline and self-references as `#`
+        if (entry[1] === root && !entry[1].schema.id) {
+            return { ref: uriPrefix };
+        }
+        // self-contained schema
         const defId = entry[1].schema.id ?? `__schema${ctx.counter++}`;
-        return { defId, ref: defUriPrefix + defId };
+        return { defId, ref: defUriPrefix + encodeJSONPointerSegment(defId) };
     };
-    // stored cached version in `def` property
-    // remove all properties, set $ref
+    // stored cached version in `def` property remove all properties, set $ref
     const extractToDef = (entry) => {
         // if the schema is already a reference, do not extract it
         if (entry[1].schema.$ref) {
@@ -50043,8 +51016,7 @@ function extractDefs(ctx, schema
         const seen = entry[1];
         const { ref, defId } = makeURI(entry);
         seen.def = { ...seen.schema };
-        // defId won't be set if the schema is a reference to an external schema
-        // or if the schema is the root schema
+        // defId won't be set if the schema is a reference to an external schema or if the schema is the root schema
         if (defId)
             seen.defId = defId;
         // wipe away all properties except $ref
@@ -50098,11 +51070,146 @@ function extractDefs(ctx, schema
         if (seen.count > 1) {
             if (ctx.reused === "ref") {
                 extractToDef(entry);
-                // biome-ignore lint:
-                continue;
             }
         }
     }
+    if (ctx.external)
+        ctx.sharedDefsExtractedFor = ctx.external;
+}
+/** Rewrites `anyOf: [{type: "a"}, {type: "b"}]` to `type: ["a", "b"]`, which every JSON Schema draft treats as equivalent and most consumers render far better for the nullable case. Only branches that are a bare type assertion qualify — anything carrying a constraint, `$ref`, `const` or metadata is left alone. Runs after `flattenRef`, so a branch an override decorated or `$defs` extraction turned into a `$ref` is no longer bare and correctly stays in `anyOf`. `oneOf` is excluded: `integer` and `number` overlap, so "exactly one" and "at least one" are not the same there. OpenAPI 3.0 is excluded: its `type` must be a single string. */
+function compactTypeUnion(schema) {
+    const options = schema.anyOf;
+    if (!Array.isArray(options) || options.length === 0 || schema.type !== undefined)
+        return;
+    const types = [];
+    for (const option of options) {
+        if (!option || typeof option !== "object")
+            return;
+        // A branch that is itself a compactible union folds into this one — nested `anyOf` and a flat `type` array say the same thing. Compacting it first also makes the result independent of the order this pass walks the seen map in.
+        compactTypeUnion(option);
+        const keys = Object.keys(option);
+        if (keys.length !== 1 || keys[0] !== "type")
+            return;
+        const type = option.type;
+        for (const member of Array.isArray(type) ? type : [type]) {
+            if (typeof member !== "string")
+                return;
+            if (!types.includes(member))
+                types.push(member);
+        }
+    }
+    delete schema.anyOf;
+    // A `type` array must be non-empty and unique (metaschema); a single member is spelled as a bare string.
+    schema.type = types.length === 1 ? types[0] : types;
+}
+/** Keywords `foldIntersection` knows how to combine. Anything else — `$ref`, `patternProperties`,
+ * an annotation like `description` — makes a member unfoldable, so a constraint this does not
+ * understand leaves the `allOf` alone instead of being silently dropped or misattributed. */
+const FOLDABLE_KEYS = new Set(["type", "properties", "required", "additionalProperties"]);
+const UNION_KEYS = ["oneOf", "anyOf"];
+/** A member's constraint on a key it does not declare itself. A `catchall` states one; `false`, an absent `additionalProperties`, and the empty schema a loose object emits state nothing. */
+function undeclaredConstraint(member) {
+    const extra = member.additionalProperties;
+    if (extra === undefined || extra === false || typeof extra !== "object" || extra === null)
+        return null;
+    return Object.keys(extra).length ? extra : null;
+}
+/** Combines object members into the single object they describe together, or returns `null` if any of them carries a keyword outside {@link FOLDABLE_KEYS}. */
+function foldObjects(members) {
+    const objects = [];
+    for (const member of members) {
+        // A boolean subschema is legal JSON Schema and carries no keywords to fold.
+        if (typeof member !== "object" || member.type !== "object")
+            return null;
+        for (const key in member) {
+            if (!FOLDABLE_KEYS.has(key))
+                return null;
+        }
+        objects.push(member);
+    }
+    const properties = {};
+    const required = new Set();
+    for (const object of objects) {
+        for (const key in object.properties) {
+            // `in` would report a `__proto__` key as already present via the prototype chain and skip it.
+            if (Object.prototype.hasOwnProperty.call(properties, key))
+                continue;
+            // Every member constrains this key: the ones that declare it say how, and a `catchall` member constrains it too even though it does not name it. The key has to satisfy all of them, which is the same intersection one level down.
+            const parts = [];
+            for (const other of objects) {
+                const part = other.properties?.[key] ?? undeclaredConstraint(other);
+                if (part === null || part === undefined)
+                    continue;
+                if (!parts.some((seen) => JSON.stringify(seen) === JSON.stringify(part)))
+                    parts.push(part);
+            }
+            const merged = parts.length === 1
+                ? parts[0]
+                : (foldObjects(parts) ?? { allOf: parts });
+            assignProp(properties, key, merged);
+        }
+        for (const key of object.required ?? [])
+            required.add(key);
+    }
+    const folded = { type: "object", properties };
+    if (required.size)
+        folded.required = [...required];
+    // A key no member declares is rejected only when every member rejects it, so the fold is closed only when every member is. Otherwise it carries whatever the `catchall` members demand of such a key.
+    if (objects.every((object) => object.additionalProperties === false)) {
+        folded.additionalProperties = false;
+    }
+    else {
+        const constraints = [];
+        for (const object of objects) {
+            const constraint = undeclaredConstraint(object);
+            if (constraint && !constraints.some((seen) => JSON.stringify(seen) === JSON.stringify(constraint)))
+                constraints.push(constraint);
+        }
+        if (constraints.length === 1)
+            folded.additionalProperties = constraints[0];
+        else if (constraints.length > 1)
+            folded.additionalProperties = { allOf: constraints };
+    }
+    return folded;
+}
+/** `additionalProperties` in an `allOf` member sees only that member's own `properties`, so two
+ * closed object members reject each other's keys and the schema validates nothing. Zod's parser
+ * pools the key sets instead — `handleIntersectionResults` reports a key as unrecognized only when
+ * *every* side rejects it — so the emitted schema has to pool them too, and folding the members
+ * into one object is the encoding that says so on every target.
+ *
+ * This runs from `finalize`, after `extractDefs`, which is what keeps it clear of the `$ref`
+ * machinery: a member extracted into `$defs` is already a `$ref` by now and declines to fold, so it
+ * keeps its reference and its own closedness rather than being inlined as a stale copy. */
+function foldIntersection(json) {
+    const allOf = json.allOf;
+    if (!Array.isArray(allOf) || allOf.length < 2)
+        return;
+    // An `override` runs before this pass and may have written object keywords onto the intersection itself. Those are deliberate, so decline rather than overwrite them.
+    for (const key of FOLDABLE_KEYS)
+        if (key in json)
+            return;
+    // An intersection distributes over a union: `A & (X | Y)` is `(A & X) | (A & Y)`. Only the first union is distributed over; a second one stays among the members every branch folds against, where it fails the object check and declines the whole intersection rather than multiplying out.
+    const unions = allOf.filter((m) => UNION_KEYS.some((k) => Array.isArray(m[k])));
+    let folded = null;
+    if (!unions.length) {
+        folded = foldObjects(allOf);
+    }
+    else {
+        const union = unions[0];
+        const keyword = UNION_KEYS.find((k) => Array.isArray(union[k]));
+        if (Object.keys(union).length !== 1)
+            return;
+        const rest = allOf.filter((m) => m !== union);
+        const branches = union[keyword].map((branch) => foldObjects([...rest, branch]));
+        if (branches.some((b) => !b))
+            return;
+        folded = { [keyword]: branches };
+    }
+    if (!folded)
+        return;
+    delete json.allOf;
+    assignProps(json, folded);
 }
 function finalize(ctx, schema) {
     const root = ctx.seen.get(schema);
@@ -50129,10 +51236,10 @@ function finalize(ctx, schema) {
                 schema.allOf.push(refSchema);
             }
             else {
-                Object.assign(schema, refSchema);
+                assignProps(schema, refSchema);
             }
             // restore child's own properties (child wins)
-            Object.assign(schema, _cached);
+            assignProps(schema, _cached);
             const isParentRef = zodSchema._zod.parent === ref;
             // For parent chain, child is a refinement - remove parent-only properties
             if (isParentRef) {
@@ -50155,9 +51262,7 @@ function finalize(ctx, schema) {
                 }
             }
         }
-        // If parent was extracted (has $ref), propagate $ref to this schema
-        // This handles cases like: readonly().meta({id}).describe()
-        // where processor sets ref to innerType but parent should be referenced
+        // If parent was extracted (has $ref), propagate $ref to this schema. This handles cases like: readonly().meta({id}).describe() where processor sets ref to innerType but parent should be referenced
         const parent = zodSchema._zod.parent;
         if (parent && parent !== ref) {
             // Ensure parent is processed first so its def has inherited properties
@@ -50184,8 +51289,38 @@ function finalize(ctx, schema) {
             path: seen.path ?? [],
         });
     };
-    for (const entry of [...ctx.seen.entries()].reverse()) {
-        flattenRef(entry[0]);
+    // Flattening walks the whole map and clears each `ref` as it goes, so a second call over the same map is a no-op scan. Skip it outright once it has run for a registry conversion.
+    if (!ctx.external || ctx.sharedEmitDoneFor !== ctx.external) {
+        for (const entry of [...ctx.seen.entries()].reverse()) {
+            flattenRef(entry[0]);
+        }
+        if (ctx.target !== "openapi-3.0") {
+            for (const entry of ctx.seen.entries()) {
+                compactTypeUnion(entry[1].def ?? entry[1].schema);
+            }
+        }
+        for (const rewrite of ctx.deferred)
+            rewrite();
+        // After flattening, every member that was extracted is a `$ref`, so the fold sees the final shape. A schema that inherits an intersection — through `z.lazy`, or any `ref` chain — holds the same `allOf` array, so fold by array identity to catch every copy.
+        if (ctx.intersections.length) {
+            const carriers = new Map();
+            for (const seen of ctx.seen.values()) {
+                for (const json of [seen.schema, seen.def]) {
+                    const allOf = json?.allOf;
+                    if (!Array.isArray(allOf))
+                        continue;
+                    const existing = carriers.get(allOf);
+                    if (existing)
+                        existing.push(json);
+                    else
+                        carriers.set(allOf, [json]);
+                }
+            }
+            for (const allOf of ctx.intersections) {
+                for (const json of carriers.get(allOf) ?? [])
+                    foldIntersection(json);
+            }
+        }
     }
     const result = {};
     if (ctx.target === "draft-2020-12") {
@@ -50209,24 +51344,26 @@ function finalize(ctx, schema) {
             throw new Error("Schema is missing an `id` property");
         result.$id = ctx.external.uri(id);
     }
-    Object.assign(result, root.def ?? root.schema);
-    // The `id` in `.meta()` is a Zod-specific registration tag used to extract
-    // schemas into $defs — it is not user-facing JSON Schema metadata. Strip it
-    // from the output body where it would otherwise leak. The id is preserved
-    // implicitly via the $defs key (and via $ref paths).
+    // when the root was extracted into $defs, `root.schema` is the `$ref` wrapper and `root.def` is the body that now lives under $defs
+    assignProps(result, root.defId ? root.schema : (root.def ?? root.schema));
+    // The `id` in `.meta()` is a Zod-specific registration tag used to extract schemas into $defs — it is not user-facing JSON Schema metadata. Strip it from the output body where it would otherwise leak. The id is preserved implicitly via the $defs key (and via $ref paths).
     const rootMetaId = ctx.metadataRegistry.get(schema)?.id;
     if (rootMetaId !== undefined && result.id === rootMetaId)
         delete result.id;
-    // build defs object
+    // build defs object. With `external`, `defs` is the shared object every schema writes into, so the same entries are reassigned on every call. Without it, `defs` is fresh per call and must be rebuilt.
     const defs = ctx.external?.defs ?? {};
-    for (const entry of ctx.seen.entries()) {
-        const seen = entry[1];
-        if (seen.def && seen.defId) {
-            if (seen.def.id === seen.defId)
-                delete seen.def.id;
-            defs[seen.defId] = seen.def;
+    if (!ctx.external || ctx.sharedEmitDoneFor !== ctx.external) {
+        for (const entry of ctx.seen.entries()) {
+            const seen = entry[1];
+            if (seen.def && seen.defId) {
+                if (seen.def.id === seen.defId)
+                    delete seen.def.id;
+                assignProp(defs, seen.defId, seen.def);
+            }
         }
     }
+    if (ctx.external)
+        ctx.sharedEmitDoneFor = ctx.external;
     // set definitions in result
     if (ctx.external) {
     }
@@ -50241,9 +51378,7 @@ function finalize(ctx, schema) {
         }
     }
     try {
-        // this "finalizes" this schema and ensures all cycles are removed
-        // each call to finalize() is functionally independent
-        // though the seen map is shared
+        // this "finalizes" this schema and ensures all cycles are removed each call to finalize() is functionally independent though the seen map is shared
         const finalized = JSON.parse(JSON.stringify(result));
         Object.defineProperty(finalized, "~standard", {
             value: {
@@ -50282,7 +51417,8 @@ function isTransforming(_schema, _ctx) {
         def.type === "nullable" ||
         def.type === "readonly" ||
         def.type === "default" ||
-        def.type === "prefault") {
+        def.type === "prefault" ||
+        def.type === "catch") {
         return isTransforming(def.innerType, ctx);
     }
     if (def.type === "intersection") {
@@ -50327,25 +51463,122 @@ function isTransforming(_schema, _ctx) {
  */
 const createToJSONSchemaMethod = (schema, processors = {}) => (params) => {
     const ctx = initializeContext({ ...params, processors });
-    to_json_schema_process(schema, ctx);
+    processSchema(schema, ctx);
     extractDefs(ctx, schema);
     return finalize(ctx, schema);
 };
 const createStandardJSONSchemaMethod = (schema, io, processors = {}) => (params) => {
     const { libraryOptions, target } = params ?? {};
     const ctx = initializeContext({ ...(libraryOptions ?? {}), target, io, processors });
-    to_json_schema_process(schema, ctx);
+    processSchema(schema, ctx);
     extractDefs(ctx, schema);
     return finalize(ctx, schema);
 };
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/json-schema-processors.js
-/* unused harmony import specifier */ var json_schema_processors_process;
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/json-schema-processors.js
+/* unused harmony import specifier */ var json_schema_processors_handleUnrepresentable;
+/* unused harmony import specifier */ var json_schema_processors_processSchema;
 /* unused harmony import specifier */ var json_schema_processors_initializeContext;
 /* unused harmony import specifier */ var json_schema_processors_extractDefs;
 /* unused harmony import specifier */ var json_schema_processors_finalize;
+/* unused harmony import specifier */ var json_schema_processors_assignProp;
 
 
+
+
+const narrowMin = (agg, key, value) => {
+    if (agg[key] === undefined || value > agg[key])
+        agg[key] = value;
+};
+const narrowMax = (agg, key, value) => {
+    if (agg[key] === undefined || value < agg[key])
+        agg[key] = value;
+};
+const narrowBoth = (agg, value) => {
+    narrowMin(agg, "minimum", value);
+    narrowMax(agg, "maximum", value);
+};
+const addDivisor = (agg, value) => {
+    agg.multipleOf ?? (agg.multipleOf = []);
+    if (!agg.multipleOf.includes(value))
+        agg.multipleOf.push(value);
+};
+const addPattern = (agg, pattern) => {
+    agg.patterns ?? (agg.patterns = new Set());
+    agg.patterns.add(pattern);
+};
+const intersectMime = (agg, mime) => {
+    agg.mime = agg.mime ? agg.mime.filter((m) => mime.includes(m)) : [...mime];
+};
+// last-wins, matching the bag's historical write order; the flag keeps an integer format from being lost to a later float one
+const setFormat = (agg, format) => {
+    agg.format = format;
+    if (format.includes("int"))
+        agg.isInt = true;
+};
+const minContributor = (agg, def) => narrowMin(agg, "minimum", def.minimum);
+const maxContributor = (agg, def) => narrowMax(agg, "maximum", def.maximum);
+const formatContributor = (ranges) => (agg, def) => {
+    setFormat(agg, def.format);
+    const [minimum, maximum] = ranges[def.format];
+    narrowMin(agg, "minimum", minimum);
+    narrowMax(agg, "maximum", maximum);
+};
+const contributors = {
+    greater_than: (agg, def) => narrowMin(agg, def.inclusive ? "minimum" : "exclusiveMinimum", def.value),
+    less_than: (agg, def) => narrowMax(agg, def.inclusive ? "maximum" : "exclusiveMaximum", def.value),
+    multiple_of: (agg, def) => addDivisor(agg, def.value),
+    number_format: formatContributor(NUMBER_FORMAT_RANGES),
+    bigint_format: formatContributor(BIGINT_FORMAT_RANGES),
+    min_length: minContributor,
+    max_length: maxContributor,
+    length_equals: (agg, def) => narrowBoth(agg, def.length),
+    min_size: minContributor,
+    max_size: maxContributor,
+    size_equals: (agg, def) => narrowBoth(agg, def.size),
+    string_format: (agg, def) => {
+        setFormat(agg, def.format);
+        if (def.pattern)
+            addPattern(agg, def.pattern);
+        if (def.format === "base64" || def.format === "base64url")
+            agg.contentEncoding = def.format;
+        if (def.local || def.precision === -1)
+            agg.laxFormat = true;
+    },
+    mime_type: (agg, def) => intersectMime(agg, def.mime),
+};
+function aggregateChecks(schema) {
+    const agg = {};
+    const def = schema._zod.def;
+    // a format schema is its own first check, same rule as $ZodType init
+    const list = schema._zod.traits.has("$ZodCheck")
+        ? [schema, ...(def.checks ?? [])]
+        : (def.checks ?? []);
+    for (const ch of list)
+        contributors[ch._zod.def.check]?.(agg, ch._zod.def);
+    // reconcile with the bag so third-party onattach contributions still land; first-party residue is never tighter than the fold, so merging it back is idempotent for one and additive for the other
+    const bag = schema._zod.bag;
+    if (bag.minimum !== undefined)
+        narrowMin(agg, "minimum", bag.minimum);
+    if (bag.exclusiveMinimum !== undefined)
+        narrowMin(agg, "exclusiveMinimum", bag.exclusiveMinimum);
+    if (bag.maximum !== undefined)
+        narrowMax(agg, "maximum", bag.maximum);
+    if (bag.exclusiveMaximum !== undefined)
+        narrowMax(agg, "exclusiveMaximum", bag.exclusiveMaximum);
+    if (bag.multipleOf !== undefined)
+        addDivisor(agg, bag.multipleOf);
+    if (bag.format !== undefined) {
+        agg.format ?? (agg.format = bag.format);
+        if (bag.format.includes("int"))
+            agg.isInt = true;
+    }
+    if (bag.mime)
+        intersectMime(agg, bag.mime);
+    for (const pattern of bag.patterns ?? [])
+        addPattern(agg, pattern);
+    return agg;
+}
 const formatMap = {
     guid: "uuid",
     url: "uri",
@@ -50354,11 +51587,16 @@ const formatMap = {
     regex: "", // do not set
 };
 // ==================== SIMPLE TYPE PROCESSORS ====================
+// the runtime patterns are lax so parse paths never overflow the regex stack; the emitted schema swaps in the exact block forms, which zod itself never executes
+const exactPatterns = new Map([
+    [base64Charset, regexes_base64],
+    [base64urlCharset, base64url],
+]);
+const exactPattern = (p) => exactPatterns.get(p) ?? p;
 const stringProcessor = (schema, ctx, _json, _params) => {
     const json = _json;
     json.type = "string";
-    const { minimum, maximum, format, patterns, contentEncoding } = schema._zod
-        .bag;
+    const { minimum, maximum, format, patterns, contentEncoding, laxFormat } = aggregateChecks(schema);
     if (typeof minimum === "number")
         json.minLength = minimum;
     if (typeof maximum === "number")
@@ -50368,21 +51606,20 @@ const stringProcessor = (schema, ctx, _json, _params) => {
         json.format = formatMap[format] ?? format;
         if (json.format === "")
             delete json.format; // empty format is not valid
-        // JSON Schema format: "time" requires a full time with offset or Z
-        // z.iso.time() does not include timezone information, so format: "time" should never be used
-        if (format === "time") {
+        // `z.iso.time()` is never full-time, and `laxFormat` carries the datetime shapes that also accept what their keyword forbids
+        if (format === "time" || laxFormat) {
             delete json.format;
         }
     }
     if (contentEncoding)
         json.contentEncoding = contentEncoding;
     if (patterns && patterns.size > 0) {
-        const regexes = [...patterns];
-        if (regexes.length === 1)
-            json.pattern = regexes[0].source;
-        else if (regexes.length > 1) {
+        const patternList = [...patterns].map(exactPattern);
+        if (patternList.length === 1)
+            json.pattern = patternList[0].source;
+        else if (patternList.length > 1) {
             json.allOf = [
-                ...regexes.map((regex) => ({
+                ...patternList.map((regex) => ({
                     ...(ctx.target === "draft-07" || ctx.target === "draft-04" || ctx.target === "openapi-3.0"
                         ? { type: "string" }
                         : {}),
@@ -50392,13 +51629,10 @@ const stringProcessor = (schema, ctx, _json, _params) => {
         }
     }
 };
-const numberProcessor = (schema, ctx, _json, _params) => {
+const numberProcessor = (schema, ctx, _json, params) => {
     const json = _json;
-    const { minimum, maximum, format, multipleOf, exclusiveMaximum, exclusiveMinimum } = schema._zod.bag;
-    if (typeof format === "string" && format.includes("int"))
-        json.type = "integer";
-    else
-        json.type = "number";
+    const { minimum, maximum, multipleOf, exclusiveMaximum, exclusiveMinimum, isInt } = aggregateChecks(schema);
+    json.type = isInt ? "integer" : "number";
     // when both minimum and exclusiveMinimum exist, pick the more restrictive one
     const exMin = typeof exclusiveMinimum === "number" && exclusiveMinimum >= (minimum ?? Number.NEGATIVE_INFINITY);
     const exMax = typeof exclusiveMaximum === "number" && exclusiveMaximum <= (maximum ?? Number.POSITIVE_INFINITY);
@@ -50427,21 +51661,31 @@ const numberProcessor = (schema, ctx, _json, _params) => {
     else if (typeof maximum === "number") {
         json.maximum = maximum;
     }
-    if (typeof multipleOf === "number")
-        json.multipleOf = multipleOf;
+    if (multipleOf) {
+        // JSON Schema requires a divisor strictly greater than zero, and a non-finite one does not survive JSON at all. A negative divisor accepts exactly what its absolute value accepts, so it still maps; zero, NaN and Infinity have no keyword form.
+        const divisors = new Set();
+        for (const divisor of multipleOf) {
+            if (Number.isFinite(divisor) && divisor !== 0)
+                divisors.add(Math.abs(divisor));
+            else
+                handleUnrepresentable(schema, ctx, json, params, `A multipleOf divisor of ${divisor} cannot be represented in JSON Schema`);
+        }
+        // chained divisors are a conjunction the keyword cannot carry alone, so extras ride an allOf, same as stacked patterns
+        const [first, ...rest] = divisors;
+        if (first !== undefined)
+            json.multipleOf = first;
+        if (rest.length)
+            json.allOf = [...(json.allOf ?? []), ...rest.map((m) => ({ multipleOf: m }))];
+    }
 };
 const booleanProcessor = (_schema, _ctx, json, _params) => {
     json.type = "boolean";
 };
-const bigintProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("BigInt cannot be represented in JSON Schema");
-    }
+const bigintProcessor = (schema, ctx, json, params) => {
+    json_schema_processors_handleUnrepresentable(schema, ctx, json, params, "BigInt cannot be represented in JSON Schema");
 };
-const symbolProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("Symbols cannot be represented in JSON Schema");
-    }
+const symbolProcessor = (schema, ctx, json, params) => {
+    json_schema_processors_handleUnrepresentable(schema, ctx, json, params, "Symbols cannot be represented in JSON Schema");
 };
 const nullProcessor = (_schema, ctx, json, _params) => {
     if (ctx.target === "openapi-3.0") {
@@ -50453,15 +51697,11 @@ const nullProcessor = (_schema, ctx, json, _params) => {
         json.type = "null";
     }
 };
-const undefinedProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("Undefined cannot be represented in JSON Schema");
-    }
+const undefinedProcessor = (schema, ctx, json, params) => {
+    json_schema_processors_handleUnrepresentable(schema, ctx, json, params, "Undefined cannot be represented in JSON Schema");
 };
-const voidProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("Void cannot be represented in JSON Schema");
-    }
+const voidProcessor = (schema, ctx, json, params) => {
+    json_schema_processors_handleUnrepresentable(schema, ctx, json, params, "Void cannot be represented in JSON Schema");
 };
 const neverProcessor = (_schema, _ctx, json, _params) => {
     json.not = {};
@@ -50472,14 +51712,17 @@ const anyProcessor = (_schema, _ctx, _json, _params) => {
 const unknownProcessor = (_schema, _ctx, _json, _params) => {
     // empty schema accepts anything
 };
-const dateProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("Date cannot be represented in JSON Schema");
-    }
+const dateProcessor = (schema, ctx, json, params) => {
+    json_schema_processors_handleUnrepresentable(schema, ctx, json, params, "Date cannot be represented in JSON Schema");
 };
 const enumProcessor = (schema, _ctx, json, _params) => {
     const def = schema._zod.def;
     const values = getEnumValues(def.entries);
+    // an empty enum accepts nothing, same as z.never()
+    if (values.length === 0) {
+        json.not = {};
+        return;
+    }
     // Number enums can have both string and number values
     if (values.every((v) => typeof v === "number"))
         json.type = "number";
@@ -50487,25 +51730,25 @@ const enumProcessor = (schema, _ctx, json, _params) => {
         json.type = "string";
     json.enum = values;
 };
-const literalProcessor = (schema, ctx, json, _params) => {
+const literalProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
+    // a literal with no values accepts nothing, same as z.never()
+    if (def.values.length === 0) {
+        json.not = {};
+        return;
+    }
     const vals = [];
     for (const val of def.values) {
         if (val === undefined) {
-            if (ctx.unrepresentable === "throw") {
-                throw new Error("Literal `undefined` cannot be represented in JSON Schema");
-            }
-            else {
-                // do not add to vals
-            }
+            // a custom schema replaces the whole literal, so there is nothing left to accumulate
+            if (handleUnrepresentable(schema, ctx, json, params, "Literal `undefined` cannot be represented in JSON Schema"))
+                return;
+            // otherwise do not add to vals
         }
         else if (typeof val === "bigint") {
-            if (ctx.unrepresentable === "throw") {
-                throw new Error("BigInt literals cannot be represented in JSON Schema");
-            }
-            else {
-                vals.push(Number(val));
-            }
+            if (handleUnrepresentable(schema, ctx, json, params, "BigInt literals cannot be represented in JSON Schema"))
+                return;
+            vals.push(Number(val));
         }
         else {
             vals.push(val);
@@ -50536,10 +51779,8 @@ const literalProcessor = (schema, ctx, json, _params) => {
         json.enum = vals;
     }
 };
-const nanProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("NaN cannot be represented in JSON Schema");
-    }
+const nanProcessor = (schema, ctx, json, params) => {
+    json_schema_processors_handleUnrepresentable(schema, ctx, json, params, "NaN cannot be represented in JSON Schema");
 };
 const templateLiteralProcessor = (schema, _ctx, json, _params) => {
     const _json = json;
@@ -50551,98 +51792,102 @@ const templateLiteralProcessor = (schema, _ctx, json, _params) => {
 };
 const fileProcessor = (schema, _ctx, json, _params) => {
     const _json = json;
-    const file = {
-        type: "string",
-        format: "binary",
-        contentEncoding: "binary",
-    };
-    const { minimum, maximum, mime } = schema._zod.bag;
+    _json.type = "string";
+    _json.format = "binary";
+    _json.contentEncoding = "binary";
+    const { minimum, maximum, mime } = aggregateChecks(schema);
     if (minimum !== undefined)
-        file.minLength = minimum;
+        _json.minLength = minimum;
     if (maximum !== undefined)
-        file.maxLength = maximum;
-    if (mime) {
-        if (mime.length === 1) {
-            file.contentMediaType = mime[0];
-            Object.assign(_json, file);
-        }
-        else {
-            Object.assign(_json, file); // shared props at root
-            _json.anyOf = mime.map((m) => ({ contentMediaType: m })); // only contentMediaType differs
-        }
-    }
-    else {
-        Object.assign(_json, file);
-    }
+        _json.maxLength = maximum;
+    if (!mime)
+        return;
+    // an empty intersection means the mime checks share no value, so nothing passes at runtime; `anyOf` must be non-empty, so the false schema is `not: {}`
+    if (mime.length === 0)
+        _json.not = {};
+    else if (mime.length === 1)
+        _json.contentMediaType = mime[0];
+    // only contentMediaType differs, so the shared props stay at the root
+    else
+        _json.anyOf = mime.map((m) => ({ contentMediaType: m }));
 };
 const successProcessor = (_schema, _ctx, json, _params) => {
     json.type = "boolean";
 };
-const customProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("Custom types cannot be represented in JSON Schema");
-    }
+const customProcessor = (schema, ctx, json, params) => {
+    handleUnrepresentable(schema, ctx, json, params, "Custom types cannot be represented in JSON Schema");
 };
-const functionProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("Function types cannot be represented in JSON Schema");
-    }
+const functionProcessor = (schema, ctx, json, params) => {
+    json_schema_processors_handleUnrepresentable(schema, ctx, json, params, "Function types cannot be represented in JSON Schema");
 };
-const transformProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("Transforms cannot be represented in JSON Schema");
-    }
+const transformProcessor = (schema, ctx, json, params) => {
+    handleUnrepresentable(schema, ctx, json, params, "Transforms cannot be represented in JSON Schema");
 };
-const mapProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("Map cannot be represented in JSON Schema");
-    }
+const mapProcessor = (schema, ctx, json, params) => {
+    json_schema_processors_handleUnrepresentable(schema, ctx, json, params, "Map cannot be represented in JSON Schema");
 };
-const setProcessor = (_schema, ctx, _json, _params) => {
-    if (ctx.unrepresentable === "throw") {
-        throw new Error("Set cannot be represented in JSON Schema");
-    }
+const setProcessor = (schema, ctx, json, params) => {
+    json_schema_processors_handleUnrepresentable(schema, ctx, json, params, "Set cannot be represented in JSON Schema");
 };
 // ==================== COMPOSITE TYPE PROCESSORS ====================
 const arrayProcessor = (schema, ctx, _json, params) => {
     const json = _json;
     const def = schema._zod.def;
-    const { minimum, maximum } = schema._zod.bag;
+    const { minimum, maximum } = aggregateChecks(schema);
     if (typeof minimum === "number")
         json.minItems = minimum;
     if (typeof maximum === "number")
         json.maxItems = maximum;
     json.type = "array";
-    json.items = to_json_schema_process(def.element, ctx, {
+    json.items = processSchema(def.element, ctx, {
         ...params,
         path: [...params.path, "items"],
     });
 };
+// Transform and catch set `optin = "optional"` at runtime so the parser lets them observe an
+// absent key, but their declared input type stays required. An input JSON Schema describes the
+// declared type, so resolve past them to the schema that actually carries the optionality.
+// Used by both `objectProcessor` (for `required`) and `tupleProcessor` (for `minItems`); see
+// wiki/optionality.md, "The JSON Schema emitter reads the *static* value".
+function inputOptin(schema) {
+    const def = schema._zod.def;
+    if (def.type === "pipe" && def.in._zod.traits.has("$ZodTransform")) {
+        return inputOptin(def.out);
+    }
+    if (def.type === "catch") {
+        return inputOptin(def.innerType);
+    }
+    return schema._zod.optin;
+}
 const objectProcessor = (schema, ctx, _json, params) => {
     const json = _json;
     const def = schema._zod.def;
+    const shape = def.shape;
+    // dropping it while still emitting `additionalProperties: false` would emit a schema that rejects data this one requires
+    const symbolKeys = Object.getOwnPropertySymbols(shape);
+    if (symbolKeys.length &&
+        handleUnrepresentable(schema, ctx, json, params, "Symbol keys cannot be represented in JSON Schema")) {
+        return;
+    }
     json.type = "object";
     json.properties = {};
-    const shape = def.shape;
     for (const key in shape) {
-        json.properties[key] = to_json_schema_process(shape[key], ctx, {
+        // assignProp so a __proto__ key becomes an own property instead of hitting the inherited setter on the plain {} we build into
+        assignProp(json.properties, key, processSchema(shape[key], ctx, {
             ...params,
             path: [...params.path, "properties", key],
-        });
+        }));
     }
     // required keys
-    const allKeys = new Set(Object.keys(shape));
-    const requiredKeys = new Set([...allKeys].filter((key) => {
-        const v = def.shape[key]._zod;
-        if (ctx.io === "input") {
-            return v.optin === undefined;
+    const requiredKeys = [];
+    for (const key of Object.keys(shape)) {
+        const field = def.shape[key];
+        if (ctx.io === "input" ? inputOptin(field) === undefined : field._zod.optout === undefined) {
+            requiredKeys.push(key);
         }
-        else {
-            return v.optout === undefined;
-        }
-    }));
-    if (requiredKeys.size > 0) {
-        json.required = Array.from(requiredKeys);
+    }
+    if (requiredKeys.length > 0) {
+        json.required = requiredKeys;
     }
     // catchall
     if (def.catchall?._zod.def.type === "never") {
@@ -50655,7 +51900,7 @@ const objectProcessor = (schema, ctx, _json, params) => {
             json.additionalProperties = false;
     }
     else if (def.catchall) {
-        json.additionalProperties = to_json_schema_process(def.catchall, ctx, {
+        json.additionalProperties = processSchema(def.catchall, ctx, {
             ...params,
             path: [...params.path, "additionalProperties"],
         });
@@ -50663,10 +51908,9 @@ const objectProcessor = (schema, ctx, _json, params) => {
 };
 const unionProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    // Exclusive unions (inclusive === false) use oneOf (exactly one match) instead of anyOf (one or more matches)
-    // This includes both z.xor() and discriminated unions
+    // Exclusive unions (inclusive === false) use oneOf (exactly one match) instead of anyOf (one or more matches). This includes both z.xor() and discriminated unions
     const isExclusive = def.inclusive === false;
-    const options = def.options.map((x, i) => to_json_schema_process(x, ctx, {
+    const options = def.options.map((x, i) => processSchema(x, ctx, {
         ...params,
         path: [...params.path, isExclusive ? "oneOf" : "anyOf", i],
     }));
@@ -50679,11 +51923,11 @@ const unionProcessor = (schema, ctx, json, params) => {
 };
 const intersectionProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    const a = to_json_schema_process(def.left, ctx, {
+    const a = processSchema(def.left, ctx, {
         ...params,
         path: [...params.path, "allOf", 0],
     });
-    const b = to_json_schema_process(def.right, ctx, {
+    const b = processSchema(def.right, ctx, {
         ...params,
         path: [...params.path, "allOf", 1],
     });
@@ -50693,6 +51937,8 @@ const intersectionProcessor = (schema, ctx, json, params) => {
         ...(isSimpleIntersection(b) ? b.allOf : [b]),
     ];
     json.allOf = allOf;
+    // Recorded innermost first, so a nested intersection has already folded by the time this one is considered. The array is the handle rather than the schema, because a wrapper that inherits this schema shares the same array; `finalize` folds every object holding it. See `foldIntersection`.
+    ctx.intersections.push(allOf);
 };
 const tupleProcessor = (schema, ctx, _json, params) => {
     const json = _json;
@@ -50700,21 +51946,38 @@ const tupleProcessor = (schema, ctx, _json, params) => {
     json.type = "array";
     const prefixPath = ctx.target === "draft-2020-12" ? "prefixItems" : "items";
     const restPath = ctx.target === "draft-2020-12" ? "items" : ctx.target === "openapi-3.0" ? "items" : "additionalItems";
-    const prefixItems = def.items.map((x, i) => json_schema_processors_process(x, ctx, {
+    const prefixItems = def.items.map((x, i) => json_schema_processors_processSchema(x, ctx, {
         ...params,
         path: [...params.path, prefixPath, i],
     }));
     const rest = def.rest
-        ? json_schema_processors_process(def.rest, ctx, {
+        ? json_schema_processors_processSchema(def.rest, ctx, {
             ...params,
             path: [...params.path, restPath, ...(ctx.target === "openapi-3.0" ? [def.items.length] : [])],
         })
         : null;
+    let minItems = def.items.length;
+    while (minItems > 0) {
+        const item = def.items[minItems - 1];
+        const optional = ctx.io === "input" ? inputOptin(item) !== undefined : item._zod.optout === "optional";
+        if (!optional)
+            break;
+        minItems--;
+    }
+    const maxItems = def.items.length;
+    const isClosed = !def.rest;
     if (ctx.target === "draft-2020-12") {
         json.prefixItems = prefixItems;
-        if (rest) {
+        if (isClosed) {
+            json.items = false;
+        }
+        else if (rest) {
             json.items = rest;
         }
+        if (minItems > 0)
+            json.minItems = minItems;
+        if (isClosed)
+            json.maxItems = maxItems;
     }
     else if (ctx.target === "openapi-3.0") {
         json.items = {
@@ -50723,70 +51986,164 @@ const tupleProcessor = (schema, ctx, _json, params) => {
         if (rest) {
             json.items.anyOf.push(rest);
         }
-        json.minItems = prefixItems.length;
-        if (!rest) {
-            json.maxItems = prefixItems.length;
-        }
+        if (minItems > 0)
+            json.minItems = minItems;
+        if (isClosed)
+            json.maxItems = maxItems;
     }
     else {
         json.items = prefixItems;
-        if (rest) {
+        if (isClosed) {
+            json.additionalItems = false;
+        }
+        else if (rest) {
             json.additionalItems = rest;
         }
+        if (minItems > 0)
+            json.minItems = minItems;
+        if (isClosed)
+            json.maxItems = maxItems;
     }
-    // length
-    const { minimum, maximum } = schema._zod.bag;
+    // explicit user-defined length checks take precedence
+    const { minimum, maximum } = aggregateChecks(schema);
     if (typeof minimum === "number")
         json.minItems = minimum;
     if (typeof maximum === "number")
         json.maxItems = maximum;
 };
+/** JSON object keys are always strings, so a numeric record key schema is re-expressed over the
+ * numeric-string form the record parser matches. Deferred to `finalize`, after the flatten: a key
+ * behind a wrapper only carries its own `type` before then, and a union key only has its branches.
+ *
+ * A numeric bound cannot apply to a property name, so `minimum` and its siblings are dropped rather
+ * than carried over: keeping them beside `type: "string"` reproduces the match-nothing schema this
+ * exists to fix. A key that carries one therefore emits wider than the record parses — `z.record(z.number().min(5), V)`
+ * accepts `"3"` — which is the deliberate trade, since throwing on it would reject an ordinary schema
+ * outright. */
+function stringifyKeyNames(bySchema, json, visited) {
+    // an extracted key that rewrites cannot go on sharing its definition — the string form a key position needs is not the number form every other reference wants — so it inlines. One that does not rewrite keeps the `$ref`.
+    if (json.$ref) {
+        // a recursive key holds its own reference inside its definition, so a node already on the path is left alone rather than resolved again
+        if (visited.has(json))
+            return json;
+        visited.add(json);
+        const def = bySchema.get(json)?.def;
+        if (!def)
+            return json;
+        const inlined = stringifyKeyNames(bySchema, def, visited);
+        return inlined === def ? json : inlined;
+    }
+    for (const keyword of ["anyOf", "oneOf"]) {
+        const branches = json[keyword];
+        if (!Array.isArray(branches))
+            continue;
+        const mapped = branches.map((branch) => stringifyKeyNames(bySchema, branch, visited));
+        // rebuilding regardless would detach a key that had nothing to re-express, dropping its `$ref` and leaking the internal `id`
+        if (mapped.some((branch, i) => branch !== branches[i]))
+            json = { ...json, [keyword]: mapped };
+    }
+    // a member that already admits a string leaves the key unconstrained, so the node's own type re-expresses only when every member is numeric
+    const types = Array.isArray(json.type) ? json.type : [json.type];
+    const numericType = !types.includes("string") && types.some((t) => t === "number" || t === "integer");
+    // a heterogeneous key carries no type at all, so its numeric members are caught here instead
+    const values = json.enum ?? (json.const !== undefined ? [json.const] : undefined);
+    if (!numericType && !values?.some((v) => typeof v === "number"))
+        return json;
+    const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf, format, id, ...rest } = json;
+    if (rest.enum)
+        rest.enum = rest.enum.map((v) => (typeof v === "number" ? String(v) : v));
+    else if (typeof rest.const === "number")
+        rest.const = String(rest.const);
+    // a heterogeneous key keeps its absent type: the stringified members already say what a key may be
+    if (!numericType)
+        return rest;
+    rest.type = "string";
+    if (!values)
+        rest.pattern = (types.includes("number") ? regexes_number : regexes_integer).source;
+    return rest;
+}
+/** Every record of one conversion, so the carriers are found in a single pass rather than once per record. */
+const pendingRecords = new WeakMap();
+function rewriteKeyNames(ctx) {
+    // an extracted key is resolved by the object `extractToDef` left in its place, so the map is built once rather than searched per reference. `_zod.toJSONSchema` can hand the same object to two schemas, so the first entry carrying a body wins, as a search would have found it.
+    const bySchema = new Map();
+    for (const entry of ctx.seen.values()) {
+        if (entry.def && !bySchema.has(entry.schema))
+            bySchema.set(entry.schema, entry);
+    }
+    const rewrites = new Map();
+    for (const record of pendingRecords.get(ctx) ?? []) {
+        const seen = ctx.seen.get(record);
+        const names = (seen?.def ?? seen?.schema)?.propertyNames;
+        if (!names || names === true || rewrites.has(names))
+            continue;
+        const rewritten = stringifyKeyNames(bySchema, names, new Set());
+        if (rewritten !== names)
+            rewrites.set(names, rewritten);
+    }
+    if (!rewrites.size)
+        return;
+    // the flatten has already copied each record's own properties onto every wrapper by reference, and an extracted body is another such copy, so every carrier holding a rewritten key is updated together
+    for (const entry of ctx.seen.values()) {
+        for (const carrier of [entry.schema, entry.def]) {
+            const rewritten = carrier && rewrites.get(carrier.propertyNames);
+            if (rewritten)
+                carrier.propertyNames = rewritten;
+        }
+    }
+}
 const recordProcessor = (schema, ctx, _json, params) => {
     const json = _json;
     const def = schema._zod.def;
     json.type = "object";
-    // For looseRecord with regex patterns, use patternProperties
-    // This correctly represents "only validate keys matching the pattern" semantics
-    // and composes well with allOf (intersections)
+    // For looseRecord with regex patterns, use patternProperties. This correctly represents "only validate keys matching the pattern" semantics and composes well with allOf (intersections)
     const keyType = def.keyType;
-    const keyBag = keyType._zod.bag;
-    const patterns = keyBag?.patterns;
+    const patterns = aggregateChecks(keyType).patterns;
     if (def.mode === "loose" && patterns && patterns.size > 0) {
         // Use patternProperties for looseRecord with regex patterns
-        const valueSchema = to_json_schema_process(def.valueType, ctx, {
+        const valueSchema = processSchema(def.valueType, ctx, {
             ...params,
             path: [...params.path, "patternProperties", "*"],
         });
         json.patternProperties = {};
         for (const pattern of patterns) {
-            json.patternProperties[pattern.source] = valueSchema;
+            assignProp(json.patternProperties, exactPattern(pattern).source, valueSchema);
         }
     }
     else {
         // Default behavior: use propertyNames + additionalProperties
         if (ctx.target === "draft-07" || ctx.target === "draft-2020-12") {
-            json.propertyNames = to_json_schema_process(def.keyType, ctx, {
+            json.propertyNames = processSchema(def.keyType, ctx, {
                 ...params,
                 path: [...params.path, "propertyNames"],
             });
+            let pending = pendingRecords.get(ctx);
+            if (!pending) {
+                pending = [];
+                pendingRecords.set(ctx, pending);
+                ctx.deferred.push(() => rewriteKeyNames(ctx));
+            }
+            pending.push(schema);
         }
-        json.additionalProperties = to_json_schema_process(def.valueType, ctx, {
+        json.additionalProperties = processSchema(def.valueType, ctx, {
             ...params,
             path: [...params.path, "additionalProperties"],
         });
     }
     // Add required for keys with discrete values (enum, literal, etc.)
     const keyValues = keyType._zod.values;
-    if (keyValues) {
+    // Every key shares one value schema, so an optional-in value makes the whole key set omittable on input. Output keeps them: the exhaustive branch assigns every key, even one whose value came back undefined.
+    const omittableOnInput = ctx.io === "input" && inputOptin(def.valueType) !== undefined;
+    if (keyValues && !def.partial && !omittableOnInput) {
         const validKeyValues = [...keyValues].filter((v) => typeof v === "string" || typeof v === "number");
         if (validKeyValues.length > 0) {
-            json.required = validKeyValues;
+            json.required = validKeyValues.map(String);
         }
     }
 };
 const nullableProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    const inner = to_json_schema_process(def.innerType, ctx, params);
+    const inner = processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     if (ctx.target === "openapi-3.0") {
         seen.ref = def.innerType;
@@ -50798,28 +52155,50 @@ const nullableProcessor = (schema, ctx, json, params) => {
 };
 const nonoptionalProcessor = (schema, ctx, _json, params) => {
     const def = schema._zod.def;
-    to_json_schema_process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
 };
+/** Round-trips a default value through JSON so the emitted schema is guaranteed to be valid JSON.
+ * A BigInt has no reliable encoding, so it goes through `unrepresentable` like any other
+ * unrepresentable value. Returns a sentinel when the caller must not write a default of its own. */
+const UNREPRESENTABLE_DEFAULT = Symbol();
+function serializeDefaultValue(value, schema, ctx, json, params) {
+    let unrepresentable = false;
+    const serialized = JSON.stringify(value, (_, val) => {
+        if (typeof val !== "bigint")
+            return val;
+        unrepresentable = true;
+        return null;
+    });
+    if (!unrepresentable)
+        return JSON.parse(serialized);
+    handleUnrepresentable(schema, ctx, json, params, "BigInt defaults cannot be represented in JSON Schema");
+    return UNREPRESENTABLE_DEFAULT;
+}
 const defaultProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    to_json_schema_process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
-    json.default = JSON.parse(JSON.stringify(def.defaultValue));
+    const value = serializeDefaultValue(def.defaultValue, schema, ctx, json, params);
+    if (value !== UNREPRESENTABLE_DEFAULT)
+        json.default = value;
 };
 const prefaultProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    to_json_schema_process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
-    if (ctx.io === "input")
-        json._prefault = JSON.parse(JSON.stringify(def.defaultValue));
+    if (ctx.io !== "input")
+        return;
+    const value = serializeDefaultValue(def.defaultValue, schema, ctx, json, params);
+    if (value !== UNREPRESENTABLE_DEFAULT)
+        json._prefault = value;
 };
 const catchProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    to_json_schema_process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
     let catchValue;
@@ -50827,7 +52206,8 @@ const catchProcessor = (schema, ctx, json, params) => {
         catchValue = def.catchValue(undefined);
     }
     catch {
-        throw new Error("Dynamic catch values are not supported in JSON Schema");
+        handleUnrepresentable(schema, ctx, json, params, "Dynamic catch values are not supported in JSON Schema");
+        return;
     }
     json.default = catchValue;
 };
@@ -50835,32 +52215,32 @@ const pipeProcessor = (schema, ctx, _json, params) => {
     const def = schema._zod.def;
     const inIsTransform = def.in._zod.traits.has("$ZodTransform");
     const innerType = ctx.io === "input" ? (inIsTransform ? def.out : def.in) : def.out;
-    to_json_schema_process(innerType, ctx, params);
+    processSchema(innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = innerType;
 };
 const readonlyProcessor = (schema, ctx, json, params) => {
     const def = schema._zod.def;
-    to_json_schema_process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
     json.readOnly = true;
 };
 const promiseProcessor = (schema, ctx, _json, params) => {
     const def = schema._zod.def;
-    json_schema_processors_process(def.innerType, ctx, params);
+    json_schema_processors_processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
 };
 const optionalProcessor = (schema, ctx, _json, params) => {
     const def = schema._zod.def;
-    to_json_schema_process(def.innerType, ctx, params);
+    processSchema(def.innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = def.innerType;
 };
 const lazyProcessor = (schema, ctx, _json, params) => {
     const innerType = schema._zod.innerType;
-    json_schema_processors_process(innerType, ctx, params);
+    json_schema_processors_processSchema(innerType, ctx, params);
     const seen = ctx.seen.get(schema);
     seen.ref = innerType;
 };
@@ -50915,7 +52295,7 @@ function toJSONSchema(input, params) {
         // First pass: process all schemas to build the seen map
         for (const entry of registry._idmap.entries()) {
             const [_, schema] = entry;
-            json_schema_processors_process(schema, ctx);
+            json_schema_processors_processSchema(schema, ctx);
         }
         const schemas = {};
         const external = {
@@ -50929,7 +52309,7 @@ function toJSONSchema(input, params) {
         for (const entry of registry._idmap.entries()) {
             const [key, schema] = entry;
             json_schema_processors_extractDefs(ctx, schema);
-            schemas[key] = json_schema_processors_finalize(ctx, schema);
+            json_schema_processors_assignProp(schemas, key, json_schema_processors_finalize(ctx, schema));
         }
         if (Object.keys(defs).length > 0) {
             const defsSegment = ctx.target === "draft-2020-12" ? "$defs" : "definitions";
@@ -50941,104 +52321,386 @@ function toJSONSchema(input, params) {
     }
     // Single schema case
     const ctx = json_schema_processors_initializeContext({ ...params, processors: allProcessors });
-    json_schema_processors_process(input, ctx);
+    json_schema_processors_processSchema(input, ctx);
     json_schema_processors_extractDefs(ctx, input);
     return json_schema_processors_finalize(ctx, input);
 }
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/classic/iso.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/locales/en.js
+
+const en_error = () => {
+    const Sizable = {
+        string: { unit: "characters", verb: "to have" },
+        file: { unit: "bytes", verb: "to have" },
+        array: { unit: "items", verb: "to have" },
+        set: { unit: "items", verb: "to have" },
+        map: { unit: "entries", verb: "to have" },
+    };
+    function getSizing(origin) {
+        return Sizable[origin] ?? null;
+    }
+    const FormatDictionary = {
+        regex: "input",
+        email: "email address",
+        url: "URL",
+        emoji: "emoji",
+        uuid: "UUID",
+        uuidv4: "UUIDv4",
+        uuidv6: "UUIDv6",
+        nanoid: "nanoid",
+        guid: "GUID",
+        cuid: "cuid",
+        cuid2: "cuid2",
+        ulid: "ULID",
+        xid: "XID",
+        ksuid: "KSUID",
+        datetime: "ISO datetime",
+        date: "ISO date",
+        time: "ISO time",
+        duration: "ISO duration",
+        ipv4: "IPv4 address",
+        ipv6: "IPv6 address",
+        mac: "MAC address",
+        cidrv4: "IPv4 range",
+        cidrv6: "IPv6 range",
+        base64: "base64-encoded string",
+        base64url: "base64url-encoded string",
+        json_string: "JSON string",
+        e164: "E.164 number",
+        currency_code: "currency code",
+        credit_card: "credit card number",
+        iban: "IBAN",
+        jwt: "JWT",
+        template_literal: "input",
+    };
+    // type names: missing keys = do not translate (use raw value via ?? fallback)
+    const TypeDictionary = {
+        // Compatibility: "nan" -> "NaN" for display
+        nan: "NaN",
+        // All other type names omitted - they fall back to raw values via ?? operator
+    };
+    function getTypeName(type, input) {
+        if (type === "number" && typeof input === "number" && !Number.isFinite(input)) {
+            return String(input);
+        }
+        return TypeDictionary[type] ?? type;
+    }
+    return (issue) => {
+        switch (issue.code) {
+            case "invalid_type": {
+                const expected = getTypeName(issue.expected);
+                const receivedType = parsedType(issue.input);
+                const received = getTypeName(receivedType, issue.input);
+                return `Invalid input: expected ${expected}, received ${received}`;
+            }
+            case "invalid_value":
+                if (issue.values.length === 1)
+                    return `Invalid input: expected ${stringifyPrimitive(issue.values[0])}`;
+                return `Invalid option: expected one of ${joinValues(issue.values, "|")}`;
+            case "too_big": {
+                const adj = issue.exact ? "exactly " : issue.inclusive ? "<=" : "<";
+                const sizing = getSizing(issue.origin);
+                if (sizing)
+                    return `Too big: expected ${issue.origin ?? "value"} to have ${adj}${issue.maximum.toString()} ${sizing.unit ?? "elements"}`;
+                return `Too big: expected ${issue.origin ?? "value"} to be ${adj}${issue.maximum.toString()}`;
+            }
+            case "too_small": {
+                const adj = issue.exact ? "exactly " : issue.inclusive ? ">=" : ">";
+                const sizing = getSizing(issue.origin);
+                if (sizing) {
+                    return `Too small: expected ${issue.origin} to have ${adj}${issue.minimum.toString()} ${sizing.unit}`;
+                }
+                return `Too small: expected ${issue.origin} to be ${adj}${issue.minimum.toString()}`;
+            }
+            case "invalid_format": {
+                const _issue = issue;
+                if (_issue.format === "starts_with") {
+                    return `Invalid string: must start with "${_issue.prefix}"`;
+                }
+                if (_issue.format === "ends_with")
+                    return `Invalid string: must end with "${_issue.suffix}"`;
+                if (_issue.format === "includes")
+                    return `Invalid string: must include "${_issue.includes}"`;
+                if (_issue.format === "regex")
+                    return `Invalid string: must match pattern ${_issue.pattern}`;
+                return `Invalid ${FormatDictionary[_issue.format] ?? issue.format}`;
+            }
+            case "not_multiple_of":
+                return `Invalid number: must be a multiple of ${issue.divisor}`;
+            case "unrecognized_keys":
+                return `Unrecognized key${issue.keys.length > 1 ? "s" : ""}: ${joinValues(issue.keys, ", ")}`;
+            case "invalid_key":
+                return `Invalid key in ${issue.origin}`;
+            case "invalid_union":
+                if (issue.options && Array.isArray(issue.options) && issue.options.length > 0) {
+                    const opts = issue.options.map((o) => `'${o}'`).join(" | ");
+                    return `Invalid discriminator value. Expected ${opts}`;
+                }
+                if (issue.inclusive === false) {
+                    return "Invalid input: more than one option matched";
+                }
+                return "Invalid input";
+            case "invalid_element":
+                return `Invalid value in ${issue.origin}`;
+            default:
+                return `Invalid input`;
+        }
+    };
+};
+/* harmony default export */ function locales_en() {
+    return {
+        localeError: en_error(),
+    };
+}
+
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/core/parse.js
 
 
-const ZodISODateTime = /*@__PURE__*/ $constructor("ZodISODateTime", (inst, def) => {
-    $ZodISODateTime.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-function iso_datetime(params) {
-    return _isoDateTime(ZodISODateTime, params);
-}
-const ZodISODate = /*@__PURE__*/ $constructor("ZodISODate", (inst, def) => {
-    $ZodISODate.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-function iso_date(params) {
-    return _isoDate(ZodISODate, params);
-}
-const ZodISOTime = /*@__PURE__*/ $constructor("ZodISOTime", (inst, def) => {
-    $ZodISOTime.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-function iso_time(params) {
-    return _isoTime(ZodISOTime, params);
-}
-const ZodISODuration = /*@__PURE__*/ $constructor("ZodISODuration", (inst, def) => {
-    $ZodISODuration.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-function iso_duration(params) {
-    return _isoDuration(ZodISODuration, params);
-}
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/classic/errors.js
+// Always both keys, so the `_params` read site in `_parse` sees one object shape rather than two.
+function finalizeParams(callee, params) {
+    return { callee: params?.callee ?? callee, Err: params?.Err };
+}
+const _parse = (_Err) => {
+    const fn = (schema, value, _ctx, _params) => {
+        const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
+        const result = schema._zod.run({ value, issues: [] }, ctx);
+        if (result instanceof Promise) {
+            throw new $ZodAsyncError();
+        }
+        if (result.issues.length) {
+            const e = new (_params?.Err ?? _Err)(result.issues.map((iss) => finalizeIssue(iss, ctx, config())));
+            captureStackTrace(e, _params?.callee ?? fn);
+            throw e;
+        }
+        return result.value;
+    };
+    return fn;
+};
+const parse_parse = /* @__PURE__*/ _parse($ZodRealError);
+const _parseAsync = (_Err) => {
+    const fn = async (schema, value, _ctx, params) => {
+        const ctx = _ctx ? { ..._ctx, async: true } : { async: true };
+        let result = schema._zod.run({ value, issues: [] }, ctx);
+        if (result instanceof Promise)
+            result = await result;
+        if (result.issues.length) {
+            const e = new (params?.Err ?? _Err)(result.issues.map((iss) => finalizeIssue(iss, ctx, config())));
+            captureStackTrace(e, params?.callee ?? fn);
+            throw e;
+        }
+        return result.value;
+    };
+    return fn;
+};
+const parse_parseAsync = /* @__PURE__*/ _parseAsync($ZodRealError);
+const _safeParse = (_Err) => (schema, value, _ctx) => {
+    const ctx = _ctx ? { ..._ctx, async: false } : { async: false };
+    const result = schema._zod.run({ value, issues: [] }, ctx);
+    if (result instanceof Promise) {
+        throw new $ZodAsyncError();
+    }
+    return result.issues.length ? failure(_Err, result.issues, ctx) : { success: true, data: result.value };
+};
+const safeParse = /* @__PURE__*/ _safeParse($ZodRealError);
+// the error is built on the first read of `error`: finalizing the issues and constructing the instance is most of a failing parse, and a caller that only branches on `success` never pays it. a getter in the literal keeps this small; the alternative, one shared accessor descriptor plus a hidden state slot, reads ~15% faster but costs ~75 B gzipped in every bundle
+function failure(Err, issues, ctx) {
+    let error;
+    return {
+        success: false,
+        get error() {
+            if (!error) {
+                error = new Err(issues.map((iss) => finalizeIssue(iss, ctx, config())));
+                // finalizeIssue drops `input`, so the built error holds nothing; keeping the raw issues past this point pins the parsed value for the life of the result
+                issues = undefined;
+                ctx = undefined;
+            }
+            return error;
+        },
+        set error(e) {
+            error = e;
+            // a replacement makes the getter's branch unreachable, so the captures have to go here too
+            issues = undefined;
+            ctx = undefined;
+        },
+    };
+}
+const _safeParseAsync = (_Err) => async (schema, value, _ctx) => {
+    const ctx = _ctx ? { ..._ctx, async: true } : { async: true };
+    let result = schema._zod.run({ value, issues: [] }, ctx);
+    if (result instanceof Promise)
+        result = await result;
+    return result.issues.length ? failure(_Err, result.issues, ctx) : { success: true, data: result.value };
+};
+const safeParseAsync = /* @__PURE__*/ _safeParseAsync($ZodRealError);
+// registry mirrors of the compiler's sentinels, so this module never imports the compiler
+const COMPILE_INVALID = /* @__PURE__ */ Symbol.for("zod.compile.invalid");
+const COMPILE_FALLBACK = /* @__PURE__ */ Symbol.for("zod.compile.fallback");
+// Deliberately tiny, because v8 will not inline a body carrying the fallback's object literals and throw. Everything that is not the compiled happy path lives in validateFallback, and that split is worth ~35% on a compiled schema.
+const validate = ((schema, value, _ctx) => {
+    const validator = schema._zod.bag.validator;
+    if (validator !== undefined) {
+        if (validator(value) !== COMPILE_INVALID)
+            return true;
+        // a definite sentinel means the runtime would reject, so skip the re-parse; a ctx can still change the answer
+        if (validator.definite === true && _ctx === undefined)
+            return false;
+    }
+    return validateFallback(schema, value, _ctx);
+});
+function validateFallback(schema, value, _ctx) {
+    const ctx = _ctx
+        ? { ..._ctx, async: false, abortEarly: true }
+        : { async: false, abortEarly: true };
+    const fallbackRun = schema._zod.bag.fallbackRun;
+    let result;
+    if (fallbackRun) {
+        // skip nested fast paths on the fallback, so user callbacks keep the at-most-twice bound
+        ctx[COMPILE_FALLBACK] = true;
+        result = fallbackRun({ value, issues: [] }, ctx);
+    }
+    else {
+        result = schema._zod.run({ value, issues: [] }, ctx);
+    }
+    if (result instanceof Promise) {
+        throw new $ZodAsyncError();
+    }
+    return result.issues.length === 0;
+}
+// no fast path: the compiler keeps async parses on the runtime, because a promise-returning callback that is not declared async compiles to a throw
+const parse_validateAsync = async (schema, value, _ctx) => {
+    const ctx = _ctx
+        ? { ..._ctx, async: true, abortEarly: true }
+        : { async: true, abortEarly: true };
+    let result = schema._zod.run({ value, issues: [] }, ctx);
+    if (result instanceof Promise)
+        result = await result;
+    return result.issues.length === 0;
+};
+const parse_encode = (_Err) => {
+    const parse = _parse(_Err);
+    const fn = (schema, value, _ctx, _params) => {
+        const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
+        return parse(schema, value, ctx, finalizeParams(fn, _params));
+    };
+    return fn;
+};
+const core_parse_encode = /* @__PURE__*/ parse_encode($ZodRealError);
+const _decode = (_Err) => {
+    const parse = _parse(_Err);
+    const fn = (schema, value, _ctx, _params) => {
+        return parse(schema, value, _ctx, finalizeParams(fn, _params));
+    };
+    return fn;
+};
+const parse_decode = /* @__PURE__*/ _decode($ZodRealError);
+const _encodeAsync = (_Err) => {
+    const parseAsync = _parseAsync(_Err);
+    const fn = async (schema, value, _ctx, _params) => {
+        const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
+        return (await parseAsync(schema, value, ctx, finalizeParams(fn, _params)));
+    };
+    return fn;
+};
+const encodeAsync = /* @__PURE__*/ _encodeAsync($ZodRealError);
+const _decodeAsync = (_Err) => {
+    const parseAsync = _parseAsync(_Err);
+    const fn = async (schema, value, _ctx, _params) => {
+        return await parseAsync(schema, value, _ctx, finalizeParams(fn, _params));
+    };
+    return fn;
+};
+const decodeAsync = /* @__PURE__*/ _decodeAsync($ZodRealError);
+const _safeEncode = (_Err) => (schema, value, _ctx) => {
+    const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
+    return _safeParse(_Err)(schema, value, ctx);
+};
+const safeEncode = /* @__PURE__*/ _safeEncode($ZodRealError);
+const _safeDecode = (_Err) => (schema, value, _ctx) => {
+    return _safeParse(_Err)(schema, value, _ctx);
+};
+const safeDecode = /* @__PURE__*/ _safeDecode($ZodRealError);
+const _safeEncodeAsync = (_Err) => async (schema, value, _ctx) => {
+    const ctx = _ctx ? { ..._ctx, direction: "backward" } : { direction: "backward" };
+    return _safeParseAsync(_Err)(schema, value, ctx);
+};
+const safeEncodeAsync = /* @__PURE__*/ _safeEncodeAsync($ZodRealError);
+const _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
+    return _safeParseAsync(_Err)(schema, value, _ctx);
+};
+const safeDecodeAsync = /* @__PURE__*/ _safeDecodeAsync($ZodRealError);
+
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/classic/errors.js
 /* unused harmony import specifier */ var errors_core;
 
 
 
+/* Prototypes that already carry the lazy helper methods. Seeded with the
+ * intrinsics so that `init` on a foreign object — it accepts any object —
+ * can never install an accessor onto a prototype we do not own. */
+const _installedErrorProtos = /* @__PURE__ */ new WeakSet([Object.prototype, Error.prototype]);
+/* Helper methods live as non-enumerable lazy getters on the shared
+ * prototype instead of own properties on every instance. On first
+ * access the getter allocates the per-instance closure and caches it
+ * as a non-enumerable own property, so detached usage still works and
+ * the allocation only happens for methods actually touched. */
+function _lazyMethod(proto, key, make) {
+    Object.defineProperty(proto, key, {
+        configurable: true,
+        enumerable: false,
+        get() {
+            const value = make(this);
+            Object.defineProperty(this, key, { value, configurable: true, writable: true });
+            return value;
+        },
+        set(value) {
+            Object.defineProperty(this, key, { value, configurable: true, writable: true });
+        },
+    });
+}
 const errors_initializer = (inst, issues) => {
     $ZodError.init(inst, issues);
     inst.name = "ZodError";
-    Object.defineProperties(inst, {
-        format: {
-            value: (mapper) => formatError(inst, mapper),
-            // enumerable: false,
-        },
-        flatten: {
-            value: (mapper) => flattenError(inst, mapper),
-            // enumerable: false,
-        },
-        addIssue: {
-            value: (issue) => {
-                inst.issues.push(issue);
-                inst.message = JSON.stringify(inst.issues, jsonStringifyReplacer, 2);
-            },
-            // enumerable: false,
-        },
-        addIssues: {
-            value: (issues) => {
-                inst.issues.push(...issues);
-                inst.message = JSON.stringify(inst.issues, jsonStringifyReplacer, 2);
-            },
-            // enumerable: false,
-        },
-        isEmpty: {
-            get() {
-                return inst.issues.length === 0;
-            },
-            // enumerable: false,
+    const proto = Object.getPrototypeOf(inst);
+    if (_installedErrorProtos.has(proto))
+        return;
+    _installedErrorProtos.add(proto);
+    _lazyMethod(proto, "format", (self) => (mapper) => formatError(self, mapper));
+    _lazyMethod(proto, "flatten", (self) => (mapper) => flattenError(self, mapper));
+    _lazyMethod(proto, "addIssue", (self) => (issue) => {
+        self.issues.push(issue);
+        self.message = JSON.stringify(self.issues, jsonStringifyReplacer, 2);
+    });
+    _lazyMethod(proto, "addIssues", (self) => (issues) => {
+        self.issues.push(...issues);
+        self.message = JSON.stringify(self.issues, jsonStringifyReplacer, 2);
+    });
+    Object.defineProperty(proto, "isEmpty", {
+        configurable: true,
+        enumerable: false,
+        get() {
+            return this.issues.length === 0;
         },
     });
-    // Object.defineProperty(inst, "isEmpty", {
-    //   get() {
-    //     return inst.issues.length === 0;
-    //   },
-    // });
 };
 const ZodError = /*@__PURE__*/ (/* unused pure expression or super */ null && (errors_core.$constructor("ZodError", errors_initializer)));
-const ZodRealError = /*@__PURE__*/ $constructor("ZodError", errors_initializer, {
+const ZodRealError = /*@__PURE__*/ $constructor("ZodError", errors_initializer, undefined, {
     Parent: Error,
 });
 // /** @deprecated Use `z.core.$ZodErrorMapCtx` instead. */
 // export type ErrorMapCtx = core.$ZodErrorMapCtx;
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/classic/parse.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/classic/parse.js
 
 
-const parse_parse = /* @__PURE__ */ _parse(ZodRealError);
-const parse_parseAsync = /* @__PURE__ */ _parseAsync(ZodRealError);
+const classic_parse_parse = /* @__PURE__ */ _parse(ZodRealError);
+const classic_parse_parseAsync = /* @__PURE__ */ _parseAsync(ZodRealError);
 const parse_safeParse = /* @__PURE__ */ _safeParse(ZodRealError);
 const parse_safeParseAsync = /* @__PURE__ */ _safeParseAsync(ZodRealError);
+
 // Codec functions
-const parse_encode = /* @__PURE__ */ _encode(ZodRealError);
-const parse_decode = /* @__PURE__ */ _decode(ZodRealError);
+const classic_parse_encode = /* @__PURE__ */ parse_encode(ZodRealError);
+const classic_parse_decode = /* @__PURE__ */ _decode(ZodRealError);
 const parse_encodeAsync = /* @__PURE__ */ _encodeAsync(ZodRealError);
 const parse_decodeAsync = /* @__PURE__ */ _decodeAsync(ZodRealError);
 const parse_safeEncode = /* @__PURE__ */ _safeEncode(ZodRealError);
@@ -51046,11 +52708,12 @@ const parse_safeDecode = /* @__PURE__ */ _safeDecode(ZodRealError);
 const parse_safeEncodeAsync = /* @__PURE__ */ _safeEncodeAsync(ZodRealError);
 const parse_safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/classic/schemas.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/classic/schemas.js
 /* unused harmony import specifier */ var classic_schemas_core;
 /* unused harmony import specifier */ var classic_schemas_util;
 /* unused harmony import specifier */ var processors;
-/* unused harmony import specifier */ var schemas_checks;
+/* unused harmony import specifier */ var schemas_regexes;
+/* unused harmony import specifier */ var classic_schemas_checks;
 
 
 
@@ -51058,286 +52721,332 @@ const parse_safeDecodeAsync = /* @__PURE__ */ _safeDecodeAsync(ZodRealError);
 
 
 
-// Lazy-bind builder methods.
-//
-// Builder methods (`.optional`, `.array`, `.refine`, ...) live as
-// non-enumerable getters on each concrete schema constructor's
-// prototype. On first access from an instance the getter allocates
-// `fn.bind(this)` and caches it as an own property on that instance,
-// so detached usage (`const m = schema.optional; m()`) still works
-// and the per-instance allocation only happens for methods actually
-// touched.
-//
-// One install per (prototype, group), memoized by `_installedGroups`.
-const _installedGroups = /* @__PURE__ */ new WeakMap();
-function _installLazyMethods(inst, group, methods) {
-    const proto = Object.getPrototypeOf(inst);
-    let installed = _installedGroups.get(proto);
-    if (!installed) {
-        installed = new Set();
-        _installedGroups.set(proto, installed);
-    }
-    if (installed.has(group))
-        return;
-    installed.add(group);
-    for (const key in methods) {
-        const fn = methods[key];
-        Object.defineProperty(proto, key, {
-            configurable: true,
-            enumerable: false,
-            get() {
-                const bound = fn.bind(this);
-                Object.defineProperty(this, key, {
-                    configurable: true,
-                    writable: true,
-                    enumerable: true,
-                    value: bound,
-                });
-                return bound;
-            },
-            set(v) {
-                Object.defineProperty(this, key, {
-                    configurable: true,
-                    writable: true,
-                    enumerable: true,
-                    value: v,
-                });
-            },
-        });
-    }
+
+// Register English as the default locale on first ZodType construction. Hooked into the `ZodType` `$constructor` (rather than a top-level `config(en())` in `external.ts`) so bundlers honoring `sideEffects: false` can't tree-shake it out — see #5953, #5725. An explicit `z.config(z.locales.xx())` call wins regardless of order, since this only sets the default when none is present.
+function _ensureDefaultLocale() {
+    if (!globalConfig.localeError)
+        config(locales_en());
+}
+// the default memoizer is read by the core container init, which runs before `ZodType.init`, so each container calls this first
+function _ensureDefaultMemoizer() {
+    if (!globalConfig.memoizer)
+        config({ memoizer: memoizer() });
 }
 const ZodType = /*@__PURE__*/ $constructor("ZodType", (inst, def) => {
+    _ensureDefaultLocale();
     $ZodType.init(inst, def);
-    Object.assign(inst["~standard"], {
-        jsonSchema: {
-            input: createStandardJSONSchemaMethod(inst, "input"),
-            output: createStandardJSONSchemaMethod(inst, "output"),
-        },
-    });
-    inst.toJSONSchema = createToJSONSchemaMethod(inst, {});
     inst.def = def;
     inst.type = def.type;
-    Object.defineProperty(inst, "_def", { value: def });
-    // Parse-family is intentionally kept as per-instance closures: these are
-    // the hot path AND the most-detached methods (`arr.map(schema.parse)`,
-    // `const { parse } = schema`, etc.). Eager closures here mean callers pay
-    // ~12 closure allocations per schema but get monomorphic call sites and
-    // detached usage that "just works".
-    inst.parse = (data, params) => parse_parse(inst, data, params, { callee: inst.parse });
-    inst.safeParse = (data, params) => parse_safeParse(inst, data, params);
-    inst.parseAsync = async (data, params) => parse_parseAsync(inst, data, params, { callee: inst.parseAsync });
-    inst.safeParseAsync = async (data, params) => parse_safeParseAsync(inst, data, params);
-    inst.spa = inst.safeParseAsync;
-    inst.encode = (data, params) => parse_encode(inst, data, params);
-    inst.decode = (data, params) => parse_decode(inst, data, params);
-    inst.encodeAsync = async (data, params) => parse_encodeAsync(inst, data, params);
-    inst.decodeAsync = async (data, params) => parse_decodeAsync(inst, data, params);
-    inst.safeEncode = (data, params) => parse_safeEncode(inst, data, params);
-    inst.safeDecode = (data, params) => parse_safeDecode(inst, data, params);
-    inst.safeEncodeAsync = async (data, params) => parse_safeEncodeAsync(inst, data, params);
-    inst.safeDecodeAsync = async (data, params) => parse_safeDecodeAsync(inst, data, params);
-    // All builder methods are placed on the internal prototype as lazy-bind
-    // getters. On first access per-instance, a bound thunk is allocated and
-    // cached as an own property; subsequent accesses skip the getter. This
-    // means: no per-instance allocation for unused methods, full
-    // detachability preserved (`const m = schema.optional; m()` works), and
-    // shared underlying function references across all instances.
-    _installLazyMethods(inst, "ZodType", {
-        check(...chks) {
-            const def = this.def;
-            return this.clone(mergeDefs(def, {
-                checks: [
-                    ...(def.checks ?? []),
-                    ...chks.map((ch) => typeof ch === "function" ? { _zod: { check: ch, def: { check: "custom" }, onattach: [] } } : ch),
-                ],
-            }), { parent: true });
-        },
-        with(...chks) {
-            return this.check(...chks);
-        },
-        clone(def, params) {
-            return clone(this, def, params);
-        },
-        brand() {
-            return this;
-        },
-        register(reg, meta) {
-            reg.add(this, meta);
-            return this;
-        },
-        refine(check, params) {
-            return this.check(refine(check, params));
-        },
-        superRefine(refinement, params) {
-            return this.check(superRefine(refinement, params));
-        },
-        overwrite(fn) {
-            return this.check(_overwrite(fn));
-        },
-        optional() {
-            return optional(this);
-        },
-        exactOptional() {
-            return exactOptional(this);
-        },
-        nullable() {
-            return nullable(this);
-        },
-        nullish() {
-            return optional(nullable(this));
-        },
-        nonoptional(params) {
-            return nonoptional(this, params);
-        },
-        array() {
-            return array(this);
-        },
-        or(arg) {
-            return union([this, arg]);
-        },
-        and(arg) {
-            return intersection(this, arg);
-        },
-        transform(tx) {
-            return pipe(this, transform(tx));
-        },
-        default(d) {
-            return schemas_default(this, d);
-        },
-        prefault(d) {
-            return prefault(this, d);
-        },
-        catch(params) {
-            return schemas_catch(this, params);
-        },
-        pipe(target) {
-            return pipe(this, target);
-        },
-        readonly() {
-            return readonly(this);
-        },
-        describe(description) {
-            const cl = this.clone();
-            globalRegistry.add(cl, { description });
-            return cl;
-        },
-        meta(...args) {
-            // overloaded: meta() returns the registered metadata, meta(data)
-            // returns a clone with `data` registered. The mapped type picks
-            // up the second overload, so we accept variadic any-args and
-            // return `any` to satisfy both at runtime.
-            if (args.length === 0)
-                return globalRegistry.get(this);
-            const cl = this.clone();
-            globalRegistry.add(cl, args[0]);
-            return cl;
-        },
-        isOptional() {
-            return this.safeParse(undefined).success;
-        },
-        isNullable() {
-            return this.safeParse(null).success;
-        },
-        apply(fn) {
-            return fn(this);
-        },
-    });
-    Object.defineProperty(inst, "description", {
-        get() {
-            return globalRegistry.get(inst)?.description;
-        },
-        configurable: true,
-    });
     return inst;
+}, {
+    check(...chks) {
+        const def = this.def;
+        return this.clone(mergeDefs(def, {
+            checks: [
+                ...(def.checks ?? []),
+                ...chks.map((ch) => typeof ch === "function" ? { _zod: { check: ch, def: { check: "custom" }, onattach: [] } } : ch),
+            ],
+        }), { parent: true });
+    },
+    with(...chks) {
+        return this.check(...chks);
+    },
+    clone(def, params) {
+        return util_clone(this, def, params);
+    },
+    brand() {
+        return this;
+    },
+    register(reg, meta) {
+        reg.add(this, meta);
+        return this;
+    },
+    refine(check, params) {
+        return this.check(refine(check, params));
+    },
+    superRefine(refinement, params) {
+        return this.check(superRefine(refinement, params));
+    },
+    overwrite(fn) {
+        return this.check(_overwrite(fn));
+    },
+    optional() {
+        return schemas_optional(this);
+    },
+    exactOptional() {
+        return exactOptional(this);
+    },
+    nullable() {
+        return nullable(this);
+    },
+    nullish() {
+        return schemas_optional(nullable(this));
+    },
+    nonoptional(params) {
+        return nonoptional(this, params);
+    },
+    array() {
+        return schemas_array(this);
+    },
+    or(arg) {
+        return union([this, arg]);
+    },
+    and(arg) {
+        return intersection(this, arg);
+    },
+    transform(tx) {
+        return schemas_pipe(this, schemas_transform(tx));
+    },
+    default(d) {
+        return schemas_default(this, d);
+    },
+    prefault(d) {
+        return prefault(this, d);
+    },
+    catch(params) {
+        return schemas_catch(this, params);
+    },
+    pipe(target) {
+        return schemas_pipe(this, target);
+    },
+    readonly() {
+        return readonly(this);
+    },
+    describe(description) {
+        const cl = this.clone();
+        globalRegistry.add(cl, { description });
+        return cl;
+    },
+    meta(...args) {
+        // overloaded: meta() returns the registered metadata, meta(data) returns a clone with `data` registered. The mapped type picks up the second overload, so we accept variadic any-args and return `any` to satisfy both at runtime.
+        if (args.length === 0)
+            return globalRegistry.get(this);
+        const cl = this.clone();
+        globalRegistry.add(cl, args[0]);
+        return cl;
+    },
+    isOptional() {
+        return this.safeParse(undefined).success;
+    },
+    isNullable() {
+        return this.safeParse(null).success;
+    },
+    apply(fn, ...args) {
+        return args.length === 0 ? fn(this) : fn(this, ...args);
+    },
+    // Overrides core's `~standard` to add `jsonSchema`. Must stay a prototype entry: redefining it per instance demotes instances to dictionary mode.
+    get "~standard"() {
+        return hide(this, "~standard", {
+            ...standardProps(this),
+            jsonSchema: {
+                input: createStandardJSONSchemaMethod(this, "input"),
+                output: createStandardJSONSchemaMethod(this, "output"),
+            },
+        });
+    },
+    set "~standard"(value) {
+        util_own(this, "~standard", value);
+    },
+    parse: function _parse(data, params) {
+        return classic_parse_parse(this, data, params, { callee: _parse });
+    },
+    parseAsync: async function _parseAsync(data, params) {
+        return await classic_parse_parseAsync(this, data, params, { callee: _parseAsync });
+    },
+    safeParse(data, params) {
+        return parse_safeParse(this, data, params);
+    },
+    async safeParseAsync(data, params) {
+        return parse_safeParseAsync(this, data, params);
+    },
+    // `spa` is an alias: same function object as `safeParseAsync`, as before.
+    get spa() {
+        return this?.safeParseAsync;
+    },
+    set spa(value) {
+        util_own(this, "spa", value);
+    },
+    validate(data, params) {
+        return validate(this, data, params);
+    },
+    validateAsync(data, params) {
+        return parse_validateAsync(this, data, params);
+    },
+    encode: function _encode(data, params) {
+        return classic_parse_encode(this, data, params, { callee: _encode });
+    },
+    decode: function _decode(data, params) {
+        return classic_parse_decode(this, data, params, { callee: _decode });
+    },
+    encodeAsync: async function _encodeAsync(data, params) {
+        return await parse_encodeAsync(this, data, params, { callee: _encodeAsync });
+    },
+    decodeAsync: async function _decodeAsync(data, params) {
+        return await parse_decodeAsync(this, data, params, { callee: _decodeAsync });
+    },
+    safeEncode(data, params) {
+        return parse_safeEncode(this, data, params);
+    },
+    safeDecode(data, params) {
+        return parse_safeDecode(this, data, params);
+    },
+    async safeEncodeAsync(data, params) {
+        return parse_safeEncodeAsync(this, data, params);
+    },
+    async safeDecodeAsync(data, params) {
+        return parse_safeDecodeAsync(this, data, params);
+    },
+    toJSONSchema(params) {
+        return createToJSONSchemaMethod(this, {})(params);
+    },
+    // Reads through to the registry on every access, so it must not cache.
+    get description() {
+        return globalRegistry.get(this)?.description;
+    },
+    // No setter: `schema._def = x` throws, as it did when `_def` was a non-writable own property.
+    get _def() {
+        return this._zod.def;
+    },
 });
 /** @internal */
 const _ZodString = /*@__PURE__*/ $constructor("_ZodString", (inst, def) => {
     $ZodString.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => stringProcessor(inst, ctx, json, params);
-    const bag = inst._zod.bag;
-    inst.format = bag.format ?? null;
-    inst.minLength = bag.minimum ?? null;
-    inst.maxLength = bag.maximum ?? null;
-    _installLazyMethods(inst, "_ZodString", {
-        regex(...args) {
-            return this.check(_regex(...args));
-        },
-        includes(...args) {
-            return this.check(_includes(...args));
-        },
-        startsWith(...args) {
-            return this.check(_startsWith(...args));
-        },
-        endsWith(...args) {
-            return this.check(_endsWith(...args));
-        },
-        min(...args) {
-            return this.check(_minLength(...args));
-        },
-        max(...args) {
-            return this.check(_maxLength(...args));
-        },
-        length(...args) {
-            return this.check(_length(...args));
-        },
-        nonempty(...args) {
-            return this.check(_minLength(1, ...args));
-        },
-        lowercase(params) {
-            return this.check(_lowercase(params));
-        },
-        uppercase(params) {
-            return this.check(_uppercase(params));
-        },
-        trim() {
-            return this.check(_trim());
-        },
-        normalize(...args) {
-            return this.check(_normalize(...args));
-        },
-        toLowerCase() {
-            return this.check(_toLowerCase());
-        },
-        toUpperCase() {
-            return this.check(_toUpperCase());
-        },
-        slugify() {
-            return this.check(_slugify());
-        },
-    });
-});
+}, 
+/*@__PURE__*/ derived({
+    format: (inst) => aggregateChecks(inst).format ?? null,
+    minLength: (inst) => aggregateChecks(inst).minimum ?? null,
+    maxLength: (inst) => aggregateChecks(inst).maximum ?? null,
+}, {
+    regex(...args) {
+        return this.check(_regex(...args));
+    },
+    includes(...args) {
+        return this.check(_includes(...args));
+    },
+    startsWith(...args) {
+        return this.check(_startsWith(...args));
+    },
+    endsWith(...args) {
+        return this.check(_endsWith(...args));
+    },
+    min(...args) {
+        return this.check(_minLength(...args));
+    },
+    max(...args) {
+        return this.check(_maxLength(...args));
+    },
+    length(...args) {
+        return this.check(_length(...args));
+    },
+    nonempty(...args) {
+        return this.check(_minLength(1, ...args));
+    },
+    lowercase(params) {
+        return this.check(_lowercase(params));
+    },
+    uppercase(params) {
+        return this.check(_uppercase(params));
+    },
+    trim() {
+        return this.check(_trim());
+    },
+    normalize(...args) {
+        return this.check(_normalize(...args));
+    },
+    toLowerCase() {
+        return this.check(_toLowerCase());
+    },
+    toUpperCase() {
+        return this.check(_toUpperCase());
+    },
+    slugify() {
+        return this.check(_slugify());
+    },
+}));
 const ZodString = /*@__PURE__*/ $constructor("ZodString", (inst, def) => {
     $ZodString.init(inst, def);
     _ZodString.init(inst, def);
-    inst.email = (params) => inst.check(_email(ZodEmail, params));
-    inst.url = (params) => inst.check(_url(ZodURL, params));
-    inst.jwt = (params) => inst.check(_jwt(ZodJWT, params));
-    inst.emoji = (params) => inst.check(api_emoji(ZodEmoji, params));
-    inst.guid = (params) => inst.check(_guid(ZodGUID, params));
-    inst.uuid = (params) => inst.check(_uuid(ZodUUID, params));
-    inst.uuidv4 = (params) => inst.check(_uuidv4(ZodUUID, params));
-    inst.uuidv6 = (params) => inst.check(_uuidv6(ZodUUID, params));
-    inst.uuidv7 = (params) => inst.check(_uuidv7(ZodUUID, params));
-    inst.nanoid = (params) => inst.check(_nanoid(ZodNanoID, params));
-    inst.guid = (params) => inst.check(_guid(ZodGUID, params));
-    inst.cuid = (params) => inst.check(_cuid(ZodCUID, params));
-    inst.cuid2 = (params) => inst.check(_cuid2(ZodCUID2, params));
-    inst.ulid = (params) => inst.check(_ulid(ZodULID, params));
-    inst.base64 = (params) => inst.check(_base64(ZodBase64, params));
-    inst.base64url = (params) => inst.check(_base64url(ZodBase64URL, params));
-    inst.xid = (params) => inst.check(_xid(ZodXID, params));
-    inst.ksuid = (params) => inst.check(_ksuid(ZodKSUID, params));
-    inst.ipv4 = (params) => inst.check(_ipv4(ZodIPv4, params));
-    inst.ipv6 = (params) => inst.check(_ipv6(ZodIPv6, params));
-    inst.cidrv4 = (params) => inst.check(_cidrv4(ZodCIDRv4, params));
-    inst.cidrv6 = (params) => inst.check(_cidrv6(ZodCIDRv6, params));
-    inst.e164 = (params) => inst.check(_e164(ZodE164, params));
-    // iso
-    inst.datetime = (params) => inst.check(iso_datetime(params));
-    inst.date = (params) => inst.check(iso_date(params));
-    inst.time = (params) => inst.check(iso_time(params));
-    inst.duration = (params) => inst.check(iso_duration(params));
+}, {
+    email(params) {
+        return this.check(_email(ZodEmail, params));
+    },
+    url(params) {
+        return this.check(_url(ZodURL, params));
+    },
+    jwt(params) {
+        return this.check(_jwt(ZodJWT, params));
+    },
+    emoji(params) {
+        return this.check(api_emoji(ZodEmoji, params));
+    },
+    guid(params) {
+        return this.check(_guid(ZodGUID, params));
+    },
+    uuid(params) {
+        return this.check(_uuid(ZodUUID, params));
+    },
+    uuidv4(params) {
+        return this.check(_uuidv4(ZodUUID, params));
+    },
+    uuidv6(params) {
+        return this.check(_uuidv6(ZodUUID, params));
+    },
+    uuidv7(params) {
+        return this.check(_uuidv7(ZodUUID, params));
+    },
+    nanoid(params) {
+        return this.check(_nanoid(ZodNanoID, params));
+    },
+    cuid(params) {
+        return this.check(_cuid(ZodCUID, params));
+    },
+    cuid2(params) {
+        return this.check(_cuid2(ZodCUID2, params));
+    },
+    ulid(params) {
+        return this.check(_ulid(ZodULID, params));
+    },
+    base64(params) {
+        return this.check(_base64(ZodBase64, params));
+    },
+    base64url(params) {
+        return this.check(_base64url(ZodBase64URL, params));
+    },
+    xid(params) {
+        return this.check(_xid(ZodXID, params));
+    },
+    ksuid(params) {
+        return this.check(_ksuid(ZodKSUID, params));
+    },
+    ipv4(params) {
+        return this.check(_ipv4(ZodIPv4, params));
+    },
+    ipv6(params) {
+        return this.check(_ipv6(ZodIPv6, params));
+    },
+    cidrv4(params) {
+        return this.check(_cidrv4(ZodCIDRv4, params));
+    },
+    cidrv6(params) {
+        return this.check(_cidrv6(ZodCIDRv6, params));
+    },
+    e164(params) {
+        return this.check(_e164(ZodE164, params));
+    },
+    datetime(params) {
+        return this.check(_isoDateTime(ZodISODateTime, params));
+    },
+    date(params) {
+        return this.check(_isoDate(ZodISODate, params));
+    },
+    time(params) {
+        return this.check(_isoTime(ZodISOTime, params));
+    },
+    duration(params) {
+        return this.check(_isoDuration(ZodISODuration, params));
+    },
 });
 function schemas_string(params) {
     return _string(ZodString, params);
@@ -51345,6 +53054,22 @@ function schemas_string(params) {
 const ZodStringFormat = /*@__PURE__*/ $constructor("ZodStringFormat", (inst, def) => {
     $ZodStringFormat.init(inst, def);
     _ZodString.init(inst, def);
+});
+const ZodISODateTime = /*@__PURE__*/ $constructor("ZodISODateTime", (inst, def) => {
+    $ZodISODateTime.init(inst, def);
+    ZodStringFormat.init(inst, def);
+});
+const ZodISODate = /*@__PURE__*/ $constructor("ZodISODate", (inst, def) => {
+    $ZodISODate.init(inst, def);
+    ZodStringFormat.init(inst, def);
+});
+const ZodISOTime = /*@__PURE__*/ $constructor("ZodISOTime", (inst, def) => {
+    $ZodISOTime.init(inst, def);
+    ZodStringFormat.init(inst, def);
+});
+const ZodISODuration = /*@__PURE__*/ $constructor("ZodISODuration", (inst, def) => {
+    $ZodISODuration.init(inst, def);
+    ZodStringFormat.init(inst, def);
 });
 const ZodEmail = /*@__PURE__*/ $constructor("ZodEmail", (inst, def) => {
     // ZodStringFormat.init(inst, def);
@@ -51386,13 +53111,13 @@ const ZodURL = /*@__PURE__*/ $constructor("ZodURL", (inst, def) => {
     $ZodURL.init(inst, def);
     ZodStringFormat.init(inst, def);
 });
-function url(params) {
+function schemas_url(params) {
     return classic_schemas_core._url(ZodURL, params);
 }
 function httpUrl(params) {
     return classic_schemas_core._url(ZodURL, {
-        protocol: classic_schemas_core.regexes.httpProtocol,
-        hostname: classic_schemas_core.regexes.domain,
+        protocol: schemas_regexes.httpProtocol,
+        hostname: schemas_regexes.domain,
         ...classic_schemas_util.normalizeParams(params),
     });
 }
@@ -51526,6 +53251,20 @@ const ZodE164 = /*@__PURE__*/ $constructor("ZodE164", (inst, def) => {
 function schemas_e164(params) {
     return classic_schemas_core._e164(ZodE164, params);
 }
+const ZodCreditCard = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodCreditCard", (inst, def) => {
+    classic_schemas_core.$ZodCreditCard.init(inst, def);
+    ZodStringFormat.init(inst, def);
+})));
+function schemas_creditCard(params) {
+    return classic_schemas_core._creditCard(ZodCreditCard, params);
+}
+const ZodIBAN = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodIBAN", (inst, def) => {
+    classic_schemas_core.$ZodIBAN.init(inst, def);
+    ZodStringFormat.init(inst, def);
+})));
+function schemas_iban(params) {
+    return classic_schemas_core._iban(ZodIBAN, params);
+}
 const ZodJWT = /*@__PURE__*/ $constructor("ZodJWT", (inst, def) => {
     // ZodStringFormat.init(inst, def);
     $ZodJWT.init(inst, def);
@@ -51543,10 +53282,13 @@ function stringFormat(format, fnOrRegex, _params = {}) {
     return classic_schemas_core._stringFormat(ZodCustomStringFormat, format, fnOrRegex, _params);
 }
 function schemas_hostname(_params) {
-    return classic_schemas_core._stringFormat(ZodCustomStringFormat, "hostname", classic_schemas_core.regexes.hostname, _params);
+    return classic_schemas_core._stringFormat(ZodCustomStringFormat, "hostname", schemas_regexes.hostname, _params);
 }
 function schemas_hex(_params) {
-    return classic_schemas_core._stringFormat(ZodCustomStringFormat, "hex", classic_schemas_core.regexes.hex, _params);
+    return classic_schemas_core._stringFormat(ZodCustomStringFormat, "hex", schemas_regexes.hex, _params);
+}
+function schemas_currencyCode(_params) {
+    return classic_schemas_core._stringFormat(ZodCustomStringFormat, "currency_code", schemas_regexes.currencyCode, _params);
 }
 function hash(alg, params) {
     const enc = params?.enc ?? "hex";
@@ -51560,62 +53302,69 @@ const ZodNumber = /*@__PURE__*/ $constructor("ZodNumber", (inst, def) => {
     $ZodNumber.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => numberProcessor(inst, ctx, json, params);
-    _installLazyMethods(inst, "ZodNumber", {
-        gt(value, params) {
-            return this.check(_gt(value, params));
-        },
-        gte(value, params) {
-            return this.check(_gte(value, params));
-        },
-        min(value, params) {
-            return this.check(_gte(value, params));
-        },
-        lt(value, params) {
-            return this.check(_lt(value, params));
-        },
-        lte(value, params) {
-            return this.check(_lte(value, params));
-        },
-        max(value, params) {
-            return this.check(_lte(value, params));
-        },
-        int(params) {
-            return this.check(schemas_int(params));
-        },
-        safe(params) {
-            return this.check(schemas_int(params));
-        },
-        positive(params) {
-            return this.check(_gt(0, params));
-        },
-        nonnegative(params) {
-            return this.check(_gte(0, params));
-        },
-        negative(params) {
-            return this.check(_lt(0, params));
-        },
-        nonpositive(params) {
-            return this.check(_lte(0, params));
-        },
-        multipleOf(value, params) {
-            return this.check(_multipleOf(value, params));
-        },
-        step(value, params) {
-            return this.check(_multipleOf(value, params));
-        },
-        finite() {
-            return this;
-        },
-    });
-    const bag = inst._zod.bag;
-    inst.minValue =
-        Math.max(bag.minimum ?? Number.NEGATIVE_INFINITY, bag.exclusiveMinimum ?? Number.NEGATIVE_INFINITY) ?? null;
-    inst.maxValue =
-        Math.min(bag.maximum ?? Number.POSITIVE_INFINITY, bag.exclusiveMaximum ?? Number.POSITIVE_INFINITY) ?? null;
-    inst.isInt = (bag.format ?? "").includes("int") || Number.isSafeInteger(bag.multipleOf ?? 0.5);
     inst.isFinite = true;
-    inst.format = bag.format ?? null;
-});
+}, 
+/*@__PURE__*/ derived({
+    minValue: (inst) => {
+        const { minimum, exclusiveMinimum } = aggregateChecks(inst);
+        return Math.max(minimum ?? Number.NEGATIVE_INFINITY, exclusiveMinimum ?? Number.NEGATIVE_INFINITY);
+    },
+    maxValue: (inst) => {
+        const { maximum, exclusiveMaximum } = aggregateChecks(inst);
+        return Math.min(maximum ?? Number.POSITIVE_INFINITY, exclusiveMaximum ?? Number.POSITIVE_INFINITY);
+    },
+    isInt: (inst) => {
+        const { isInt, multipleOf } = aggregateChecks(inst);
+        return !!isInt || !!multipleOf?.some(Number.isSafeInteger);
+    },
+    format: (inst) => aggregateChecks(inst).format ?? null,
+}, {
+    gt(value, params) {
+        return this.check(_gt(value, params));
+    },
+    gte(value, params) {
+        return this.check(_gte(value, params));
+    },
+    min(value, params) {
+        return this.check(_gte(value, params));
+    },
+    lt(value, params) {
+        return this.check(_lt(value, params));
+    },
+    lte(value, params) {
+        return this.check(_lte(value, params));
+    },
+    max(value, params) {
+        return this.check(_lte(value, params));
+    },
+    int(params) {
+        return this.check(schemas_int(params));
+    },
+    safe(params) {
+        return this.check(schemas_int(params));
+    },
+    positive(params) {
+        return this.check(_gt(0, params));
+    },
+    nonnegative(params) {
+        return this.check(_gte(0, params));
+    },
+    negative(params) {
+        return this.check(_lt(0, params));
+    },
+    nonpositive(params) {
+        return this.check(_lte(0, params));
+    },
+    multipleOf(value, params) {
+        return this.check(_multipleOf(value, params));
+    },
+    step(value, params) {
+        return this.check(_multipleOf(value, params));
+    },
+    finite() {
+        return this;
+    },
+}));
 function schemas_number(params) {
     return _number(ZodNumber, params);
 }
@@ -51650,24 +53399,46 @@ const ZodBigInt = /*@__PURE__*/ (/* unused pure expression or super */ null && (
     classic_schemas_core.$ZodBigInt.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => processors.bigintProcessor(inst, ctx, json, params);
-    inst.gte = (value, params) => inst.check(schemas_checks.gte(value, params));
-    inst.min = (value, params) => inst.check(schemas_checks.gte(value, params));
-    inst.gt = (value, params) => inst.check(schemas_checks.gt(value, params));
-    inst.gte = (value, params) => inst.check(schemas_checks.gte(value, params));
-    inst.min = (value, params) => inst.check(schemas_checks.gte(value, params));
-    inst.lt = (value, params) => inst.check(schemas_checks.lt(value, params));
-    inst.lte = (value, params) => inst.check(schemas_checks.lte(value, params));
-    inst.max = (value, params) => inst.check(schemas_checks.lte(value, params));
-    inst.positive = (params) => inst.check(schemas_checks.gt(BigInt(0), params));
-    inst.negative = (params) => inst.check(schemas_checks.lt(BigInt(0), params));
-    inst.nonpositive = (params) => inst.check(schemas_checks.lte(BigInt(0), params));
-    inst.nonnegative = (params) => inst.check(schemas_checks.gte(BigInt(0), params));
-    inst.multipleOf = (value, params) => inst.check(schemas_checks.multipleOf(value, params));
-    const bag = inst._zod.bag;
-    inst.minValue = bag.minimum ?? null;
-    inst.maxValue = bag.maximum ?? null;
-    inst.format = bag.format ?? null;
-})));
+}, 
+/*@__PURE__*/ classic_schemas_util.derived({
+    minValue: (inst) => processors.aggregateChecks(inst).minimum ?? null,
+    maxValue: (inst) => processors.aggregateChecks(inst).maximum ?? null,
+    format: (inst) => processors.aggregateChecks(inst).format ?? null,
+}, {
+    gte(value, params) {
+        return this.check(classic_schemas_checks.gte(value, params));
+    },
+    min(value, params) {
+        return this.check(classic_schemas_checks.gte(value, params));
+    },
+    gt(value, params) {
+        return this.check(classic_schemas_checks.gt(value, params));
+    },
+    lt(value, params) {
+        return this.check(classic_schemas_checks.lt(value, params));
+    },
+    lte(value, params) {
+        return this.check(classic_schemas_checks.lte(value, params));
+    },
+    max(value, params) {
+        return this.check(classic_schemas_checks.lte(value, params));
+    },
+    positive(params) {
+        return this.check(classic_schemas_checks.gt(BigInt(0), params));
+    },
+    negative(params) {
+        return this.check(classic_schemas_checks.lt(BigInt(0), params));
+    },
+    nonpositive(params) {
+        return this.check(classic_schemas_checks.lte(BigInt(0), params));
+    },
+    nonnegative(params) {
+        return this.check(classic_schemas_checks.gte(BigInt(0), params));
+    },
+    multipleOf(value, params) {
+        return this.check(classic_schemas_checks.multipleOf(value, params));
+    },
+}))));
 function schemas_bigint(params) {
     return classic_schemas_core._bigint(ZodBigInt, params);
 }
@@ -51675,11 +53446,9 @@ const ZodBigIntFormat = /*@__PURE__*/ (/* unused pure expression or super */ nul
     classic_schemas_core.$ZodBigIntFormat.init(inst, def);
     ZodBigInt.init(inst, def);
 })));
-// int64
 function int64(params) {
     return classic_schemas_core._int64(ZodBigIntFormat, params);
 }
-// uint64
 function uint64(params) {
     return classic_schemas_core._uint64(ZodBigIntFormat, params);
 }
@@ -51688,7 +53457,7 @@ const ZodSymbol = /*@__PURE__*/ (/* unused pure expression or super */ null && (
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => processors.symbolProcessor(inst, ctx, json, params);
 })));
-function symbol(params) {
+function schemas_symbol(params) {
     return classic_schemas_core._symbol(ZodSymbol, params);
 }
 const ZodUndefined = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodUndefined", (inst, def) => {
@@ -51714,7 +53483,7 @@ const ZodAny = /*@__PURE__*/ $constructor("ZodAny", (inst, def) => {
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => anyProcessor(inst, ctx, json, params);
 });
-function any() {
+function schemas_any() {
     return _any(ZodAny);
 }
 const ZodUnknown = /*@__PURE__*/ $constructor("ZodUnknown", (inst, def) => {
@@ -51722,7 +53491,7 @@ const ZodUnknown = /*@__PURE__*/ $constructor("ZodUnknown", (inst, def) => {
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => unknownProcessor(inst, ctx, json, params);
 });
-function unknown() {
+function schemas_unknown() {
     return _unknown(ZodUnknown);
 }
 const ZodNever = /*@__PURE__*/ $constructor("ZodNever", (inst, def) => {
@@ -51730,7 +53499,7 @@ const ZodNever = /*@__PURE__*/ $constructor("ZodNever", (inst, def) => {
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => neverProcessor(inst, ctx, json, params);
 });
-function never(params) {
+function schemas_never(params) {
     return _never(ZodNever, params);
 }
 const ZodVoid = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodVoid", (inst, def) => {
@@ -51746,39 +53515,46 @@ const ZodDate = /*@__PURE__*/ (/* unused pure expression or super */ null && (cl
     classic_schemas_core.$ZodDate.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => processors.dateProcessor(inst, ctx, json, params);
-    inst.min = (value, params) => inst.check(schemas_checks.gte(value, params));
-    inst.max = (value, params) => inst.check(schemas_checks.lte(value, params));
-    const c = inst._zod.bag;
-    inst.minDate = c.minimum ? new Date(c.minimum) : null;
-    inst.maxDate = c.maximum ? new Date(c.maximum) : null;
-})));
+    inst.min = (value, params) => inst.check(classic_schemas_checks.gte(value, params));
+    inst.max = (value, params) => inst.check(classic_schemas_checks.lte(value, params));
+}, 
+/*@__PURE__*/ classic_schemas_util.derived({
+    minDate: (inst) => {
+        const { minimum } = processors.aggregateChecks(inst);
+        return minimum ? new Date(minimum) : null;
+    },
+    maxDate: (inst) => {
+        const { maximum } = processors.aggregateChecks(inst);
+        return maximum ? new Date(maximum) : null;
+    },
+}, {}))));
 function schemas_date(params) {
     return classic_schemas_core._date(ZodDate, params);
 }
 const ZodArray = /*@__PURE__*/ $constructor("ZodArray", (inst, def) => {
+    _ensureDefaultMemoizer();
     $ZodArray.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => arrayProcessor(inst, ctx, json, params);
     inst.element = def.element;
-    _installLazyMethods(inst, "ZodArray", {
-        min(n, params) {
-            return this.check(_minLength(n, params));
-        },
-        nonempty(params) {
-            return this.check(_minLength(1, params));
-        },
-        max(n, params) {
-            return this.check(_maxLength(n, params));
-        },
-        length(n, params) {
-            return this.check(_length(n, params));
-        },
-        unwrap() {
-            return this.element;
-        },
-    });
+}, {
+    min(n, params) {
+        return this.check(_minLength(n, params));
+    },
+    nonempty(params) {
+        return this.check(_minLength(1, params));
+    },
+    max(n, params) {
+        return this.check(_maxLength(n, params));
+    },
+    length(n, params) {
+        return this.check(_length(n, params));
+    },
+    unwrap() {
+        return this.element;
+    },
 });
-function array(element, params) {
+function schemas_array(element, params) {
     return _array(ZodArray, element, params);
 }
 // .keyof
@@ -51787,59 +53563,61 @@ function keyof(schema) {
     return schemas_enum(Object.keys(shape));
 }
 const ZodObject = /*@__PURE__*/ $constructor("ZodObject", (inst, def) => {
+    _ensureDefaultMemoizer();
     $ZodObjectJIT.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => objectProcessor(inst, ctx, json, params);
-    defineLazy(inst, "shape", () => {
-        return def.shape;
-    });
-    _installLazyMethods(inst, "ZodObject", {
-        keyof() {
-            return schemas_enum(Object.keys(this._zod.def.shape));
-        },
-        catchall(catchall) {
-            return this.clone({ ...this._zod.def, catchall: catchall });
-        },
-        passthrough() {
-            return this.clone({ ...this._zod.def, catchall: unknown() });
-        },
-        loose() {
-            return this.clone({ ...this._zod.def, catchall: unknown() });
-        },
-        strict() {
-            return this.clone({ ...this._zod.def, catchall: never() });
-        },
-        strip() {
-            return this.clone({ ...this._zod.def, catchall: undefined });
-        },
-        extend(incoming) {
-            return extend(this, incoming);
-        },
-        safeExtend(incoming) {
-            return safeExtend(this, incoming);
-        },
-        merge(other) {
-            return merge(this, other);
-        },
-        pick(mask) {
-            return pick(this, mask);
-        },
-        omit(mask) {
-            return omit(this, mask);
-        },
-        partial(...args) {
-            return partial(ZodOptional, this, args[0]);
-        },
-        required(...args) {
-            return required(ZodNonOptional, this, args[0]);
-        },
-    });
+    installLazyProp(inst, "shape", (self) => self._zod.def.shape, false);
+}, {
+    keyof() {
+        return schemas_enum(Object.keys(this._zod.def.shape));
+    },
+    catchall(catchall) {
+        // `mergeDefs` rather than a spread: spreading reads `shape`, and resolving it can mint a whole fresh subtree
+        return this.clone(mergeDefs(this._zod.def, { catchall: catchall }));
+    },
+    passthrough() {
+        return this.clone(mergeDefs(this._zod.def, { catchall: schemas_unknown() }));
+    },
+    loose() {
+        return this.clone(mergeDefs(this._zod.def, { catchall: schemas_unknown() }));
+    },
+    strict() {
+        return this.clone(mergeDefs(this._zod.def, { catchall: schemas_never() }));
+    },
+    strip() {
+        return this.clone(mergeDefs(this._zod.def, { catchall: undefined }));
+    },
+    extend(incoming) {
+        return extend(this, incoming);
+    },
+    safeExtend(incoming) {
+        return safeExtend(this, incoming);
+    },
+    merge(other) {
+        return util_merge(this, other);
+    },
+    pick(mask) {
+        return pick(this, mask);
+    },
+    omit(mask) {
+        return omit(this, mask);
+    },
+    partial(...args) {
+        return partial(ZodOptional, this, args[0]);
+    },
+    exactPartial(...args) {
+        return partial(ZodExactOptional, this, args[0], "exactPartial");
+    },
+    required(...args) {
+        return util_required(ZodNonOptional, this, args[0]);
+    },
 });
-function object(shape, params) {
+function schemas_object(shape, params) {
     const def = {
         type: "object",
         shape: shape ?? {},
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     };
     return new ZodObject(def);
 }
@@ -51848,8 +53626,8 @@ function strictObject(shape, params) {
     return new ZodObject({
         type: "object",
         shape,
-        catchall: never(),
-        ...normalizeParams(params),
+        catchall: schemas_never(),
+        ...util_normalizeParams(params),
     });
 }
 // looseObject
@@ -51857,8 +53635,8 @@ function looseObject(shape, params) {
     return new ZodObject({
         type: "object",
         shape,
-        catchall: unknown(),
-        ...normalizeParams(params),
+        catchall: schemas_unknown(),
+        ...util_normalizeParams(params),
     });
 }
 const ZodUnion = /*@__PURE__*/ $constructor("ZodUnion", (inst, def) => {
@@ -51871,7 +53649,7 @@ function union(options, params) {
     return new ZodUnion({
         type: "union",
         options: options,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 const ZodXor = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodXor", (inst, def) => {
@@ -51899,9 +53677,9 @@ function discriminatedUnion(discriminator, options, params) {
     // const [options, params] = args;
     return new ZodDiscriminatedUnion({
         type: "union",
-        options,
+        options: options,
         discriminator,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 const ZodIntersection = /*@__PURE__*/ $constructor("ZodIntersection", (inst, def) => {
@@ -51917,15 +53695,29 @@ function intersection(left, right) {
     });
 }
 const ZodTuple = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodTuple", (inst, def) => {
+    _ensureDefaultMemoizer();
     classic_schemas_core.$ZodTuple.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => processors.tupleProcessor(inst, ctx, json, params);
-    inst.rest = (rest) => inst.clone({
-        ...inst._zod.def,
-        rest: rest,
-    });
+}, {
+    rest(rest) {
+        return this.clone({
+            ...this._zod.def,
+            rest: rest,
+        });
+    },
+    partial() {
+        const def = this._zod.def;
+        // a refinement was authored against the full arity; partialing would run it on a shorter array
+        if (def.checks?.length)
+            throw new Error(".partial() cannot be used on tuple schemas containing refinements");
+        return this.clone({
+            ...def,
+            items: def.items.map((item) => new ZodOptional({ type: "optional", innerType: item })),
+        });
+    },
 })));
-function tuple(items, _paramsOrRest, _params) {
+function schemas_tuple(items, _paramsOrRest, _params) {
     const hasRest = _paramsOrRest instanceof classic_schemas_core.$ZodType;
     const params = hasRest ? _params : _paramsOrRest;
     const rest = hasRest ? _paramsOrRest : null;
@@ -51937,6 +53729,7 @@ function tuple(items, _paramsOrRest, _params) {
     });
 }
 const ZodRecord = /*@__PURE__*/ $constructor("ZodRecord", (inst, def) => {
+    _ensureDefaultMemoizer();
     $ZodRecord.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => recordProcessor(inst, ctx, json, params);
@@ -51950,25 +53743,24 @@ function record(keyType, valueType, params) {
             type: "record",
             keyType: schemas_string(),
             valueType: keyType,
-            ...normalizeParams(valueType),
+            ...util_normalizeParams(valueType),
         });
     }
     return new ZodRecord({
         type: "record",
         keyType,
         valueType: valueType,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 // type alksjf = core.output<core.$ZodRecordKey>;
 function partialRecord(keyType, valueType, params) {
-    const k = classic_schemas_core.clone(keyType);
-    k._zod.values = undefined;
     return new ZodRecord({
         type: "record",
-        keyType: k,
+        keyType,
         valueType: valueType,
         ...classic_schemas_util.normalizeParams(params),
+        partial: true,
     });
 }
 function looseRecord(keyType, valueType, params) {
@@ -51981,6 +53773,7 @@ function looseRecord(keyType, valueType, params) {
     });
 }
 const ZodMap = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodMap", (inst, def) => {
+    _ensureDefaultMemoizer();
     classic_schemas_core.$ZodMap.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => processors.mapProcessor(inst, ctx, json, params);
@@ -51991,7 +53784,7 @@ const ZodMap = /*@__PURE__*/ (/* unused pure expression or super */ null && (cla
     inst.max = (...args) => inst.check(classic_schemas_core._maxSize(...args));
     inst.size = (...args) => inst.check(classic_schemas_core._size(...args));
 })));
-function map(keyType, valueType, params) {
+function schemas_map(keyType, valueType, params) {
     return new ZodMap({
         type: "map",
         keyType: keyType,
@@ -52000,6 +53793,7 @@ function map(keyType, valueType, params) {
     });
 }
 const ZodSet = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodSet", (inst, def) => {
+    _ensureDefaultMemoizer();
     classic_schemas_core.$ZodSet.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => processors.setProcessor(inst, ctx, json, params);
@@ -52008,7 +53802,7 @@ const ZodSet = /*@__PURE__*/ (/* unused pure expression or super */ null && (cla
     inst.max = (...args) => inst.check(classic_schemas_core._maxSize(...args));
     inst.size = (...args) => inst.check(classic_schemas_core._size(...args));
 })));
-function set(valueType, params) {
+function schemas_set(valueType, params) {
     return new ZodSet({
         type: "set",
         valueType: valueType,
@@ -52020,7 +53814,8 @@ const ZodEnum = /*@__PURE__*/ $constructor("ZodEnum", (inst, def) => {
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => enumProcessor(inst, ctx, json, params);
     inst.enum = def.entries;
-    inst.options = Object.values(def.entries);
+    // reuse the parsed value set so a numeric TS enum's reverse-mapping keys stay out
+    inst.options = [...inst._zod.values];
     const keys = new Set(Object.keys(def.entries));
     inst.extract = (values, params) => {
         const newEntries = {};
@@ -52034,7 +53829,7 @@ const ZodEnum = /*@__PURE__*/ $constructor("ZodEnum", (inst, def) => {
         return new ZodEnum({
             ...def,
             checks: [],
-            ...normalizeParams(params),
+            ...util_normalizeParams(params),
             entries: newEntries,
         });
     };
@@ -52050,7 +53845,7 @@ const ZodEnum = /*@__PURE__*/ $constructor("ZodEnum", (inst, def) => {
         return new ZodEnum({
             ...def,
             checks: [],
-            ...normalizeParams(params),
+            ...util_normalizeParams(params),
             entries: newEntries,
         });
     };
@@ -52060,7 +53855,7 @@ function schemas_enum(values, params) {
     return new ZodEnum({
         type: "enum",
         entries,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 
@@ -52092,11 +53887,11 @@ const ZodLiteral = /*@__PURE__*/ $constructor("ZodLiteral", (inst, def) => {
         },
     });
 });
-function literal(value, params) {
+function schemas_literal(value, params) {
     return new ZodLiteral({
         type: "literal",
         values: Array.isArray(value) ? value : [value],
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 const ZodFile = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodFile", (inst, def) => {
@@ -52107,10 +53902,11 @@ const ZodFile = /*@__PURE__*/ (/* unused pure expression or super */ null && (cl
     inst.max = (size, params) => inst.check(classic_schemas_core._maxSize(size, params));
     inst.mime = (types, params) => inst.check(classic_schemas_core._mime(Array.isArray(types) ? types : [types], params));
 })));
-function file(params) {
+function schemas_file(params) {
     return classic_schemas_core._file(ZodFile, params);
 }
 const ZodTransform = /*@__PURE__*/ $constructor("ZodTransform", (inst, def) => {
+    _ensureDefaultMemoizer();
     $ZodTransform.init(inst, def);
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => transformProcessor(inst, ctx, json, params);
@@ -52128,7 +53924,8 @@ const ZodTransform = /*@__PURE__*/ $constructor("ZodTransform", (inst, def) => {
                 if (_issue.fatal)
                     _issue.continue = false;
                 _issue.code ?? (_issue.code = "custom");
-                _issue.input ?? (_issue.input = payload.value);
+                if (!("input" in _issue))
+                    _issue.input = payload.value;
                 _issue.inst ?? (_issue.inst = inst);
                 // _issue.continue ??= true;
                 payload.issues.push(util_issue(_issue));
@@ -52138,16 +53935,14 @@ const ZodTransform = /*@__PURE__*/ $constructor("ZodTransform", (inst, def) => {
         if (output instanceof Promise) {
             return output.then((output) => {
                 payload.value = output;
-                payload.fallback = true;
                 return payload;
             });
         }
         payload.value = output;
-        payload.fallback = true;
         return payload;
     };
 });
-function transform(fn) {
+function schemas_transform(fn) {
     return new ZodTransform({
         type: "transform",
         transform: fn,
@@ -52159,7 +53954,7 @@ const ZodOptional = /*@__PURE__*/ $constructor("ZodOptional", (inst, def) => {
     inst._zod.processJSONSchema = (ctx, json, params) => optionalProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
 });
-function optional(innerType) {
+function schemas_optional(innerType) {
     return new ZodOptional({
         type: "optional",
         innerType: innerType,
@@ -52191,7 +53986,7 @@ function nullable(innerType) {
 }
 // nullish
 function schemas_nullish(innerType) {
-    return optional(nullable(innerType));
+    return schemas_optional(nullable(innerType));
 }
 const ZodDefault = /*@__PURE__*/ $constructor("ZodDefault", (inst, def) => {
     $ZodDefault.init(inst, def);
@@ -52234,7 +54029,7 @@ function nonoptional(innerType, params) {
     return new ZodNonOptional({
         type: "nonoptional",
         innerType: innerType,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
 }
 const ZodSuccess = /*@__PURE__*/ (/* unused pure expression or super */ null && (classic_schemas_core.$constructor("ZodSuccess", (inst, def) => {
@@ -52243,7 +54038,7 @@ const ZodSuccess = /*@__PURE__*/ (/* unused pure expression or super */ null && 
     inst._zod.processJSONSchema = (ctx, json, params) => processors.successProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
 })));
-function success(innerType) {
+function schemas_success(innerType) {
     return new ZodSuccess({
         type: "success",
         innerType: innerType,
@@ -52260,7 +54055,7 @@ function schemas_catch(innerType, catchValue) {
     return new ZodCatch({
         type: "catch",
         innerType: innerType,
-        catchValue: (typeof catchValue === "function" ? catchValue : () => catchValue),
+        catchValue: (typeof catchValue === "function" ? catchValue : constantCatch(catchValue)),
     });
 }
 
@@ -52269,7 +54064,7 @@ const ZodNaN = /*@__PURE__*/ (/* unused pure expression or super */ null && (cla
     ZodType.init(inst, def);
     inst._zod.processJSONSchema = (ctx, json, params) => processors.nanProcessor(inst, ctx, json, params);
 })));
-function nan(params) {
+function schemas_nan(params) {
     return classic_schemas_core._nan(ZodNaN, params);
 }
 const ZodPipe = /*@__PURE__*/ $constructor("ZodPipe", (inst, def) => {
@@ -52279,7 +54074,7 @@ const ZodPipe = /*@__PURE__*/ $constructor("ZodPipe", (inst, def) => {
     inst.in = def.in;
     inst.out = def.out;
 });
-function pipe(in_, out) {
+function schemas_pipe(in_, out) {
     return new ZodPipe({
         type: "pipe",
         in: in_,
@@ -52356,7 +54151,7 @@ const ZodPromise = /*@__PURE__*/ (/* unused pure expression or super */ null && 
     inst._zod.processJSONSchema = (ctx, json, params) => processors.promiseProcessor(inst, ctx, json, params);
     inst.unwrap = () => inst._zod.def.innerType;
 })));
-function promise(innerType) {
+function schemas_promise(innerType) {
     return new ZodPromise({
         type: "promise",
         innerType: innerType,
@@ -52370,8 +54165,8 @@ const ZodFunction = /*@__PURE__*/ (/* unused pure expression or super */ null &&
 function _function(params) {
     return new ZodFunction({
         type: "function",
-        input: Array.isArray(params?.input) ? tuple(params?.input) : (params?.input ?? array(unknown())),
-        output: params?.output ?? unknown(),
+        input: Array.isArray(params?.input) ? schemas_tuple(params?.input) : (params?.input ?? schemas_array(schemas_unknown())),
+        output: params?.output ?? schemas_unknown(),
     });
 }
 
@@ -52381,7 +54176,7 @@ const ZodCustom = /*@__PURE__*/ $constructor("ZodCustom", (inst, def) => {
     inst._zod.processJSONSchema = (ctx, json, params) => customProcessor(inst, ctx, json, params);
 });
 // custom checks
-function check(fn) {
+function schemas_check(fn) {
     const ch = new classic_schemas_core.$ZodCheck({
         check: "custom",
         // ...util.normalizeParams(params),
@@ -52389,7 +54184,7 @@ function check(fn) {
     ch._zod.check = fn;
     return ch;
 }
-function custom(fn, _params) {
+function schemas_custom(fn, _params) {
     return classic_schemas_core._custom(ZodCustom, fn ?? (() => true), _params);
 }
 function refine(fn, _params = {}) {
@@ -52402,13 +54197,21 @@ function superRefine(fn, params) {
 // Re-export describe and meta from core
 const schemas_describe = describe;
 const schemas_meta = meta;
+const ZodInstanceOf = /*@__PURE__*/ $constructor("ZodInstanceOf", (inst, def) => {
+    ZodCustom.init(inst, def);
+}, {
+    properties(shape, params) {
+        // asserts in place, so the narrowed output type is truthful without a wrapper
+        return this.check(_properties(shape, params));
+    },
+});
 function _instanceof(cls, params = {}) {
-    const inst = new ZodCustom({
+    const inst = new ZodInstanceOf({
         type: "custom",
         check: "custom",
         fn: (data) => data instanceof cls,
         abort: true,
-        ...normalizeParams(params),
+        ...util_normalizeParams(params),
     });
     inst._zod.bag.Class = cls;
     // Override check to emit invalid_type instead of custom
@@ -52432,9 +54235,9 @@ const stringbool = (...args) => classic_schemas_core._stringbool({
     Boolean: ZodBoolean,
     String: ZodString,
 }, ...args);
-function json(params) {
+function schemas_json(params) {
     const jsonSchema = lazy(() => {
-        return union([schemas_string(params), schemas_number(), schemas_boolean(), schemas_null(), array(jsonSchema), record(schemas_string(), jsonSchema)]);
+        return union([schemas_string(params), schemas_number(), schemas_boolean(), schemas_null(), schemas_array(jsonSchema), record(schemas_string(), jsonSchema)]);
     });
     return jsonSchema;
 }
@@ -52442,12 +54245,12 @@ function json(params) {
 function preprocess(fn, schema) {
     return new ZodPreprocess({
         type: "pipe",
-        in: transform(fn),
+        in: schemas_transform(fn),
         out: schema,
     });
 }
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/classic/coerce.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/classic/coerce.js
 /* unused harmony import specifier */ var coerce_core;
 /* unused harmony import specifier */ var coerce_schemas;
 
@@ -52577,8 +54380,9 @@ const settings_zh_Settings = strictObject({
 
 ;// external "node:process"
 
-// EXTERNAL MODULE: ./node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js
-var dist = __webpack_require__(2976);
+;// ./node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/index.js
+dist_namespaceFn();
+
 ;// ./src/server/settings.ts
 
 
@@ -52599,7 +54403,7 @@ function get_settings() {
             console.error(`配置文件不存在，已自动生成在 '${config_file}'，请填写配置文件后重新运行`);
             __WEBPACK_EXTERNAL_MODULE_node_process_8d178d73_exit__(1);
         }
-        const data = dist.parse(__WEBPACK_EXTERNAL_MODULE_node_fs_75ed2103_readFileSync__(config_file, 'utf8'));
+        const data = (dist_namespaceFn().parse)(__WEBPACK_EXTERNAL_MODULE_node_fs_75ed2103_readFileSync__(config_file, 'utf8'));
         settings = is_zh(data)
             ? translate(detailed_parse(settings_zh_Settings, data), zh_to_en_map)
             : detailed_parse(Settings, data);
@@ -52711,17 +54515,54 @@ function bundle_worldbook(worldbook) {
     };
 }
 
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc1.js
-const crc1 = (current, previous = 0) => {
-    let crc = ~~previous;
-    let accum = 0;
+;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc32.js
+// Generated by `./pycrc.py --algorithm=table-driven --model=crc-32 --generate=c`
+let TABLE = [
+    0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
+    0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91,
+    0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de, 0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
+    0x136c9856, 0x646ba8c0, 0xfd62f97a, 0x8a65c9ec, 0x14015c4f, 0x63066cd9, 0xfa0f3d63, 0x8d080df5,
+    0x3b6e20c8, 0x4c69105e, 0xd56041e4, 0xa2677172, 0x3c03e4d1, 0x4b04d447, 0xd20d85fd, 0xa50ab56b,
+    0x35b5a8fa, 0x42b2986c, 0xdbbbc9d6, 0xacbcf940, 0x32d86ce3, 0x45df5c75, 0xdcd60dcf, 0xabd13d59,
+    0x26d930ac, 0x51de003a, 0xc8d75180, 0xbfd06116, 0x21b4f4b5, 0x56b3c423, 0xcfba9599, 0xb8bda50f,
+    0x2802b89e, 0x5f058808, 0xc60cd9b2, 0xb10be924, 0x2f6f7c87, 0x58684c11, 0xc1611dab, 0xb6662d3d,
+    0x76dc4190, 0x01db7106, 0x98d220bc, 0xefd5102a, 0x71b18589, 0x06b6b51f, 0x9fbfe4a5, 0xe8b8d433,
+    0x7807c9a2, 0x0f00f934, 0x9609a88e, 0xe10e9818, 0x7f6a0dbb, 0x086d3d2d, 0x91646c97, 0xe6635c01,
+    0x6b6b51f4, 0x1c6c6162, 0x856530d8, 0xf262004e, 0x6c0695ed, 0x1b01a57b, 0x8208f4c1, 0xf50fc457,
+    0x65b0d9c6, 0x12b7e950, 0x8bbeb8ea, 0xfcb9887c, 0x62dd1ddf, 0x15da2d49, 0x8cd37cf3, 0xfbd44c65,
+    0x4db26158, 0x3ab551ce, 0xa3bc0074, 0xd4bb30e2, 0x4adfa541, 0x3dd895d7, 0xa4d1c46d, 0xd3d6f4fb,
+    0x4369e96a, 0x346ed9fc, 0xad678846, 0xda60b8d0, 0x44042d73, 0x33031de5, 0xaa0a4c5f, 0xdd0d7cc9,
+    0x5005713c, 0x270241aa, 0xbe0b1010, 0xc90c2086, 0x5768b525, 0x206f85b3, 0xb966d409, 0xce61e49f,
+    0x5edef90e, 0x29d9c998, 0xb0d09822, 0xc7d7a8b4, 0x59b33d17, 0x2eb40d81, 0xb7bd5c3b, 0xc0ba6cad,
+    0xedb88320, 0x9abfb3b6, 0x03b6e20c, 0x74b1d29a, 0xead54739, 0x9dd277af, 0x04db2615, 0x73dc1683,
+    0xe3630b12, 0x94643b84, 0x0d6d6a3e, 0x7a6a5aa8, 0xe40ecf0b, 0x9309ff9d, 0x0a00ae27, 0x7d079eb1,
+    0xf00f9344, 0x8708a3d2, 0x1e01f268, 0x6906c2fe, 0xf762575d, 0x806567cb, 0x196c3671, 0x6e6b06e7,
+    0xfed41b76, 0x89d32be0, 0x10da7a5a, 0x67dd4acc, 0xf9b9df6f, 0x8ebeeff9, 0x17b7be43, 0x60b08ed5,
+    0xd6d6a3e8, 0xa1d1937e, 0x38d8c2c4, 0x4fdff252, 0xd1bb67f1, 0xa6bc5767, 0x3fb506dd, 0x48b2364b,
+    0xd80d2bda, 0xaf0a1b4c, 0x36034af6, 0x41047a60, 0xdf60efc3, 0xa867df55, 0x316e8eef, 0x4669be79,
+    0xcb61b38c, 0xbc66831a, 0x256fd2a0, 0x5268e236, 0xcc0c7795, 0xbb0b4703, 0x220216b9, 0x5505262f,
+    0xc5ba3bbe, 0xb2bd0b28, 0x2bb45a92, 0x5cb36a04, 0xc2d7ffa7, 0xb5d0cf31, 0x2cd99e8b, 0x5bdeae1d,
+    0x9b64c2b0, 0xec63f226, 0x756aa39c, 0x026d930a, 0x9c0906a9, 0xeb0e363f, 0x72076785, 0x05005713,
+    0x95bf4a82, 0xe2b87a14, 0x7bb12bae, 0x0cb61b38, 0x92d28e9b, 0xe5d5be0d, 0x7cdcefb7, 0x0bdbdf21,
+    0x86d3d2d4, 0xf1d4e242, 0x68ddb3f8, 0x1fda836e, 0x81be16cd, 0xf6b9265b, 0x6fb077e1, 0x18b74777,
+    0x88085ae6, 0xff0f6a70, 0x66063bca, 0x11010b5c, 0x8f659eff, 0xf862ae69, 0x616bffd3, 0x166ccf45,
+    0xa00ae278, 0xd70dd2ee, 0x4e048354, 0x3903b3c2, 0xa7672661, 0xd06016f7, 0x4969474d, 0x3e6e77db,
+    0xaed16a4a, 0xd9d65adc, 0x40df0b66, 0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
+    0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693, 0x54de5729, 0x23d967bf,
+    0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
+];
+if (typeof Int32Array !== 'undefined') {
+    TABLE = new Int32Array(TABLE);
+}
+const crc32 = (current, previous) => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    let crc = previous === 0 ? 0 : ~~previous ^ -1;
     for (let index = 0; index < current.length; index++) {
-        accum += current[index];
+        crc = TABLE[(crc ^ current[index]) & 0xff] ^ (crc >>> 8);
     }
-    crc += accum % 256;
-    return crc % 256;
+    return crc ^ -1;
 };
-/* harmony default export */ const calculators_crc1 = (crc1);
+/* harmony default export */ const calculators_crc32 = (crc32);
 
 ;// external "buffer"
 
@@ -52742,587 +54583,15 @@ function defineCrc(model, calculator) {
     return result;
 }
 
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc1.js
-
-
-/* harmony default export */ const mjs_crc1 = (defineCrc('crc1', calculators_crc1));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc8.js
-// Generated by `./pycrc.py --algorithm=table-driven --model=crc-8 --generate=c`
-let TABLE = [
-    0x00, 0x07, 0x0e, 0x09, 0x1c, 0x1b, 0x12, 0x15, 0x38, 0x3f, 0x36, 0x31, 0x24, 0x23, 0x2a, 0x2d,
-    0x70, 0x77, 0x7e, 0x79, 0x6c, 0x6b, 0x62, 0x65, 0x48, 0x4f, 0x46, 0x41, 0x54, 0x53, 0x5a, 0x5d,
-    0xe0, 0xe7, 0xee, 0xe9, 0xfc, 0xfb, 0xf2, 0xf5, 0xd8, 0xdf, 0xd6, 0xd1, 0xc4, 0xc3, 0xca, 0xcd,
-    0x90, 0x97, 0x9e, 0x99, 0x8c, 0x8b, 0x82, 0x85, 0xa8, 0xaf, 0xa6, 0xa1, 0xb4, 0xb3, 0xba, 0xbd,
-    0xc7, 0xc0, 0xc9, 0xce, 0xdb, 0xdc, 0xd5, 0xd2, 0xff, 0xf8, 0xf1, 0xf6, 0xe3, 0xe4, 0xed, 0xea,
-    0xb7, 0xb0, 0xb9, 0xbe, 0xab, 0xac, 0xa5, 0xa2, 0x8f, 0x88, 0x81, 0x86, 0x93, 0x94, 0x9d, 0x9a,
-    0x27, 0x20, 0x29, 0x2e, 0x3b, 0x3c, 0x35, 0x32, 0x1f, 0x18, 0x11, 0x16, 0x03, 0x04, 0x0d, 0x0a,
-    0x57, 0x50, 0x59, 0x5e, 0x4b, 0x4c, 0x45, 0x42, 0x6f, 0x68, 0x61, 0x66, 0x73, 0x74, 0x7d, 0x7a,
-    0x89, 0x8e, 0x87, 0x80, 0x95, 0x92, 0x9b, 0x9c, 0xb1, 0xb6, 0xbf, 0xb8, 0xad, 0xaa, 0xa3, 0xa4,
-    0xf9, 0xfe, 0xf7, 0xf0, 0xe5, 0xe2, 0xeb, 0xec, 0xc1, 0xc6, 0xcf, 0xc8, 0xdd, 0xda, 0xd3, 0xd4,
-    0x69, 0x6e, 0x67, 0x60, 0x75, 0x72, 0x7b, 0x7c, 0x51, 0x56, 0x5f, 0x58, 0x4d, 0x4a, 0x43, 0x44,
-    0x19, 0x1e, 0x17, 0x10, 0x05, 0x02, 0x0b, 0x0c, 0x21, 0x26, 0x2f, 0x28, 0x3d, 0x3a, 0x33, 0x34,
-    0x4e, 0x49, 0x40, 0x47, 0x52, 0x55, 0x5c, 0x5b, 0x76, 0x71, 0x78, 0x7f, 0x6a, 0x6d, 0x64, 0x63,
-    0x3e, 0x39, 0x30, 0x37, 0x22, 0x25, 0x2c, 0x2b, 0x06, 0x01, 0x08, 0x0f, 0x1a, 0x1d, 0x14, 0x13,
-    0xae, 0xa9, 0xa0, 0xa7, 0xb2, 0xb5, 0xbc, 0xbb, 0x96, 0x91, 0x98, 0x9f, 0x8a, 0x8d, 0x84, 0x83,
-    0xde, 0xd9, 0xd0, 0xd7, 0xc2, 0xc5, 0xcc, 0xcb, 0xe6, 0xe1, 0xe8, 0xef, 0xfa, 0xfd, 0xf4, 0xf3,
-];
-if (typeof Int32Array !== 'undefined') {
-    TABLE = new Int32Array(TABLE);
-}
-const crc8 = (current, previous = 0) => {
-    let crc = ~~previous;
-    for (let index = 0; index < current.length; index++) {
-        crc = TABLE[(crc ^ current[index]) & 0xff] & 0xff;
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crc8 = (crc8);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc8.js
-
-
-/* harmony default export */ const mjs_crc8 = (defineCrc('crc-8', calculators_crc8));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc81wire.js
-// Generated by `./pycrc.py --algorithm=table-driven --model=dallas-1-wire --generate=c`
-let crc81wire_TABLE = [
-    0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83, 0xc2, 0x9c, 0x7e, 0x20, 0xa3, 0xfd, 0x1f, 0x41,
-    0x9d, 0xc3, 0x21, 0x7f, 0xfc, 0xa2, 0x40, 0x1e, 0x5f, 0x01, 0xe3, 0xbd, 0x3e, 0x60, 0x82, 0xdc,
-    0x23, 0x7d, 0x9f, 0xc1, 0x42, 0x1c, 0xfe, 0xa0, 0xe1, 0xbf, 0x5d, 0x03, 0x80, 0xde, 0x3c, 0x62,
-    0xbe, 0xe0, 0x02, 0x5c, 0xdf, 0x81, 0x63, 0x3d, 0x7c, 0x22, 0xc0, 0x9e, 0x1d, 0x43, 0xa1, 0xff,
-    0x46, 0x18, 0xfa, 0xa4, 0x27, 0x79, 0x9b, 0xc5, 0x84, 0xda, 0x38, 0x66, 0xe5, 0xbb, 0x59, 0x07,
-    0xdb, 0x85, 0x67, 0x39, 0xba, 0xe4, 0x06, 0x58, 0x19, 0x47, 0xa5, 0xfb, 0x78, 0x26, 0xc4, 0x9a,
-    0x65, 0x3b, 0xd9, 0x87, 0x04, 0x5a, 0xb8, 0xe6, 0xa7, 0xf9, 0x1b, 0x45, 0xc6, 0x98, 0x7a, 0x24,
-    0xf8, 0xa6, 0x44, 0x1a, 0x99, 0xc7, 0x25, 0x7b, 0x3a, 0x64, 0x86, 0xd8, 0x5b, 0x05, 0xe7, 0xb9,
-    0x8c, 0xd2, 0x30, 0x6e, 0xed, 0xb3, 0x51, 0x0f, 0x4e, 0x10, 0xf2, 0xac, 0x2f, 0x71, 0x93, 0xcd,
-    0x11, 0x4f, 0xad, 0xf3, 0x70, 0x2e, 0xcc, 0x92, 0xd3, 0x8d, 0x6f, 0x31, 0xb2, 0xec, 0x0e, 0x50,
-    0xaf, 0xf1, 0x13, 0x4d, 0xce, 0x90, 0x72, 0x2c, 0x6d, 0x33, 0xd1, 0x8f, 0x0c, 0x52, 0xb0, 0xee,
-    0x32, 0x6c, 0x8e, 0xd0, 0x53, 0x0d, 0xef, 0xb1, 0xf0, 0xae, 0x4c, 0x12, 0x91, 0xcf, 0x2d, 0x73,
-    0xca, 0x94, 0x76, 0x28, 0xab, 0xf5, 0x17, 0x49, 0x08, 0x56, 0xb4, 0xea, 0x69, 0x37, 0xd5, 0x8b,
-    0x57, 0x09, 0xeb, 0xb5, 0x36, 0x68, 0x8a, 0xd4, 0x95, 0xcb, 0x29, 0x77, 0xf4, 0xaa, 0x48, 0x16,
-    0xe9, 0xb7, 0x55, 0x0b, 0x88, 0xd6, 0x34, 0x6a, 0x2b, 0x75, 0x97, 0xc9, 0x4a, 0x14, 0xf6, 0xa8,
-    0x74, 0x2a, 0xc8, 0x96, 0x15, 0x4b, 0xa9, 0xf7, 0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35,
-];
-if (typeof Int32Array !== 'undefined') {
-    crc81wire_TABLE = new Int32Array(crc81wire_TABLE);
-}
-const crc81wire = (current, previous = 0) => {
-    let crc = ~~previous;
-    for (let index = 0; index < current.length; index++) {
-        crc = crc81wire_TABLE[(crc ^ current[index]) & 0xff] & 0xff;
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crc81wire = (crc81wire);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc81wire.js
-
-
-/* harmony default export */ const mjs_crc81wire = (defineCrc('dallas-1-wire', calculators_crc81wire));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc8dvbs2.js
-// Generated by `./pycrc.py --algorithm=table-driven --generate=c --width=8 --poly=0xd5 --reflect-in=false --reflect-out=false --xor-in=0xff --xor-out=0x00`
-let crc8dvbs2_TABLE = [
-    0x00, 0xd5, 0x7f, 0xaa, 0xfe, 0x2b, 0x81, 0x54, 0x29, 0xfc, 0x56, 0x83, 0xd7, 0x02, 0xa8, 0x7d,
-    0x52, 0x87, 0x2d, 0xf8, 0xac, 0x79, 0xd3, 0x06, 0x7b, 0xae, 0x04, 0xd1, 0x85, 0x50, 0xfa, 0x2f,
-    0xa4, 0x71, 0xdb, 0x0e, 0x5a, 0x8f, 0x25, 0xf0, 0x8d, 0x58, 0xf2, 0x27, 0x73, 0xa6, 0x0c, 0xd9,
-    0xf6, 0x23, 0x89, 0x5c, 0x08, 0xdd, 0x77, 0xa2, 0xdf, 0x0a, 0xa0, 0x75, 0x21, 0xf4, 0x5e, 0x8b,
-    0x9d, 0x48, 0xe2, 0x37, 0x63, 0xb6, 0x1c, 0xc9, 0xb4, 0x61, 0xcb, 0x1e, 0x4a, 0x9f, 0x35, 0xe0,
-    0xcf, 0x1a, 0xb0, 0x65, 0x31, 0xe4, 0x4e, 0x9b, 0xe6, 0x33, 0x99, 0x4c, 0x18, 0xcd, 0x67, 0xb2,
-    0x39, 0xec, 0x46, 0x93, 0xc7, 0x12, 0xb8, 0x6d, 0x10, 0xc5, 0x6f, 0xba, 0xee, 0x3b, 0x91, 0x44,
-    0x6b, 0xbe, 0x14, 0xc1, 0x95, 0x40, 0xea, 0x3f, 0x42, 0x97, 0x3d, 0xe8, 0xbc, 0x69, 0xc3, 0x16,
-    0xef, 0x3a, 0x90, 0x45, 0x11, 0xc4, 0x6e, 0xbb, 0xc6, 0x13, 0xb9, 0x6c, 0x38, 0xed, 0x47, 0x92,
-    0xbd, 0x68, 0xc2, 0x17, 0x43, 0x96, 0x3c, 0xe9, 0x94, 0x41, 0xeb, 0x3e, 0x6a, 0xbf, 0x15, 0xc0,
-    0x4b, 0x9e, 0x34, 0xe1, 0xb5, 0x60, 0xca, 0x1f, 0x62, 0xb7, 0x1d, 0xc8, 0x9c, 0x49, 0xe3, 0x36,
-    0x19, 0xcc, 0x66, 0xb3, 0xe7, 0x32, 0x98, 0x4d, 0x30, 0xe5, 0x4f, 0x9a, 0xce, 0x1b, 0xb1, 0x64,
-    0x72, 0xa7, 0x0d, 0xd8, 0x8c, 0x59, 0xf3, 0x26, 0x5b, 0x8e, 0x24, 0xf1, 0xa5, 0x70, 0xda, 0x0f,
-    0x20, 0xf5, 0x5f, 0x8a, 0xde, 0x0b, 0xa1, 0x74, 0x09, 0xdc, 0x76, 0xa3, 0xf7, 0x22, 0x88, 0x5d,
-    0xd6, 0x03, 0xa9, 0x7c, 0x28, 0xfd, 0x57, 0x82, 0xff, 0x2a, 0x80, 0x55, 0x01, 0xd4, 0x7e, 0xab,
-    0x84, 0x51, 0xfb, 0x2e, 0x7a, 0xaf, 0x05, 0xd0, 0xad, 0x78, 0xd2, 0x07, 0x53, 0x86, 0x2c, 0xf9,
-];
-if (typeof Int32Array !== 'undefined') {
-    crc8dvbs2_TABLE = new Int32Array(crc8dvbs2_TABLE);
-}
-const crc8dvbs2 = (current, previous = 0) => {
-    let crc = ~~previous;
-    for (let index = 0; index < current.length; index++) {
-        crc = crc8dvbs2_TABLE[(crc ^ current[index]) & 0xff] & 0xff;
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crc8dvbs2 = (crc8dvbs2);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc8dvbs2.js
-
-
-/* harmony default export */ const mjs_crc8dvbs2 = (defineCrc('crc-8-dvbs2', calculators_crc8dvbs2));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc16.js
-// Generated by `./pycrc.py --algorithm=table-driven --model=crc-16 --generate=c`
-let crc16_TABLE = [
-    0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241, 0xc601, 0x06c0, 0x0780, 0xc741,
-    0x0500, 0xc5c1, 0xc481, 0x0440, 0xcc01, 0x0cc0, 0x0d80, 0xcd41, 0x0f00, 0xcfc1, 0xce81, 0x0e40,
-    0x0a00, 0xcac1, 0xcb81, 0x0b40, 0xc901, 0x09c0, 0x0880, 0xc841, 0xd801, 0x18c0, 0x1980, 0xd941,
-    0x1b00, 0xdbc1, 0xda81, 0x1a40, 0x1e00, 0xdec1, 0xdf81, 0x1f40, 0xdd01, 0x1dc0, 0x1c80, 0xdc41,
-    0x1400, 0xd4c1, 0xd581, 0x1540, 0xd701, 0x17c0, 0x1680, 0xd641, 0xd201, 0x12c0, 0x1380, 0xd341,
-    0x1100, 0xd1c1, 0xd081, 0x1040, 0xf001, 0x30c0, 0x3180, 0xf141, 0x3300, 0xf3c1, 0xf281, 0x3240,
-    0x3600, 0xf6c1, 0xf781, 0x3740, 0xf501, 0x35c0, 0x3480, 0xf441, 0x3c00, 0xfcc1, 0xfd81, 0x3d40,
-    0xff01, 0x3fc0, 0x3e80, 0xfe41, 0xfa01, 0x3ac0, 0x3b80, 0xfb41, 0x3900, 0xf9c1, 0xf881, 0x3840,
-    0x2800, 0xe8c1, 0xe981, 0x2940, 0xeb01, 0x2bc0, 0x2a80, 0xea41, 0xee01, 0x2ec0, 0x2f80, 0xef41,
-    0x2d00, 0xedc1, 0xec81, 0x2c40, 0xe401, 0x24c0, 0x2580, 0xe541, 0x2700, 0xe7c1, 0xe681, 0x2640,
-    0x2200, 0xe2c1, 0xe381, 0x2340, 0xe101, 0x21c0, 0x2080, 0xe041, 0xa001, 0x60c0, 0x6180, 0xa141,
-    0x6300, 0xa3c1, 0xa281, 0x6240, 0x6600, 0xa6c1, 0xa781, 0x6740, 0xa501, 0x65c0, 0x6480, 0xa441,
-    0x6c00, 0xacc1, 0xad81, 0x6d40, 0xaf01, 0x6fc0, 0x6e80, 0xae41, 0xaa01, 0x6ac0, 0x6b80, 0xab41,
-    0x6900, 0xa9c1, 0xa881, 0x6840, 0x7800, 0xb8c1, 0xb981, 0x7940, 0xbb01, 0x7bc0, 0x7a80, 0xba41,
-    0xbe01, 0x7ec0, 0x7f80, 0xbf41, 0x7d00, 0xbdc1, 0xbc81, 0x7c40, 0xb401, 0x74c0, 0x7580, 0xb541,
-    0x7700, 0xb7c1, 0xb681, 0x7640, 0x7200, 0xb2c1, 0xb381, 0x7340, 0xb101, 0x71c0, 0x7080, 0xb041,
-    0x5000, 0x90c1, 0x9181, 0x5140, 0x9301, 0x53c0, 0x5280, 0x9241, 0x9601, 0x56c0, 0x5780, 0x9741,
-    0x5500, 0x95c1, 0x9481, 0x5440, 0x9c01, 0x5cc0, 0x5d80, 0x9d41, 0x5f00, 0x9fc1, 0x9e81, 0x5e40,
-    0x5a00, 0x9ac1, 0x9b81, 0x5b40, 0x9901, 0x59c0, 0x5880, 0x9841, 0x8801, 0x48c0, 0x4980, 0x8941,
-    0x4b00, 0x8bc1, 0x8a81, 0x4a40, 0x4e00, 0x8ec1, 0x8f81, 0x4f40, 0x8d01, 0x4dc0, 0x4c80, 0x8c41,
-    0x4400, 0x84c1, 0x8581, 0x4540, 0x8701, 0x47c0, 0x4680, 0x8641, 0x8201, 0x42c0, 0x4380, 0x8341,
-    0x4100, 0x81c1, 0x8081, 0x4040,
-];
-if (typeof Int32Array !== 'undefined') {
-    crc16_TABLE = new Int32Array(crc16_TABLE);
-}
-const crc16 = (current, previous = 0) => {
-    let crc = ~~previous;
-    for (let index = 0; index < current.length; index++) {
-        crc = (crc16_TABLE[(crc ^ current[index]) & 0xff] ^ (crc >> 8)) & 0xffff;
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crc16 = (crc16);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc16.js
-
-
-/* harmony default export */ const mjs_crc16 = (defineCrc('crc-16', calculators_crc16));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc16ccitt.js
-// Generated by `./pycrc.py --algorithm=table-driven --model=ccitt --generate=c`
-let crc16ccitt_TABLE = [
-    0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7, 0x8108, 0x9129, 0xa14a, 0xb16b,
-    0xc18c, 0xd1ad, 0xe1ce, 0xf1ef, 0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
-    0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de, 0x2462, 0x3443, 0x0420, 0x1401,
-    0x64e6, 0x74c7, 0x44a4, 0x5485, 0xa56a, 0xb54b, 0x8528, 0x9509, 0xe5ee, 0xf5cf, 0xc5ac, 0xd58d,
-    0x3653, 0x2672, 0x1611, 0x0630, 0x76d7, 0x66f6, 0x5695, 0x46b4, 0xb75b, 0xa77a, 0x9719, 0x8738,
-    0xf7df, 0xe7fe, 0xd79d, 0xc7bc, 0x48c4, 0x58e5, 0x6886, 0x78a7, 0x0840, 0x1861, 0x2802, 0x3823,
-    0xc9cc, 0xd9ed, 0xe98e, 0xf9af, 0x8948, 0x9969, 0xa90a, 0xb92b, 0x5af5, 0x4ad4, 0x7ab7, 0x6a96,
-    0x1a71, 0x0a50, 0x3a33, 0x2a12, 0xdbfd, 0xcbdc, 0xfbbf, 0xeb9e, 0x9b79, 0x8b58, 0xbb3b, 0xab1a,
-    0x6ca6, 0x7c87, 0x4ce4, 0x5cc5, 0x2c22, 0x3c03, 0x0c60, 0x1c41, 0xedae, 0xfd8f, 0xcdec, 0xddcd,
-    0xad2a, 0xbd0b, 0x8d68, 0x9d49, 0x7e97, 0x6eb6, 0x5ed5, 0x4ef4, 0x3e13, 0x2e32, 0x1e51, 0x0e70,
-    0xff9f, 0xefbe, 0xdfdd, 0xcffc, 0xbf1b, 0xaf3a, 0x9f59, 0x8f78, 0x9188, 0x81a9, 0xb1ca, 0xa1eb,
-    0xd10c, 0xc12d, 0xf14e, 0xe16f, 0x1080, 0x00a1, 0x30c2, 0x20e3, 0x5004, 0x4025, 0x7046, 0x6067,
-    0x83b9, 0x9398, 0xa3fb, 0xb3da, 0xc33d, 0xd31c, 0xe37f, 0xf35e, 0x02b1, 0x1290, 0x22f3, 0x32d2,
-    0x4235, 0x5214, 0x6277, 0x7256, 0xb5ea, 0xa5cb, 0x95a8, 0x8589, 0xf56e, 0xe54f, 0xd52c, 0xc50d,
-    0x34e2, 0x24c3, 0x14a0, 0x0481, 0x7466, 0x6447, 0x5424, 0x4405, 0xa7db, 0xb7fa, 0x8799, 0x97b8,
-    0xe75f, 0xf77e, 0xc71d, 0xd73c, 0x26d3, 0x36f2, 0x0691, 0x16b0, 0x6657, 0x7676, 0x4615, 0x5634,
-    0xd94c, 0xc96d, 0xf90e, 0xe92f, 0x99c8, 0x89e9, 0xb98a, 0xa9ab, 0x5844, 0x4865, 0x7806, 0x6827,
-    0x18c0, 0x08e1, 0x3882, 0x28a3, 0xcb7d, 0xdb5c, 0xeb3f, 0xfb1e, 0x8bf9, 0x9bd8, 0xabbb, 0xbb9a,
-    0x4a75, 0x5a54, 0x6a37, 0x7a16, 0x0af1, 0x1ad0, 0x2ab3, 0x3a92, 0xfd2e, 0xed0f, 0xdd6c, 0xcd4d,
-    0xbdaa, 0xad8b, 0x9de8, 0x8dc9, 0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
-    0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8, 0x6e17, 0x7e36, 0x4e55, 0x5e74,
-    0x2e93, 0x3eb2, 0x0ed1, 0x1ef0,
-];
-if (typeof Int32Array !== 'undefined') {
-    crc16ccitt_TABLE = new Int32Array(crc16ccitt_TABLE);
-}
-const crc16ccitt = (current, previous) => {
-    let crc = typeof previous !== 'undefined' ? ~~previous : 0xffff;
-    for (let index = 0; index < current.length; index++) {
-        crc = (crc16ccitt_TABLE[((crc >> 8) ^ current[index]) & 0xff] ^ (crc << 8)) & 0xffff;
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crc16ccitt = (crc16ccitt);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc16ccitt.js
-
-
-/* harmony default export */ const mjs_crc16ccitt = (defineCrc('ccitt', calculators_crc16ccitt));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc16modbus.js
-// Generated by `./pycrc.py --algorithm=table-driven --model=crc-16-modbus --generate=c`
-let crc16modbus_TABLE = [
-    0x0000, 0xc0c1, 0xc181, 0x0140, 0xc301, 0x03c0, 0x0280, 0xc241, 0xc601, 0x06c0, 0x0780, 0xc741,
-    0x0500, 0xc5c1, 0xc481, 0x0440, 0xcc01, 0x0cc0, 0x0d80, 0xcd41, 0x0f00, 0xcfc1, 0xce81, 0x0e40,
-    0x0a00, 0xcac1, 0xcb81, 0x0b40, 0xc901, 0x09c0, 0x0880, 0xc841, 0xd801, 0x18c0, 0x1980, 0xd941,
-    0x1b00, 0xdbc1, 0xda81, 0x1a40, 0x1e00, 0xdec1, 0xdf81, 0x1f40, 0xdd01, 0x1dc0, 0x1c80, 0xdc41,
-    0x1400, 0xd4c1, 0xd581, 0x1540, 0xd701, 0x17c0, 0x1680, 0xd641, 0xd201, 0x12c0, 0x1380, 0xd341,
-    0x1100, 0xd1c1, 0xd081, 0x1040, 0xf001, 0x30c0, 0x3180, 0xf141, 0x3300, 0xf3c1, 0xf281, 0x3240,
-    0x3600, 0xf6c1, 0xf781, 0x3740, 0xf501, 0x35c0, 0x3480, 0xf441, 0x3c00, 0xfcc1, 0xfd81, 0x3d40,
-    0xff01, 0x3fc0, 0x3e80, 0xfe41, 0xfa01, 0x3ac0, 0x3b80, 0xfb41, 0x3900, 0xf9c1, 0xf881, 0x3840,
-    0x2800, 0xe8c1, 0xe981, 0x2940, 0xeb01, 0x2bc0, 0x2a80, 0xea41, 0xee01, 0x2ec0, 0x2f80, 0xef41,
-    0x2d00, 0xedc1, 0xec81, 0x2c40, 0xe401, 0x24c0, 0x2580, 0xe541, 0x2700, 0xe7c1, 0xe681, 0x2640,
-    0x2200, 0xe2c1, 0xe381, 0x2340, 0xe101, 0x21c0, 0x2080, 0xe041, 0xa001, 0x60c0, 0x6180, 0xa141,
-    0x6300, 0xa3c1, 0xa281, 0x6240, 0x6600, 0xa6c1, 0xa781, 0x6740, 0xa501, 0x65c0, 0x6480, 0xa441,
-    0x6c00, 0xacc1, 0xad81, 0x6d40, 0xaf01, 0x6fc0, 0x6e80, 0xae41, 0xaa01, 0x6ac0, 0x6b80, 0xab41,
-    0x6900, 0xa9c1, 0xa881, 0x6840, 0x7800, 0xb8c1, 0xb981, 0x7940, 0xbb01, 0x7bc0, 0x7a80, 0xba41,
-    0xbe01, 0x7ec0, 0x7f80, 0xbf41, 0x7d00, 0xbdc1, 0xbc81, 0x7c40, 0xb401, 0x74c0, 0x7580, 0xb541,
-    0x7700, 0xb7c1, 0xb681, 0x7640, 0x7200, 0xb2c1, 0xb381, 0x7340, 0xb101, 0x71c0, 0x7080, 0xb041,
-    0x5000, 0x90c1, 0x9181, 0x5140, 0x9301, 0x53c0, 0x5280, 0x9241, 0x9601, 0x56c0, 0x5780, 0x9741,
-    0x5500, 0x95c1, 0x9481, 0x5440, 0x9c01, 0x5cc0, 0x5d80, 0x9d41, 0x5f00, 0x9fc1, 0x9e81, 0x5e40,
-    0x5a00, 0x9ac1, 0x9b81, 0x5b40, 0x9901, 0x59c0, 0x5880, 0x9841, 0x8801, 0x48c0, 0x4980, 0x8941,
-    0x4b00, 0x8bc1, 0x8a81, 0x4a40, 0x4e00, 0x8ec1, 0x8f81, 0x4f40, 0x8d01, 0x4dc0, 0x4c80, 0x8c41,
-    0x4400, 0x84c1, 0x8581, 0x4540, 0x8701, 0x47c0, 0x4680, 0x8641, 0x8201, 0x42c0, 0x4380, 0x8341,
-    0x4100, 0x81c1, 0x8081, 0x4040,
-];
-if (typeof Int32Array !== 'undefined') {
-    crc16modbus_TABLE = new Int32Array(crc16modbus_TABLE);
-}
-const crc16modbus = (current, previous) => {
-    let crc = typeof previous !== 'undefined' ? ~~previous : 0xffff;
-    for (let index = 0; index < current.length; index++) {
-        crc = (crc16modbus_TABLE[(crc ^ current[index]) & 0xff] ^ (crc >> 8)) & 0xffff;
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crc16modbus = (crc16modbus);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc16modbus.js
-
-
-/* harmony default export */ const mjs_crc16modbus = (defineCrc('crc-16-modbus', calculators_crc16modbus));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc16xmodem.js
-const crc16xmodem = (current, previous) => {
-    let crc = typeof previous !== 'undefined' ? ~~previous : 0x0;
-    for (let index = 0; index < current.length; index++) {
-        let code = (crc >>> 8) & 0xff;
-        code ^= current[index] & 0xff;
-        code ^= code >>> 4;
-        crc = (crc << 8) & 0xffff;
-        crc ^= code;
-        code = (code << 5) & 0xffff;
-        crc ^= code;
-        code = (code << 7) & 0xffff;
-        crc ^= code;
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crc16xmodem = (crc16xmodem);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc16xmodem.js
-
-
-/* harmony default export */ const mjs_crc16xmodem = (defineCrc('xmodem', calculators_crc16xmodem));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc16kermit.js
-// Generated by `./pycrc.py --algorithm=table-driven --model=kermit --generate=c`
-let crc16kermit_TABLE = [
-    0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf, 0x8c48, 0x9dc1, 0xaf5a, 0xbed3,
-    0xca6c, 0xdbe5, 0xe97e, 0xf8f7, 0x1081, 0x0108, 0x3393, 0x221a, 0x56a5, 0x472c, 0x75b7, 0x643e,
-    0x9cc9, 0x8d40, 0xbfdb, 0xae52, 0xdaed, 0xcb64, 0xf9ff, 0xe876, 0x2102, 0x308b, 0x0210, 0x1399,
-    0x6726, 0x76af, 0x4434, 0x55bd, 0xad4a, 0xbcc3, 0x8e58, 0x9fd1, 0xeb6e, 0xfae7, 0xc87c, 0xd9f5,
-    0x3183, 0x200a, 0x1291, 0x0318, 0x77a7, 0x662e, 0x54b5, 0x453c, 0xbdcb, 0xac42, 0x9ed9, 0x8f50,
-    0xfbef, 0xea66, 0xd8fd, 0xc974, 0x4204, 0x538d, 0x6116, 0x709f, 0x0420, 0x15a9, 0x2732, 0x36bb,
-    0xce4c, 0xdfc5, 0xed5e, 0xfcd7, 0x8868, 0x99e1, 0xab7a, 0xbaf3, 0x5285, 0x430c, 0x7197, 0x601e,
-    0x14a1, 0x0528, 0x37b3, 0x263a, 0xdecd, 0xcf44, 0xfddf, 0xec56, 0x98e9, 0x8960, 0xbbfb, 0xaa72,
-    0x6306, 0x728f, 0x4014, 0x519d, 0x2522, 0x34ab, 0x0630, 0x17b9, 0xef4e, 0xfec7, 0xcc5c, 0xddd5,
-    0xa96a, 0xb8e3, 0x8a78, 0x9bf1, 0x7387, 0x620e, 0x5095, 0x411c, 0x35a3, 0x242a, 0x16b1, 0x0738,
-    0xffcf, 0xee46, 0xdcdd, 0xcd54, 0xb9eb, 0xa862, 0x9af9, 0x8b70, 0x8408, 0x9581, 0xa71a, 0xb693,
-    0xc22c, 0xd3a5, 0xe13e, 0xf0b7, 0x0840, 0x19c9, 0x2b52, 0x3adb, 0x4e64, 0x5fed, 0x6d76, 0x7cff,
-    0x9489, 0x8500, 0xb79b, 0xa612, 0xd2ad, 0xc324, 0xf1bf, 0xe036, 0x18c1, 0x0948, 0x3bd3, 0x2a5a,
-    0x5ee5, 0x4f6c, 0x7df7, 0x6c7e, 0xa50a, 0xb483, 0x8618, 0x9791, 0xe32e, 0xf2a7, 0xc03c, 0xd1b5,
-    0x2942, 0x38cb, 0x0a50, 0x1bd9, 0x6f66, 0x7eef, 0x4c74, 0x5dfd, 0xb58b, 0xa402, 0x9699, 0x8710,
-    0xf3af, 0xe226, 0xd0bd, 0xc134, 0x39c3, 0x284a, 0x1ad1, 0x0b58, 0x7fe7, 0x6e6e, 0x5cf5, 0x4d7c,
-    0xc60c, 0xd785, 0xe51e, 0xf497, 0x8028, 0x91a1, 0xa33a, 0xb2b3, 0x4a44, 0x5bcd, 0x6956, 0x78df,
-    0x0c60, 0x1de9, 0x2f72, 0x3efb, 0xd68d, 0xc704, 0xf59f, 0xe416, 0x90a9, 0x8120, 0xb3bb, 0xa232,
-    0x5ac5, 0x4b4c, 0x79d7, 0x685e, 0x1ce1, 0x0d68, 0x3ff3, 0x2e7a, 0xe70e, 0xf687, 0xc41c, 0xd595,
-    0xa12a, 0xb0a3, 0x8238, 0x93b1, 0x6b46, 0x7acf, 0x4854, 0x59dd, 0x2d62, 0x3ceb, 0x0e70, 0x1ff9,
-    0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330, 0x7bc7, 0x6a4e, 0x58d5, 0x495c,
-    0x3de3, 0x2c6a, 0x1ef1, 0x0f78,
-];
-if (typeof Int32Array !== 'undefined') {
-    crc16kermit_TABLE = new Int32Array(crc16kermit_TABLE);
-}
-const crc16kermit = (current, previous) => {
-    let crc = typeof previous !== 'undefined' ? ~~previous : 0x0000;
-    for (let index = 0; index < current.length; index++) {
-        crc = (crc16kermit_TABLE[(crc ^ current[index]) & 0xff] ^ (crc >> 8)) & 0xffff;
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crc16kermit = (crc16kermit);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc16kermit.js
-
-
-/* harmony default export */ const mjs_crc16kermit = (defineCrc('kermit', calculators_crc16kermit));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc24.js
-// Generated by `./pycrc.py --algorithm=table-drive --model=crc-24 --generate=c`
-let crc24_TABLE = [
-    0x000000, 0x864cfb, 0x8ad50d, 0x0c99f6, 0x93e6e1, 0x15aa1a, 0x1933ec, 0x9f7f17, 0xa18139,
-    0x27cdc2, 0x2b5434, 0xad18cf, 0x3267d8, 0xb42b23, 0xb8b2d5, 0x3efe2e, 0xc54e89, 0x430272,
-    0x4f9b84, 0xc9d77f, 0x56a868, 0xd0e493, 0xdc7d65, 0x5a319e, 0x64cfb0, 0xe2834b, 0xee1abd,
-    0x685646, 0xf72951, 0x7165aa, 0x7dfc5c, 0xfbb0a7, 0x0cd1e9, 0x8a9d12, 0x8604e4, 0x00481f,
-    0x9f3708, 0x197bf3, 0x15e205, 0x93aefe, 0xad50d0, 0x2b1c2b, 0x2785dd, 0xa1c926, 0x3eb631,
-    0xb8faca, 0xb4633c, 0x322fc7, 0xc99f60, 0x4fd39b, 0x434a6d, 0xc50696, 0x5a7981, 0xdc357a,
-    0xd0ac8c, 0x56e077, 0x681e59, 0xee52a2, 0xe2cb54, 0x6487af, 0xfbf8b8, 0x7db443, 0x712db5,
-    0xf7614e, 0x19a3d2, 0x9fef29, 0x9376df, 0x153a24, 0x8a4533, 0x0c09c8, 0x00903e, 0x86dcc5,
-    0xb822eb, 0x3e6e10, 0x32f7e6, 0xb4bb1d, 0x2bc40a, 0xad88f1, 0xa11107, 0x275dfc, 0xdced5b,
-    0x5aa1a0, 0x563856, 0xd074ad, 0x4f0bba, 0xc94741, 0xc5deb7, 0x43924c, 0x7d6c62, 0xfb2099,
-    0xf7b96f, 0x71f594, 0xee8a83, 0x68c678, 0x645f8e, 0xe21375, 0x15723b, 0x933ec0, 0x9fa736,
-    0x19ebcd, 0x8694da, 0x00d821, 0x0c41d7, 0x8a0d2c, 0xb4f302, 0x32bff9, 0x3e260f, 0xb86af4,
-    0x2715e3, 0xa15918, 0xadc0ee, 0x2b8c15, 0xd03cb2, 0x567049, 0x5ae9bf, 0xdca544, 0x43da53,
-    0xc596a8, 0xc90f5e, 0x4f43a5, 0x71bd8b, 0xf7f170, 0xfb6886, 0x7d247d, 0xe25b6a, 0x641791,
-    0x688e67, 0xeec29c, 0x3347a4, 0xb50b5f, 0xb992a9, 0x3fde52, 0xa0a145, 0x26edbe, 0x2a7448,
-    0xac38b3, 0x92c69d, 0x148a66, 0x181390, 0x9e5f6b, 0x01207c, 0x876c87, 0x8bf571, 0x0db98a,
-    0xf6092d, 0x7045d6, 0x7cdc20, 0xfa90db, 0x65efcc, 0xe3a337, 0xef3ac1, 0x69763a, 0x578814,
-    0xd1c4ef, 0xdd5d19, 0x5b11e2, 0xc46ef5, 0x42220e, 0x4ebbf8, 0xc8f703, 0x3f964d, 0xb9dab6,
-    0xb54340, 0x330fbb, 0xac70ac, 0x2a3c57, 0x26a5a1, 0xa0e95a, 0x9e1774, 0x185b8f, 0x14c279,
-    0x928e82, 0x0df195, 0x8bbd6e, 0x872498, 0x016863, 0xfad8c4, 0x7c943f, 0x700dc9, 0xf64132,
-    0x693e25, 0xef72de, 0xe3eb28, 0x65a7d3, 0x5b59fd, 0xdd1506, 0xd18cf0, 0x57c00b, 0xc8bf1c,
-    0x4ef3e7, 0x426a11, 0xc426ea, 0x2ae476, 0xaca88d, 0xa0317b, 0x267d80, 0xb90297, 0x3f4e6c,
-    0x33d79a, 0xb59b61, 0x8b654f, 0x0d29b4, 0x01b042, 0x87fcb9, 0x1883ae, 0x9ecf55, 0x9256a3,
-    0x141a58, 0xefaaff, 0x69e604, 0x657ff2, 0xe33309, 0x7c4c1e, 0xfa00e5, 0xf69913, 0x70d5e8,
-    0x4e2bc6, 0xc8673d, 0xc4fecb, 0x42b230, 0xddcd27, 0x5b81dc, 0x57182a, 0xd154d1, 0x26359f,
-    0xa07964, 0xace092, 0x2aac69, 0xb5d37e, 0x339f85, 0x3f0673, 0xb94a88, 0x87b4a6, 0x01f85d,
-    0x0d61ab, 0x8b2d50, 0x145247, 0x921ebc, 0x9e874a, 0x18cbb1, 0xe37b16, 0x6537ed, 0x69ae1b,
-    0xefe2e0, 0x709df7, 0xf6d10c, 0xfa48fa, 0x7c0401, 0x42fa2f, 0xc4b6d4, 0xc82f22, 0x4e63d9,
-    0xd11cce, 0x575035, 0x5bc9c3, 0xdd8538,
-];
-if (typeof Int32Array !== 'undefined') {
-    crc24_TABLE = new Int32Array(crc24_TABLE);
-}
-const crc24 = (current, previous) => {
-    let crc = typeof previous !== 'undefined' ? ~~previous : 0xb704ce;
-    for (let index = 0; index < current.length; index++) {
-        crc = (crc24_TABLE[((crc >> 16) ^ current[index]) & 0xff] ^ (crc << 8)) & 0xffffff;
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crc24 = (crc24);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc24.js
-
-
-/* harmony default export */ const mjs_crc24 = (defineCrc('crc-24', calculators_crc24));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc32.js
-// Generated by `./pycrc.py --algorithm=table-driven --model=crc-32 --generate=c`
-let crc32_TABLE = [
-    0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
-    0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91,
-    0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de, 0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
-    0x136c9856, 0x646ba8c0, 0xfd62f97a, 0x8a65c9ec, 0x14015c4f, 0x63066cd9, 0xfa0f3d63, 0x8d080df5,
-    0x3b6e20c8, 0x4c69105e, 0xd56041e4, 0xa2677172, 0x3c03e4d1, 0x4b04d447, 0xd20d85fd, 0xa50ab56b,
-    0x35b5a8fa, 0x42b2986c, 0xdbbbc9d6, 0xacbcf940, 0x32d86ce3, 0x45df5c75, 0xdcd60dcf, 0xabd13d59,
-    0x26d930ac, 0x51de003a, 0xc8d75180, 0xbfd06116, 0x21b4f4b5, 0x56b3c423, 0xcfba9599, 0xb8bda50f,
-    0x2802b89e, 0x5f058808, 0xc60cd9b2, 0xb10be924, 0x2f6f7c87, 0x58684c11, 0xc1611dab, 0xb6662d3d,
-    0x76dc4190, 0x01db7106, 0x98d220bc, 0xefd5102a, 0x71b18589, 0x06b6b51f, 0x9fbfe4a5, 0xe8b8d433,
-    0x7807c9a2, 0x0f00f934, 0x9609a88e, 0xe10e9818, 0x7f6a0dbb, 0x086d3d2d, 0x91646c97, 0xe6635c01,
-    0x6b6b51f4, 0x1c6c6162, 0x856530d8, 0xf262004e, 0x6c0695ed, 0x1b01a57b, 0x8208f4c1, 0xf50fc457,
-    0x65b0d9c6, 0x12b7e950, 0x8bbeb8ea, 0xfcb9887c, 0x62dd1ddf, 0x15da2d49, 0x8cd37cf3, 0xfbd44c65,
-    0x4db26158, 0x3ab551ce, 0xa3bc0074, 0xd4bb30e2, 0x4adfa541, 0x3dd895d7, 0xa4d1c46d, 0xd3d6f4fb,
-    0x4369e96a, 0x346ed9fc, 0xad678846, 0xda60b8d0, 0x44042d73, 0x33031de5, 0xaa0a4c5f, 0xdd0d7cc9,
-    0x5005713c, 0x270241aa, 0xbe0b1010, 0xc90c2086, 0x5768b525, 0x206f85b3, 0xb966d409, 0xce61e49f,
-    0x5edef90e, 0x29d9c998, 0xb0d09822, 0xc7d7a8b4, 0x59b33d17, 0x2eb40d81, 0xb7bd5c3b, 0xc0ba6cad,
-    0xedb88320, 0x9abfb3b6, 0x03b6e20c, 0x74b1d29a, 0xead54739, 0x9dd277af, 0x04db2615, 0x73dc1683,
-    0xe3630b12, 0x94643b84, 0x0d6d6a3e, 0x7a6a5aa8, 0xe40ecf0b, 0x9309ff9d, 0x0a00ae27, 0x7d079eb1,
-    0xf00f9344, 0x8708a3d2, 0x1e01f268, 0x6906c2fe, 0xf762575d, 0x806567cb, 0x196c3671, 0x6e6b06e7,
-    0xfed41b76, 0x89d32be0, 0x10da7a5a, 0x67dd4acc, 0xf9b9df6f, 0x8ebeeff9, 0x17b7be43, 0x60b08ed5,
-    0xd6d6a3e8, 0xa1d1937e, 0x38d8c2c4, 0x4fdff252, 0xd1bb67f1, 0xa6bc5767, 0x3fb506dd, 0x48b2364b,
-    0xd80d2bda, 0xaf0a1b4c, 0x36034af6, 0x41047a60, 0xdf60efc3, 0xa867df55, 0x316e8eef, 0x4669be79,
-    0xcb61b38c, 0xbc66831a, 0x256fd2a0, 0x5268e236, 0xcc0c7795, 0xbb0b4703, 0x220216b9, 0x5505262f,
-    0xc5ba3bbe, 0xb2bd0b28, 0x2bb45a92, 0x5cb36a04, 0xc2d7ffa7, 0xb5d0cf31, 0x2cd99e8b, 0x5bdeae1d,
-    0x9b64c2b0, 0xec63f226, 0x756aa39c, 0x026d930a, 0x9c0906a9, 0xeb0e363f, 0x72076785, 0x05005713,
-    0x95bf4a82, 0xe2b87a14, 0x7bb12bae, 0x0cb61b38, 0x92d28e9b, 0xe5d5be0d, 0x7cdcefb7, 0x0bdbdf21,
-    0x86d3d2d4, 0xf1d4e242, 0x68ddb3f8, 0x1fda836e, 0x81be16cd, 0xf6b9265b, 0x6fb077e1, 0x18b74777,
-    0x88085ae6, 0xff0f6a70, 0x66063bca, 0x11010b5c, 0x8f659eff, 0xf862ae69, 0x616bffd3, 0x166ccf45,
-    0xa00ae278, 0xd70dd2ee, 0x4e048354, 0x3903b3c2, 0xa7672661, 0xd06016f7, 0x4969474d, 0x3e6e77db,
-    0xaed16a4a, 0xd9d65adc, 0x40df0b66, 0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
-    0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693, 0x54de5729, 0x23d967bf,
-    0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
-];
-if (typeof Int32Array !== 'undefined') {
-    crc32_TABLE = new Int32Array(crc32_TABLE);
-}
-const crc32 = (current, previous) => {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    let crc = previous === 0 ? 0 : ~~previous ^ -1;
-    for (let index = 0; index < current.length; index++) {
-        crc = crc32_TABLE[(crc ^ current[index]) & 0xff] ^ (crc >>> 8);
-    }
-    return crc ^ -1;
-};
-/* harmony default export */ const calculators_crc32 = (crc32);
-
 ;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc32.js
 
 
 /* harmony default export */ const mjs_crc32 = (defineCrc('crc-32', calculators_crc32));
 
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crc32mpeg2.js
-// Generated by `./pycrc.py --algorithm=table-driven --model=crc-32-mpeg --generate=c`
-let crc32mpeg2_TABLE = [
-    0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b, 0x1a864db2, 0x1e475005,
-    0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61, 0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd,
-    0x4c11db70, 0x48d0c6c7, 0x4593e01e, 0x4152fda9, 0x5f15adac, 0x5bd4b01b, 0x569796c2, 0x52568b75,
-    0x6a1936c8, 0x6ed82b7f, 0x639b0da6, 0x675a1011, 0x791d4014, 0x7ddc5da3, 0x709f7b7a, 0x745e66cd,
-    0x9823b6e0, 0x9ce2ab57, 0x91a18d8e, 0x95609039, 0x8b27c03c, 0x8fe6dd8b, 0x82a5fb52, 0x8664e6e5,
-    0xbe2b5b58, 0xbaea46ef, 0xb7a96036, 0xb3687d81, 0xad2f2d84, 0xa9ee3033, 0xa4ad16ea, 0xa06c0b5d,
-    0xd4326d90, 0xd0f37027, 0xddb056fe, 0xd9714b49, 0xc7361b4c, 0xc3f706fb, 0xceb42022, 0xca753d95,
-    0xf23a8028, 0xf6fb9d9f, 0xfbb8bb46, 0xff79a6f1, 0xe13ef6f4, 0xe5ffeb43, 0xe8bccd9a, 0xec7dd02d,
-    0x34867077, 0x30476dc0, 0x3d044b19, 0x39c556ae, 0x278206ab, 0x23431b1c, 0x2e003dc5, 0x2ac12072,
-    0x128e9dcf, 0x164f8078, 0x1b0ca6a1, 0x1fcdbb16, 0x018aeb13, 0x054bf6a4, 0x0808d07d, 0x0cc9cdca,
-    0x7897ab07, 0x7c56b6b0, 0x71159069, 0x75d48dde, 0x6b93dddb, 0x6f52c06c, 0x6211e6b5, 0x66d0fb02,
-    0x5e9f46bf, 0x5a5e5b08, 0x571d7dd1, 0x53dc6066, 0x4d9b3063, 0x495a2dd4, 0x44190b0d, 0x40d816ba,
-    0xaca5c697, 0xa864db20, 0xa527fdf9, 0xa1e6e04e, 0xbfa1b04b, 0xbb60adfc, 0xb6238b25, 0xb2e29692,
-    0x8aad2b2f, 0x8e6c3698, 0x832f1041, 0x87ee0df6, 0x99a95df3, 0x9d684044, 0x902b669d, 0x94ea7b2a,
-    0xe0b41de7, 0xe4750050, 0xe9362689, 0xedf73b3e, 0xf3b06b3b, 0xf771768c, 0xfa325055, 0xfef34de2,
-    0xc6bcf05f, 0xc27dede8, 0xcf3ecb31, 0xcbffd686, 0xd5b88683, 0xd1799b34, 0xdc3abded, 0xd8fba05a,
-    0x690ce0ee, 0x6dcdfd59, 0x608edb80, 0x644fc637, 0x7a089632, 0x7ec98b85, 0x738aad5c, 0x774bb0eb,
-    0x4f040d56, 0x4bc510e1, 0x46863638, 0x42472b8f, 0x5c007b8a, 0x58c1663d, 0x558240e4, 0x51435d53,
-    0x251d3b9e, 0x21dc2629, 0x2c9f00f0, 0x285e1d47, 0x36194d42, 0x32d850f5, 0x3f9b762c, 0x3b5a6b9b,
-    0x0315d626, 0x07d4cb91, 0x0a97ed48, 0x0e56f0ff, 0x1011a0fa, 0x14d0bd4d, 0x19939b94, 0x1d528623,
-    0xf12f560e, 0xf5ee4bb9, 0xf8ad6d60, 0xfc6c70d7, 0xe22b20d2, 0xe6ea3d65, 0xeba91bbc, 0xef68060b,
-    0xd727bbb6, 0xd3e6a601, 0xdea580d8, 0xda649d6f, 0xc423cd6a, 0xc0e2d0dd, 0xcda1f604, 0xc960ebb3,
-    0xbd3e8d7e, 0xb9ff90c9, 0xb4bcb610, 0xb07daba7, 0xae3afba2, 0xaafbe615, 0xa7b8c0cc, 0xa379dd7b,
-    0x9b3660c6, 0x9ff77d71, 0x92b45ba8, 0x9675461f, 0x8832161a, 0x8cf30bad, 0x81b02d74, 0x857130c3,
-    0x5d8a9099, 0x594b8d2e, 0x5408abf7, 0x50c9b640, 0x4e8ee645, 0x4a4ffbf2, 0x470cdd2b, 0x43cdc09c,
-    0x7b827d21, 0x7f436096, 0x7200464f, 0x76c15bf8, 0x68860bfd, 0x6c47164a, 0x61043093, 0x65c52d24,
-    0x119b4be9, 0x155a565e, 0x18197087, 0x1cd86d30, 0x029f3d35, 0x065e2082, 0x0b1d065b, 0x0fdc1bec,
-    0x3793a651, 0x3352bbe6, 0x3e119d3f, 0x3ad08088, 0x2497d08d, 0x2056cd3a, 0x2d15ebe3, 0x29d4f654,
-    0xc5a92679, 0xc1683bce, 0xcc2b1d17, 0xc8ea00a0, 0xd6ad50a5, 0xd26c4d12, 0xdf2f6bcb, 0xdbee767c,
-    0xe3a1cbc1, 0xe760d676, 0xea23f0af, 0xeee2ed18, 0xf0a5bd1d, 0xf464a0aa, 0xf9278673, 0xfde69bc4,
-    0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662, 0x933eb0bb, 0x97ffad0c,
-    0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4,
-];
-if (typeof Int32Array !== 'undefined') {
-    crc32mpeg2_TABLE = new Int32Array(crc32mpeg2_TABLE);
-}
-const crc32mpeg2 = (current, previous) => {
-    let crc = typeof previous !== 'undefined' ? ~~previous : 0xffffffff;
-    for (let index = 0; index < current.length; index++) {
-        crc = crc32mpeg2_TABLE[((crc >> 24) ^ current[index]) & 0xff] ^ (crc << 8);
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crc32mpeg2 = (crc32mpeg2);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crc32mpeg2.js
-
-
-/* harmony default export */ const mjs_crc32mpeg2 = (defineCrc('crc-32-mpeg', calculators_crc32mpeg2));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/calculators/crcjam.js
-// Generated by `./pycrc.py --algorithm=table-driven --model=jam --generate=c`
-let crcjam_TABLE = [
-    0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
-    0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91,
-    0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de, 0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
-    0x136c9856, 0x646ba8c0, 0xfd62f97a, 0x8a65c9ec, 0x14015c4f, 0x63066cd9, 0xfa0f3d63, 0x8d080df5,
-    0x3b6e20c8, 0x4c69105e, 0xd56041e4, 0xa2677172, 0x3c03e4d1, 0x4b04d447, 0xd20d85fd, 0xa50ab56b,
-    0x35b5a8fa, 0x42b2986c, 0xdbbbc9d6, 0xacbcf940, 0x32d86ce3, 0x45df5c75, 0xdcd60dcf, 0xabd13d59,
-    0x26d930ac, 0x51de003a, 0xc8d75180, 0xbfd06116, 0x21b4f4b5, 0x56b3c423, 0xcfba9599, 0xb8bda50f,
-    0x2802b89e, 0x5f058808, 0xc60cd9b2, 0xb10be924, 0x2f6f7c87, 0x58684c11, 0xc1611dab, 0xb6662d3d,
-    0x76dc4190, 0x01db7106, 0x98d220bc, 0xefd5102a, 0x71b18589, 0x06b6b51f, 0x9fbfe4a5, 0xe8b8d433,
-    0x7807c9a2, 0x0f00f934, 0x9609a88e, 0xe10e9818, 0x7f6a0dbb, 0x086d3d2d, 0x91646c97, 0xe6635c01,
-    0x6b6b51f4, 0x1c6c6162, 0x856530d8, 0xf262004e, 0x6c0695ed, 0x1b01a57b, 0x8208f4c1, 0xf50fc457,
-    0x65b0d9c6, 0x12b7e950, 0x8bbeb8ea, 0xfcb9887c, 0x62dd1ddf, 0x15da2d49, 0x8cd37cf3, 0xfbd44c65,
-    0x4db26158, 0x3ab551ce, 0xa3bc0074, 0xd4bb30e2, 0x4adfa541, 0x3dd895d7, 0xa4d1c46d, 0xd3d6f4fb,
-    0x4369e96a, 0x346ed9fc, 0xad678846, 0xda60b8d0, 0x44042d73, 0x33031de5, 0xaa0a4c5f, 0xdd0d7cc9,
-    0x5005713c, 0x270241aa, 0xbe0b1010, 0xc90c2086, 0x5768b525, 0x206f85b3, 0xb966d409, 0xce61e49f,
-    0x5edef90e, 0x29d9c998, 0xb0d09822, 0xc7d7a8b4, 0x59b33d17, 0x2eb40d81, 0xb7bd5c3b, 0xc0ba6cad,
-    0xedb88320, 0x9abfb3b6, 0x03b6e20c, 0x74b1d29a, 0xead54739, 0x9dd277af, 0x04db2615, 0x73dc1683,
-    0xe3630b12, 0x94643b84, 0x0d6d6a3e, 0x7a6a5aa8, 0xe40ecf0b, 0x9309ff9d, 0x0a00ae27, 0x7d079eb1,
-    0xf00f9344, 0x8708a3d2, 0x1e01f268, 0x6906c2fe, 0xf762575d, 0x806567cb, 0x196c3671, 0x6e6b06e7,
-    0xfed41b76, 0x89d32be0, 0x10da7a5a, 0x67dd4acc, 0xf9b9df6f, 0x8ebeeff9, 0x17b7be43, 0x60b08ed5,
-    0xd6d6a3e8, 0xa1d1937e, 0x38d8c2c4, 0x4fdff252, 0xd1bb67f1, 0xa6bc5767, 0x3fb506dd, 0x48b2364b,
-    0xd80d2bda, 0xaf0a1b4c, 0x36034af6, 0x41047a60, 0xdf60efc3, 0xa867df55, 0x316e8eef, 0x4669be79,
-    0xcb61b38c, 0xbc66831a, 0x256fd2a0, 0x5268e236, 0xcc0c7795, 0xbb0b4703, 0x220216b9, 0x5505262f,
-    0xc5ba3bbe, 0xb2bd0b28, 0x2bb45a92, 0x5cb36a04, 0xc2d7ffa7, 0xb5d0cf31, 0x2cd99e8b, 0x5bdeae1d,
-    0x9b64c2b0, 0xec63f226, 0x756aa39c, 0x026d930a, 0x9c0906a9, 0xeb0e363f, 0x72076785, 0x05005713,
-    0x95bf4a82, 0xe2b87a14, 0x7bb12bae, 0x0cb61b38, 0x92d28e9b, 0xe5d5be0d, 0x7cdcefb7, 0x0bdbdf21,
-    0x86d3d2d4, 0xf1d4e242, 0x68ddb3f8, 0x1fda836e, 0x81be16cd, 0xf6b9265b, 0x6fb077e1, 0x18b74777,
-    0x88085ae6, 0xff0f6a70, 0x66063bca, 0x11010b5c, 0x8f659eff, 0xf862ae69, 0x616bffd3, 0x166ccf45,
-    0xa00ae278, 0xd70dd2ee, 0x4e048354, 0x3903b3c2, 0xa7672661, 0xd06016f7, 0x4969474d, 0x3e6e77db,
-    0xaed16a4a, 0xd9d65adc, 0x40df0b66, 0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
-    0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693, 0x54de5729, 0x23d967bf,
-    0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
-];
-if (typeof Int32Array !== 'undefined') {
-    crcjam_TABLE = new Int32Array(crcjam_TABLE);
-}
-const crcjam = (current, previous = -1) => {
-    let crc = previous === 0 ? 0 : ~~previous;
-    for (let index = 0; index < current.length; index++) {
-        crc = crcjam_TABLE[(crc ^ current[index]) & 0xff] ^ (crc >>> 8);
-    }
-    return crc;
-};
-/* harmony default export */ const calculators_crcjam = (crcjam);
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/crcjam.js
-
-
-/* harmony default export */ const mjs_crcjam = (defineCrc('jam', calculators_crcjam));
-
-;// ./node_modules/.pnpm/crc@4.3.2/node_modules/crc/mjs/index.js
-/* unused harmony import specifier */ var crc_mjs_crc1;
-/* unused harmony import specifier */ var crc_mjs_crc8;
-/* unused harmony import specifier */ var crc_mjs_crc81wire;
-/* unused harmony import specifier */ var crc_mjs_crc8dvbs2;
-/* unused harmony import specifier */ var crc_mjs_crc16;
-/* unused harmony import specifier */ var crc_mjs_crc16ccitt;
-/* unused harmony import specifier */ var crc_mjs_crc16modbus;
-/* unused harmony import specifier */ var crc_mjs_crc16xmodem;
-/* unused harmony import specifier */ var crc_mjs_crc16kermit;
-/* unused harmony import specifier */ var crc_mjs_crc24;
-/* unused harmony import specifier */ var crc_mjs_crc32;
-/* unused harmony import specifier */ var crc_mjs_crc32mpeg2;
-/* unused harmony import specifier */ var crc_mjs_crcjam;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* harmony default export */ const mjs = ((/* unused pure expression or super */ null && ({
-    crc1: crc_mjs_crc1,
-    crc8: crc_mjs_crc8,
-    crc81wire: crc_mjs_crc81wire,
-    crc8dvbs2: crc_mjs_crc8dvbs2,
-    crc16: crc_mjs_crc16,
-    crc16ccitt: crc_mjs_crc16ccitt,
-    crc16modbus: crc_mjs_crc16modbus,
-    crc16xmodem: crc_mjs_crc16xmodem,
-    crc16kermit: crc_mjs_crc16kermit,
-    crc24: crc_mjs_crc24,
-    crc32: crc_mjs_crc32,
-    crc32mpeg2: crc_mjs_crc32mpeg2,
-    crcjam: crc_mjs_crcjam,
-})));
-
 // EXTERNAL MODULE: ./node_modules/.pnpm/png-chunk-text@1.0.0/node_modules/png-chunk-text/index.js
-var png_chunk_text = __webpack_require__(9890);
+var png_chunk_text = __webpack_require__(890);
 // EXTERNAL MODULE: ./node_modules/.pnpm/png-chunks-extract@1.0.0/node_modules/png-chunks-extract/index.js
-var png_chunks_extract = __webpack_require__(3074);
+var png_chunks_extract = __webpack_require__(74);
 var png_chunks_extract_default = /*#__PURE__*/__webpack_require__.n(png_chunks_extract);
 ;// ./src/server/bundle/character.ts
 
@@ -53484,7 +54753,7 @@ function character_encode(chunks) {
     return output;
 }
 // https://github.com/SillyTavern/SillyTavern/blob/bba43f33219e41de7331b61f6872f5c7227503a3/src/character-card-parser.js#L15
-function write(image, data) {
+function character_write(image, data) {
     const chunks = png_chunks_extract_default()(new Uint8Array(image));
     const tEXtChunks = chunks.filter(chunk => chunk.name === 'tEXt');
     // Remove existing tEXt chunks
@@ -53515,7 +54784,7 @@ function write(image, data) {
 function bundle_character(name, character) {
     const original_character = to_original_character(name, character);
     if (character.avatar) {
-        return write(character.avatar, JSON.stringify(original_character));
+        return character_write(character.avatar, JSON.stringify(original_character));
     }
     return original_character;
 }
@@ -53569,7 +54838,7 @@ function replace_user_name(text) {
 
 ;// external "node:stream"
 
-;// ./node_modules/.pnpm/readdirp@5.0.0/node_modules/readdirp/index.js
+;// ./node_modules/.pnpm/readdirp@5.1.1/node_modules/readdirp/index.js
 
 
 
@@ -53587,7 +54856,9 @@ const defaultOptions = {
     lstat: false,
     depth: 2147483648,
     alwaysStat: false,
-    highWaterMark: 4096,
+    // Throughput is flat from 16 to 65536 (traversal is I/O-bound), but
+    // batches of 1024+ entries survive young-gen GC and bloat RSS ~20-60%.
+    highWaterMark: 256,
 };
 Object.freeze(defaultOptions);
 const RECURSIVE_ERROR_CODE = 'READDIRP_RECURSIVE_ERROR';
@@ -53626,8 +54897,12 @@ const normalizeFilter = (filter) => {
     }
     return emptyFn;
 };
-/** Readable readdir stream, emitting new files as they're being listed. */
 class ReaddirpStream extends __WEBPACK_EXTERNAL_MODULE_node_stream_62980834_Readable__ {
+    /**
+     * Directories discovered but not yet emitted from. Listings are read
+     * lazily (on pop, plus one prefetch) instead of eagerly on discovery:
+     * keeping whole listings for every queued dir balloons RAM on wide trees.
+     */
     parents;
     reading;
     parent;
@@ -53642,14 +54917,17 @@ class ReaddirpStream extends __WEBPACK_EXTERNAL_MODULE_node_stream_62980834_Read
     _rdOptions;
     _fileFilter;
     _directoryFilter;
+    _relStart;
     constructor(options = {}) {
         super({
             objectMode: true,
             autoDestroy: true,
-            highWaterMark: options.highWaterMark,
+            highWaterMark: options.highWaterMark ?? defaultOptions.highWaterMark,
         });
         const opts = { ...defaultOptions, ...options };
-        const { root, type } = opts;
+        // Use ?? so an explicit `undefined` in user options doesn't shadow defaults.
+        const root = opts.root ?? defaultOptions.root;
+        const type = opts.type ?? defaultOptions.type;
         this._fileFilter = normalizeFilter(opts.fileFilter);
         this._directoryFilter = normalizeFilter(opts.directoryFilter);
         const statMethod = opts.lstat ? __WEBPACK_EXTERNAL_MODULE_node_fs_promises_4a3ebc43_lstat__ : __WEBPACK_EXTERNAL_MODULE_node_fs_promises_4a3ebc43_stat__;
@@ -53662,15 +54940,23 @@ class ReaddirpStream extends __WEBPACK_EXTERNAL_MODULE_node_stream_62980834_Read
         }
         this._maxDepth =
             opts.depth != null && Number.isSafeInteger(opts.depth) ? opts.depth : defaultOptions.depth;
-        this._wantsDir = type ? DIR_TYPES.has(type) : false;
-        this._wantsFile = type ? FILE_TYPES.has(type) : false;
+        this._wantsDir = DIR_TYPES.has(type);
+        this._wantsFile = FILE_TYPES.has(type);
         this._wantsEverything = type === EntryTypes.EVERYTHING_TYPE;
         this._root = __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_resolve__(root);
+        // Every fullPath is `_root + sep + relative path` (see _formatEntry), so
+        // the relative path is a slice starting past the root and its trailing
+        // separator (which resolved paths lack, except fs roots like '/', 'C:\').
+        this._relStart = this._root.endsWith(__WEBPACK_EXTERNAL_MODULE_node_path_02319fef_sep__) ? this._root.length : this._root.length + 1;
         this._isDirent = !opts.alwaysStat;
         this._statsProp = this._isDirent ? 'dirent' : 'stats';
         this._rdOptions = { encoding: 'utf8', withFileTypes: this._isDirent };
-        // Launch stream with one parent, the root dir.
-        this.parents = [this._exploreDir(root, 1)];
+        // Launch stream with one parent, the root dir, whose readdir starts
+        // right away. Explore the resolved root so all parent paths stay
+        // absolute even if process.cwd() changes mid-iteration.
+        const rootDir = { path: this._root, depth: 1 };
+        rootDir.pending = this._exploreDir(this._root, 1);
+        this.parents = [rootDir];
         this.reading = false;
         this.parent = undefined;
     }
@@ -53685,16 +54971,25 @@ class ReaddirpStream extends __WEBPACK_EXTERNAL_MODULE_node_stream_62980834_Read
                 if (fil && fil.length > 0) {
                     const { path, depth } = par;
                     const slice = fil.splice(0, batch).map((dirent) => this._formatEntry(dirent, path));
-                    const awaited = await Promise.all(slice);
+                    // In dirent mode _formatEntry is synchronous: skip Promise.all and
+                    // its per-entry microtask overhead.
+                    const awaited = this._isDirent
+                        ? slice
+                        : await Promise.all(slice);
                     for (const entry of awaited) {
                         if (!entry)
                             continue;
                         if (this.destroyed)
                             return;
-                        const entryType = await this._getEntryType(entry);
+                        // Only symlinks require async work; plain files / dirs resolve synchronously.
+                        let entryType = this._getEntryType(entry);
+                        if (typeof entryType !== 'string')
+                            entryType = await entryType;
                         if (entryType === 'directory' && this._directoryFilter(entry)) {
                             if (depth <= this._maxDepth) {
-                                this.parents.push(this._exploreDir(entry.fullPath, depth + 1));
+                                // Lazy: don't readdir until this dir is popped. Keeping whole
+                                // listings for every queued dir would balloon RAM on wide trees.
+                                this.parents.push({ path: entry.fullPath, depth: depth + 1 });
                             }
                             if (this._wantsDir) {
                                 this.push(entry);
@@ -53716,7 +55011,15 @@ class ReaddirpStream extends __WEBPACK_EXTERNAL_MODULE_node_stream_62980834_Read
                         this.push(null);
                         break;
                     }
-                    this.parent = await parent;
+                    const dir = parent.pending ?? this._exploreDir(parent.path, parent.depth);
+                    // Prefetch the next dir so its readdir overlaps with processing
+                    // this one's entries. Only the stack top is prefetched, keeping at
+                    // most a handful of listings (~tree depth) in RAM at once.
+                    const next = this.parents[this.parents.length - 1];
+                    if (next && !next.pending) {
+                        next.pending = this._exploreDir(next.path, next.depth);
+                    }
+                    this.parent = await dir;
                     if (this.destroyed)
                         return;
                 }
@@ -53729,6 +55032,18 @@ class ReaddirpStream extends __WEBPACK_EXTERNAL_MODULE_node_stream_62980834_Read
             this.reading = false;
         }
     }
+    // NOTE: native `readdir(path, { recursive: true })` was evaluated as a
+    // replacement for this per-directory traversal and rejected:
+    // - Not faster: node implements it in JS, walking directories sequentially
+    //   just like this loop, but with extra path bookkeeping. Benchmarks
+    //   (node 24): ~10% slower on wide trees, ~40% slower on small ones,
+    //   parity on deep ones.
+    // - Much more RAM: it buffers the entire subtree listing in one array,
+    //   instead of one directory at a time, defeating streaming.
+    // - Semantics diverge: it can't limit depth, can't skip directories a
+    //   directoryFilter rejects, doesn't follow symlinked dirs, and fails
+    //   wholesale (all entries lost) if anything in the subtree is unreadable,
+    //   instead of emitting a 'warn' and continuing.
     async _exploreDir(path, depth) {
         let files;
         try {
@@ -53739,19 +55054,27 @@ class ReaddirpStream extends __WEBPACK_EXTERNAL_MODULE_node_stream_62980834_Read
         }
         return { files, depth, path };
     }
-    async _formatEntry(dirent, path) {
-        let entry;
+    // Synchronous in dirent mode; returns a promise only when stats are needed.
+    _formatEntry(dirent, path) {
         const basename = this._isDirent ? dirent.name : dirent;
-        try {
-            const fullPath = __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_resolve__(__WEBPACK_EXTERNAL_MODULE_node_path_02319fef_join__(path, basename));
-            entry = { path: __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_relative__(this._root, fullPath), fullPath, basename };
-            entry[this._statsProp] = this._isDirent ? dirent : await this._stat(fullPath);
+        // `path` is always an absolute, normalized parent dir (see _exploreDir
+        // seeding in the constructor), so a plain join is enough — resolve()
+        // would re-read cwd on every entry.
+        const fullPath = __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_join__(path, basename);
+        // Slice instead of path.relative(): equivalent here (fullPath is always
+        // under _root) and avoids several intermediate allocations per entry.
+        const entry = { path: fullPath.slice(this._relStart), fullPath, basename };
+        if (this._isDirent) {
+            entry.dirent = dirent;
+            return entry;
         }
-        catch (err) {
+        return this._stat(fullPath).then((stats) => {
+            entry.stats = stats;
+            return entry;
+        }, (err) => {
             this._onError(err);
-            return;
-        }
-        return entry;
+            return undefined;
+        });
     }
     _onError(err) {
         if (isNormalFlowError(err) && !this.destroyed) {
@@ -53761,10 +55084,12 @@ class ReaddirpStream extends __WEBPACK_EXTERNAL_MODULE_node_stream_62980834_Read
             this.destroy(err);
         }
     }
-    async _getEntryType(entry) {
+    // Synchronous for regular files and directories; returns a promise only for
+    // symlinks, which need realpath() to be classified.
+    _getEntryType(entry) {
         // entry may be undefined, because a warning or an error were emitted
         // and the statsProp is undefined
-        if (!entry && this._statsProp in entry) {
+        if (!entry || !(this._statsProp in entry)) {
             return '';
         }
         const stats = entry[this._statsProp];
@@ -53772,30 +55097,34 @@ class ReaddirpStream extends __WEBPACK_EXTERNAL_MODULE_node_stream_62980834_Read
             return 'file';
         if (stats.isDirectory())
             return 'directory';
-        if (stats && stats.isSymbolicLink()) {
-            const full = entry.fullPath;
-            try {
-                const entryRealPath = await __WEBPACK_EXTERNAL_MODULE_node_fs_promises_4a3ebc43_realpath__(full);
-                const entryRealPathStats = await __WEBPACK_EXTERNAL_MODULE_node_fs_promises_4a3ebc43_lstat__(entryRealPath);
-                if (entryRealPathStats.isFile()) {
-                    return 'file';
-                }
-                if (entryRealPathStats.isDirectory()) {
-                    const len = entryRealPath.length;
-                    if (full.startsWith(entryRealPath) && full.substr(len, 1) === __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_sep__) {
-                        const recursiveError = new Error(`Circular symlink detected: "${full}" points to "${entryRealPath}"`);
-                        // @ts-ignore
-                        recursiveError.code = RECURSIVE_ERROR_CODE;
-                        return this._onError(recursiveError);
-                    }
-                    return 'directory';
-                }
+        if (stats.isSymbolicLink())
+            return this._getSymlinkEntryType(entry);
+        return '';
+    }
+    async _getSymlinkEntryType(entry) {
+        const full = entry.fullPath;
+        try {
+            const entryRealPath = await __WEBPACK_EXTERNAL_MODULE_node_fs_promises_4a3ebc43_realpath__(full);
+            const entryRealPathStats = await __WEBPACK_EXTERNAL_MODULE_node_fs_promises_4a3ebc43_lstat__(entryRealPath);
+            if (entryRealPathStats.isFile()) {
+                return 'file';
             }
-            catch (error) {
-                this._onError(error);
-                return '';
+            if (entryRealPathStats.isDirectory()) {
+                const len = entryRealPath.length;
+                if (full.startsWith(entryRealPath) && full[len] === __WEBPACK_EXTERNAL_MODULE_node_path_02319fef_sep__) {
+                    const recursiveError = new Error(`Circular symlink detected: "${full}" points to "${entryRealPath}"`);
+                    // @ts-ignore
+                    recursiveError.code = RECURSIVE_ERROR_CODE;
+                    this._onError(recursiveError);
+                    return '';
+                }
+                return 'directory';
             }
         }
+        catch (error) {
+            this._onError(error);
+        }
+        return '';
     }
     _includeAsFile(entry) {
         const stats = entry && entry[this._statsProp];
@@ -53813,8 +55142,6 @@ function readdirp(root, options = {}) {
     let type = options.entryType || options.type;
     if (type === 'both')
         type = EntryTypes.FILE_DIR_TYPE; // backwards-compatibility
-    if (type)
-        options.type = type;
     if (!root) {
         throw new Error('readdirp: root argument is required. Usage: readdirp(root, options)');
     }
@@ -53824,8 +55151,11 @@ function readdirp(root, options = {}) {
     else if (type && !ALL_TYPES.includes(type)) {
         throw new Error(`readdirp: Invalid type passed. Use one of ${ALL_TYPES.join(', ')}`);
     }
-    options.root = root;
-    return new ReaddirpStream(options);
+    // Copy options instead of mutating the caller's object.
+    const opts = { ...options, root };
+    if (type)
+        opts.type = type;
+    return new ReaddirpStream(opts);
 }
 /**
  * Promise version: Reads all files and directories in given root recursively.
@@ -55316,47 +56646,48 @@ function watch_on(path) {
 
 ;// external "node:http"
 
-// EXTERNAL MODULE: ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/index.js
-var socket_io_dist = __webpack_require__(8596);
+;// ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/dist/index.js
+socket_io_dist_namespaceFn();
+
 ;// ./node_modules/.pnpm/socket.io@4.8.3_bufferutil@4.1.0_utf-8-validate@6.0.6/node_modules/socket.io/wrapper.mjs
 
 
-const {Server, Namespace, Socket} = socket_io_dist;
+const {Server: wrapper_Server, Namespace: wrapper_Namespace, Socket: wrapper_Socket} = (socket_io_dist_namespaceFn());
 
 ;// ./src/server/server.ts
 
 
 
-const port = 6620;
-let io = null;
+const server_port = 6620;
+let server_io = null;
 async function wait_socket() {
-    if (!io) {
+    if (!server_io) {
         const server = __WEBPACK_EXTERNAL_MODULE_node_http_b674be28_createServer__();
-        server.listen(port, () => {
-            console.info(`酒馆同步脚本服务器正运行在端口: ${port}, 请打开酒馆网页, 等待脚本连接... (如果等待时间超过 10 秒, 请刷新酒馆网页或检查酒馆助手脚本库里的脚本是否开启)`);
+        server.listen(server_port, () => {
+            console.info(`酒馆同步脚本服务器正运行在端口: ${server_port}, 请打开酒馆网页, 等待脚本连接... (如果等待时间超过 10 秒, 请刷新酒馆网页或检查酒馆助手脚本库里的脚本是否开启)`);
         });
-        io = new Server(server, {
+        server_io = new wrapper_Server(server, {
             maxHttpBufferSize: 1e11,
             cors: {
                 origin: '*',
             },
         });
-        io.on('connect', socket => {
+        server_io.on('connect', socket => {
             console.info(`服务器成功连接到酒馆网页 '${socket.id}'`);
             socket.on('disconnect', reason => {
                 console.info(`服务器与酒馆网页 '${socket.id}' 断开连接: ${reason}`);
             });
         });
     }
-    if (io.sockets.sockets.size > 0) {
-        if (io.sockets.sockets.size > 1) {
+    if (server_io.sockets.sockets.size > 0) {
+        if (server_io.sockets.sockets.size > 1) {
             console.warn('目前连接到了多个酒馆网页, 为了保证数据同步, 请只打开、连接一个酒馆页面');
         }
-        return io.sockets.sockets.values().next().value;
+        return server_io.sockets.sockets.values().next().value;
     }
     return new Promise(resolve => {
-        io.once('connect', (socket) => {
-            if (io.sockets.sockets.size > 1) {
+        server_io.once('connect', (socket) => {
+            if (server_io.sockets.sockets.size > 1) {
                 console.warn('目前连接到了多个酒馆网页, 为了保证数据同步, 请只打开、连接一个酒馆页面');
             }
             resolve(socket);
@@ -55364,7 +56695,7 @@ async function wait_socket() {
     });
 }
 async function close_server() {
-    await io?.close();
+    await server_io?.close();
     __WEBPACK_EXTERNAL_MODULE_node_process_8d178d73_exit__(0);
 }
 
@@ -55440,7 +56771,7 @@ class Syncer_interface {
         if (!/\S/.test(content)) {
             return `配置文件 '${this.file}' 为空`;
         }
-        const data = dist.parse(content, { merge: true });
+        const data = (dist_namespaceFn().parse)(content, { merge: true });
         return this.is_zh(data)
             ? translate(detailed_parse(this.zh_type, data), this.zh_to_en_map)
             : detailed_parse(this.en_type, data);
@@ -55469,7 +56800,7 @@ ${this.do_beautify_config(tavern_data, language)}`;
         if (typeof local_data !== 'string' && !should_force) {
             const { error_data } = this.check_safe(local_data, tavern_data);
             if (!lodash_default().isEmpty(error_data)) {
-                exit_on_error(dist.stringify({ [`拉取${this.type_zh} '${this.name}' 失败`]: error_data }) +
+                exit_on_error((dist_namespaceFn().stringify)({ [`拉取${this.type_zh} '${this.name}' 失败`]: error_data }) +
                     `如果想无视条目差异, 请在命令尾部添加 '-f' 或 '--force' 选项, 如: 'node tavern_sync.mjs pull 猴子打字机 -f'`);
             }
         }
@@ -55478,7 +56809,7 @@ ${this.do_beautify_config(tavern_data, language)}`;
             should_split,
         });
         if (!lodash_default().isEmpty(error_data)) {
-            exit_on_error(dist.stringify({ [`拉取${this.type_zh} '${this.name}' 失败`]: error_data }));
+            exit_on_error((dist_namespaceFn().stringify)({ [`拉取${this.type_zh} '${this.name}' 失败`]: error_data }));
         }
         const collection_files = lodash_default()(files)
             .remove(file => is_collection_file(file.path))
@@ -55486,7 +56817,7 @@ ${this.do_beautify_config(tavern_data, language)}`;
             .map((files, path) => {
             let content = files.map(file => `# ^${file.name}\n` + file.content).join('\n');
             try {
-                content = String(dist.parseDocument(content));
+                content = String((dist_namespaceFn().parseDocument)(content));
             }
             catch (error) {
                 // TODO: 如何报错
@@ -55515,13 +56846,13 @@ ${this.do_beautify_config(tavern_data, language)}`;
             }
             const { error_data } = this.check_safe(local_data, tavern_data);
             if (!lodash_default().isEmpty(error_data)) {
-                throw Error(dist.stringify({ [`推送${this.type_zh} '${this.name}' 失败`]: error_data }) +
+                throw Error((dist_namespaceFn().stringify)({ [`推送${this.type_zh} '${this.name}' 失败`]: error_data }) +
                     `如果想无视条目差异, 请在命令尾部添加 '-f' 或 '--force' 选项, 如: 'node tavern_sync.mjs push 猴子打字机 -f'`);
             }
         }
         const { result_data, error_data } = this.do_push(local_data);
         if (!lodash_default().isEmpty(error_data)) {
-            throw Error(dist.stringify({ [`推送${this.type_zh} '${this.name}' 失败`]: error_data }));
+            throw Error((dist_namespaceFn().stringify)({ [`推送${this.type_zh} '${this.name}' 失败`]: error_data }));
         }
         const socket = await wait_socket();
         await socket.emitWithAck(`push_${this.type}`, {
@@ -55578,16 +56909,17 @@ ${this.do_beautify_config(tavern_data, language)}`;
         }
         const { result_data, error_data } = this.do_bundle(local_data);
         if (!lodash_default().isEmpty(error_data)) {
-            exit_on_error(dist.stringify({ [`打包${this.type_zh} '${this.name}' 失败`]: error_data }));
+            exit_on_error((dist_namespaceFn().stringify)({ [`打包${this.type_zh} '${this.name}' 失败`]: error_data }));
         }
         write_file_recursively(this.dir, Buffer.isBuffer(result_data) ? this.bundle_file.replace('.json', '.png') : this.bundle_file, Buffer.isBuffer(result_data) ? result_data : JSON.stringify(result_data, null, 2));
         console.info(`成功将${this.type_zh} '${this.name}' 打包到 '${__WEBPACK_EXTERNAL_MODULE_node_path_02319fef_resolve__(this.dir, this.bundle_file)}' 中`);
     }
 }
 
-// EXTERNAL MODULE: ./node_modules/.pnpm/uuid-random@1.3.2/node_modules/uuid-random/index.js
-var uuid_random = __webpack_require__(327);
-var uuid_random_default = /*#__PURE__*/__webpack_require__.n(uuid_random);
+;// ./node_modules/.pnpm/uuid-random@1.3.2/node_modules/uuid-random/index.js
+uuid_random_namespaceFn();
+
+function uuid_random_default() { return uuid_random_default.c || (uuid_random_default.c = __webpack_require__.n(uuid_random_namespaceFn())); }
 ;// ./src/type/extensions.en.ts
 
 
@@ -55597,19 +56929,19 @@ const ScriptButton = strictObject({
 });
 const Script = strictObject({
     name: coerce_string(),
-    id: coerce_string().prefault((uuid_random_default())),
+    id: coerce_string().prefault((uuid_random_default()())),
     enabled: schemas_boolean(),
-    type: literal('script'),
+    type: schemas_literal('script'),
     content: coerce_string().optional().describe('内嵌的脚本内容'),
     file: coerce_string().optional().describe('外链的脚本文件路径'),
     info: coerce_string().prefault(''),
-    button: object({
+    button: schemas_object({
         enabled: schemas_boolean().prefault(true),
-        buttons: array(ScriptButton).prefault([]),
+        buttons: schemas_array(ScriptButton).prefault([]),
     })
         .prefault({}),
-    data: record(schemas_string(), any()).prefault({}),
-    export_with: object({
+    data: record(schemas_string(), schemas_any()).prefault({}),
+    export_with: schemas_object({
         data: schemas_boolean().prefault(true),
         button: schemas_boolean().prefault(true),
     })
@@ -55633,22 +56965,22 @@ const Script = strictObject({
 });
 const ScriptFolder = strictObject({
     name: coerce_string(),
-    id: coerce_string().prefault((uuid_random_default())),
+    id: coerce_string().prefault((uuid_random_default()())),
     enabled: schemas_boolean(),
-    type: literal('folder'),
+    type: schemas_literal('folder'),
     icon: coerce_string().prefault('fa-solid fa-folder'),
     color: coerce_string().prefault('rgba(219, 219, 214, 1)'),
-    scripts: array(Script).prefault([]),
+    scripts: schemas_array(Script).prefault([]),
 });
 const ScriptTree = discriminatedUnion('type', [Script, ScriptFolder]);
-const Extensions = looseObject({
-    regex_scripts: array(strictObject({
+const extensions_en_Extensions = looseObject({
+    regex_scripts: schemas_array(strictObject({
         script_name: coerce_string(),
-        id: coerce_string().prefault((uuid_random_default())),
+        id: coerce_string().prefault((uuid_random_default()())),
         enabled: schemas_boolean(),
         find_regex: coerce_string(),
         replace_string: coerce_string().optional().describe(`已弃用, 请使用 'content' 或 'file'`),
-        trim_strings: array(coerce_string()).default([]),
+        trim_strings: schemas_array(coerce_string()).default([]),
         content: coerce_string().optional().describe('要替换为的内容'),
         file: coerce_string().optional().describe('要替换为的内容所在的文件路径'),
         source: strictObject({
@@ -55691,15 +57023,15 @@ const Extensions = looseObject({
     }))
         .prefault([]),
     tavern_helper: strictObject({
-        scripts: array(ScriptTree).prefault([]),
-        variables: record(schemas_string(), any()).prefault({}),
+        scripts: schemas_array(ScriptTree).prefault([]),
+        variables: record(schemas_string(), schemas_any()).prefault({}),
     })
         .prefault({}),
 });
 
 ;// ./src/server/tavern/extensions.ts
 
-const extensions_Extensions = Extensions.transform(data => {
+const extensions_Extensions = extensions_en_Extensions.transform(data => {
     data.regex_scripts.forEach(script => {
         if ((script?.trim_strings?.length ?? 0) === 0) {
             _.unset(script, 'trim_strings');
@@ -55748,20 +57080,20 @@ const extensions_Extensions = Extensions.transform(data => {
 
 ;// ./src/server/tavern/worldbook.ts
 
-const Worldbook_entry = object({
+const Worldbook_entry = schemas_object({
     name: schemas_string(),
     uid: union([coerce_number(), schemas_string()]),
     enabled: schemas_boolean(),
-    strategy: object({
+    strategy: schemas_object({
         type: schemas_enum(['constant', 'selective', 'vectorized']),
-        keys: array(schemas_string()),
-        keys_secondary: object({
+        keys: schemas_array(schemas_string()),
+        keys_secondary: schemas_object({
             logic: schemas_enum(['and_any', 'and_all', 'not_all', 'not_any']),
-            keys: array(schemas_string()),
+            keys: schemas_array(schemas_string()),
         }),
-        scan_depth: union([literal('same_as_global'), schemas_number()]),
+        scan_depth: union([schemas_literal('same_as_global'), schemas_number()]),
     }),
-    position: object({
+    position: schemas_object({
         type: schemas_enum([
             'before_character_definition',
             'after_character_definition',
@@ -55776,12 +57108,12 @@ const Worldbook_entry = object({
         order: schemas_number(),
     }),
     probability: schemas_number().min(0).max(100),
-    recursion: object({
+    recursion: schemas_object({
         prevent_incoming: schemas_boolean(),
         prevent_outgoing: schemas_boolean(),
         delay_until: schemas_number().min(1).nullable(),
     }),
-    effect: object({
+    effect: schemas_object({
         sticky: schemas_number().nullable(),
         cooldown: schemas_number().nullable(),
         delay: schemas_number().nullable(),
@@ -55792,7 +57124,7 @@ const Worldbook_entry = object({
     groupOverride: schemas_boolean().default(false),
     groupWeight: schemas_number().default(100),
     useGroupScoring: schemas_boolean().nullable().default(null),
-    extra: record(schemas_string(), any()).optional(),
+    extra: record(schemas_string(), schemas_any()).optional(),
     content: schemas_string(),
 })
     .transform(data => {
@@ -55848,7 +57180,7 @@ const Worldbook_entry = object({
     }
     return data;
 });
-const Worldbook = array(Worldbook_entry).transform(entries => ({
+const Worldbook = schemas_array(Worldbook_entry).transform(entries => ({
     anchors: {},
     entries,
 }));
@@ -55862,11 +57194,11 @@ const Character = strictObject({
     version: schemas_string(),
     creator: schemas_string(),
     creator_notes: schemas_string(),
-    first_messages: array(schemas_string().transform(message => ({ content: message }))).prefault(['']),
+    first_messages: schemas_array(schemas_string().transform(message => ({ content: message }))).prefault(['']),
     description: schemas_string().default(''),
-    anchors: record(schemas_string(), any()).prefault({}),
+    anchors: record(schemas_string(), schemas_any()).prefault({}),
     worldbook: schemas_string(),
-    entries: array(Worldbook_entry).prefault([]),
+    entries: schemas_array(Worldbook_entry).prefault([]),
     extensions: extensions_Extensions.optional().describe('扩展字段: 用于为预设绑定额外数据'),
 });
 
@@ -55874,7 +57206,7 @@ const Character = strictObject({
 
 function is_yaml(content) {
     try {
-        dist.parse(content, { logLevel: 'error' });
+        (dist_namespaceFn().parse)(content, { logLevel: 'error' });
         return true;
     }
     catch (error) {
@@ -55931,8 +57263,8 @@ function trim_yaml_endline(content) {
 }
 
 ;// ./node_modules/.pnpm/dedent@1.7.2/node_modules/dedent/dist/dedent.mjs
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function dedent_ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? dedent_ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : dedent_ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return typeof key === "symbol" ? key : String(key); }
 function _toPrimitive(input, hint) { if (typeof input !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (typeof res !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
@@ -56045,7 +57377,7 @@ const worldbook_en_Worldbook_entry = strictObject({
           - selective: 可选项🟢, 俗称绿灯. 除了蓝灯条件, 还需要满足 \`keys\` 扫描条件
           - vectorized: 向量化🔗. 一般不使用
         `)),
-        keys: array(coerce_string())
+        keys: schemas_array(coerce_string())
             .min(1)
             .optional()
             .describe('关键字: 绿灯条目必须在欲扫描文本中扫描到其中任意一个关键字才能激活'),
@@ -56057,11 +57389,11 @@ const worldbook_en_Worldbook_entry = strictObject({
               - not_all: 次要关键字中至少有一个关键字没能在欲扫描文本中匹配到
               - not_any: 次要关键字中所有关键字都没能欲扫描文本中匹配到
             `)),
-            keys: array(coerce_string()).min(1),
+            keys: schemas_array(coerce_string()).min(1),
         })
             .optional()
             .describe('次要关键字: 如果设置了次要关键字, 则条目除了在 `keys` 中匹配到任意一个关键字外, 还需要按次要关键字的 `logic` 满足次要关键字的 `keys`'),
-        scan_depth: union([literal('same_as_global'), schemas_number().min(1)])
+        scan_depth: union([schemas_literal('same_as_global'), schemas_number().min(1)])
             .optional()
             .describe('扫描深度: 1 为仅扫描最后一个楼层, 2 为扫描最后两个楼层, 以此类推'),
     })
@@ -56147,17 +57479,17 @@ const worldbook_en_Worldbook_entry = strictObject({
         .partial()
         .optional(),
     group: strictObject({
-        labels: array(coerce_string()).min(1).describe('组标签'),
+        labels: schemas_array(coerce_string()).min(1).describe('组标签'),
         use_priority: schemas_boolean().default(false).describe('使用优先级'),
         weight: schemas_number().default(100).describe('权重'),
-        use_scoring: union([schemas_boolean(), literal('same_as_global')])
+        use_scoring: union([schemas_boolean(), schemas_literal('same_as_global')])
             .default('same_as_global')
             .transform(data => (data === 'same_as_global' ? null : data))
             .describe('使用评分'),
     })
         .optional()
         .describe('包含组'),
-    extra: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
+    extra: record(schemas_string(), schemas_any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
     content: coerce_string().optional().describe('内嵌的提示词内容'),
     file: coerce_string().optional().describe('外链的提示词文件路径'),
 })
@@ -56196,9 +57528,9 @@ const worldbook_en_Worldbook_entry = strictObject({
     }
 });
 const Wolrdbook_leaf = worldbook_en_Worldbook_entry;
-const Wolrdbook_branch = object({
+const Wolrdbook_branch = schemas_object({
     folder: coerce_string(),
-    entries: array(Wolrdbook_leaf),
+    entries: schemas_array(Wolrdbook_leaf),
 });
 const Wolrdbook_tree = union([Wolrdbook_leaf, Wolrdbook_branch]);
 function is_worldbook_branch(data) {
@@ -56210,9 +57542,9 @@ function flatten_tree(data) {
     }
     return [data];
 }
-const Wolrdbook_trees = array(Wolrdbook_tree).transform(data => data.flatMap(flatten_tree));
+const Wolrdbook_trees = schemas_array(Wolrdbook_tree).transform(data => data.flatMap(flatten_tree));
 const worldbook_en_Worldbook = strictObject({
-    anchors: any().optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
+    anchors: schemas_any().optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
     entries: Wolrdbook_trees,
 });
 
@@ -56227,7 +57559,7 @@ const character_en_Character = strictObject({
     version: coerce_string().default(''),
     creator: coerce_string().default(''),
     creator_notes: coerce_string().default(''),
-    first_messages: array(object({
+    first_messages: schemas_array(schemas_object({
         content: coerce_string().optional().describe('内嵌的提示词内容'),
         file: coerce_string().optional().describe('外链的提示词文件路径'),
     })
@@ -56253,7 +57585,7 @@ const character_en_Character = strictObject({
     anchors: worldbook_en_Worldbook.shape.anchors,
     worldbook: coerce_string().nullish().describe('世界书名称: 填为 `null` 或不设置该字段则与角色卡名称相同'),
     entries: worldbook_en_Worldbook.shape.entries,
-    extensions: Extensions.optional().describe('扩展字段: 用于为预设绑定额外数据'),
+    extensions: extensions_en_Extensions.optional().describe('扩展字段: 用于为预设绑定额外数据'),
 });
 
 ;// ./src/type/extensions.zh.ts
@@ -56302,19 +57634,19 @@ const extensions_zh_ScriptButton = strictObject({
 });
 const extensions_zh_Script = strictObject({
     名称: coerce_string(),
-    id: coerce_string().prefault((uuid_random_default())),
+    id: coerce_string().prefault((uuid_random_default()())),
     启用: schemas_boolean(),
-    类型: literal('脚本'),
+    类型: schemas_literal('脚本'),
     内容: coerce_string().optional().describe('内嵌的脚本内容'),
     文件: coerce_string().optional().describe('外链的脚本文件路径'),
     介绍: coerce_string().prefault(''),
-    按钮: object({
+    按钮: schemas_object({
         启用: schemas_boolean().prefault(true),
-        按钮列表: array(extensions_zh_ScriptButton).prefault([]),
+        按钮列表: schemas_array(extensions_zh_ScriptButton).prefault([]),
     })
         .prefault({}),
-    数据: record(schemas_string(), any()).prefault({}),
-    导出时携带: object({
+    数据: record(schemas_string(), schemas_any()).prefault({}),
+    导出时携带: schemas_object({
         数据: schemas_boolean().prefault(true),
         按钮: schemas_boolean().prefault(true),
     })
@@ -56338,21 +57670,21 @@ const extensions_zh_Script = strictObject({
 });
 const extensions_zh_ScriptFolder = strictObject({
     名称: coerce_string(),
-    id: coerce_string().prefault((uuid_random_default())),
+    id: coerce_string().prefault((uuid_random_default()())),
     启用: schemas_boolean(),
-    类型: literal('文件夹'),
+    类型: schemas_literal('文件夹'),
     图标: coerce_string().prefault('fa-solid fa-folder'),
     颜色: coerce_string().prefault('#DBDBD6'),
-    脚本库: array(extensions_zh_Script).prefault([]),
+    脚本库: schemas_array(extensions_zh_Script).prefault([]),
 });
 const extensions_zh_ScriptTree = discriminatedUnion('类型', [extensions_zh_Script, extensions_zh_ScriptFolder]);
 const extensions_zh_Extensions = looseObject({
-    正则: array(strictObject({
+    正则: schemas_array(strictObject({
         正则名称: coerce_string(),
-        id: coerce_string().prefault((uuid_random_default())),
+        id: coerce_string().prefault((uuid_random_default()())),
         启用: schemas_boolean(),
         查找表达式: coerce_string(),
-        修剪掉: array(coerce_string()).default([]),
+        修剪掉: schemas_array(coerce_string()).default([]),
         替换为: coerce_string().optional().describe(`已弃用, 请使用 '内容' 或 '文件'`),
         内容: coerce_string().optional().describe('要替换为的内容'),
         文件: coerce_string().optional().describe('要替换为的内容所在的文件路径'),
@@ -56396,8 +57728,8 @@ const extensions_zh_Extensions = looseObject({
     }))
         .prefault([]),
     酒馆助手: strictObject({
-        脚本库: array(extensions_zh_ScriptTree).prefault([]),
-        变量: record(schemas_string(), any()).prefault({}),
+        脚本库: schemas_array(extensions_zh_ScriptTree).prefault([]),
+        变量: record(schemas_string(), schemas_any()).prefault({}),
     })
         .prefault({}),
 });
@@ -56471,7 +57803,7 @@ const worldbook_zh_Worldbook_entry = strictObject({
           - 绿灯: 可选项🟢 (selective). 除了蓝灯条件, 还需要满足 \`关键字\` 扫描条件
           - 向量化: 向量化🔗 (vectorized). 一般不使用
         `)),
-        关键字: array(coerce_string())
+        关键字: schemas_array(coerce_string())
             .min(1)
             .optional()
             .describe('关键字: 绿灯条目必须在欲扫描文本中扫描到其中任意一个关键字才能激活'),
@@ -56483,11 +57815,11 @@ const worldbook_zh_Worldbook_entry = strictObject({
               - 非所有 (not_all): 次要关键字中至少有一个关键字没能在欲扫描文本中匹配到
               - 非任意 (not_any): 次要关键字中所有关键字都没能欲扫描文本中匹配到
             `)),
-            关键字: array(schemas_string()).min(1),
+            关键字: schemas_array(schemas_string()).min(1),
         })
             .optional()
             .describe('次要关键字: 如果设置了次要关键字, 则条目除了在`关键字`中匹配到任意一个关键字外, 还需要按次要关键字的`逻辑`满足次要关键字的`关键字`'),
-        扫描深度: union([literal('与全局设置相同'), schemas_number().min(1)])
+        扫描深度: union([schemas_literal('与全局设置相同'), schemas_number().min(1)])
             .optional()
             .describe('扫描深度: 1 为仅扫描最后一个楼层, 2 为扫描最后两个楼层, 以此类推'),
     })
@@ -56561,17 +57893,17 @@ const worldbook_zh_Worldbook_entry = strictObject({
         .partial()
         .optional(),
     群组: strictObject({
-        组标签: array(coerce_string()).min(1).describe('组标签'),
+        组标签: schemas_array(coerce_string()).min(1).describe('组标签'),
         使用优先级: schemas_boolean().default(false).describe('使用优先级'),
         权重: schemas_number().default(100).describe('权重'),
-        使用评分: union([schemas_boolean(), literal('same_as_global')])
+        使用评分: union([schemas_boolean(), schemas_literal('same_as_global')])
             .default('same_as_global')
             .transform(data => (data === 'same_as_global' ? null : data))
             .describe('使用评分'),
     })
         .optional()
         .describe('包含组'),
-    额外字段: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
+    额外字段: record(schemas_string(), schemas_any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
     内容: coerce_string().optional().describe('内嵌的提示词内容'),
     文件: coerce_string().optional().describe('外链的提示词文件路径'),
 })
@@ -56610,9 +57942,9 @@ const worldbook_zh_Worldbook_entry = strictObject({
     }
 });
 const worldbook_zh_Wolrdbook_leaf = worldbook_zh_Worldbook_entry;
-const worldbook_zh_Wolrdbook_branch = object({
+const worldbook_zh_Wolrdbook_branch = schemas_object({
     文件夹: coerce_string(),
-    条目: array(worldbook_zh_Wolrdbook_leaf),
+    条目: schemas_array(worldbook_zh_Wolrdbook_leaf),
 });
 const worldbook_zh_Wolrdbook_tree = union([worldbook_zh_Wolrdbook_leaf, worldbook_zh_Wolrdbook_branch]);
 function worldbook_zh_is_worldbook_branch(data) {
@@ -56624,9 +57956,9 @@ function worldbook_zh_flatten_tree(data) {
     }
     return [data];
 }
-const worldbook_zh_Wolrdbook_trees = array(worldbook_zh_Wolrdbook_tree).transform(data => data.flatMap(worldbook_zh_flatten_tree));
+const worldbook_zh_Wolrdbook_trees = schemas_array(worldbook_zh_Wolrdbook_tree).transform(data => data.flatMap(worldbook_zh_flatten_tree));
 const worldbook_zh_Worldbook = strictObject({
-    锚点: any().optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
+    锚点: schemas_any().optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
     条目: worldbook_zh_Wolrdbook_trees,
 });
 
@@ -56656,7 +57988,7 @@ const character_zh_Character = strictObject({
     版本: coerce_string().default(''),
     作者: coerce_string().default(''),
     备注: coerce_string().default(''),
-    第一条消息: array(object({
+    第一条消息: schemas_array(schemas_object({
         内容: coerce_string().optional().describe('内嵌的提示词内容'),
         文件: coerce_string().optional().describe('外链的提示词文件路径'),
     })
@@ -56990,7 +58322,7 @@ class Character_syncer extends Syncer_interface {
         return { result_data: tavern_data, error_data: {}, files };
     }
     do_beautify_config(tavern_data, language) {
-        const document = new dist.Document(language === 'zh' ? translate(tavern_data, lodash_default().invert(this.zh_to_en_map)) : tavern_data);
+        const document = new (dist_namespaceFn().Document)(language === 'zh' ? translate(tavern_data, lodash_default().invert(this.zh_to_en_map)) : tavern_data);
         [
             ['条目'],
             ['扩展字段', '正则'],
@@ -56998,32 +58330,32 @@ class Character_syncer extends Syncer_interface {
             ['entries'],
             ['extensions', 'regex_scripts'],
             ['extensions', 'tavern_helper', 'scripts'],
-        ].forEach(key => dist.visit(document.getIn(key), (key, node) => {
+        ].forEach(key => (dist_namespaceFn().visit)(document.getIn(key), (key, node) => {
             if (key === null) {
                 return;
             }
             if (key > 0) {
                 node.spaceBefore = true;
             }
-            return dist.visit.SKIP;
+            return (dist_namespaceFn().visit).SKIP;
         }));
-        [['扩展字段'], ['扩展字段', '酒馆助手'], ['extensions'], ['extensions', 'tavern_helper']].forEach(key => dist.visit(document.getIn(key), (key, node) => {
+        [['扩展字段'], ['扩展字段', '酒馆助手'], ['extensions'], ['extensions', 'tavern_helper']].forEach(key => (dist_namespaceFn().visit)(document.getIn(key), (key, node) => {
             if (key === null) {
                 return;
             }
-            if (dist.isPair(node) && key > 0) {
+            if ((dist_namespaceFn().isPair)(node) && key > 0) {
                 node.key.spaceBefore = true;
             }
-            return dist.visit.SKIP;
+            return (dist_namespaceFn().visit).SKIP;
         }));
-        dist.visit(document, (key, node) => {
+        (dist_namespaceFn().visit)(document, (key, node) => {
             if (key === null) {
                 return;
             }
-            if (dist.isPair(node) && key > 3 && key !== 8) {
+            if ((dist_namespaceFn().isPair)(node) && key > 3 && key !== 8) {
                 node.key.spaceBefore = true;
             }
-            return dist.visit.SKIP;
+            return (dist_namespaceFn().visit).SKIP;
         });
         return document.toString({ blockQuote: 'literal' });
     }
@@ -57269,7 +58601,7 @@ function bundle_preset(preset) {
 
 const Prompt_normal = strictObject({
     name: coerce_string(),
-    id: never().optional(),
+    id: schemas_never().optional(),
     enabled: schemas_boolean(),
     position: strictObject({
         type: schemas_enum(['relative', 'in_chat']),
@@ -57290,7 +58622,7 @@ const Prompt_normal = strictObject({
     role: schemas_enum(['system', 'user', 'assistant']).prefault('system'),
     content: coerce_string().optional().describe('内嵌的提示词内容'),
     file: coerce_string().optional().describe('外链的提示词文件路径'),
-    extra: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
+    extra: record(schemas_string(), schemas_any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
 })
     .superRefine((data, context) => {
     if (data.content === undefined && data.file === undefined) {
@@ -57320,7 +58652,7 @@ const prompt_rolable_placeholder_ids = [
 const prompt_unrolable_placeholder_ids = ['dialogue_examples', 'chat_history'];
 const prompt_placeholder_ids = [...prompt_rolable_placeholder_ids, ...prompt_unrolable_placeholder_ids];
 const Prompt_placeholder = strictObject({
-    name: never().optional(),
+    name: schemas_never().optional(),
     id: schemas_enum(prompt_placeholder_ids).describe(dist_dedent(`
         预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词
         - world_info_before: 角色定义之前
@@ -57350,9 +58682,9 @@ const Prompt_placeholder = strictObject({
     })
         .describe('插入位置: `relative` 则按提示词相对位置插入, `in_chat` 则插入到聊天记录中的对应深度'),
     role: schemas_enum(['system', 'user', 'assistant']).optional(),
-    content: never().optional(),
-    file: never().optional(),
-    extra: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
+    content: schemas_never().optional(),
+    file: schemas_never().optional(),
+    extra: record(schemas_string(), schemas_any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
 })
     .superRefine((data, context) => {
     if (lodash_default().includes(prompt_unrolable_placeholder_ids, data.id) && data.role !== undefined) {
@@ -57379,10 +58711,10 @@ const Prompt_placeholder = strictObject({
 }))
     .describe('预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词');
 const PromptLeaf = union([Prompt_normal, Prompt_placeholder]);
-const PromptBranch = object({
+const PromptBranch = schemas_object({
     folder: coerce_string(),
     get entries() {
-        return array(union([PromptLeaf, PromptBranch]));
+        return schemas_array(union([PromptLeaf, PromptBranch]));
     },
 });
 const PromptTree = union([PromptLeaf, PromptBranch]);
@@ -57395,7 +58727,7 @@ function preset_en_flatten_tree(data) {
     }
     return [data];
 }
-const PromptTrees = array(PromptTree).transform(data => data.flatMap(preset_en_flatten_tree));
+const PromptTrees = schemas_array(PromptTree).transform(data => data.flatMap(preset_en_flatten_tree));
 const Preset = strictObject({
     settings: strictObject({
         max_context: schemas_number()
@@ -57442,7 +58774,7 @@ const Preset = strictObject({
             .prefault(false)
             .describe('用引号包裹用户消息: 在发送给模型之前, 将所有用户消息用引号包裹'),
     }),
-    anchors: any().optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
+    anchors: schemas_any().optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
     prompts: PromptTrees.superRefine((data, context) => {
         const duplicate_ids = lodash_default()(data)
             .filter(prompt => lodash_default().includes(prompt_placeholder_ids, prompt.id))
@@ -57465,7 +58797,7 @@ const Preset = strictObject({
         }
     }).describe('提示词列表里已经添加的提示词'),
     prompts_unused: PromptTrees.describe('下拉框里的, 没有添加进提示词列表的提示词'),
-    extensions: Extensions.optional().describe('额外字段: 用于为预设绑定额外数据'),
+    extensions: extensions_en_Extensions.optional().describe('额外字段: 用于为预设绑定额外数据'),
 })
     .transform(data => {
     lodash_default().concat(data.prompts, data.prompts_unused)
@@ -57481,11 +58813,11 @@ const Preset = strictObject({
 
 
 
-const Prompt = object({
+const Prompt = schemas_object({
     name: schemas_string(),
     id: schemas_string().transform((lodash_default()).snakeCase),
     enabled: schemas_boolean(),
-    position: object({
+    position: schemas_object({
         type: schemas_enum(['relative', 'in_chat']),
         depth: schemas_number().optional(),
         order: schemas_number().optional(),
@@ -57493,7 +58825,7 @@ const Prompt = object({
         .optional(),
     role: schemas_enum(['system', 'user', 'assistant']),
     content: schemas_string().optional(),
-    extra: record(schemas_string(), any()).optional(),
+    extra: record(schemas_string(), schemas_any()).optional(),
 })
     .transform(data => {
     if (lodash_default().includes(prompt_placeholder_ids, data.id)) {
@@ -57510,8 +58842,8 @@ const Prompt = object({
     lodash_default().unset(data, 'id');
     return data;
 });
-const preset_Preset = object({
-    settings: object({
+const preset_Preset = schemas_object({
+    settings: schemas_object({
         max_context: schemas_number().min(0).max(2000000),
         max_completion_tokens: schemas_number().min(0),
         reply_count: schemas_number().min(1),
@@ -57536,9 +58868,9 @@ const preset_Preset = object({
         character_name_prefix: schemas_enum(['none', 'default', 'content', 'completion']),
         wrap_user_messages_in_quotes: schemas_boolean(),
     }),
-    anchors: record(schemas_string(), any()).prefault({}),
-    prompts: array(Prompt),
-    prompts_unused: array(Prompt)
+    anchors: record(schemas_string(), schemas_any()).prefault({}),
+    prompts: schemas_array(Prompt),
+    prompts_unused: schemas_array(Prompt)
         .transform(prompts => prompts.filter(prompt => !lodash_default().includes(['Main Prompt', 'Auxiliary Prompt', 'Post-History Instructions', 'Enhance Definitions'], prompt.name) && !lodash_default().includes(prompt_placeholder_ids, prompt.id))),
     extensions: extensions_Extensions.optional().describe('扩展字段: 用于为预设绑定额外数据'),
 })
@@ -57637,7 +58969,7 @@ function preset_zh_is_zh(data) {
 }
 const preset_zh_Prompt_normal = strictObject({
     名称: coerce_string(),
-    id: never().optional(),
+    id: schemas_never().optional(),
     启用: schemas_boolean(),
     插入位置: strictObject({
         类型: schemas_enum(['相对', '聊天中']),
@@ -57658,7 +58990,7 @@ const preset_zh_Prompt_normal = strictObject({
     角色: schemas_enum(['系统', '用户', 'AI']).prefault('系统'),
     内容: coerce_string().optional().describe('内嵌的提示词内容'),
     文件: coerce_string().optional().describe('外链的提示词文件路径'),
-    额外字段: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
+    额外字段: record(schemas_string(), schemas_any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
 })
     .superRefine((data, context) => {
     if (data.内容 === undefined && data.文件 === undefined) {
@@ -57688,7 +59020,7 @@ const preset_zh_prompt_rolable_placeholder_ids = [
 const preset_zh_prompt_unrolable_placeholder_ids = ['对话示例', '聊天记录'];
 const preset_zh_prompt_placeholder_ids = [...preset_zh_prompt_rolable_placeholder_ids, ...preset_zh_prompt_unrolable_placeholder_ids];
 const preset_zh_Prompt_placeholder = strictObject({
-    名称: never().optional(),
+    名称: schemas_never().optional(),
     id: schemas_enum(preset_zh_prompt_placeholder_ids).describe(dist_dedent(`
         预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词
         - 角色定义之前: world_info_before
@@ -57718,9 +59050,9 @@ const preset_zh_Prompt_placeholder = strictObject({
     })
         .describe('插入位置: `相对`则按提示词相对位置插入, `聊天中`则插入到聊天记录中的对应深度'),
     角色: schemas_enum(['系统', '用户', 'AI']).optional(),
-    内容: never().optional(),
-    文件: never().optional(),
-    额外字段: record(schemas_string(), any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
+    内容: schemas_never().optional(),
+    文件: schemas_never().optional(),
+    额外字段: record(schemas_string(), schemas_any()).optional().describe('额外字段: 用于为预设提示词绑定额外数据'),
 })
     .superRefine((data, context) => {
     if (lodash_default().includes(preset_zh_prompt_unrolable_placeholder_ids, data.id) && data.角色 !== undefined) {
@@ -57747,10 +59079,10 @@ const preset_zh_Prompt_placeholder = strictObject({
 }))
     .describe('预设提示词中的占位符提示词, 对应于世界书条目、角色卡、玩家角色、聊天记录等提示词');
 const preset_zh_PromptLeaf = union([preset_zh_Prompt_normal, preset_zh_Prompt_placeholder]);
-const preset_zh_PromptBranch = object({
+const preset_zh_PromptBranch = schemas_object({
     文件夹: coerce_string(),
     get 条目() {
-        return array(union([preset_zh_PromptLeaf, preset_zh_PromptBranch]));
+        return schemas_array(union([preset_zh_PromptLeaf, preset_zh_PromptBranch]));
     },
 });
 const preset_zh_PromptTree = union([preset_zh_PromptLeaf, preset_zh_PromptBranch]);
@@ -57763,7 +59095,7 @@ function preset_zh_flatten_tree(data) {
     }
     return [data];
 }
-const preset_zh_PromptTrees = array(preset_zh_PromptTree).transform(data => data.flatMap(preset_zh_flatten_tree));
+const preset_zh_PromptTrees = schemas_array(preset_zh_PromptTree).transform(data => data.flatMap(preset_zh_flatten_tree));
 const preset_zh_Preset = strictObject({
     设置: strictObject({
         上下文长度: schemas_number()
@@ -57808,7 +59140,7 @@ const preset_zh_Preset = strictObject({
             .prefault(false)
             .describe('用引号包裹用户消息: 在发送给模型之前, 将所有用户消息用引号包裹'),
     }),
-    锚点: record(schemas_string(), any()).optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
+    锚点: record(schemas_string(), schemas_any()).optional().describe('用于存放 YAML 锚点, 不会被实际使用'),
     提示词: preset_zh_PromptTrees.superRefine((data, context) => {
         const duplicate_ids = lodash_default()(data)
             .filter(prompt => lodash_default().includes(preset_zh_prompt_placeholder_ids, prompt.id))
@@ -58075,7 +59407,7 @@ class Preset_syncer extends Syncer_interface {
         return { result_data: tavern_data, error_data: {}, files };
     }
     do_beautify_config(tavern_data, language) {
-        const document = new dist.Document(language === 'zh' ? translate(tavern_data, lodash_default().invert(this.zh_to_en_map)) : tavern_data);
+        const document = new (dist_namespaceFn().Document)(language === 'zh' ? translate(tavern_data, lodash_default().invert(this.zh_to_en_map)) : tavern_data);
         [
             ['提示词'],
             ['未添加的提示词'],
@@ -58085,32 +59417,32 @@ class Preset_syncer extends Syncer_interface {
             ['prompts_unused'],
             ['extensions', 'regex_scripts'],
             ['extensions', 'tavern_helper', 'scripts'],
-        ].forEach(key => dist.visit(document.getIn(key), (key, node) => {
+        ].forEach(key => (dist_namespaceFn().visit)(document.getIn(key), (key, node) => {
             if (key === null) {
                 return;
             }
             if (key > 0) {
                 node.spaceBefore = true;
             }
-            return dist.visit.SKIP;
+            return (dist_namespaceFn().visit).SKIP;
         }));
-        [['扩展字段'], ['扩展字段', '酒馆助手'], ['extensions'], ['extensions', 'tavern_helper']].forEach(key => dist.visit(document.getIn(key), (key, node) => {
+        [['扩展字段'], ['扩展字段', '酒馆助手'], ['extensions'], ['extensions', 'tavern_helper']].forEach(key => (dist_namespaceFn().visit)(document.getIn(key), (key, node) => {
             if (key === null) {
                 return;
             }
-            if (dist.isPair(node) && key > 0) {
+            if ((dist_namespaceFn().isPair)(node) && key > 0) {
                 node.key.spaceBefore = true;
             }
-            return dist.visit.SKIP;
+            return (dist_namespaceFn().visit).SKIP;
         }));
-        dist.visit(document, (key, node) => {
+        (dist_namespaceFn().visit)(document, (key, node) => {
             if (key === null) {
                 return;
             }
-            if (dist.isPair(node) && key > 0) {
+            if ((dist_namespaceFn().isPair)(node) && key > 0) {
                 node.key.spaceBefore = true;
             }
-            return dist.visit.SKIP;
+            return (dist_namespaceFn().visit).SKIP;
         });
         return document.toString({ blockQuote: 'literal' });
     }
@@ -58338,24 +59670,24 @@ class Worldbook_syncer extends Syncer_interface {
     }
     // TODO: 拆分 component
     do_beautify_config(tavern_data, language) {
-        const document = new dist.Document(language === 'zh' ? translate(tavern_data, lodash_default().invert(this.zh_to_en_map)) : tavern_data);
-        ['条目', 'entries'].forEach(key => dist.visit(document.get(key), (key, node) => {
+        const document = new (dist_namespaceFn().Document)(language === 'zh' ? translate(tavern_data, lodash_default().invert(this.zh_to_en_map)) : tavern_data);
+        ['条目', 'entries'].forEach(key => (dist_namespaceFn().visit)(document.get(key), (key, node) => {
             if (key === null) {
                 return;
             }
             if (key > 0) {
                 node.spaceBefore = true;
             }
-            return dist.visit.SKIP;
+            return (dist_namespaceFn().visit).SKIP;
         }));
-        dist.visit(document, (key, node) => {
+        (dist_namespaceFn().visit)(document, (key, node) => {
             if (key === null) {
                 return;
             }
-            if (dist.isPair(node) && key > 0) {
+            if ((dist_namespaceFn().isPair)(node) && key > 0) {
                 node.key.spaceBefore = true;
             }
-            return dist.visit.SKIP;
+            return (dist_namespaceFn().visit).SKIP;
         });
         return document.toString({ blockQuote: 'literal' });
     }
@@ -62722,7 +64054,7 @@ async function download_latest(signal) {
     if (success_results.length > 0) {
         return lodash_default().sortBy(success_results, result => urls.indexOf(result.url))[0].content;
     }
-    throw Error(dist.stringify({ 无法获取最新版脚本: erorr_data }));
+    throw Error((dist_namespaceFn().stringify)({ 无法获取最新版脚本: erorr_data }));
 }
 async function check_update(signal) {
     const current_content = __WEBPACK_EXTERNAL_MODULE_node_fs_75ed2103_readFileSync__(__webpack_filename__, 'utf8');
@@ -62895,14 +64227,15 @@ function add_watch_command() {
     return command;
 }
 
-;// ./node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/locales/zh-CN.js
+;// ./node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/locales/zh-CN.js
 
-const error = () => {
+const zh_CN_error = () => {
     const Sizable = {
         string: { unit: "字符", verb: "包含" },
         file: { unit: "字节", verb: "包含" },
         array: { unit: "项", verb: "包含" },
         set: { unit: "项", verb: "包含" },
+        map: { unit: "项", verb: "包含" },
     };
     function getSizing(origin) {
         return Sizable[origin] ?? null;
@@ -62928,12 +64261,16 @@ const error = () => {
         duration: "ISO时长",
         ipv4: "IPv4地址",
         ipv6: "IPv6地址",
+        mac: "MAC地址",
         cidrv4: "IPv4网段",
         cidrv6: "IPv6网段",
         base64: "base64编码字符串",
         base64url: "base64url编码字符串",
         json_string: "JSON字符串",
         e164: "E.164号码",
+        credit_card: "信用卡号",
+        currency_code: "货币代码",
+        iban: "IBAN",
         jwt: "JWT",
         template_literal: "输入",
     };
@@ -63002,7 +64339,7 @@ const error = () => {
 };
 /* harmony default export */ function zh_CN() {
     return {
-        localeError: error(),
+        localeError: zh_CN_error(),
     };
 }
 
