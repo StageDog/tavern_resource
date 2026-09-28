@@ -55,7 +55,7 @@
     "remark-loader": "^6.0.0",
     "sass": "^1.105.0",
     "sass-loader": "^17.0.1",
-    "socket.io": "^4.8.3",
+    "socket.io": "^4.8.4",
     "style-loader": "^4.0.0",
     "tailwindcss": "^4.3.3",
     "terser-webpack-plugin": "^5.6.1",
