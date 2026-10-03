@@ -31,11 +31,27 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
     }
   });
 
-  eventOn('mag_command_parsed_for_zod', (variables: Mvu.MvuData, commands: Mvu.CommandInfo[]) => {
+  // on_error 是 MVU 收集模式追加的第四个参数；旧版调用方不传时继续使用原有错误通知。
+  const on_command_parsed = (
+    variables: Mvu.MvuData,
+    commands: Mvu.CommandInfo[],
+    _message_content?: string,
+    on_error?: (error_info: string) => void,
+  ) => {
     const schema = unwrapSchema();
     const notification_enabled = Boolean($('#mvu_notification_error').prop('checked'));
 
-    const checkSchema = (data: any, command: Mvu.CommandInfo, should_toastr: boolean) => {
+    /** 收集模式不受通知开关影响，并由调用方负责展示；未提供回调时保留原有通知。 */
+    const report_command_error = (content: string, command: Mvu.CommandInfo) => {
+      const title = `发生变量更新错误, 可能需要重Roll: ${command.full_match}`;
+      if (on_error) {
+        on_error(`${title}\n${content}`);
+      } else if (notification_enabled) {
+        reportError('warn', content, title);
+      }
+    };
+
+    const checkSchema = (data: any, command: Mvu.CommandInfo, should_report: boolean) => {
       let error_message = '';
       try {
         const result = schema.safeParse(data, { reportInput: true });
@@ -48,8 +64,9 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
         error_message = error.stack ? error.stack : error.name + ': ' + error.message;
       }
 
-      if (notification_enabled && should_toastr) {
-        reportError('warn', error_message, `发生变量更新错误, 可能需要重Roll: ${command.full_match}`);
+      // 插入时可能先尝试对象再尝试数组，仅报告最终失败，避免收集到已恢复的探测错误。
+      if (should_report) {
+        report_command_error(error_message, command);
       }
       return null;
     };
@@ -86,17 +103,14 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
           const old_value = _.get(data, path);
           const old_value_type = typeof old_value;
           if (old_value_type !== 'number') {
-            if (notification_enabled) {
-              reportError(
-                'warn',
-                [
-                  `✖ 不能对非数字类型 '${old_value_type}' 进行加减运算`,
-                  `  → 路径: ${path}`,
-                  `  → 原值: ${JSON.stringify(old_value)}`,
-                ].join('\n'),
-                `发生变量更新错误, 可能需要重Roll: ${command.full_match}`,
-              );
-            }
+            report_command_error(
+              [
+                `✖ 不能对非数字类型 '${old_value_type}' 进行加减运算`,
+                `  → 路径: ${path}`,
+                `  → 原值: ${JSON.stringify(old_value)}`,
+              ].join('\n'),
+              command,
+            );
             return null;
           }
           const delta_value = parseCommandValue(command.args[1]);
@@ -111,7 +125,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
           const key_or_index = parseCommandValue(command.args[1]);
           const value = parseCommandValue(command.args.at(-1)!);
 
-          const insert = (data: any, should_toastr: boolean) => {
+          const insert = (data: any, should_report: boolean) => {
             const collection = path === '' ? data : _.get(data, path);
             const is_array = _.isArray(collection);
             if (command.args.length === 2) {
@@ -125,7 +139,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
             } else {
               collection[String(key_or_index)] = value;
             }
-            return checkSchema(data, command, should_toastr);
+            return checkSchema(data, command, should_report);
           };
 
           const collection = path === '' ? data : _.get(data, path);
@@ -169,13 +183,7 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
       if (command.type === 'move') {
         const from_path = parsePath(command.args[0]);
         if (!_.has(data, from_path)) {
-          if (notification_enabled) {
-            reportError(
-              'warn',
-              `移动源路径不存在: ${from_path}`,
-              `发生变量更新错误，可能需要重Roll: ${command.full_match}`,
-            );
-          }
+          report_command_error(`移动源路径不存在: ${from_path}`, command);
           return;
         }
         const value = _.get(data, from_path);
@@ -210,7 +218,8 @@ export function registerMvuSchema(input: z.ZodType<Record<string, any>> | (() =>
     });
 
     _.pullAt(commands, consumed_indices);
-  });
+  };
+  eventOn('mag_command_parsed_for_zod', on_command_parsed);
 
   eventOn('mag_command_parsed_ended_for_zod', (_variables, commands: Mvu.CommandInfo[]) => {
     commands.length = 0;
