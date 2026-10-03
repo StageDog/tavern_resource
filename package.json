@@ -6,6 +6,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,scss,html,vue}\" --no-error-on-unmatched-pattern",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
+    "test:mvu-zod": "node --test tests/mvu_zod_errors.test.cjs",
     "dump": "node dump_schema.ts",
     "sync": "node tavern_sync.mjs"
   },
