@@ -4,6 +4,8 @@ import { loadReadme } from '@util/script';
 import { compare } from 'compare-versions';
 import { marked } from 'marked';
 
+const FETCH_TIMEOUT_MS = 15000;
+
 const Settings = z
   .object({
     角色卡名称: z.string().default('未填写'),
@@ -30,6 +32,131 @@ function getUpdateButtonPrefix(name: string): string {
   return `更新角色卡: ${name}`;
 }
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.name === 'AbortError' ? `超时 (${FETCH_TIMEOUT_MS / 1000}s 内没有响应)` : error.message;
+  }
+  return String(error);
+}
+
+function isPng(buffer: Uint8Array): boolean {
+  return buffer.length >= 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+const PNG_SIGNATURE_LENGTH = 8;
+const CRC_TABLE = Array.from({ length: 256 }, (_value, n) => {
+  let c = n;
+  for (let k = 0; k < 8; k++) {
+    c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+  }
+  return c >>> 0;
+});
+
+function crc32(bytes: Uint8Array): number {
+  let crc = 0xffffffff;
+  for (const byte of bytes) {
+    crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+/** 遍历 png 的所有块, 返回每块的 [起点, 终点) 和类型 */
+function* iteratePngChunks(buffer: Uint8Array): Generator<{ type: string; start: number; end: number }> {
+  const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+  const latin1 = new TextDecoder('latin1');
+  let offset = PNG_SIGNATURE_LENGTH;
+  while (offset + 12 <= buffer.length) {
+    const length = view.getUint32(offset);
+    const type = latin1.decode(buffer.subarray(offset + 4, offset + 8));
+    const end = offset + 12 + length;
+    if (end > buffer.length) {
+      return;
+    }
+    yield { type, start: offset, end };
+    if (type === 'IEND') {
+      return;
+    }
+    offset = end;
+  }
+}
+
+function getTextChunkKeyword(buffer: Uint8Array, chunk: { start: number; end: number }): string {
+  const data = buffer.subarray(chunk.start + 8, chunk.end - 4);
+  const separator = data.indexOf(0);
+  return separator > 0 ? new TextDecoder('latin1').decode(data.subarray(0, separator)) : '';
+}
+
+/** 组一个 tEXt 块: 长度 + 类型 + (关键字 \0 内容) + crc */
+function makeTextChunk(keyword: string, text: string): Uint8Array {
+  const latin1 = (value: string) => Uint8Array.from(value, c => c.charCodeAt(0));
+  const body = new Uint8Array([...latin1(keyword), 0, ...latin1(text)]);
+  const type_and_body = new Uint8Array([...latin1('tEXt'), ...body]);
+  const chunk = new Uint8Array(12 + body.length);
+  const view = new DataView(chunk.buffer);
+  view.setUint32(0, body.length);
+  chunk.set(type_and_body, 4);
+  view.setUint32(8 + body.length, crc32(type_and_body));
+  return chunk;
+}
+
+function base64FromUtf8(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(binary);
+}
+
+// 1x1 透明 png, 实在拿不到角色现有头像时才用
+const FALLBACK_AVATAR_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+
+/**
+ * 把 json 卡包进 png 卡: 酒馆助手的 `importRawCharacter` 只会按 png 导入, 喂 json 会导入失败.
+ * 图片用角色现有的头像, 这样更新后头像不会变; 原图里旧的角色卡块会被去掉, 换成新卡的内容
+ */
+async function wrapJsonCardIntoPng(name: string, json_text: string): Promise<Blob> {
+  const card = JSON.parse(json_text);
+  if (!_.isPlainObject(card) || !(card?.data?.name ?? card?.name)) {
+    throw new Error('内容不是角色卡 json');
+  }
+
+  let image: Uint8Array | null = null;
+  try {
+    const avatar = await getCharacter(name).then(character => character.avatar);
+    if (typeof avatar === 'string') {
+      const response = await fetch(`/characters/${encodeURIComponent(avatar)}`, { cache: 'no-store' });
+      if (response.ok) {
+        image = new Uint8Array(await response.arrayBuffer());
+      }
+    }
+  } catch {
+    image = null;
+  }
+  if (!image || !isPng(image)) {
+    image = Uint8Array.from(atob(FALLBACK_AVATAR_BASE64), c => c.charCodeAt(0));
+  }
+
+  const parts: Uint8Array[] = [image.subarray(0, PNG_SIGNATURE_LENGTH)];
+  const encoded = base64FromUtf8(json_text);
+  for (const chunk of iteratePngChunks(image)) {
+    if (chunk.type === 'tEXt' && ['chara', 'ccv3'].includes(getTextChunkKeyword(image, chunk))) {
+      continue;
+    }
+    if (chunk.type === 'IEND') {
+      // 酒馆读卡时优先认 ccv3, 其次 chara; 两个都写上, 旧酒馆也能读
+      parts.push(makeTextChunk('chara', encoded));
+      if (card.spec === 'chara_card_v3') {
+        parts.push(makeTextChunk('ccv3', encoded));
+      }
+    }
+    parts.push(image.subarray(chunk.start, chunk.end));
+  }
+  return new Blob(parts as BlobPart[], { type: 'image/png' });
+}
+
 /** 从角色卡文件里读出它自己声明的版本号 (`data.character_version`); 读不出来返回 null */
 async function getVersionFromCard(content: Blob): Promise<string | null> {
   const buffer = new Uint8Array(await content.arrayBuffer());
@@ -44,9 +171,7 @@ async function getVersionFromCard(content: Blob): Promise<string | null> {
   };
 
   // json 卡
-  const is_png =
-    buffer.length > 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
-  if (!is_png) {
+  if (!isPng(buffer)) {
     return parseVersion(new TextDecoder().decode(buffer));
   }
 
@@ -119,10 +244,9 @@ function makeUpdateCharacter(data: Data): Button {
         }
         if (result === 2) {
           const backup = `${primary} (备份)`;
-          const success = await createOrReplaceWorldbook(backup, await getWorldbook(primary));
-          if (success) {
-            toastr.success(`已将世界书备份为 '${backup}'`);
-          }
+          // createOrReplaceWorldbook 只在新建时返回 true, 覆盖上一份备份时返回 false, 所以不能拿返回值决定提示
+          await createOrReplaceWorldbook(backup, await getWorldbook(primary));
+          toastr.success(`已将世界书备份为 '${backup}'`);
         }
       }
 
@@ -131,7 +255,7 @@ function makeUpdateCharacter(data: Data): Button {
       try {
         content = await fetchServerWithError(data.card_url, 'blob');
       } catch (error) {
-        toastr.error(`拉取角色卡失败: ${error instanceof Error ? error.message : String(error)}`);
+        toastr.error(`拉取角色卡失败: ${getErrorMessage(error)}`);
         return;
       }
 
@@ -144,12 +268,24 @@ function makeUpdateCharacter(data: Data): Button {
         return;
       }
 
-      const success = await importRawCharacter(data.name, content);
-      if (!success) {
+      // json 卡要先包进 png: 酒馆助手的 importRawCharacter 一律按 png 导入, 直接喂 json 会"成功"但酒馆里什么都没改
+      if (!isPng(new Uint8Array(await content.slice(0, 8).arrayBuffer()))) {
+        try {
+          content = await wrapJsonCardIntoPng(data.name, await content.text());
+        } catch (error) {
+          toastr.error(`拉到的不是角色卡文件: ${getErrorMessage(error)}`);
+          return;
+        }
+      }
+
+      // 酒馆导入失败时也可能返回 200 + `{error: true}`, 所以不能只看 Response 存不存在
+      const response = await importRawCharacter(data.name, content);
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result?.error) {
         toastr.error('更新角色卡失败, 请刷新重试');
         return;
       }
-      replaceCharacter(data.name, { version: card_version ?? data.version });
+      await replaceCharacter(data.name, { version: card_version ?? data.version });
       toastr.success(`更新角色卡 '${data.name}' 成功`);
     },
   };
@@ -157,7 +293,7 @@ function makeUpdateCharacter(data: Data): Button {
 
 function makeShowChangelog(data: Data): Button {
   return {
-    name: '更新日志',
+    name: CHANGELOG_BUTTON_NAME,
     function: () => {
       marked.parse(data.changelog, { async: true, breaks: true }).then(html => {
         SillyTavern.callGenericPopup(html, SillyTavern.POPUP_TYPE.TEXT, '', {
@@ -171,6 +307,23 @@ function makeShowChangelog(data: Data): Button {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+const CHANGELOG_BUTTON_NAME = '更新日志';
+
+function isOurButton(name: string, button: { name: string }): boolean {
+  // 按钮名里带版本号, 所以按前缀匹配: 远端发了新版后, 旧版本号的按钮才不会残留
+  return button.name.startsWith(getUpdateButtonPrefix(name)) || button.name === CHANGELOG_BUTTON_NAME;
+}
+
+/** 清掉上次存在卡里的按钮和事件; 拉不到更新日志时也要清, 否则留下一个点了没反应的死按钮 */
+function clearButtons(name: string): void {
+  getScriptButtons()
+    .filter(button => isOurButton(name, button))
+    .forEach(button => {
+      eventClearEvent(getButtonEvent(button.name));
+    });
+  replaceScriptButtons(getScriptButtons().filter(button => !isOurButton(name, button)));
+}
+
 async function updateButtons(data: Data): Promise<void> {
   const current_version = await getCharacter(data.name)
     .then(character => character.version.trim() || '0.0.0')
@@ -182,55 +335,35 @@ async function updateButtons(data: Data): Promise<void> {
   } catch (error) {
     should_update = current_version !== data.version;
   }
-  const buttons = [makeUpdateCharacter(data), makeShowChangelog(data)];
-  // 按钮名里带版本号, 所以清理时按前缀匹配: 远端发了新版后, 旧版本号的按钮才不会残留
-  const is_ours = (button: { name: string }) =>
-    button.name.startsWith(getUpdateButtonPrefix(data.name)) || buttons.some(b => b.name === button.name);
-  getScriptButtons()
-    .filter(is_ours)
-    .forEach(button => {
-      eventClearEvent(getButtonEvent(button.name));
-    });
-  if (should_update) {
-    buttons.forEach(button => {
-      eventOn(getButtonEvent(button.name), button.function);
-    });
-    replaceScriptButtons(
-      _(getScriptButtons())
-        .filter(button => !is_ours(button))
-        .concat(buttons.map(button => ({ name: button.name, visible: true })))
-        .value(),
-    );
+  clearButtons(data.name);
+  if (!should_update) {
     return;
   }
-  replaceScriptButtons(
-    _(getScriptButtons())
-      .filter(button => !is_ours(button))
-      .value(),
-  );
+  const buttons = [makeUpdateCharacter(data), makeShowChangelog(data)];
+  buttons.forEach(button => {
+    eventOn(getButtonEvent(button.name), button.function);
+  });
+  replaceScriptButtons([...getScriptButtons(), ...buttons.map(button => ({ name: button.name, visible: true }))]);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-const FETCH_TIMEOUT_MS = 15000;
-
 async function fetchServerWithError<T extends 'text' | 'blob'>(
   url: string,
   type: T,
 ): Promise<T extends 'text' ? string : Blob> {
-  // 被墙或抽风的 CDN 域不是报错而是挂死, 不加超时按钮就永远不出现
+  // 被墙或抽风的 CDN 域不是报错而是挂死, 不加超时按钮就永远不出现; 超时要管到正文读完, 不然传到一半卡住照样挂死
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-  let response: Response;
   try {
-    response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+    const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+    if (!response.ok) {
+      throw new Error(`(${response.status}) ${await response.text()}`);
+    }
+    // @ts-expect-error 类型正确
+    return type === 'text' ? await response.text() : await response.blob();
   } finally {
     clearTimeout(timer);
   }
-  if (response.ok) {
-    // @ts-expect-error 类型正确
-    return type === 'text' ? response.text() : response.blob();
-  }
-  throw new Error(`检测自动更新角色卡失败: (${response.status}) ${await response.text()}`);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -247,7 +380,14 @@ $(
     }
 
     // 开卡只拉更新日志 (很小); 角色卡要等玩家点了更新按钮才拉
-    const changelog = await fetchServerWithError(settings.更新日志链接, 'text');
+    let changelog: string;
+    try {
+      changelog = await fetchServerWithError(settings.更新日志链接, 'text');
+    } catch (error) {
+      toastr.error(`检测自动更新角色卡失败: ${getErrorMessage(error)}`);
+      clearButtons(settings.角色卡名称);
+      return;
+    }
     const version = changelog.match(/^##\s*(.*)\s*$/m)?.[1]?.trim() ?? '';
     const data: Data = {
       name: settings.角色卡名称,
