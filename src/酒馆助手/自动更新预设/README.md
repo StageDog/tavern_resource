@@ -45,7 +45,11 @@
 
 如果你确定要使用 jsDelivr 而不是自己的什么云盘, 可以使用以下方法, 来保证在极端情况下玩家也能正常更新角色卡:
 
-- 给仓库打上与预设版本一模一样的 tag (如 `v1.2.0`), 然后填写预设文件链接时加上 `{version}` 字样, 如 `https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource@v{version}/src/酒馆助手/自动更新预设/示例预设.json`. 这样, 脚本会在更新时自动替换 `{version}` 为最新版本号, 保证是从固定的版本号获取角色卡数据.
+### 用固定版本号获取预设
+
+给仓库打上与预设版本一模一样的 tag (如 `v1.2.0`), 然后填写预设链接时在仓库名后面加上 `@{version}`样, 如 `https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource@{version}/src/酒馆助手/自动更新预设/示例预设.json`.
+
+这样, 脚本会在更新时自动替换 `{version}` 为最新版本号, 保证是从固定的版本号获取预设数据.
 
 ## 实时编写角色卡、世界书或预设
 
