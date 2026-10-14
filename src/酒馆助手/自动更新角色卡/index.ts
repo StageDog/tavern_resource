@@ -4,8 +4,6 @@ import { loadReadme } from '@util/script';
 import { compare } from 'compare-versions';
 import { marked } from 'marked';
 
-const FETCH_TIMEOUT_MS = 15000;
-
 const Settings = z
   .object({
     角色卡名称: z.string().default('未填写'),
@@ -28,10 +26,6 @@ interface Button {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-function getUpdateButtonPrefix(name: string): string {
-  return `更新角色卡: ${name}`;
-}
-
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     return error.name === 'AbortError' ? `超时 (${FETCH_TIMEOUT_MS / 1000}s 内没有响应)` : error.message;
@@ -39,11 +33,6 @@ function getErrorMessage(error: unknown): string {
   return String(error);
 }
 
-function isPng(buffer: Uint8Array): boolean {
-  return buffer.length >= 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
 const PNG_SIGNATURE_LENGTH = 8;
 const CRC_TABLE = Array.from({ length: 256 }, (_value, n) => {
   let c = n;
@@ -112,6 +101,10 @@ function base64FromUtf8(text: string): string {
 // 1x1 透明 png, 实在拿不到角色现有头像时才用
 const FALLBACK_AVATAR_BASE64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+
+function isPng(buffer: Uint8Array): boolean {
+  return buffer.length >= 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
+}
 
 /**
  * 把 json 卡包进 png 卡: 酒馆助手的 `importRawCharacter` 只会按 png 导入, 喂 json 会导入失败.
@@ -221,6 +214,10 @@ async function getVersionFromCard(content: Blob): Promise<string | null> {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+function getUpdateButtonPrefix(name: string): string {
+  return `更新角色卡: ${name}`;
+}
+
 function makeUpdateCharacter(data: Data): Button {
   return {
     name: `${getUpdateButtonPrefix(data.name)}${data.version}`,
@@ -291,6 +288,8 @@ function makeUpdateCharacter(data: Data): Button {
   };
 }
 
+const CHANGELOG_BUTTON_NAME = '更新日志';
+
 function makeShowChangelog(data: Data): Button {
   return {
     name: CHANGELOG_BUTTON_NAME,
@@ -307,14 +306,11 @@ function makeShowChangelog(data: Data): Button {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-const CHANGELOG_BUTTON_NAME = '更新日志';
-
 function isOurButton(name: string, button: { name: string }): boolean {
   // 按钮名里带版本号, 所以按前缀匹配: 远端发了新版后, 旧版本号的按钮才不会残留
   return button.name.startsWith(getUpdateButtonPrefix(name)) || button.name === CHANGELOG_BUTTON_NAME;
 }
 
-/** 清掉上次存在卡里的按钮和事件; 拉不到更新日志时也要清, 否则留下一个点了没反应的死按钮 */
 function clearButtons(name: string): void {
   getScriptButtons()
     .filter(button => isOurButton(name, button))
@@ -325,6 +321,8 @@ function clearButtons(name: string): void {
 }
 
 async function updateButtons(data: Data): Promise<void> {
+  clearButtons(data.name);
+
   const current_version = await getCharacter(data.name)
     .then(character => character.version.trim() || '0.0.0')
     .catch(() => '0.0.0');
@@ -335,10 +333,10 @@ async function updateButtons(data: Data): Promise<void> {
   } catch (error) {
     should_update = current_version !== data.version;
   }
-  clearButtons(data.name);
   if (!should_update) {
     return;
   }
+
   const buttons = [makeUpdateCharacter(data), makeShowChangelog(data)];
   buttons.forEach(button => {
     eventOn(getButtonEvent(button.name), button.function);
@@ -347,6 +345,8 @@ async function updateButtons(data: Data): Promise<void> {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+const FETCH_TIMEOUT_MS = 15000;
+
 async function fetchServerWithError<T extends 'text' | 'blob'>(
   url: string,
   type: T,

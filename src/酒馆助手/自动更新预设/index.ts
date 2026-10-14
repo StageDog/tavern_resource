@@ -23,9 +23,13 @@ interface Button {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+function getUpdateButtonPrefix(name: string): string {
+  return `更新预设: ${name}`;
+}
+
 function makeUpdatePreset(data: Data): Button {
   return {
-    name: `更新预设: ${data.name}`,
+    name: `${getUpdateButtonPrefix(data.name)}${data.name}`,
     function: async () => {
       if (getPresetNames().includes(data.name)) {
         return;
@@ -49,9 +53,11 @@ function makeUpdatePreset(data: Data): Button {
   };
 }
 
+const CHANGELOG_BUTTON_NAME = '更新日志';
+
 function makeShowChangelog(data: Data): Button {
   return {
-    name: '更新日志',
+    name: CHANGELOG_BUTTON_NAME,
     function: () => {
       marked.parse(data.changelog, { async: true, breaks: true }).then(html => {
         SillyTavern.callGenericPopup(html, SillyTavern.POPUP_TYPE.TEXT, '', {
@@ -64,32 +70,34 @@ function makeShowChangelog(data: Data): Button {
   };
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-async function updateButtons(data: Data): Promise<void> {
-  const should_update = !getPresetNames().includes(data.name);
+function isOurButton(name: string, button: { name: string }): boolean {
+  // 按钮名里带版本号, 所以按前缀匹配: 远端发了新版后, 旧版本号的按钮才不会残留
+  return button.name.startsWith(getUpdateButtonPrefix(name)) || button.name === CHANGELOG_BUTTON_NAME;
+}
 
-  const buttons = [makeUpdatePreset(data), makeShowChangelog(data)];
-  if (should_update) {
-    buttons.forEach(button => {
+//----------------------------------------------------------------------------------------------------------------------
+function clearButtons(name: string): void {
+  getScriptButtons()
+    .filter(button => isOurButton(name, button))
+    .forEach(button => {
       eventClearEvent(getButtonEvent(button.name));
-      eventOn(getButtonEvent(button.name), button.function);
     });
-    replaceScriptButtons(
-      _(getScriptButtons())
-        .filter(button => buttons.every(b => b.name !== button.name))
-        .concat(buttons.map(button => ({ name: button.name, visible: true })))
-        .value(),
-    );
+  replaceScriptButtons(getScriptButtons().filter(button => !isOurButton(name, button)));
+}
+
+async function updateButtons(data: Data): Promise<void> {
+  clearButtons(data.name);
+
+  const should_update = !getPresetNames().includes(data.name);
+  if (!should_update) {
     return;
   }
+
+  const buttons = [makeUpdatePreset(data), makeShowChangelog(data)];
   buttons.forEach(button => {
-    eventClearEvent(getButtonEvent(button.name));
+    eventOn(getButtonEvent(button.name), button.function);
   });
-  replaceScriptButtons(
-    _(getScriptButtons())
-      .filter(button => buttons.every(b => b.name !== button.name))
-      .value(),
-  );
+  replaceScriptButtons([...getScriptButtons(), ...buttons.map(button => ({ name: button.name, visible: true }))]);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -99,20 +107,19 @@ async function fetchServerWithError<T extends 'text' | 'blob'>(
   url: string,
   type: T,
 ): Promise<T extends 'text' ? string : Blob> {
-  // 被墙或抽风的 CDN 域不是报错而是挂死, 不加超时按钮就永远不出现
+  // 被墙或抽风的 CDN 域不是报错而是挂死, 不加超时按钮就永远不出现; 超时要管到正文读完, 不然传到一半卡住照样挂死
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-  let response: Response;
   try {
-    response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+    const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+    if (!response.ok) {
+      throw new Error(`(${response.status}) ${await response.text()}`);
+    }
+    // @ts-expect-error 类型正确
+    return type === 'text' ? await response.text() : await response.blob();
   } finally {
     clearTimeout(timer);
   }
-  if (response.ok) {
-    // @ts-expect-error 类型正确
-    return type === 'text' ? response.text() : response.blob();
-  }
-  throw new Error(`检测自动更新预设失败: (${response.status}) ${await response.text()}`);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
