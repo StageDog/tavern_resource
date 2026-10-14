@@ -13,7 +13,7 @@ const Settings = z
 
 type Data = {
   name: string;
-  content: string;
+  preset_url: string;
   changelog: string;
 };
 
@@ -30,7 +30,15 @@ function makeUpdatePreset(data: Data): Button {
       if (getPresetNames().includes(data.name)) {
         return;
       }
-      const success = await importRawPreset(data.name, data.content);
+      // 点了才拉预设: 每次开预设都拉整张预设既浪费流量, 又会拉到和更新日志不同步的缓存
+      let content: string;
+      try {
+        content = await fetchServerWithError(data.preset_url, 'text');
+      } catch (error) {
+        toastr.error(`拉取预设失败: ${error instanceof Error ? error.message : String(error)}`);
+        return;
+      }
+      const success = await importRawPreset(data.name, content);
       if (!success) {
         toastr.error('更新预设失败, 请刷新重试');
         return;
@@ -85,16 +93,26 @@ async function updateButtons(data: Data): Promise<void> {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+const FETCH_TIMEOUT_MS = 15000;
+
 async function fetchServerWithError<T extends 'text' | 'blob'>(
   url: string,
   type: T,
 ): Promise<T extends 'text' ? string : Blob> {
-  const response = await fetch(url, { cache: 'no-cache' });
+  // 被墙或抽风的 CDN 域不是报错而是挂死, 不加超时按钮就永远不出现
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
   if (response.ok) {
     // @ts-expect-error 类型正确
     return type === 'text' ? response.text() : response.blob();
   }
-  throw new Error(`(${response.status}) ${await response.text()}`);
+  throw new Error(`检测自动更新预设失败: (${response.status}) ${await response.text()}`);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -111,9 +129,10 @@ $(
     }
 
     const changelog = await fetchServerWithError(settings.更新日志链接, 'text');
+    const version = changelog.match(/^##\s*(.*)\s*$/m)?.[1]?.trim() ?? '';
     const data: Data = {
-      name: `${settings.预设名称}` + (changelog.match(/^##\s*(.*)\s*$/m)?.[1] ?? ''),
-      content: await fetchServerWithError(settings.预设链接, 'text'),
+      name: `${settings.预设名称}` + version,
+      preset_url: settings.预设链接.replaceAll('{version}', encodeURIComponent(version)),
       changelog,
     };
 

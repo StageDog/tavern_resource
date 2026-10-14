@@ -25,15 +25,13 @@ interface Button {
   function: (() => void) | (() => Promise<void>);
 }
 
-const FETCH_TIMEOUT_MS = 15000;
-
 //----------------------------------------------------------------------------------------------------------------------
-function updateButtonPrefix(name: string): string {
+function getUpdateButtonPrefix(name: string): string {
   return `更新角色卡: ${name}`;
 }
 
 /** 从角色卡文件里读出它自己声明的版本号 (`data.character_version`); 读不出来返回 null */
-async function readCardVersion(content: Blob): Promise<string | null> {
+async function getVersionFromCard(content: Blob): Promise<string | null> {
   const buffer = new Uint8Array(await content.arrayBuffer());
   const parseVersion = (text: string): string | null => {
     try {
@@ -46,7 +44,8 @@ async function readCardVersion(content: Blob): Promise<string | null> {
   };
 
   // json 卡
-  const is_png = buffer.length > 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
+  const is_png =
+    buffer.length > 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
   if (!is_png) {
     return parseVersion(new TextDecoder().decode(buffer));
   }
@@ -70,9 +69,11 @@ async function readCardVersion(content: Blob): Promise<string | null> {
       if (separator > 0) {
         const keyword = latin1.decode(chunk.subarray(0, separator));
         if (keyword === 'ccv3' || keyword === 'chara') {
-          let decoded: string | null = null;
+          let decoded: string | null;
           try {
-            decoded = new TextDecoder().decode(Uint8Array.from(atob(latin1.decode(chunk.subarray(separator + 1))), c => c.charCodeAt(0)));
+            decoded = new TextDecoder().decode(
+              Uint8Array.from(atob(latin1.decode(chunk.subarray(separator + 1))), c => c.charCodeAt(0)),
+            );
           } catch {
             decoded = null;
           }
@@ -97,7 +98,7 @@ async function readCardVersion(content: Blob): Promise<string | null> {
 //----------------------------------------------------------------------------------------------------------------------
 function makeUpdateCharacter(data: Data): Button {
   return {
-    name: `${updateButtonPrefix(data.name)}${data.version}`,
+    name: `${getUpdateButtonPrefix(data.name)}${data.version}`,
     function: async () => {
       const primary = getCharWorldbookNames('current').primary;
       if (primary) {
@@ -135,10 +136,10 @@ function makeUpdateCharacter(data: Data): Button {
       }
 
       // 校验卡里自己声明的版本号: 更新日志说是新版、拉到的却是 CDN 缓存的旧卡时, 不能把旧内容贴上新版本号 (否则玩家会被锁死在假版本上)
-      const card_version = await readCardVersion(content);
+      const card_version = await getVersionFromCard(content);
       if (card_version !== null && card_version !== data.version) {
         toastr.error(
-          `更新中止: 拉到的角色卡版本是 '${card_version}', 更新日志里的最新版本是 '${data.version}'. 多半是链接被 CDN 缓存了, 请稍后重试`,
+          `更新中止: 拉到的角色卡版本是 '${card_version}', 更新日志里的最新版本是 '${data.version}'. 可能是旧角色卡在网络缓存中还存在, 请稍后重试`,
         );
         return;
       }
@@ -175,7 +176,7 @@ async function updateButtons(data: Data): Promise<void> {
     .then(character => character.version.trim() || '0.0.0')
     .catch(() => '0.0.0');
 
-  let should_update = false;
+  let should_update;
   try {
     should_update = compare(current_version, data.version, '<');
   } catch (error) {
@@ -184,7 +185,7 @@ async function updateButtons(data: Data): Promise<void> {
   const buttons = [makeUpdateCharacter(data), makeShowChangelog(data)];
   // 按钮名里带版本号, 所以清理时按前缀匹配: 远端发了新版后, 旧版本号的按钮才不会残留
   const is_ours = (button: { name: string }) =>
-    button.name.startsWith(updateButtonPrefix(data.name)) || buttons.some(b => b.name === button.name);
+    button.name.startsWith(getUpdateButtonPrefix(data.name)) || buttons.some(b => b.name === button.name);
   getScriptButtons()
     .filter(is_ours)
     .forEach(button => {
@@ -210,6 +211,8 @@ async function updateButtons(data: Data): Promise<void> {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+const FETCH_TIMEOUT_MS = 15000;
+
 async function fetchServerWithError<T extends 'text' | 'blob'>(
   url: string,
   type: T,
@@ -227,7 +230,7 @@ async function fetchServerWithError<T extends 'text' | 'blob'>(
     // @ts-expect-error 类型正确
     return type === 'text' ? response.text() : response.blob();
   }
-  throw new Error(`(${response.status}) ${await response.text()}`);
+  throw new Error(`检测自动更新角色卡失败: (${response.status}) ${await response.text()}`);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -249,7 +252,7 @@ $(
     const data: Data = {
       name: settings.角色卡名称,
       version,
-      // 链接里可以写 `{version}` 占位符, 指向不可变的版本路径 (如 `@v{version}/角色卡.png`), 从根上避免 CDN 缓存的旧卡
+      // 链接里可以写 `{version}` 占位符, 指向不可变的版本路径 (如 `@{version}/角色卡.png`), 从根上避免 CDN 缓存的旧卡
       card_url: settings.角色卡链接.replaceAll('{version}', encodeURIComponent(version)),
       changelog,
     };
