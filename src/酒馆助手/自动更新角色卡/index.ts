@@ -98,17 +98,103 @@ function base64FromUtf8(text: string): string {
   return btoa(binary);
 }
 
-// 1x1 透明 png, 实在拿不到角色现有头像时才用
-const FALLBACK_AVATAR_BASE64 =
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
-
 function isPng(buffer: Uint8Array): boolean {
   return buffer.length >= 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
 }
 
 /**
+ * 这张卡在酒馆里的真实文件名. 同一张卡导入过两次, 酒馆会把第二张存成 `卡名1.png`;
+ * 这时按卡名去拿头像会拿错 (404), 按卡名导入则会写进 `卡名.png`, 另外新建一张同名卡, 玩家的聊天还挂在原来那张上.
+ * 优先认当前打开的这张 (脚本就挂在它身上), 其次按卡名找
+ */
+function getAvatarFile(name: string): string {
+  try {
+    const current = SillyTavern.characters[Number(SillyTavern.characterId)];
+    if (current?.name === name && current.avatar) {
+      return current.avatar;
+    }
+    const found = SillyTavern.characters.find(character => character.name === name);
+    if (found?.avatar) {
+      return found.avatar;
+    }
+  } catch {
+    // 拿不到就按卡名猜
+  }
+  return `${name}.png`;
+}
+
+/**
+ * importRawCharacter 被 "角色卡 '卡名1' 不存在" 打断时, 补上它没做完的: 刷新角色、重存嵌入世界书、刷新当前聊天.
+ * 先按文件名找到这张卡、核对版本号, 确认新卡真的写进去了; 对不上就算失败
+ */
+async function finishImport(avatar_file: string, old_worldbook: string | undefined, version: string | null): Promise<boolean> {
+  const context = SillyTavern as typeof SillyTavern & { getOneCharacter?: (avatar: string) => Promise<void> };
+  await context.getCharacters();
+  // 酒馆开了 "懒加载角色" 时列表里只有简要信息, 要单独拉这张的完整数据才有世界书
+  await context.getOneCharacter?.(avatar_file);
+  const character = context.characters.find(character => character.avatar === avatar_file);
+  if (!character || (version !== null && character.data?.character_version !== version)) {
+    return false;
+  }
+  const book = character.data?.character_book;
+  if (old_worldbook && book?.name && getWorldbookNames().includes(old_worldbook)) {
+    await context.saveWorldInfo(book.name, context.convertCharacterBook(book), true);
+    context.reloadWorldInfoEditor(book.name);
+  }
+  if (context.characters[Number(context.characterId)]?.avatar === avatar_file) {
+    await context.reloadCurrentChat();
+  }
+  return true;
+}
+
+/** 角色现有头像文件的地址: 先用真实文件名, 再按卡名猜 */
+function getAvatarUrls(name: string): string[] {
+  const urls: string[] = [`/characters/${encodeURIComponent(getAvatarFile(name))}`];
+  try {
+    const path = typeof getCharAvatarPath === 'function' ? getCharAvatarPath(name) : null;
+    if (path) {
+      urls.push(path);
+    }
+  } catch {
+    // 拿不到就用下面的猜法
+  }
+  urls.push(`/characters/${encodeURIComponent(`${name}.png`)}`);
+  // 脚本跑在 iframe 里, 相对地址按酒馆页面的地址解析, 免得 iframe 的 base 不对
+  let origin = window.location.origin;
+  try {
+    origin = window.parent.location.origin;
+  } catch {
+    // 跨域就用自己的
+  }
+  return _.uniq(urls).map(url => new URL(url, origin).href);
+}
+
+async function fetchAvatar(name: string): Promise<Uint8Array> {
+  const reasons: string[] = [];
+  for (const url of getAvatarUrls(name)) {
+    try {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) {
+        reasons.push(`${url} → ${response.status}`);
+        continue;
+      }
+      const image = new Uint8Array(await response.arrayBuffer());
+      if (isPng(image)) {
+        return image;
+      }
+      reasons.push(`${url} → 不是 png`);
+    } catch (error) {
+      reasons.push(`${url} → ${getErrorMessage(error)}`);
+    }
+  }
+  console.warn('[自动更新角色卡] 拿不到角色现有的头像:', reasons);
+  throw new Error('拿不到这张卡现在的头像, 为了不把头像换掉, 这次没有更新, 请刷新重试 (作者把角色卡链接换成 png 卡可以根治)');
+}
+
+/**
  * 把 json 卡包进 png 卡: 酒馆助手的 `importRawCharacter` 只会按 png 导入, 喂 json 会导入失败.
- * 图片用角色现有的头像, 这样更新后头像不会变; 原图里旧的角色卡块会被去掉, 换成新卡的内容
+ * 图片用角色现有的头像, 这样更新后头像不会变; 原图里旧的角色卡块会被去掉, 换成新卡的内容.
+ * 拿不到现有头像就不更新: 以前会拿一张 1x1 的图顶上, 结果玩家的头像变成一个蓝点, 比不更新还糟
  */
 async function wrapJsonCardIntoPng(name: string, json_text: string): Promise<Blob> {
   const card = JSON.parse(json_text);
@@ -116,21 +202,7 @@ async function wrapJsonCardIntoPng(name: string, json_text: string): Promise<Blo
     throw new Error('内容不是角色卡 json');
   }
 
-  let image: Uint8Array | null = null;
-  try {
-    const avatar = await getCharacter(name).then(character => character.avatar);
-    if (typeof avatar === 'string') {
-      const response = await fetch(`/characters/${encodeURIComponent(avatar)}`, { cache: 'no-store' });
-      if (response.ok) {
-        image = new Uint8Array(await response.arrayBuffer());
-      }
-    }
-  } catch {
-    image = null;
-  }
-  if (!image || !isPng(image)) {
-    image = Uint8Array.from(atob(FALLBACK_AVATAR_BASE64), c => c.charCodeAt(0));
-  }
+  const image = await fetchAvatar(name);
 
   const parts: Uint8Array[] = [image.subarray(0, PNG_SIGNATURE_LENGTH)];
   const encoded = base64FromUtf8(json_text);
@@ -270,19 +342,47 @@ function makeUpdateCharacter(data: Data): Button {
         try {
           content = await wrapJsonCardIntoPng(data.name, await content.text());
         } catch (error) {
-          toastr.error(`拉到的不是角色卡文件: ${getErrorMessage(error)}`);
+          toastr.error(`更新中止: ${getErrorMessage(error)}`);
           return;
         }
       }
 
-      // 酒馆导入失败时也可能返回 200 + `{error: true}`, 所以不能只看 Response 存不存在
-      const response = await importRawCharacter(data.name, content);
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || result?.error) {
+      // 按真实文件名导入: `卡名1.png` 这种重名卡按卡名导会另外新建一张 (见 getAvatarFile)
+      const avatar_file = getAvatarFile(data.name);
+      const old_worldbook = SillyTavern.characters.find(character => character.avatar === avatar_file)?.data?.extensions?.world;
+      let response: Response | null = null;
+      try {
+        response = await importRawCharacter(avatar_file.replace(/\.png$/i, ''), content);
+      } catch (error) {
+        // 酒馆助手的 importRawCharacter 导完会按 "去掉 .png 的文件名" 再找一次卡, `卡名1.png` 这种卡找不到, 会抛 "角色卡 '卡名1' 不存在".
+        // 这时文件多半已经写好, 只是后面的刷新和重存嵌入世界书被跳过了: 交给 finishImport 补上并核对
+        if (!/不存在/.test(getErrorMessage(error))) {
+          toastr.error(`更新角色卡失败: ${getErrorMessage(error)}`);
+          return;
+        }
+      }
+      if (response) {
+        // 酒馆导入失败时也可能返回 200 + `{error: true}`, 所以不能只看 Response 存不存在
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result?.error) {
+          toastr.error('更新角色卡失败, 请刷新重试');
+          return;
+        }
+      } else if (!(await finishImport(avatar_file, old_worldbook, card_version))) {
         toastr.error('更新角色卡失败, 请刷新重试');
         return;
+      } else {
+        // 正常路径会由酒馆助手重载脚本、按钮跟着清掉; 补救路径没有这一步, 不清的话 "更新角色卡" 按钮还留着, 像是没更新
+        clearButtons(data.name);
       }
-      await replaceCharacter(data.name, { version: card_version ?? data.version });
+      // 卡里自己带了版本号就不用再盖. 要盖时 replaceCharacter 会把传进去的名字写成卡名, 所以只有文件名就是 `卡名.png` 时才盖
+      if (card_version === null) {
+        if (avatar_file === `${data.name}.png`) {
+          await replaceCharacter(data.name, { version: data.version });
+        } else {
+          console.warn(`[自动更新角色卡] 卡里没写版本号, 文件名又是 '${avatar_file}', 没法安全地盖版本号; 下次打开可能还会提示更新`);
+        }
+      }
       toastr.success(`更新角色卡 '${data.name}' 成功`);
     },
   };
@@ -323,7 +423,8 @@ function clearButtons(name: string): void {
 async function updateButtons(data: Data): Promise<void> {
   clearButtons(data.name);
 
-  const current_version = await getCharacter(data.name)
+  // 按真实文件名找卡: 有两张同名卡时按卡名会找到另一张, 拿错版本号
+  const current_version = await getCharacter(getAvatarFile(data.name))
     .then(character => character.version.trim() || '0.0.0')
     .catch(() => '0.0.0');
 
