@@ -127,7 +127,11 @@ function getAvatarFile(name: string): string {
  * importRawCharacter 被 "角色卡 '卡名1' 不存在" 打断时, 补上它没做完的: 刷新角色、重存嵌入世界书、刷新当前聊天.
  * 先按文件名找到这张卡、核对版本号, 确认新卡真的写进去了; 对不上就算失败
  */
-async function finishImport(avatar_file: string, old_worldbook: string | undefined, version: string | null): Promise<boolean> {
+async function finishImport(
+  avatar_file: string,
+  old_worldbook: string | undefined,
+  version: string | null,
+): Promise<boolean> {
   const context = SillyTavern as typeof SillyTavern & { getOneCharacter?: (avatar: string) => Promise<void> };
   await context.getCharacters();
   // 酒馆开了 "懒加载角色" 时列表里只有简要信息, 要单独拉这张的完整数据才有世界书
@@ -188,7 +192,9 @@ async function fetchAvatar(name: string): Promise<Uint8Array> {
     }
   }
   console.warn('[自动更新角色卡] 拿不到角色现有的头像:', reasons);
-  throw new Error('拿不到这张卡现在的头像, 为了不把头像换掉, 这次没有更新, 请刷新重试 (作者把角色卡链接换成 png 卡可以根治)');
+  throw new Error(
+    '拿不到这张卡现在的头像, 为了不把头像换掉, 这次没有更新, 请刷新重试 (作者把角色卡链接换成 png 卡可以根治)',
+  );
 }
 
 /**
@@ -349,7 +355,8 @@ function makeUpdateCharacter(data: Data): Button {
 
       // 按真实文件名导入: `卡名1.png` 这种重名卡按卡名导会另外新建一张 (见 getAvatarFile)
       const avatar_file = getAvatarFile(data.name);
-      const old_worldbook = SillyTavern.characters.find(character => character.avatar === avatar_file)?.data?.extensions?.world;
+      const old_worldbook = SillyTavern.characters.find(character => character.avatar === avatar_file)?.data?.extensions
+        ?.world;
       let response: Response | null = null;
       try {
         response = await importRawCharacter(avatar_file.replace(/\.png$/i, ''), content);
@@ -380,7 +387,9 @@ function makeUpdateCharacter(data: Data): Button {
         if (avatar_file === `${data.name}.png`) {
           await replaceCharacter(data.name, { version: data.version });
         } else {
-          console.warn(`[自动更新角色卡] 卡里没写版本号, 文件名又是 '${avatar_file}', 没法安全地盖版本号; 下次打开可能还会提示更新`);
+          console.warn(
+            `[自动更新角色卡] 卡里没写版本号, 文件名又是 '${avatar_file}', 没法安全地盖版本号; 下次打开可能还会提示更新`,
+          );
         }
       }
       toastr.success(`更新角色卡 '${data.name}' 成功`);
