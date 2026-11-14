@@ -36,7 +36,7 @@ $(() => {
     ) => {
       return await get_and_invoke(
         options,
-        (await triggerSlash(`/buttons labels=${JSON.stringify(Object.keys(options))} ${prompt}`)) as string,
+        (await triggerSlash(`/buttons labels=${JSON.stringify(Object.keys(options))} ${substitudeMacros(prompt)}`)) as string,
       );
     };
 
