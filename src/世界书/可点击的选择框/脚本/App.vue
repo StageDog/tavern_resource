@@ -30,9 +30,6 @@ const props = defineProps<{ messageId: number; options: RoleplayOption[] }>();
 const store = useConfigStore();
 
 async function handleClick(item: RoleplayOption) {
-  if (getLastMessageId() !== props.messageId) {
-    return;
-  }
   switch (store.config.输入方式) {
     case '直接发送':
       triggerSlash(`/send ${item.content} || /trigger`);
